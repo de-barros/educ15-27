@@ -147,7 +147,36 @@
 
   near("Every step is listed once", E.STEP_ORDER.length, Object.keys(E.STEPS).length, 1e-12);
   var stepNumbers = E.STEP_ORDER.map(function (k) { return E.STEPS[k].title.split(" ")[0]; });
-  ok("Steps run in order", stepNumbers.join(" ") === "1. 2. 3. 3b. 4. 5. 6. 7. 7b.", stepNumbers.join(" "));
+  ok("Steps run in order", stepNumbers.join(" ") === "1. 2. 3a. 3b. 4. 5. 6. 7a. 7b.", stepNumbers.join(" "));
+
+  // Gains: two scores per person ----
+
+  [[0.5, 15], [0.8, 9.486833], [0, 21.213203]].forEach(function (v) {
+    var pc = E.config({ step: "3p", n: 12, d: 0.4, rho: v[0] }), pr = E.makeRng(16), tr = E.truth(pc);
+    var sb = 0, sa = 0, sbb = 0, saa = 0, sba = 0, sg = 0, sgg = 0, sum = 0, whole = true;
+    near("SD of gains at ρ = " + v[0], tr.gainSd, v[1], 1e-5);
+    for (var i = 0; i < 4000; i++) {
+      var sm = E.drawSample(pc, pr);
+      sm.pre.forEach(function (b, j) {
+        var a = sm.post[j], g = sm.x[j];
+        if (Math.abs(a - b - g) > 1e-9) whole = false;
+        sb += b; sa += a; sbb += b * b; saa += a * a; sba += b * a; sg += g; sgg += g * g; sum++;
+      });
+    }
+    var mb = sb / sum, ma = sa / sum, vb = sbb / sum - mb * mb, va = saa / sum - ma * ma;
+    var mg = sg / sum, r = (sba / sum - mb * ma) / Math.sqrt(vb * va);
+    ok("A gain is after minus before", whole);
+    near("Mean before", mb, 100, 0.2);
+    near("Mean after", ma, 100 + 0.4 * v[1], 0.2);
+    near("SD before", Math.sqrt(vb), 15, 0.15);
+    near("SD after", Math.sqrt(va), 15, 0.15);
+    near("Correlation of before and after", r, v[0], 0.012);
+    near("SD of gains, simulated", Math.sqrt(sgg / sum - mg * mg), v[1], 0.2);
+  });
+  // A mean gain of 6 points at both correlations
+  var r5 = rejectRate({ step: "3p", n: 15, d: 6 / 15, rho: 0.5 }, N), r8 = rejectRate({ step: "3p", n: 15, d: 6 / 9.486833, rho: 0.8 }, N);
+  ok("The same gain is easier to detect when scores move together", r8 > r5 + 0.1);
+  near("Type I with strong pairing", rejectRate({ step: "3p", n: 10, d: 0, rho: 0.9 }, N), 0.05, tol);
 
   // Confidence intervals and the test agree ----
 

@@ -29,6 +29,10 @@ Each link opens the simulator ready to go. Before you press a button, predict wh
 
 - [A test with mean 500 and SD 100](../simulator/index.html?step=2&n=10&mu=500&sd=100&view=raw&draws=500). The means are on a new scale. Now set "Show the statistic as" to z. How does this compare with a test that has mean 100 and SD 15, or a GPA with mean 3 and SD 0.5? Type those values in to check.
 
+### Why do gains help?
+
+- [Before and after](../simulator/index.html?step=3p&n=15&d=0.4&draws=800). Each line in panel 2 is one person. Note how often we reject H₀. Then raise the correlation of before and after: the mean gain stays the same, but the gains get steadier, and rejections become more common.
+
 ### Does the population have to be normal?
 
 - [Means from a skewed population](../simulator/index.html?step=2&n=2&pop=rightskew&view=raw&draws=500). With n = 2 the means are still skewed. Raise n to 30 and draw again. This is the central limit theorem.

@@ -85,7 +85,7 @@
     "2": { n: 10, nMin: 1, nMax: 200, kind: "one", statName: "z", rawName: "M", views: ["raw", "stat"],
       title: "2. z-score for a sample mean" },
     "3": { n: 10, nMin: 2, nMax: 200, kind: "one", statName: "t", rawName: "M", views: ["stat"],
-      title: "3. t-score for a sample mean" },
+      title: "3a. t-score for a sample mean" },
     "3p": { n: 10, nMin: 2, nMax: 200, kind: "paired", statName: "t", rawName: "gain", views: ["stat"],
       title: "3b. t-score for gains (paired t-test)" },
     "4": { n: 10, nMin: 2, nMax: 200, kind: "two", statName: "t", rawName: "M₁ − M₂", views: ["raw", "stat"],
@@ -95,7 +95,7 @@
     "6": { n: 20, nMin: 4, nMax: 200, kind: "pairs", statName: "t", rawName: "r", views: ["raw", "stat"],
       title: "6. Correlation r" },
     "7": { n: 20, nMin: 4, nMax: 200, kind: "pairs", statName: "t", rawName: "b", views: ["raw", "stat"],
-      title: "7. Regression slope b" },
+      title: "7a. Regression slope b" },
     "7b": { n: 20, nMin: 4, nMax: 200, kind: "binary", statName: "t", rawName: "b", views: ["raw", "stat"],
       title: "7b. Regression slope b for a yes/no predictor" }
   };
@@ -103,7 +103,7 @@
   // JavaScript lists number-like keys first, so "3p" and "7b" need a set place
   var STEP_ORDER = ["1", "2", "3", "3p", "4", "5", "6", "7", "7b"];
 
-  var DEFAULTS = { step: "2", n: 10, d: 0, mu0: 100, sigma: 15, a0: 0, gm: null, pop: "normal", alpha: 0.05, tails: "two", view: "stat" };
+  var DEFAULTS = { step: "2", n: 10, d: 0, mu0: 100, sigma: 15, a0: 0, gm: null, rho: 0.5, pop: "normal", alpha: 0.05, tails: "two", view: "stat" };
 
   function config(opts) {
     var c = {}, k;
@@ -117,6 +117,7 @@
     c.sigma = Math.max(0.01, Math.min(10000, c.sigma));
     c.a0 = Math.max(-1000, Math.min(1000, c.a0));
     c.d = Math.max(-1000, Math.min(1000, c.d));
+    c.rho = Math.max(-0.95, Math.min(0.95, c.rho));
     if (st.views.indexOf(c.view) < 0) c.view = st.views[0];
     // An F test only has an upper tail
     if (st.kind === "three") c.tails = "right";
@@ -197,7 +198,11 @@
   function truth(c) {
     var k = c.meta.kind, d = c.d * c.sigma, m = c.mu0;
     if (k === "one") return { means: [m + d] };
-    if (k === "paired") return { means: [d] };
+    if (k === "paired") {
+      // Two scores per person: the more they move together, the steadier the gains
+      var gainSd = c.sigma * Math.sqrt(2 * (1 - c.rho)), gain = c.d * gainSd;
+      return { means: [gain], gainSd: gainSd, before: m, after: m + gain };
+    }
     if (k === "two") return { means: [m + d, m] };
     if (k === "three") return { means: c.gm || [m - d / 2, m, m + d / 2] };
     // A slope can be any size. Only a correlation stops at 1.
@@ -223,10 +228,19 @@
       }
       s.raw = s.M;
     } else if (k === "paired") {
-      s.x = drawGroup(c, rng, n, tr.means[0]);
+      // Each person's level moves both scores, and only the change moves the gain
+      var levelSd = c.sigma * Math.sqrt(2 * (1 + c.rho)), p;
+      s.x = new Array(n); s.pre = new Array(n); s.post = new Array(n);
+      for (p = 0; p < n; p++) {
+        var change = tr.gainSd * rng.normal(), level = levelSd * rng.normal();
+        s.pre[p] = tr.before + (level - change) / 2;
+        s.post[p] = tr.after + (level + change) / 2;
+        s.x[p] = s.post[p] - s.pre[p];
+      }
       res = S.tOneSample(s.x, 0);
       s.M = res.M; s.sdHat = res.sdHat; s.se = res.se; s.stat = res.t; s.raw = res.M;
       s.ss = S.sumSquares(s.x, s.M);
+      s.M1 = S.mean(s.pre); s.M2 = S.mean(s.post);
     } else if (k === "two") {
       s.a = drawGroup(c, rng, n, tr.means[0]);
       s.b = drawGroup(c, rng, n, tr.means[1]);

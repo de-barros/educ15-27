@@ -63,11 +63,11 @@
 
       <div class="field-row slide-hide" id="group-fields">
         <div class="field">
-          <label for="g1">Group 1 mean</label>
+          <label for="g1" id="g1-label">Group 1 mean</label>
           <input type="number" id="g1" min="-10000" max="10000" step="any">
         </div>
         <div class="field">
-          <label for="g2">Group 2 mean</label>
+          <label for="g2" id="g2-label">Group 2 mean</label>
           <input type="number" id="g2" min="-10000" max="10000" step="any">
         </div>
         <div class="field" id="g3-field">
@@ -85,6 +85,11 @@
           <label for="sd">SD &sigma;</label>
           <input type="number" id="sd" min="0.01" max="10000" step="any">
         </div>
+      </div>
+
+      <div class="field slide-hide" id="rho-field">
+        <label for="rho">Correlation of before and after, &rho;: <output id="rho-out" for="rho"></output></label>
+        <input type="range" id="rho" min="-0.95" max="0.95" step="0.01">
       </div>
 
       <div class="field-row slide-hide" id="line-fields">

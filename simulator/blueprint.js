@@ -80,7 +80,7 @@
 
   function configure(opts) {
     var old = state.c || {};
-    var c = E.config(Object.assign({}, old.step ? { step: old.step, n: old.n, d: old.d, pop: old.pop, mu0: old.mu0, sigma: old.sigma, a0: old.a0, gm: old.gm, alpha: old.alpha, tails: old.tails, view: old.view } : {}, opts));
+    var c = E.config(Object.assign({}, old.step ? { step: old.step, n: old.n, d: old.d, pop: old.pop, mu0: old.mu0, sigma: old.sigma, a0: old.a0, gm: old.gm, rho: old.rho, alpha: old.alpha, tails: old.tails, view: old.view } : {}, opts));
     state.c = c;
     // Scatter plots need height, so their two panels share a row
     document.querySelector("#view-blueprint .stage").classList.toggle("pairs", c.meta.kind === "pairs" || c.meta.kind === "binary");
@@ -186,7 +186,7 @@
       return { dots: dots, line: true, sc: sc, sx: q.x + sc.x(xm), sy: q.y + sc.y(ym), q: q, ymean: S.mean(s.y), xbar: S.mean(s.x) };
     }
     var dom = popAxis(c), x = D.scale(dom[0], dom[1], 14, q.w - 14);
-    var groups = k === "two" ? [s.a, s.b] : k === "three" ? s.groups : [s.x];
+    var groups = k === "paired" ? [s.pre, s.post] : k === "two" ? [s.a, s.b] : k === "three" ? s.groups : [s.x];
     var colors = [C.pop, C.pop2, C.pop3], rows = groups.length, rowH = (q.h - 30) / rows, centers = [];
     groups.forEach(function (list, gi) {
       var m = q.x + x(S.mean(list)), y = q.y + 6 + rowH * (gi + 0.5);
@@ -340,35 +340,35 @@
   // Panel 1: the population ----
 
   function popAxis(c) {
-    var k = c.meta.kind, center = k === "paired" ? 0 : c.mu0, s = c.sigma, extra = Math.abs(c.d) * s;
-    if (k === "three") {
-      var means = E.truth(c).means;
+    var k = c.meta.kind, s = c.sigma, extra = Math.abs(c.d) * s, tr = E.truth(c);
+    if (k === "three" || k === "paired") {
+      var means = k === "paired" ? [tr.before, tr.after] : tr.means;
       return [Math.min.apply(null, means) - 4 * s, Math.max.apply(null, means) + 4 * s];
     }
-    return [center - 4 * s - extra, center + 4 * s + extra];
+    return [c.mu0 - 4 * s - extra, c.mu0 + 4 * s + extra];
   }
 
   function renderPop() {
     var f = D.fit(document.getElementById("c-pop")), ctx = f.ctx, c = state.c, k = c.meta.kind;
-    var cap = document.getElementById("cap-pop"), truth = E.truth(c), p = E.population(c);
+    var cap = document.getElementById("cap-pop"), truth = E.truth(c), p = k === "paired" ? E.POPULATIONS.normal : E.population(c);
     var pad = 14, base = f.h - 24, top = 6, dashed = "#d8dde3";
 
     if (k === "pairs" || k === "binary") {
       renderPopPairs(ctx, f, c, truth);
     } else {
       var dom = popAxis(c), x = D.scale(dom[0], dom[1], pad, f.w - pad), colors = [C.pop, C.pop2, C.pop3];
-      var center = k === "paired" ? 0 : c.mu0;
+      var center = c.mu0, shown = k === "paired" ? [truth.before, truth.after] : truth.means;
       var peak = 0, i;
       for (i = -4; i <= 4; i += 0.02) peak = Math.max(peak, p.pdf(i));
       var nullFn = function (v) { return p.pdf((v - center) / c.sigma); };
-      truth.means.forEach(function (m, g) {
+      shown.forEach(function (m, g) {
         var fn = function (v) { return p.pdf((v - m) / c.sigma); };
         D.curve(ctx, fn, x, base, base - top, peak * 1.06, pad, f.w - pad, { fill: colors[g] + "33" });
         // Equal groups sit on top of each other, so let the ones below show through
-        var hides = truth.means.slice(0, g).indexOf(m) >= 0;
+        var hides = shown.slice(0, g).indexOf(m) >= 0;
         D.curve(ctx, fn, x, base, base - top, peak * 1.06, pad, f.w - pad, { color: colors[g], width: 2.2, dash: hides ? (g === 2 ? [4, 20] : [12, 12]) : null });
       });
-      if (c.d !== 0 && (k === "one" || k === "paired")) D.curve(ctx, nullFn, x, base, base - top, peak * 1.06, pad, f.w - pad, { color: dashed, dash: [5, 4], width: 1.5 });
+      if (c.d !== 0 && k === "one") D.curve(ctx, nullFn, x, base, base - top, peak * 1.06, pad, f.w - pad, { color: dashed, dash: [5, 4], width: 1.5 });
       D.xAxis(ctx, x, base, pad, f.w - pad, 9);
       if (state.hide) {
         ctx.fillStyle = "rgba(27, 31, 36, 0.86)";
@@ -380,7 +380,8 @@
     var bits, dec = 1 + extra(c);
     if (state.hide) bits = "We don't get to see this. We only have the sample.";
     else if (k === "one") bits = MU + " = " + D.fmt(truth.means[0], dec) + ", " + SIGMA + " = " + c.sigma + (c.d !== 0 ? ". Dashed: what H₀ claims (" + MU + " = " + c.mu0 + ")" : "");
-    else if (k === "paired") bits = "Gains: " + MU + " = " + D.fmt(truth.means[0], dec) + ", " + SIGMA + " = " + c.sigma + (c.d !== 0 ? ". Dashed: H₀ (no gain)" : "");
+    else if (k === "paired") bits = "Before: " + MU + " = " + D.fmt(truth.before, dec) + ", after: " + MU + " = " + D.fmt(truth.after, dec) + ", " + SIGMA + " = " + c.sigma + ", " + RHO + " = " + D.fmt(c.rho) +
+      ". So gains have " + MU + " = " + D.fmt(truth.means[0], dec) + " and " + SIGMA + " = " + D.fmt(truth.gainSd, dec) + ", d = " + D.fmt(c.d);
     else if (k === "two") bits = MU + "₁ = " + D.fmt(truth.means[0], dec) + ", " + MU + "₂ = " + D.fmt(truth.means[1], dec) + ", " + SIGMA + " = " + c.sigma + ", d = " + D.fmt(c.d);
     else if (k === "three") bits = "Group means " + truth.means.map(function (m) { return D.fmt(m, dec); }).join(", ") + ", " + SIGMA + " = " + c.sigma;
     else if (k === "binary") bits = lineText("Y", truth.intercept, truth.beta) + ". Intercept: the mean at X = 0. Slope β = " + D.fmt(truth.beta) + ": the gap";
@@ -464,13 +465,27 @@
       renderScatter(ctx, f, c, s);
     } else {
       var dom = popAxis(c), x = D.scale(dom[0], dom[1], pad, f.w - pad), groups, colors = [C.pop, C.pop2, C.pop3];
-      if (k === "two") groups = [s.a, s.b];
+      if (k === "paired") groups = [s.pre, s.post];
+      else if (k === "two") groups = [s.a, s.b];
       else if (k === "three") groups = s.groups;
       else groups = [s.x];
       var rows = groups.length, rowH = (base - 6) / rows;
+      if (k === "paired") {
+        // One line per person, from their first score to their second
+        ctx.strokeStyle = C.muted;
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = c.n > 60 ? 0.3 : 0.6;
+        s.pre.forEach(function (v, i) {
+          ctx.beginPath();
+          ctx.moveTo(x(v), 6 + rowH * 0.5);
+          ctx.lineTo(x(s.post[i]), 6 + rowH * 1.5);
+          ctx.stroke();
+        });
+        ctx.globalAlpha = 1;
+      }
       groups.forEach(function (g, i) {
         var y = 6 + rowH * (i + 0.5), color = rows === 1 ? C.dot : colors[i], m = S.mean(g);
-        if (rows > 1) D.text(ctx, "Group " + (i + 1), pad, y, { color: color, base: "middle" });
+        if (rows > 1) D.text(ctx, k === "paired" ? ["Before", "After"][i] : "Group " + (i + 1), pad, y, { color: color, base: "middle" });
         ctx.fillStyle = color;
         g.forEach(function (v) {
           ctx.beginPath();
@@ -581,7 +596,9 @@
       out.push("M = " + f(s.M, one));
       if (s.sdHat !== undefined) out.push(HAT + " = " + f(s.sdHat, one));
       out.push(SIGMA + "<sub>M</sub> = " + f(s.se, two), "z = <b>" + f(s.stat) + "</b>");
-    } else if (k === "one" || k === "paired") {
+    } else if (k === "paired") {
+      out.push("M before = " + f(s.M1, one), "M after = " + f(s.M2, one), "Mean gain = " + f(s.M, one), HAT + " of gains = " + f(s.sdHat, one), hatM() + " = " + f(s.se, two), "t(" + (c.n - 1) + ") = <b>" + f(s.stat) + "</b>");
+    } else if (k === "one") {
       out.push("M = " + f(s.M, one), HAT + " = " + f(s.sdHat, one), hatM() + " = " + f(s.se, two), "t(" + (c.n - 1) + ") = <b>" + f(s.stat) + "</b>");
     } else if (k === "two") {
       out.push("M₁ = " + f(s.M1, one), "M₂ = " + f(s.M2, one), "M₁ − M₂ = " + f(s.raw, one),
@@ -747,7 +764,7 @@
   function truthOf(c) {
     var k = c.meta.kind, tr = E.truth(c), s = c.sigma, n = c.n;
     if (k === "one") return { value: tr.means[0], se: s / Math.sqrt(n), name: c.step === "1" ? "X" : "M" };
-    if (k === "paired") return { value: tr.means[0], se: s / Math.sqrt(n), name: "Gain" };
+    if (k === "paired") return { value: tr.means[0], se: tr.gainSd / Math.sqrt(n), name: "Gain" };
     if (k === "two") return { value: tr.means[0] - tr.means[1], se: s * Math.sqrt(2 / n), name: "M₁ − M₂" };
     if (c.step === "6") return { value: tr.rho, se: null, name: "r" };
     if (c.step === "7") return { value: tr.beta, se: null, name: "b" };
@@ -769,10 +786,11 @@
       rows += row3("SD of " + t.name, f(sd, dec), t.se === null ? "–" : f(t.se, dec));
     }
     if (state.nEst > 1 && c.n > 1) {
-      var true2 = f(c.sigma * c.sigma, sq);
+      // For gains, these estimate the SD of the gains
+      var sdTrue = c.meta.kind === "paired" ? E.truth(c).gainSd : c.sigma, true2 = f(sdTrue * sdTrue, sq);
       rows += row3(HAT + "² = SS / (n − 1)", f(state.sumVarHat / state.nEst, 1 + sq), true2);
       rows += row3("SS / n", f(state.sumSSn / state.nEst, 1 + sq), true2);
-      rows += row3(HAT, f(state.sumSdHat / state.nEst, 2 + e), f(c.sigma, e));
+      rows += row3(HAT, f(state.sumSdHat / state.nEst, 2 + e), f(sdTrue, e));
     }
     if (c.meta.kind === "three") {
       var within = c.sigma * c.sigma, tr = E.truth(c), mean3 = S.mean(tr.means);

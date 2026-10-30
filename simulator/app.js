@@ -1,7 +1,7 @@
 // Wires the interface to the views, and reads and writes the URL, so that a
 // slide can open any view in a preset state.
 //
-// Parameters: tab, ui=slide, theme=light (for printing), step, n, d, pop, mu, sd, a,
+// Parameters: tab, ui=slide, theme=light (for printing), step, n, d, pop, mu, sd, a, rho,
 // gm (three group means, such as 100,100,115), alpha, tails, view, hide, draws, seed.
 // Example: index.html?ui=slide&step=2&n=10&draws=551
 (function (root) {
@@ -36,11 +36,18 @@
   // How far apart the highest and lowest group means are
   function range(means) { return Math.max.apply(null, means) - Math.min.apply(null, means); }
 
-  // Type one group's mean, and keep the others where they are
+  // The means in the boxes: one per group, or before and after for gains
+  function boxMeans(c) {
+    var t = E.truth(c);
+    return c.meta.kind === "paired" ? [t.before, t.after] : t.means.slice();
+  }
+
+  // Type one mean, and keep the others where they are
   function setGroup(i, v) {
-    var c = B.state.c, means = E.truth(c).means.slice();
+    var c = B.state.c, means = boxMeans(c);
     means[i] = v;
     if (c.meta.kind === "two") update({ mu0: means[1], d: (means[0] - means[1]) / c.sigma });
+    else if (c.meta.kind === "paired") update({ mu0: means[0], d: (means[1] - means[0]) / E.truth(c).gainSd });
     else update({ gm: means });
   }
 
@@ -55,16 +62,21 @@
     var c = B.state.c, m = c.meta, pairs = m.kind === "pairs" || m.kind === "binary";
     $("step").value = c.step;
     $("pop").value = c.pop;
-    $("pop-field").style.display = pairs ? "none" : "";
+    $("pop-field").style.display = pairs || m.kind === "paired" ? "none" : "";
     // Scatter plots are in SD units, and gains have H0 at zero
     $("scale-fields").style.display = pairs ? "none" : "";
     // With groups, H0 says they're equal, so it needs no value of its own
-    var two = m.kind === "two", three = m.kind === "three", groups = two || three;
+    var paired = m.kind === "paired", two = m.kind === "two", three = m.kind === "three", groups = paired || two || three;
     $("group-fields").style.display = groups ? "" : "none";
     $("group-fields").classList.toggle("three", three);
     $("g3-field").style.display = three ? "" : "none";
-    $("mu-field").style.display = m.kind === "paired" || groups ? "none" : "";
-    if (groups) E.truth(c).means.forEach(function (v, i) { $("g" + (i + 1)).value = +v.toFixed(6); });
+    $("mu-field").style.display = groups ? "none" : "";
+    $("g1-label").textContent = paired ? "Mean before" : "Group 1 mean";
+    $("g2-label").textContent = paired ? "Mean after" : "Group 2 mean";
+    if (groups) boxMeans(c).forEach(function (v, i) { $("g" + (i + 1)).value = +v.toFixed(6); });
+    $("rho-field").style.display = paired ? "" : "none";
+    $("rho").value = c.rho;
+    $("rho-out").textContent = root.SimDraw.fmt(c.rho);
     $("mu").value = c.mu0;
     $("sd").value = c.sigma;
     // A line's intercept and slope can be anything, so they're boxes, not sliders
@@ -79,7 +91,7 @@
     $("n").disabled = m.nMin === m.nMax;
     $("n-out").textContent = c.n;
     $("n-unit").textContent = m.kind === "two" || m.kind === "three" ? "group" : "sample";
-    $("d").min = m.kind === "pairs" ? -0.9 : three ? 0 : two ? -3 : -1.5;
+    $("d").min = m.kind === "pairs" ? -0.9 : three ? 0 : groups ? -3 : -1.5;
     $("d").max = m.kind === "pairs" ? 0.9 : groups ? 3 : 1.5;
     // The spread of three means can't be negative
     var shown = three ? range(E.truth(c).means) / c.sigma : c.d;
@@ -129,9 +141,14 @@
       var v = parseFloat(this.value), c = B.state.c;
       // Group means stay where they were typed, so the same gap gives a new d
       if (!(v > 0)) syncControls();
-      else if (c.meta.kind === "two") update({ sigma: v, d: c.d * c.sigma / v });
+      else if (c.meta.kind === "two" || c.meta.kind === "paired") update({ sigma: v, d: c.d * c.sigma / v });
       else if (c.meta.kind === "three") update({ sigma: v, gm: E.truth(c).means.slice() });
       else update({ sigma: v });
+    };
+    // A stronger correlation steadies the gains, so the same mean gain is a bigger d
+    $("rho").oninput = function () {
+      var r = parseFloat(this.value), c = B.state.c;
+      update({ rho: r, d: E.truth(c).means[0] / (c.sigma * Math.sqrt(2 * (1 - r))) });
     };
     [0, 1, 2].forEach(function (i) {
       $("g" + (i + 1)).onchange = function () {
@@ -288,6 +305,7 @@
       if (c.mu0 !== 100) q.set("mu", c.mu0);
       if (c.sigma !== 15) q.set("sd", c.sigma);
       if (c.a0) q.set("a", c.a0);
+      if (c.meta.kind === "paired" && c.rho !== 0.5) q.set("rho", c.rho);
       if (c.alpha !== 0.05) q.set("alpha", c.alpha);
       if (c.tails !== "two") q.set("tails", c.tails);
       if (c.view !== "stat") q.set("view", c.view);
@@ -359,7 +377,7 @@
     B.configure({
       step: step, n: num("n", meta.n), d: tab === "blueprint" ? num("d", 0) : 0, pop: params.get("pop") || "normal",
       mu0: num("mu", 100), sigma: num("sd", 15) > 0 ? num("sd", 15) : 15, a0: num("a", 0),
-      gm: params.get("gm") ? params.get("gm").split(",").map(parseFloat) : null,
+      gm: params.get("gm") ? params.get("gm").split(",").map(parseFloat) : null, rho: num("rho", 0.5),
       alpha: tab === "blueprint" ? num("alpha", 0.05) : 0.05, tails: params.get("tails") || "two",
       view: params.get("view") || meta.views[meta.views.length - 1]
     });
