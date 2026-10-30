@@ -31,6 +31,7 @@ Run commands from the project root. Outside RStudio, set `RSTUDIO_PANDOC="C:/Pro
 
 `slides/00-template.Rmd` shows the setup: YAML header, chunk options, title slide, section slides, math, and a plot. Delete it once real decks exist. The best examples of finished decks are `..\educ265-27\slides\05-01.Rmd`, `06-01.Rmd` and `10-01.Rmd`.
 
+- **Rhythm:** each 80-minute session runs about 20 minutes of talk then about 6 of doing, three times. The doing is ungraded: predict it, try it (alone, then a neighbor, then vote), or play it (a quick Jeopardy category by poll). Plan about one real poll per session, because the user has to create those, and use hands or a neighbor for the rest. Nothing scored happens in lecture.
 - **Canvas:** slides are 1210 × 681 px. Under a title there's about 495 px of usable height, or about 450 px with a source line. Size images with max-height classes, not fixed pixels.
 - **Theme classes:** `title title-N`, `section-title section-title-N`, `box-N`, `box-inv-N` (with `.medium`, `.small`, `.sp-after-half`), `.pull-left`, `.pull-right`, `.sr-only`. N runs from 1 to 8.
 - **Custom CSS** goes in a `{css}` chunk at the *end* of the Rmd. Any output before the first slide's `class:` line makes remark print the properties as text.
