@@ -41,6 +41,16 @@ Run commands from the project root. Outside RStudio, set `RSTUDIO_PANDOC="C:/Pro
 - **Live polls** use the `.poll-slide` and `.poll-answer` pattern in `06-01.Rmd`, which keeps answers out of the printed PDF. Poll Everywhere has two ids per poll; the button uses the presenter id. Students respond at PollEv.com/adb.
 - **After editing a deck, check every slide, the title slide included.** Rendering without an error doesn't mean the slide looks right.
 
+## The simulator
+
+`simulator/` is the course's own interactive tool, in plain JavaScript with no build step and no dependencies. Students use it at `resource/simulator.qmd`, and slides embed it. It replaces the rpsychologist.com screenshots from 2024, because those pages can't be embedded. Keep crediting Kristoffer Magnusson.
+
+- **On a slide:** add `css/simulator.css` to the deck's `css` list, `source(here::here("R", "slide-things.R"))` in a setup chunk, then call `sim_frame(alt = "...", step = 2, n = 10, draws = 551)` in a chunk with `results="asis"`. See the end of `slides/00-template.Rmd`. The "Copy a link to this view" button gives the parameters for any view.
+- **Printing:** `sim_frame()` also screenshots the preset in a light theme for the PDF, into `slides/img/sim/`. Delete those files after changing the tool, or the PDF keeps old screenshots.
+- **Canvas:** the single-file deck loads the simulator from the live site, so it needs the site deployed and an internet connection.
+- **Tests:** open `simulator/tests/index.html` through a local server. `simulator/tests/make_reference.R` writes the R values they check against. Run the tests after any change to `stats.js` or `engine.js`.
+- **Rebuilding:** {targets} doesn't track `simulator/`. After changing it, run `tar_invalidate("site")`.
+
 ## Accessibility
 
 UC requires WCAG 2.1 AA for all course materials already, regardless of the federal deadline (April 26, 2027).

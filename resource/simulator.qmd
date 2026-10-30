@@ -1,0 +1,68 @@
+---
+title: "Sampling simulator"
+description: "Draw samples from a population and watch the distribution of a statistic build up."
+toc: false
+page-layout: full
+---
+
+Almost everything in this course follows one blueprint. Start with a population, draw one sample, calculate a statistic, then ask: if we drew sample after sample, where would all those statistics land? This simulator lets you do that yourself.
+
+Press **+1** to draw a sample, then **+50** or **+500** to draw many. Click any dot to see the sample behind it. Change the population, the sample size or the true effect and draw again.
+
+```{=html}
+<p><a class="btn btn-primary" href="../simulator/index.html" target="_blank" rel="noopener">Open the simulator in a full window</a></p>
+<div class="simulator-frame">
+  <iframe src="../simulator/index.html" title="Sampling simulator" style="width: 100%; height: 860px; border: 1px solid #5b6570; border-radius: 6px;"></iframe>
+</div>
+```
+
+## Things to try
+
+Each link opens the simulator ready to go. Before you press a button, predict what will happen.
+
+### Why does a bigger sample help?
+
+- [Means of 5 observations](../simulator/index.html?step=2&n=5&view=raw&draws=500). Note how far the means spread. Then move the slider to 25 and draw again.
+- Compare the **SD of M** in the table with the true standard error, σ / √n. The standard error is the SD of all those sample means.
+
+### Does the population have to be normal?
+
+- [Means from a skewed population](../simulator/index.html?step=2&n=2&pop=rightskew&view=raw&draws=500). With n = 2 the means are still skewed. Raise n to 30 and draw again. This is the central limit theorem.
+
+### Why do we divide by n − 1?
+
+- [Samples of 5](../simulator/index.html?step=2&n=5&draws=2000). In the table, compare **SS / n** with **σ̂²**, and both with the true σ² of 225. Dividing by n falls short on average, and dividing by n − 1 lands on target. Then click a few dots: in some samples, SS / n overshoots.
+- Also look at **σ̂**. Even when σ̂² is right on average, its square root runs a little low.
+
+### Why do we need the t-distribution?
+
+- [z with the true σ](../simulator/index.html?step=2&n=5&draws=2000). About 5% of samples land beyond ±1.96.
+- [t with the estimate σ̂](../simulator/index.html?step=3&n=5&draws=2000). Same samples, same cutoffs, but now we use an estimate. Look at **Beyond ±1.96** in the table. Then raise n and watch the problem fade.
+
+### What does a p-value look like?
+
+- [Five percent of the time, by chance](../simulator/index.html?step=4&n=20&draws=1000). There is no effect here, yet about 5% of samples look significant. Those are Type I errors.
+- [A real effect](../simulator/index.html?step=4&n=20&d=0.5&draws=1000). Now the share beyond the cutoffs is the power.
+
+### Why is ANOVA a ratio of variances?
+
+- [No group differences](../simulator/index.html?step=5&n=10&draws=2000). Compare **MS within** and **MS between** in the table. Both estimate σ², so F hovers around 1.
+- [Real group differences](../simulator/index.html?step=5&n=10&d=1&draws=2000). MS within stays where it was, MS between grows, and F moves right.
+
+### How do correlation and regression relate?
+
+- [A slope with n = 20](../simulator/index.html?step=7&n=20&d=0.4&draws=800). Each dot is one estimate b. The true slope sits in the table.
+- [A yes/no predictor](../simulator/index.html?step=7b&n=20&d=0.5&draws=800). With a yes/no X, the slope is just the difference between two group means, and its t is the t from a two-sample test.
+- [Drag the points](../simulator/index.html?tab=correlation&r=0.6&n=12&resid=1). Pull one point far away, and see what happens to the line, r and the residuals. Then try it [with many points](../simulator/index.html?tab=correlation&r=0.6&n=200).
+
+### What does a confidence interval promise?
+
+- [100 intervals](../simulator/index.html?tab=intervals&n=10&draws=100). The population mean never moves. The intervals do. About 95% of them catch it.
+
+### What gives a study power?
+
+- [Four levers](../simulator/index.html?tab=power&d=0.89&n=10). Start at 80% power, then change alpha, the test, the sample size and the effect size one at a time.
+
+## Credit
+
+This simulator was written for EDUC 15. It was inspired by the visualizations of Kristoffer Magnusson at [R Psychologist](https://rpsychologist.com/viz/), including [p-values](https://rpsychologist.com/pvalue/), [statistical power](https://rpsychologist.com/d3/NHST/), [confidence intervals](https://rpsychologist.com/d3/CI/) and [correlation](https://rpsychologist.com/correlation/). They're well worth exploring too.

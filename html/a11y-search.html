@@ -17,6 +17,23 @@
   document.querySelectorAll("pre").forEach(function (el) {
     if (el.scrollWidth > el.clientWidth) el.setAttribute("tabindex", "0");
   });
+  // Pages with a sidebar get several navigation landmarks with no name, or
+  // the same name, so a screen reader can't tell them apart
+  document.querySelectorAll("nav.quarto-page-breadcrumbs").forEach(function (el, i) {
+    el.setAttribute("aria-label", i === 0 ? "Breadcrumb" : "Breadcrumb, in the page title");
+  });
+  [["nav.navbar", "Site"], [".quarto-secondary-nav", "Section menu"], ["#quarto-sidebar", "Pages in this section"],
+   ["nav.page-navigation", "Previous and next page"]].forEach(function (pair) {
+    var el = document.querySelector(pair[0]);
+    if (el) el.setAttribute("aria-label", pair[1]);
+  });
+  document.querySelectorAll("a.sidebar-item-toggle").forEach(function (el) {
+    el.setAttribute("role", "button");
+  });
+  // The mobile menu button is already a button, so it can't also be a menu
+  document.querySelectorAll(".navbar-toggler").forEach(function (el) {
+    el.removeAttribute("role");
+  });
   label();
   new MutationObserver(label).observe(document.body, { childList: true, subtree: true });
 })();

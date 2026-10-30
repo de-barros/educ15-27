@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "simulator",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8815", "--directory", "."],
+      "port": 8815
+    },
+    {
+      "name": "site",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8816", "--directory", "_site"],
+      "port": 8816
+    }
+  ]
+}

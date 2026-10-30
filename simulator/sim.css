@@ -1,0 +1,300 @@
+/* Dark theme for the sampling simulator. Every text and line color here
+   passes at least 4.5:1 on --panel and --bg. */
+:root {
+  --bg: #121417;
+  --panel: #1b1f24;
+  --line: #3a424c;
+  --text: #f2f4f6;
+  --muted: #bcc4cc;
+  --pop: #5ab4e5;
+  --pop2: #ffd200;
+  --pop3: #5fd6a0;
+  --accent: #ff8ac4;
+  --crit: #ff8a70;
+  --dot: #e6e9ec;
+  --focus: #ffd200;
+}
+
+:root.light {
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --line: #7d8894;
+  --text: #14181d;
+  --muted: #47505a;
+  --pop: #0064a4;
+  --accent: #b0126b;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Fira Sans Condensed", "Segoe UI", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.3;
+  display: flex;
+  flex-direction: column;
+}
+
+a { color: var(--pop); }
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 20px;
+  padding: 8px 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar h1 { margin: 0 0 6px; font-size: 1.15rem; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 2px; }
+
+.tabs button {
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  color: var(--muted);
+  padding: 6px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.tabs button[aria-selected="true"] {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+  font-weight: 700;
+}
+
+main { flex: 1; min-height: 0; display: flex; }
+
+.view {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 10px;
+  padding: 10px;
+}
+
+.view[hidden] { display: none; }
+
+.stage {
+  min-width: 0;
+  min-height: 460px;
+  display: grid;
+  grid-template-rows: minmax(0, 2.2fr) minmax(0, 2.2fr) minmax(0, 5fr);
+  gap: 8px;
+}
+
+.stage.single { grid-template-rows: minmax(0, 1fr); }
+
+.stage.pairs {
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.stage.pairs #panel-dist { grid-column: 1 / -1; }
+
+.panel {
+  margin: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+figcaption {
+  padding: 5px 10px 2px;
+  font-size: 0.95rem;
+  color: var(--muted);
+  min-height: 1.6em;
+}
+
+figcaption strong { color: var(--text); }
+
+.canvas-wrap { position: relative; flex: 1; min-height: 0; }
+
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.controls {
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 4px;
+}
+
+.field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+label { font-size: 0.95rem; color: var(--muted); }
+
+output { color: var(--text); font-weight: 700; }
+
+select, input[type="file"] {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid #7d8894;
+  border-radius: 4px;
+  padding: 5px;
+  font: inherit;
+  width: 100%;
+}
+
+input[type="range"] { width: 100%; accent-color: var(--pop); margin: 4px 0; }
+
+.check { display: flex; align-items: center; gap: 6px; }
+
+.check input { width: 18px; height: 18px; accent-color: var(--pop); margin: 0; }
+
+button {
+  background: #2a3038;
+  color: var(--text);
+  border: 1px solid #7d8894;
+  border-radius: 4px;
+  padding: 7px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover { background: #38404a; }
+
+button.primary { background: #1f5f85; border-color: var(--pop); font-weight: 700; }
+
+button.primary:hover { background: #276f9b; }
+
+button[aria-pressed="true"] { background: #6b2f4d; border-color: var(--accent); }
+
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+
+.draw-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+
+.draw-row.three { grid-template-columns: repeat(3, 1fr); }
+
+.browse-row { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+
+.readout {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 0.95rem;
+}
+
+.readout table { width: 100%; border-collapse: collapse; }
+
+.readout th { text-align: left; font-weight: 400; color: var(--muted); padding: 1px 6px 1px 0; }
+
+.readout td { text-align: right; font-weight: 700; padding: 1px 0; white-space: nowrap; }
+
+.readout table.three td { padding-left: 8px; }
+
+.readout thead th { text-align: right; font-size: 0.85rem; padding-left: 8px; }
+
+.readout thead th:first-child { padding: 0; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.readout h2 { margin: 0 0 3px; font-size: 0.95rem; color: var(--text); }
+
+.readout table + h2 { margin-top: 8px; }
+
+.credit, .hint { margin: 0; font-size: 0.85rem; color: var(--muted); }
+
+kbd {
+  border: 1px solid #7d8894;
+  border-radius: 3px;
+  padding: 0 4px;
+  font: inherit;
+}
+
+/* Inside a slide: panels fill the frame, with one bar of controls below */
+body.ui-slide { font-size: 15px; }
+
+/* The heading stays for screen readers, and the slide's title does the visual work */
+body.ui-slide .topbar {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+body.ui-slide .tabs { display: none; }
+
+body.ui-slide .view {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 6px;
+  padding: 4px;
+}
+
+body.ui-slide .stage { min-height: 0; }
+
+body.ui-slide .controls {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  overflow: visible;
+  padding: 0;
+}
+
+body.ui-slide .slide-hide { display: none; }
+
+body.ui-slide .draw-row { width: 260px; }
+
+body.ui-slide .slide-keep { width: 220px; }
+
+body.ui-slide .readout {
+  flex: 1;
+  min-width: 260px;
+  padding: 3px 8px;
+}
+
+body.ui-slide .readout h2, body.ui-slide .readout .extra { display: none; }
+
+body.ui-slide .readout table { display: block; }
+
+body.ui-slide .readout tbody { display: flex; flex-wrap: wrap; gap: 0 16px; }
+
+body.ui-slide .readout tr { display: flex; gap: 5px; }
+
+/* The screenshot for a printed slide has nothing to press */
+body.ui-print .controls { display: none; }
+
+@media (max-width: 760px) {
+  body { height: auto; }
+  .view { display: flex; flex-direction: column; }
+  .view[hidden] { display: none; }
+  .stage { height: 86vh; flex: none; }
+  .controls { overflow: visible; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

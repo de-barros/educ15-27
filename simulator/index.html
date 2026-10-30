@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sampling simulator</title>
+<meta name="description" content="Draw samples from a population and watch the distribution of a statistic build up.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;700&display=swap">
+<link rel="stylesheet" href="sim.css">
+</head>
+<body>
+<header class="topbar" aria-label="Simulator">
+  <h1>Sampling simulator</h1>
+  <div class="tabs" role="tablist" aria-label="Simulator views">
+    <button role="tab" id="tab-blueprint" aria-controls="view-blueprint" aria-selected="true">Blueprint</button>
+    <button role="tab" id="tab-power" aria-controls="view-power" aria-selected="false" tabindex="-1">Power</button>
+    <button role="tab" id="tab-intervals" aria-controls="view-intervals" aria-selected="false" tabindex="-1">Confidence intervals</button>
+    <button role="tab" id="tab-correlation" aria-controls="view-correlation" aria-selected="false" tabindex="-1">Correlation and regression</button>
+  </div>
+</header>
+
+<main aria-label="Simulator">
+  <section id="view-blueprint" class="view" role="tabpanel" aria-labelledby="tab-blueprint">
+    <div class="stage">
+      <figure class="panel" id="panel-pop">
+        <figcaption><strong>1. Population</strong> <span id="cap-pop"></span></figcaption>
+        <div class="canvas-wrap"><canvas id="c-pop" role="img"></canvas></div>
+      </figure>
+      <figure class="panel" id="panel-sample">
+        <figcaption><strong>2. One sample: calculate the statistic</strong> <span id="cap-sample" aria-live="polite"></span></figcaption>
+        <div class="canvas-wrap"><canvas id="c-sample" role="img"></canvas></div>
+      </figure>
+      <figure class="panel" id="panel-dist">
+        <figcaption><strong>3. Distribution of this statistic across samples</strong> <span id="cap-dist"></span></figcaption>
+        <div class="canvas-wrap"><canvas id="c-dist" role="application" tabindex="0"></canvas></div>
+      </figure>
+    </div>
+
+    <aside class="controls" aria-label="Simulator controls">
+      <div class="draw-row" role="group" aria-label="Draw samples">
+        <button id="draw-1" class="primary" aria-label="Draw 1 sample">+1</button>
+        <button id="draw-50" class="primary" aria-label="Draw 50 samples">+50</button>
+        <button id="draw-500" class="primary" aria-label="Draw 500 samples">+500</button>
+        <button id="clear">Clear</button>
+      </div>
+
+      <div class="field slide-keep">
+        <label for="n">Observations per sample: <output id="n-out" for="n"></output></label>
+        <input type="range" id="n" min="1" max="100" step="1">
+      </div>
+
+      <div class="field slide-hide">
+        <label for="step">What are we computing?</label>
+        <select id="step"></select>
+      </div>
+
+      <div class="field slide-hide" id="pop-field">
+        <label for="pop">Shape of the population</label>
+        <select id="pop"></select>
+      </div>
+
+      <div class="field slide-hide">
+        <label for="d"><span id="d-label">True effect</span>: <output id="d-out" for="d"></output></label>
+        <input type="range" id="d" min="-1.5" max="1.5" step="0.01">
+      </div>
+
+      <div class="field-row slide-hide">
+        <div class="field">
+          <label for="alpha">Alpha</label>
+          <select id="alpha">
+            <option value="0.1">0.10</option>
+            <option value="0.05">0.05</option>
+            <option value="0.01">0.01</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="tails">Test</label>
+          <select id="tails">
+            <option value="two">Two-tailed</option>
+            <option value="right">Upper tail</option>
+            <option value="left">Lower tail</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field slide-hide" id="view-field">
+        <label for="scale">Show the statistic as</label>
+        <select id="scale"></select>
+      </div>
+
+      <label class="check slide-hide"><input type="checkbox" id="hide"> Grey out the population (we can't see it)</label>
+
+      <div class="browse-row slide-hide" role="group" aria-label="Browse samples">
+        <button id="prev">Previous sample</button>
+        <button id="next">Next sample</button>
+      </div>
+
+      <div id="readout" class="readout" aria-live="polite"></div>
+
+      <button id="copy" class="slide-hide">Copy a link to this view</button>
+      <p class="credit slide-hide">Inspired by Kristoffer Magnusson's <a href="https://rpsychologist.com/pvalue/">p-value visualization</a> (MIT, CC0) at R Psychologist.</p>
+    </aside>
+  </section>
+
+  <section id="view-power" class="view" role="tabpanel" aria-labelledby="tab-power" hidden>
+    <div class="stage single">
+      <figure class="panel">
+        <figcaption><strong>Two worlds:</strong> <span id="cap-power">what H<sub>0</sub> predicts, and what would happen if the effect were real</span></figcaption>
+        <div class="canvas-wrap"><canvas id="c-power" role="img"></canvas></div>
+      </figure>
+    </div>
+    <aside class="controls" aria-label="Power controls">
+      <div class="field">
+        <label for="p-d">Effect size d: <output id="p-d-out" for="p-d"></output></label>
+        <input type="range" id="p-d" min="0" max="2" step="0.01">
+      </div>
+      <div class="field">
+        <label for="p-n">Sample size n: <output id="p-n-out" for="p-n"></output></label>
+        <input type="range" id="p-n" min="2" max="100" step="1">
+      </div>
+      <div class="field">
+        <label for="p-alpha">Alpha: <output id="p-alpha-out" for="p-alpha"></output></label>
+        <input type="range" id="p-alpha" min="0.01" max="0.2" step="0.01">
+      </div>
+      <div class="field">
+        <label for="p-tails">Test</label>
+        <select id="p-tails">
+          <option value="two">Two-tailed</option>
+          <option value="one">One-tailed</option>
+        </select>
+      </div>
+      <div id="p-readout" class="readout" aria-live="polite"></div>
+      <button id="p-copy" class="slide-hide">Copy a link to this view</button>
+      <p class="credit slide-hide">Inspired by Kristoffer Magnusson's <a href="https://rpsychologist.com/d3/NHST/">power visualization</a> (CC BY) at R Psychologist.</p>
+    </aside>
+  </section>
+
+  <section id="view-intervals" class="view" role="tabpanel" aria-labelledby="tab-intervals" hidden>
+    <div class="stage single">
+      <figure class="panel">
+        <figcaption><strong>One interval per sample.</strong> <span id="cap-ci">The vertical line is the true population mean.</span></figcaption>
+        <div class="canvas-wrap"><canvas id="c-ci" role="img"></canvas></div>
+      </figure>
+    </div>
+    <aside class="controls" aria-label="Confidence interval controls">
+      <div class="draw-row" role="group" aria-label="Draw samples">
+        <button id="ci-1" class="primary" aria-label="Draw 1 sample">+1</button>
+        <button id="ci-50" class="primary" aria-label="Draw 50 samples">+50</button>
+        <button id="ci-500" class="primary" aria-label="Draw 500 samples">+500</button>
+        <button id="ci-clear">Clear</button>
+      </div>
+      <div class="field">
+        <label for="ci-n">Observations per sample: <output id="ci-n-out" for="ci-n"></output></label>
+        <input type="range" id="ci-n" min="2" max="100" step="1">
+      </div>
+      <div class="field">
+        <label for="ci-level">Confidence level</label>
+        <select id="ci-level">
+          <option value="0.8">80%</option>
+          <option value="0.9">90%</option>
+          <option value="0.95">95%</option>
+          <option value="0.99">99%</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="ci-known">Population SD</label>
+        <select id="ci-known">
+          <option value="1">Known: use z and &sigma;</option>
+          <option value="0">Unknown: use t and &sigma;&#770;</option>
+        </select>
+      </div>
+      <div id="ci-readout" class="readout" aria-live="polite"></div>
+      <button id="ci-copy" class="slide-hide">Copy a link to this view</button>
+      <p class="credit slide-hide">Inspired by Kristoffer Magnusson's <a href="https://rpsychologist.com/d3/CI/">confidence interval visualization</a> (CC BY) at R Psychologist.</p>
+    </aside>
+  </section>
+
+  <section id="view-correlation" class="view" role="tabpanel" aria-labelledby="tab-correlation" hidden>
+    <div class="stage single">
+      <figure class="panel">
+        <figcaption><strong>Drag a point and watch what changes.</strong> <span id="cap-corr">Click empty space to add a point.</span></figcaption>
+        <div class="canvas-wrap"><canvas id="c-corr" role="application" tabindex="0"></canvas></div>
+      </figure>
+    </div>
+    <aside class="controls" aria-label="Correlation controls">
+      <div class="draw-row three" role="group" aria-label="Change the data">
+        <button id="r-new" class="primary">New data</button>
+        <button id="r-outlier">Add outlier</button>
+        <button id="r-delete">Delete point</button>
+      </div>
+      <div class="field">
+        <label for="r-target">Correlation of new data: <output id="r-target-out" for="r-target"></output></label>
+        <input type="range" id="r-target" min="-0.95" max="0.95" step="0.05">
+      </div>
+      <div class="field">
+        <label for="r-n">Number of points: <output id="r-n-out" for="r-n"></output></label>
+        <input type="range" id="r-n" min="3" max="300" step="1">
+      </div>
+      <label class="check"><input type="checkbox" id="r-line"> Regression line</label>
+      <label class="check"><input type="checkbox" id="r-resid"> Residuals</label>
+      <label class="check"><input type="checkbox" id="r-squares"> Squared residuals</label>
+      <label class="check"><input type="checkbox" id="r-means"> Means of X and Y</label>
+      <div class="field slide-hide">
+        <label for="r-file">Load your own data (CSV with X and Y in the first two columns). It stays in your browser.</label>
+        <input type="file" id="r-file" accept=".csv,text/csv">
+      </div>
+      <div id="r-readout" class="readout" aria-live="polite"></div>
+      <p class="hint slide-hide">Keyboard: focus the plot and press <kbd>N</kbd> to pick a point. Arrow keys move it, and <kbd>Delete</kbd> removes it.</p>
+      <button id="r-copy" class="slide-hide">Copy a link to this view</button>
+      <p class="credit slide-hide">Inspired by Kristoffer Magnusson's <a href="https://rpsychologist.com/correlation/">correlation visualization</a> (MIT, CC0) at R Psychologist.</p>
+    </aside>
+  </section>
+</main>
+
+<script src="stats.js"></script>
+<script src="engine.js"></script>
+<script src="draw.js"></script>
+<script src="blueprint.js"></script>
+<script src="power.js"></script>
+<script src="intervals.js"></script>
+<script src="correlation.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

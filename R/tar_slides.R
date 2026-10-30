@@ -69,9 +69,16 @@ xaringan_to_pdf <- function(slide_path) {
   path_sans_ext <- tools::file_path_sans_ext(slide_path)
   pdf_path <- paste0(path_sans_ext, ".pdf")
 
+  # The PDF shows a screenshot of each simulator, and the server that Chrome
+  # prints through can't reach simulator/, so print a copy without the live ones
+  print_path <- paste0(path_sans_ext, "-print.html")
+  html <- as.character(xfun::file_string(slide_path))
+  xfun::write_utf8(gsub('&lt;iframe class="sim-live".*?&lt;/iframe&gt;', "", html, perl = TRUE), print_path)
+  on.exit(unlink(print_path))
+
   for (attempt in 1:2) {
     done <- withr::with_dir(getwd(), tryCatch({
-      pagedown::chrome_print(slide_path, output = pdf_path, timeout = 300)
+      pagedown::chrome_print(print_path, output = pdf_path, timeout = 300)
       TRUE
     }, error = function(e) {
       if (attempt == 2) stop(e)
@@ -95,6 +102,9 @@ xaringan_to_pdf <- function(slide_path) {
 xaringan_standalone <- function(slide_path) {
   deck_dir <- dirname(slide_path)
   html <- as.character(xfun::file_string(slide_path))
+
+  # A file on Canvas can't reach the site by a relative path
+  html <- gsub('src="../simulator/', paste0('src="', base_url, 'simulator/'), html, fixed = TRUE)
 
   local_ref <- "(?!https?:|data:|//|#)"
   local_file <- function(ref) file.path(deck_dir, utils::URLdecode(ref))

@@ -7,7 +7,7 @@ output:
   xaringan::moon_reader:
     lib_dir: "libs"
     chakra: "libs/remark-latest.min.js"
-    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css"]
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css", "css/simulator.css"]
     seal: false
     anchor_sections: false
     nature:
@@ -30,6 +30,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE,
 
 ```{r packages-data, include=FALSE}
 library(tidyverse)
+source(here::here("R", "slide-things.R"))
 
 set.seed(15)
 scores <- tibble(score = rnorm(500, mean = 75, sd = 10))
@@ -111,4 +112,15 @@ ggplot(scores, aes(x = score)) +
   geom_histogram(binwidth = 2.5, fill = "#538ba2", color = "white") +
   labs(x = "Test score", y = "Students") +
   theme_minimal(base_family = "Fira Sans Condensed", base_size = 18)
+```
+
+---
+
+# The simulator, live on a slide
+
+```{r sim-means, echo=FALSE, results="asis"}
+sim_frame(
+  alt = "Simulator showing 551 means of samples of 10 from a normal population, stacked into a bell shape around 100",
+  step = 2, n = 10, view = "raw", draws = 551
+)
 ```
