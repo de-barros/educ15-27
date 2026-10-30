@@ -1,0 +1,32 @@
+---
+title: "Data"
+description: "Where to find the Mindspark data used throughout the course."
+---
+
+Most examples in this course use data from a real study. It evaluated the impact of Mindspark, a learning software, on children's learning in after-school centers in Delhi, India.
+
+- [A short, non-technical summary of the study](https://www.povertyactionlab.org/evaluation/disrupting-education-evidence-technology-aided-instruction-india)
+- [The academic article](https://www.aeaweb.org/articles?id=10.1257/aer.20171112)
+- [A 3-minute video about the study](https://www.youtube.com/watch?v=fpChwrfYnI8)
+
+## If you're in the class
+
+The data for the labs are on Canvas. You don't need to download anything from this page.
+
+## If you're teaching or learning on your own
+
+You're welcome to use the slides, labs and simulator here. The data themselves aren't on this site or on GitHub, because we can't repost them. You can get them directly from the study's authors, who shared them with their published article:
+
+1. Go to the [replication package on openICPSR](https://doi.org/10.3886/E113192V2).
+2. Sign in, or create an account.
+3. Download the `data` folder and `LICENSE.txt`.
+
+Read `LICENSE.txt` before you share the data with anyone, and cite the study when you use them.
+
+The slides and most of each lab work without the data. You'll only need them for the spreadsheet part of a lab.
+
+## How to cite the study
+
+Muralidharan, Karthik, Abhijeet Singh, and Alejandro J. Ganimian. 2019. "Disrupting Education? Experimental Evidence on Technology-Aided Instruction in India." *American Economic Review* 109 (4): 1426–60. <https://doi.org/10.1257/aer.20171112>.
+
+Muralidharan, Karthik, Abhijeet Singh, and Alejandro J. Ganimian. 2019. "Replication Data for: Disrupting Education? Experimental Evidence on Technology-Aided Instruction in India." Version 2. Nashville, TN: American Economic Association. Distributed by ICPSR, Ann Arbor, MI. <https://doi.org/10.3886/E113192V2>.

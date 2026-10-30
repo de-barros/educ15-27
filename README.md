@@ -25,6 +25,19 @@ of California, Irvine
 3.  Run `targets::tar_make()` to build everything. The site ends up in
     `_site/`.
 
+## Data
+
+Most examples use data from the Mindspark study ([Muralidharan, Singh,
+and Ganimian 2019](https://doi.org/10.1257/aer.20171112)). The data
+aren’t in this repository or on the site, because we can’t repost them.
+Students get them on Canvas. Anyone else can download them from the
+[authors’ replication package on
+openICPSR](https://doi.org/10.3886/E113192V2), and the [data
+page](https://educ15.de-barros.com/resource/data.html) explains how.
+
+To rebuild the decks that use the data, put your copy in `slides/data/`,
+which git ignores.
+
 ## Licenses
 
 **Text and figures:** All prose and images are licensed under Creative

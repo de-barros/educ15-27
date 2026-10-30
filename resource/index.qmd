@@ -2,4 +2,5 @@
 title: "Resources"
 ---
 
-Resources will appear here.
+- [Statistics simulator](simulator.qmd): draw samples and watch the statistics build up.
+- [Data](data.qmd): where to find the Mindspark data used throughout the course.

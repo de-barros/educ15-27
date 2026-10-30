@@ -78,6 +78,7 @@ website:
         - section: "Tools"
           contents:
             - resource/simulator.qmd
+            - resource/data.qmd
 
   page-footer:
     left: |
