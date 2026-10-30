@@ -1,0 +1,48 @@
+author: Andreas de Barros
+
+instructor:
+  name: Dr. Andreas de Barros
+  name_no_title: Andreas de Barros
+  email: adb@uci.edu
+  url: "https://www.de-barros.com"
+  bluesky: "https://bsky.app/profile/andydebarros.bsky.social"
+  github: de-barros
+  office: "Education Building, Office 2042"
+  contact_policy: >-
+    E-mail is the best way to contact us. From Monday to Friday, we will try to respond to all course-related messages within 24 hours. At the same time, our work day may look different from your work day. Please do not feel obligated to respond out of your normal working hours.
+  appointment_url: https://calendly.com/de-barros/student-hours-andy-de-barros
+
+# TODO: no TA assigned yet
+assistant:
+  name: To be announced
+  name_no_title: To be announced
+
+attribution:
+  name: Dr. Andrew Heiss
+  name_no_title: Andrew Heiss
+  email: aheiss@gsu.edu
+  url: "https://www.andrewheiss.com/"
+  twitter: andrewheiss
+  github: andrewheiss
+
+course:
+  number: "EDUC 15"
+  # TODO: confirm the term and first/last day
+  semester: "2027"
+  days: "Lecture: Tue/Thu. Lab: Fri."
+  time: "Lecture 12:30–1:50PM. Lab 12:00 or 1:00PM."
+  location: "Lecture and lab A1: EDUC 2009. Lab A2: EDUC 2001."
+  dates: "To be announced"
+  github: "https://github.com/de-barros/educ15-27"
+  url: "https://educ15.de-barros.com"
+  copyright_year: "2027"
+  # TODO: Canvas course not created yet
+  canvas: "https://canvas.eee.uci.edu/"
+
+university:
+  name: University of California, Irvine
+  url: "https://uci.edu/"
+
+school:
+  name: School of Education
+  url: "https://education.uci.edu/"

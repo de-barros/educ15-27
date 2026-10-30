@@ -1,0 +1,60 @@
+---
+title: "Statistics for Education Research"
+subtitle: "Read, interpret, and draw conclusions from quantitative education research"
+details: |
+  EDUC 15 • 2027<br>School of Education<br>University of California, Irvine
+sidebar: false
+toc: false
+page-layout: full
+format:
+  html:
+    template-partials:
+      - html/home/title-block.html
+course-logo: /files/img/educ15-hires.png
+---
+
+```{r set-dependencies, include=FALSE}
+# Site-wide targets dependencies
+withr::with_dir(here::here(), {
+  targets::tar_load(all_slides)
+})
+```
+
+::: {.home}
+
+::: {.grid .course-details}
+
+::: {.g-col-12 .g-col-sm-6 .g-col-md-4}
+### Instructor
+
+- [{{< fa user >}}]{.fa-li} [{{< var instructor.name_no_title >}}]({{< var instructor.url >}})
+- [{{< fa university >}}]{.fa-li} {{< var instructor.office >}}
+- [{{< fa envelope >}}]{.fa-li} <a href='mailto:{{< var instructor.email >}}'>{{< var instructor.email >}}</a>
+- [{{< iconify fa6-brands bluesky size=1.1em title='Bluesky' >}}]{.fa-li} [Bluesky]({{< var instructor.bluesky >}})
+- [{{< fa calendar-check >}}]{.fa-li} [Schedule an appointment]({{< var instructor.appointment_url >}})
+:::
+
+::: {.g-col-12 .g-col-sm-6 .g-col-md-4}
+### Teaching assistant
+
+- [{{< fa user >}}]{.fa-li} {{< var assistant.name_no_title >}}
+:::
+
+::: {.g-col-12 .g-col-sm-6 .g-col-md-4}
+### Course details
+
+- [{{< fa calendar >}}]{.fa-li} {{< var course.days >}}
+- [{{< fa calendar-alt >}}]{.fa-li} {{< var course.dates >}}
+- [{{< fa clock >}}]{.fa-li} {{< var course.time >}}
+- [{{< fa location-dot >}}]{.fa-li} {{< var course.location >}}
+:::
+
+::: {.g-col-12 .g-col-md-4 .contact-policy}
+### Contacting us
+
+{{< var instructor.contact_policy >}}
+:::
+
+:::
+
+:::

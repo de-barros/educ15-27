@@ -1,0 +1,23 @@
+<script>
+// Quarto's search widget (Algolia autocomplete) renders a search button and
+// combobox without accessible names; add them once the widget exists
+(function () {
+  function label() {
+    document.querySelectorAll(".aa-DetachedSearchButton").forEach(function (el) {
+      el.setAttribute("aria-label", "Search");
+    });
+    document.querySelectorAll(".aa-Autocomplete").forEach(function (el) {
+      el.setAttribute("aria-label", "Search");
+    });
+    document.querySelectorAll(".aa-Input").forEach(function (el) {
+      el.setAttribute("aria-label", "Search");
+    });
+  }
+  // Code blocks that scroll sideways must be reachable by keyboard
+  document.querySelectorAll("pre").forEach(function (el) {
+    if (el.scrollWidth > el.clientWidth) el.setAttribute("tabindex", "0");
+  });
+  label();
+  new MutationObserver(label).observe(document.body, { childList: true, subtree: true });
+})();
+</script>

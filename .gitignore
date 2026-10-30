@@ -1,0 +1,32 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+/.quarto/
+/_site/
+/_freeze/
+
+_targets.yaml
+
+slides/
+slides/*.pdf
+slides/*.html
+slides/**/*_cache/*
+
+# knitr and caching stuff
+**/*_files/*
+**/*_cache/*
+!README_files/*
+
+/.luarc.json
+
+# Manual backups of the built site
+_site-*/
+
+**/*.quarto_ipynb
+
+# Local handover notes (course history, not for a public repo) and local Claude settings
+HANDOVER.md
+CLAUDE.local.md
+.claude/settings.local.json
