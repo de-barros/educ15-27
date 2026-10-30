@@ -42,16 +42,43 @@ body {
 
 a { color: var(--pop); }
 
+/* The course site's blue bar, in both themes */
 .topbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 20px;
-  padding: 8px 14px 0;
-  border-bottom: 1px solid var(--line);
+  padding: 6px 14px 0;
+  background: #0064a4;
+  color: #fff;
 }
 
 .topbar h1 { margin: 0 0 6px; font-size: 1.15rem; }
+
+.site-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.site-link:hover { text-decoration: underline; }
+
+.site-link.brand { font-size: 1.15rem; font-weight: 700; }
+
+.site-link.brand img { border-radius: 3px; }
+
+.site-link.back {
+  margin-left: auto;
+  padding: 3px 10px;
+  border: 1px solid #fff;
+  border-radius: 4px;
+}
+
+/* Inside a page of the site, its own menu does this job */
+body.embedded .site-link { display: none; }
 
 .tabs { display: flex; flex-wrap: wrap; gap: 2px; }
 
@@ -60,15 +87,16 @@ a { color: var(--pop); }
   border: 0;
   border-bottom: 3px solid transparent;
   border-radius: 0;
-  color: var(--muted);
+  color: #fff;
   padding: 6px 12px;
   font: inherit;
   cursor: pointer;
 }
 
+.tabs button:hover { background: #004d7f; }
+
 .tabs button[aria-selected="true"] {
-  color: var(--text);
-  border-bottom-color: var(--accent);
+  border-bottom-color: #ffd200;
   font-weight: 700;
 }
 

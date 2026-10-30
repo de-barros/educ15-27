@@ -362,6 +362,7 @@
       document.body.classList.add("ui-slide");
       releaseFocus();
     }
+    if (root.parent !== root) document.body.classList.add("embedded");
     if (params.get("theme") === "light") root.SimDraw.useLight();
     if (params.get("print") === "1") document.body.classList.add("ui-print");
     fillSelects();

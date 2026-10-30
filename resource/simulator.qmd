@@ -1,18 +1,18 @@
 ---
-title: "Sampling simulator"
+title: "Statistics simulator"
 description: "Draw samples from a population and watch the distribution of a statistic build up."
 toc: false
 page-layout: full
 ---
 
-Almost everything in this course follows one blueprint. Start with a population, draw one sample, calculate a statistic, then ask: if we drew sample after sample, where would all those statistics land? This simulator lets you do that yourself.
+Almost everything in this course follows one blueprint. Start with a population, draw one sample, calculate a statistic, then ask: if we drew sample after sample, where would all those statistics land? The **Sampling distributions** tab lets you do that yourself.
 
 Press **+1** to draw a sample, then **+50** or **+500** to draw many. Click any dot to see the sample behind it. Change the population, the sample size or the true effect and draw again.
 
 ```{=html}
 <p><a class="btn btn-primary" href="../simulator/index.html" target="_blank" rel="noopener">Open the simulator in a full window</a></p>
 <div class="simulator-frame">
-  <iframe src="../simulator/index.html" title="Sampling simulator" style="width: 100%; height: 860px; border: 1px solid #5b6570; border-radius: 6px;"></iframe>
+  <iframe src="../simulator/index.html" title="Statistics simulator" style="width: 100%; height: 860px; border: 1px solid #5b6570; border-radius: 6px;"></iframe>
 </div>
 ```
 
