@@ -11,11 +11,14 @@
     var lo = -4.2 * se, hi = Math.max(d + 4.2 * se, 4.2 * se), x = D.scale(lo, hi, pad, f.w - pad);
     var peak = S.normPdf(0, 0, se) * 1.02;
     var h0 = function (v) { return S.normPdf(v, 0, se); }, h1 = function (v) { return S.normPdf(v, d, se); };
-    var cut = res.critD;
+    var cut = res.critD, real = d > 0;
 
-    // Power, then Type II error, under the world where the effect is real
-    D.shade(ctx, h1, x, base, height, peak, x(cut), x(hi), "rgba(90, 180, 229, 0.75)");
-    D.shade(ctx, h1, x, base, height, peak, x(lo), x(cut), "rgba(255, 210, 0, 0.32)");
+    // Power, then Type II error, under the world where the effect is real.
+    // With no effect, H0 is true, so neither one exists.
+    if (real) {
+      D.shade(ctx, h1, x, base, height, peak, x(cut), x(hi), "rgba(90, 180, 229, 0.75)");
+      D.shade(ctx, h1, x, base, height, peak, x(lo), x(cut), "rgba(255, 210, 0, 0.32)");
+    }
     // Type I error, under H0
     D.shade(ctx, h0, x, base, height, peak, x(cut), x(hi), "rgba(255, 138, 112, 0.9)");
     if (state.tails === "two") D.shade(ctx, h0, x, base, height, peak, x(lo), x(-cut), "rgba(255, 138, 112, 0.9)");
@@ -48,16 +51,17 @@
 
     var rows = [
       ["Type I error (α)", D.pct(state.alpha, 0), "#ff8a70"],
-      ["Type II error (β)", D.pct(res.beta, 0), "#ffd200"],
-      ["Power (1 − β)", D.pct(res.power, 0), "#5ab4e5"]
+      ["Type II error (β)", real ? D.pct(res.beta, 0) : "–", "#ffd200"],
+      ["Power (1 − β)", real ? D.pct(res.power, 0) : "–", "#5ab4e5"]
     ];
     var html = "<table><tbody>" + rows.map(function (r) {
       return "<tr><th scope=\"row\"><span style=\"color:" + r[2] + "\">■</span> " + r[0] + "</th><td>" + r[1] + "</td></tr>";
     }).join("") + "<tr><th scope=\"row\">Standard error</th><td>" + D.fmt(se) + "</td></tr>" +
       "<tr><th scope=\"row\">Critical z</th><td>" + D.fmt(res.zc) + "</td></tr></tbody></table>";
     document.getElementById("p-readout").innerHTML = html;
-    canvas.setAttribute("aria-label", "Two normal curves. With d = " + D.fmt(d) + ", n = " + state.n + " and alpha = " + D.fmt(state.alpha) +
-      ", power is " + D.pct(res.power, 0) + " and the Type II error rate is " + D.pct(res.beta, 0) + ".");
+    canvas.setAttribute("aria-label", real ? "Two normal curves. With d = " + D.fmt(d) + ", n = " + state.n + " and alpha = " + D.fmt(state.alpha) +
+      ", power is " + D.pct(res.power, 0) + " and the Type II error rate is " + D.pct(res.beta, 0) + "." :
+      "One normal curve. With d = 0, H0 is true, so the only possible error is a Type I error, at a rate of " + D.pct(state.alpha, 0) + ".");
   }
 
   root.SimPower = { state: state, render: render };

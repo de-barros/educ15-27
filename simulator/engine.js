@@ -87,7 +87,7 @@
     "3": { n: 10, nMin: 2, nMax: 200, kind: "one", statName: "t", rawName: "M", views: ["stat"],
       title: "3. t-score for a sample mean" },
     "3p": { n: 10, nMin: 2, nMax: 200, kind: "paired", statName: "t", rawName: "gain", views: ["stat"],
-      title: "3. t-score for gains (paired t-test)" },
+      title: "3b. t-score for gains (paired t-test)" },
     "4": { n: 10, nMin: 2, nMax: 200, kind: "two", statName: "t", rawName: "M₁ − M₂", views: ["raw", "stat"],
       title: "4. t-score for a difference between two means" },
     "5": { n: 10, nMin: 2, nMax: 200, kind: "three", statName: "F", rawName: "F", views: ["stat"],
@@ -97,8 +97,11 @@
     "7": { n: 20, nMin: 4, nMax: 200, kind: "pairs", statName: "t", rawName: "b", views: ["raw", "stat"],
       title: "7. Regression slope b" },
     "7b": { n: 20, nMin: 4, nMax: 200, kind: "binary", statName: "t", rawName: "b", views: ["raw", "stat"],
-      title: "7. Regression slope b for a yes/no predictor" }
+      title: "7b. Regression slope b for a yes/no predictor" }
   };
+
+  // JavaScript lists number-like keys first, so "3p" and "7b" need a set place
+  var STEP_ORDER = ["1", "2", "3", "3p", "4", "5", "6", "7", "7b"];
 
   var DEFAULTS = { step: "2", n: 10, d: 0, mu0: 100, sigma: 15, a0: 0, gm: null, pop: "normal", alpha: 0.05, tails: "two", view: "stat" };
 
@@ -276,19 +279,25 @@
   // The confidence interval view ----
 
   function drawInterval(opts, rng) {
-    var n = opts.n, mu = opts.mu0, sd = opts.sigma, x = new Array(n);
+    var n = opts.n, h0 = opts.mu0, sd = opts.sigma, mu = h0 + (opts.d || 0) * sd, x = new Array(n);
     for (var i = 0; i < n; i++) x[i] = mu + sd * rng.normal();
-    var m = S.mean(x), half;
+    var m = S.mean(x), tail = 1 - (1 - opts.level) / 2, crit, se;
     if (opts.known) {
-      half = S.normQuantile(1 - (1 - opts.level) / 2) * sd / Math.sqrt(n);
+      crit = S.normQuantile(tail);
+      se = sd / Math.sqrt(n);
     } else {
-      half = S.tQuantile(1 - (1 - opts.level) / 2, n - 1) * Math.sqrt(S.sumSquares(x, m) / (n - 1)) / Math.sqrt(n);
+      crit = S.tQuantile(tail, n - 1);
+      se = Math.sqrt(S.sumSquares(x, m) / (n - 1)) / Math.sqrt(n);
     }
-    return { M: m, lo: m - half, hi: m + half, covers: m - half <= mu && mu <= m + half };
+    var half = crit * se;
+    return {
+      M: m, lo: m - half, hi: m + half, crit: crit, se: se, half: half,
+      covers: m - half <= mu && mu <= m + half, excludesH0: h0 < m - half || m + half < h0
+    };
   }
 
   root.SimEngine = {
-    makeRng: makeRng, POPULATIONS: POPULATIONS, STEPS: STEPS, config: config, truth: truth,
+    makeRng: makeRng, POPULATIONS: POPULATIONS, STEPS: STEPS, STEP_ORDER: STEP_ORDER, config: config, truth: truth,
     nullDist: nullDist, pdf: pdf, cdf: cdf, quantile: quantile, critical: critical, pValue: pValue,
     rawNull: rawNull, population: population, drawSample: drawSample, exactPower: exactPower,
     powerZ: powerZ, drawInterval: drawInterval

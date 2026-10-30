@@ -62,7 +62,8 @@ Each link opens the simulator ready to go. Before you press a button, predict wh
 
 ### What does a confidence interval promise?
 
-- [100 intervals](../simulator/index.html?tab=intervals&n=10&draws=100). The population mean never moves. The intervals do. About 95% of them catch it.
+- [100 intervals](../simulator/index.html?tab=intervals&n=10&draws=100). The population mean never moves. The intervals do. About 95% of them catch it. Then raise n and watch them narrow.
+- [When H₀ is false](../simulator/index.html?tab=intervals&n=10&d=0.89&draws=100). An interval that leaves out the H₀ mean means the same as rejecting H₀. Look at how often that happens, then compare it with the power for the same effect and sample size.
 
 ### What gives a study power?
 

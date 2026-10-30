@@ -19,7 +19,7 @@
   // Blueprint ----
 
   function fillSelects() {
-    Object.keys(E.STEPS).forEach(function (key) {
+    E.STEP_ORDER.forEach(function (key) {
       var o = document.createElement("option");
       o.value = key;
       o.textContent = E.STEPS[key].title;
@@ -191,6 +191,7 @@
     var s = I.state;
     $("ci-n").value = s.n; $("ci-level").value = String(s.level); $("ci-known").value = s.known ? "1" : "0";
     $("ci-n-out").textContent = s.n;
+    $("ci-d").value = s.d; $("ci-d-out").textContent = root.SimDraw.fmt(s.d);
   }
 
   function bindIntervals() {
@@ -200,6 +201,7 @@
     $("ci-clear").onclick = function () { I.reset(); I.render(); };
     function changed() { I.reset(); syncIntervals(); I.render(); }
     $("ci-n").oninput = function () { I.state.n = parseInt(this.value, 10); changed(); };
+    $("ci-d").oninput = function () { I.state.d = parseFloat(this.value); changed(); };
     $("ci-level").onchange = function () { I.state.level = parseFloat(this.value); changed(); };
     $("ci-known").onchange = function () { I.state.known = this.value === "1"; changed(); };
   }
@@ -297,6 +299,7 @@
     }
     if (tab === "intervals") {
       q.set("n", I.state.n); q.set("level", I.state.level); q.set("known", I.state.known ? 1 : 0);
+      if (I.state.d) q.set("d", I.state.d);
       if (I.state.total) q.set("draws", I.state.total);
     }
     if (tab === "correlation") {
@@ -368,7 +371,7 @@
     }
     if (tab === "intervals") {
       I.state.n = Math.round(num("n", I.state.n)); I.state.level = num("level", I.state.level);
-      I.state.known = params.get("known") !== "0";
+      I.state.known = params.get("known") !== "0"; I.state.d = num("d", I.state.d);
     }
     if (tab === "correlation") {
       R.state.target = num("r", R.state.target); R.state.n = Math.round(num("n", R.state.n));

@@ -143,6 +143,30 @@
   });
   near("Correlation stays below 1", E.truth(E.config({ step: "6", d: 3 })).rho, 0.99, 1e-12);
 
+  // The steps run in teaching order, and each has its own number ----
+
+  near("Every step is listed once", E.STEP_ORDER.length, Object.keys(E.STEPS).length, 1e-12);
+  var stepNumbers = E.STEP_ORDER.map(function (k) { return E.STEPS[k].title.split(" ")[0]; });
+  ok("Steps run in order", stepNumbers.join(" ") === "1. 2. 3. 3b. 4. 5. 6. 7. 7b.", stepNumbers.join(" "));
+
+  // Confidence intervals and the test agree ----
+
+  [[0, 10], [0.89, 10], [-0.4, 30]].forEach(function (v) {
+    var ciOpts = { n: v[1], level: 0.95, known: true, mu0: 100, sigma: 15, d: v[0] }, ciRng = E.makeRng(15), excl = 0, agree = true, ciN = 40000;
+    for (var i = 0; i < ciN; i++) {
+      var ci = E.drawInterval(ciOpts, ciRng), z = (ci.M - 100) / ci.se;
+      if (ci.excludesH0) excl++;
+      if (ci.excludesH0 !== (Math.abs(z) > ci.crit)) agree = false;
+    }
+    ok("Excluding the H0 mean is rejecting H0, d = " + v[0], agree);
+    near("Share excluding H0, d = " + v[0], excl / ciN, v[0] === 0 ? 0.05 : E.powerZ(Math.abs(v[0]), v[1], 0.05, "two").power, 0.008);
+  });
+  var ci95 = E.drawInterval({ n: 10, level: 0.95, known: true, mu0: 100, sigma: 15, d: 0 }, E.makeRng(1));
+  near("Margin of error with known σ", ci95.half, 1.959964 * 15 / Math.sqrt(10), 1e-5);
+  near("Interval is M plus or minus the margin", ci95.hi - ci95.M, ci95.half, 1e-9);
+  var ciT = E.drawInterval({ n: 10, level: 0.95, known: false, mu0: 100, sigma: 15, d: 0 }, E.makeRng(1));
+  near("t cutoff for an interval, df = 9", ciT.crit, 2.262157, 1e-5);
+
   // Three typed group means ----
 
   var gmCfg = E.config({ step: "5", n: 10, gm: [100, 100, 115] }), gmRng = E.makeRng(14), gmSum = [0, 0, 0], sumMsb = 0, sumMsw = 0;
