@@ -71,7 +71,8 @@ show_table <- function(group_id) {
     pack_rows(index = schedule_nested$subgroup_index[[group_id]],
               label_row_css = "border-bottom: 2px solid #000000;")
   
-  cat(tbl)
+  # As a raw block, so Pandoc can't read the table as Markdown and lose the closing fence
+  cat("\n\n```{=html}\n", tbl, "\n```\n\n", sep = "")
 }
 ```
 

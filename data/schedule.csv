@@ -1,3 +1,40 @@
 group,subgroup,date,date_end,title,deadline,content,resource,assignment,note
-Weekly schedule,Week 1,2027-01-05,2027-01-07,Schedule to come,,,,,Placeholder until the calendar is drafted
-Weekly schedule,Week 1,2027-01-08,,Lab (in-person),,,,,
+Weekly schedule,Week 1,2027-01-05,,1. Introduction and measurement,,,,,
+Weekly schedule,Week 1,2027-01-07,,2. Displaying data,,,,,
+Weekly schedule,Week 1,2027-01-08,,Lab 1: Meet the data,,,,,
+Weekly schedule,Week 2,2027-01-12,,3. Central tendency and variability,,,,,
+Weekly schedule,Week 2,2027-01-14,,4. z-scores,,,,,
+Weekly schedule,Week 2,2027-01-15,,"Lab 2: Mean, SD and z-scores",,,,,Includes a 15-minute individual check
+Weekly schedule,Week 2,2027-01-17,,Mastery and Problem Set: Chapter 5,6 PM,,,,
+Weekly schedule,Week 3,2027-01-19,,5. Probability,,,,,
+Weekly schedule,Week 3,2027-01-21,,"5. Probability, then 6. Sampling distributions",,,,,
+Weekly schedule,Week 3,2027-01-22,,Lab 3: Jeopardy,,,,,Game: through z-scores and probability
+Weekly schedule,Week 3,2027-01-24,,Mastery and Problem Set: Chapter 6,6 PM,,,,
+Weekly schedule,Week 4,2027-01-26,,6. Sampling distributions,,,,,
+Weekly schedule,Week 4,2027-01-28,,7. Hypothesis testing,,,,,
+Weekly schedule,Week 4,2027-01-29,,Lab 4: Sampling distributions and the four steps,,,,,
+Weekly schedule,Week 4,2027-01-31,,Mastery and Problem Set: Chapter 7,6 PM,,,,
+Weekly schedule,Week 5,2027-02-02,,7. Hypothesis testing,,,,,
+Weekly schedule,Week 5,2027-02-04,,8. Introduction to the t-test,,,,,
+Weekly schedule,Week 5,2027-02-05,,Lab 5: Jeopardy,,,,,Game: midterm review
+Weekly schedule,Week 5,2027-02-07,,Mastery and Problem Set: Chapters 8 and 9,6 PM,,,,Nothing is due in midterm week
+Weekly schedule,Week 6,2027-02-09,,"8. Introduction to the t-test, and confidence intervals",,,,,
+Weekly schedule,Week 6,2027-02-11,,Midterm exam,,,,,"In class, Chapters 1 to 9"
+Weekly schedule,Week 6,2027-02-12,,Lab 6: One-sample t-tests and confidence intervals,,,,,
+Weekly schedule,Week 7,2027-02-16,,9. t-tests for two samples,,,,,
+Weekly schedule,Week 7,2027-02-18,,9. t-tests for gains,,,,,
+Weekly schedule,Week 7,2027-02-19,,Lab 7: Two samples and gains,,,,,
+Weekly schedule,Week 7,2027-02-21,,Mastery and Problem Set: Chapter 10,6 PM,,,,
+Weekly schedule,Week 8,2027-02-23,,10. ANOVA,,,,,
+Weekly schedule,Week 8,2027-02-25,,11. Correlation,,,,,
+Weekly schedule,Week 8,2027-02-26,,Lab 8: Predict the Simulator,,,,,"Game: t-tests, gains, intervals and ANOVA"
+Weekly schedule,Week 8,2027-02-28,,Mastery and Problem Set: Chapter 11,6 PM,,,,
+Weekly schedule,Week 9,2027-03-02,,12. Regression: the line,,,,,
+Weekly schedule,Week 9,2027-03-04,,13. Regression: is the slope real?,,,,,
+Weekly schedule,Week 9,2027-03-05,,Lab 9: Correlation and regression,,,,,
+Weekly schedule,Week 9,2027-03-07,,Mastery and Problem Set: Chapter 12,6 PM,,,,
+Weekly schedule,Week 10,2027-03-09,,14. Regression: groups and interactions,,,,,
+Weekly schedule,Week 10,2027-03-11,,Course review,,,,,
+Weekly schedule,Week 10,2027-03-12,,Lab 10: Jeopardy,,,,,Game: final review
+Weekly schedule,Finals week,2027-03-13,2027-03-19,Final exam,,,,,Date to come from the Registrar
+Weekly schedule,Finals week,2027-03-14,,Mastery and Problem Set: Chapter 14,6 PM,,,,

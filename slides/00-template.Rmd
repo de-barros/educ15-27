@@ -10,6 +10,8 @@ output:
     css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css", "css/simulator.css"]
     seal: false
     anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
     nature:
       highlightStyle: github
       highlightLines: true

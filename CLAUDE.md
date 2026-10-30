@@ -38,6 +38,7 @@ Run commands from the project root. Outside RStudio, set `RSTUDIO_PANDOC="C:/Pro
 - **Custom CSS** goes in a `{css}` chunk at the *end* of the Rmd. Any output before the first slide's `class:` line makes remark print the properties as text.
 - **Two-line titles** use a `.long-title` class, defined in that end chunk. See `06-01.Rmd`.
 - **Plots:** `dev = "ragg_png"`, so Fira Sans Condensed renders on Windows.
+- **Math size:** keep `includes: in_header: "css/mathjax.html"` in the YAML header. Without it, math shrinks to half size in embedded frames and small windows.
 - **Math in markdown:** display math containing `}_` goes in raw HTML, `<div class="math-display">\[...\]</div>`, because remark reads `_..._` as emphasis. Inline `$..$` inside a one-line `.box[...]` doesn't render: use the multi-line box form or Unicode. Raw HTML needs `\(..\)` delimiters.
 - **Speaker notes** go after `???` on a slide.
 - **Live polls** use the `.poll-slide` and `.poll-answer` pattern in `06-01.Rmd`, which keeps answers out of the printed PDF. Poll Everywhere has two ids per poll; the button uses the presenter id. Students respond at PollEv.com/adb.
