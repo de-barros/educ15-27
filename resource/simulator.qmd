@@ -52,6 +52,7 @@ Each link opens the simulator ready to go. Before you press a button, predict wh
 
 - [No group differences](../simulator/index.html?step=5&n=10&draws=2000). Compare **MS within** and **MS between** in the table. Both estimate σ², so F hovers around 1.
 - [Real group differences](../simulator/index.html?step=5&n=10&d=1&draws=2000). MS within stays where it was, MS between grows, and F moves right.
+- [Only one group differs](../simulator/index.html?step=5&n=10&gm=100,100,115&draws=2000). Type your own group means to try other patterns. F says that the means differ, but not which ones.
 
 ### How do correlation and regression relate?
 

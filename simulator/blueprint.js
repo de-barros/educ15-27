@@ -80,7 +80,7 @@
 
   function configure(opts) {
     var old = state.c || {};
-    var c = E.config(Object.assign({}, old.step ? { step: old.step, n: old.n, d: old.d, pop: old.pop, mu0: old.mu0, sigma: old.sigma, a0: old.a0, alpha: old.alpha, tails: old.tails, view: old.view } : {}, opts));
+    var c = E.config(Object.assign({}, old.step ? { step: old.step, n: old.n, d: old.d, pop: old.pop, mu0: old.mu0, sigma: old.sigma, a0: old.a0, gm: old.gm, alpha: old.alpha, tails: old.tails, view: old.view } : {}, opts));
     state.c = c;
     // Scatter plots need height, so their two panels share a row
     document.querySelector("#view-blueprint .stage").classList.toggle("pairs", c.meta.kind === "pairs" || c.meta.kind === "binary");
@@ -341,6 +341,10 @@
 
   function popAxis(c) {
     var k = c.meta.kind, center = k === "paired" ? 0 : c.mu0, s = c.sigma, extra = Math.abs(c.d) * s;
+    if (k === "three") {
+      var means = E.truth(c).means;
+      return [Math.min.apply(null, means) - 4 * s, Math.max.apply(null, means) + 4 * s];
+    }
     return [center - 4 * s - extra, center + 4 * s + extra];
   }
 
@@ -360,10 +364,11 @@
       truth.means.forEach(function (m, g) {
         var fn = function (v) { return p.pdf((v - m) / c.sigma); };
         D.curve(ctx, fn, x, base, base - top, peak * 1.06, pad, f.w - pad, { fill: colors[g] + "33" });
-        // Equal groups sit on top of each other, so let the first show through
-        D.curve(ctx, fn, x, base, base - top, peak * 1.06, pad, f.w - pad, { color: colors[g], width: 2.2, dash: k === "two" && g === 1 && c.d === 0 ? [12, 12] : null });
+        // Equal groups sit on top of each other, so let the ones below show through
+        var hides = truth.means.slice(0, g).indexOf(m) >= 0;
+        D.curve(ctx, fn, x, base, base - top, peak * 1.06, pad, f.w - pad, { color: colors[g], width: 2.2, dash: hides ? (g === 2 ? [4, 20] : [12, 12]) : null });
       });
-      if (c.d !== 0 && k !== "two") D.curve(ctx, nullFn, x, base, base - top, peak * 1.06, pad, f.w - pad, { color: dashed, dash: [5, 4], width: 1.5 });
+      if (c.d !== 0 && (k === "one" || k === "paired")) D.curve(ctx, nullFn, x, base, base - top, peak * 1.06, pad, f.w - pad, { color: dashed, dash: [5, 4], width: 1.5 });
       D.xAxis(ctx, x, base, pad, f.w - pad, 9);
       if (state.hide) {
         ctx.fillStyle = "rgba(27, 31, 36, 0.86)";

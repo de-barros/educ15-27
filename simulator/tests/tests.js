@@ -143,6 +143,26 @@
   });
   near("Correlation stays below 1", E.truth(E.config({ step: "6", d: 3 })).rho, 0.99, 1e-12);
 
+  // Three typed group means ----
+
+  var gmCfg = E.config({ step: "5", n: 10, gm: [100, 100, 115] }), gmRng = E.makeRng(14), gmSum = [0, 0, 0], sumMsb = 0, sumMsw = 0;
+  for (var gi = 0; gi < 6000; gi++) {
+    var gs = E.drawSample(gmCfg, gmRng);
+    gs.means.forEach(function (v, i) { gmSum[i] += v; });
+    sumMsb += gs.msb; sumMsw += gs.msw;
+  }
+  near("Group 1 mean as typed", gmSum[0] / 6000, 100, 0.2);
+  near("Group 2 mean as typed", gmSum[1] / 6000, 100, 0.2);
+  near("Group 3 mean as typed", gmSum[2] / 6000, 115, 0.2);
+  // E(MS between) = σ² + n × SS(means) / 2, with SS(means) = 150 here
+  near("MS between with one group apart", sumMsb / 6000, 225 + 10 * 150 / 2, 12);
+  near("MS within ignores the group means", sumMsw / 6000, 225, 3);
+  near("Spread of the typed means", gmCfg.d, 1, 1e-12);
+  near("Equal typed means have no effect", E.config({ step: "5", gm: [90, 90, 90] }).d, 0, 1e-12);
+  ok("A bad list of means is ignored", E.config({ step: "5", gm: [100, NaN, 115] }).gm === null);
+  ok("Only step 5 keeps typed means", E.config({ step: "4", gm: [1, 2, 3] }).gm === null);
+  near("Type I with equal typed means", rejectRate({ step: "5", n: 8, gm: [60, 60, 60] }, N), 0.05, tol);
+
   // The largest samples: cutoffs from R's qt() and qf() ----
 
   [["3", 1.971957], ["3p", 1.971957], ["4", 1.965942], ["6", 1.972017], ["7", 1.972017], ["7b", 1.972017]].forEach(function (v) {

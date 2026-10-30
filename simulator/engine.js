@@ -100,7 +100,7 @@
       title: "7. Regression slope b for a yes/no predictor" }
   };
 
-  var DEFAULTS = { step: "2", n: 10, d: 0, mu0: 100, sigma: 15, a0: 0, pop: "normal", alpha: 0.05, tails: "two", view: "stat" };
+  var DEFAULTS = { step: "2", n: 10, d: 0, mu0: 100, sigma: 15, a0: 0, gm: null, pop: "normal", alpha: 0.05, tails: "two", view: "stat" };
 
   function config(opts) {
     var c = {}, k;
@@ -117,6 +117,10 @@
     if (st.views.indexOf(c.view) < 0) c.view = st.views[0];
     // An F test only has an upper tail
     if (st.kind === "three") c.tails = "right";
+    // Three typed means replace the even spacing, and d becomes their range in SDs
+    var typed = st.kind === "three" && c.gm && c.gm.length === 3 && c.gm.every(isFinite);
+    c.gm = typed ? c.gm : null;
+    if (typed) c.d = (Math.max.apply(null, c.gm) - Math.min.apply(null, c.gm)) / c.sigma;
     return c;
   }
 
@@ -192,7 +196,7 @@
     if (k === "one") return { means: [m + d] };
     if (k === "paired") return { means: [d] };
     if (k === "two") return { means: [m + d, m] };
-    if (k === "three") return { means: [m - d / 2, m, m + d / 2] };
+    if (k === "three") return { means: c.gm || [m - d / 2, m, m + d / 2] };
     // A slope can be any size. Only a correlation stops at 1.
     if (k === "binary" || c.step === "7") return { beta: c.d, intercept: c.a0 };
     return { rho: Math.max(-0.99, Math.min(0.99, c.d)), intercept: 0 };

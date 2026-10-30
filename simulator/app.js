@@ -2,7 +2,8 @@
 // slide can open any view in a preset state.
 //
 // Parameters: tab, ui=slide, theme=light (for printing), step, n, d, pop, mu, sd, a,
-// alpha, tails, view, hide, draws, seed. Example: index.html?ui=slide&step=2&n=10&draws=551
+// gm (three group means, such as 100,100,115), alpha, tails, view, hide, draws, seed.
+// Example: index.html?ui=slide&step=2&n=10&draws=551
 (function (root) {
   "use strict";
   var E = root.SimEngine, B = root.SimBlueprint, P = root.SimPower, I = root.SimIntervals, R = root.SimCorrelation;
@@ -32,8 +33,23 @@
     });
   }
 
-  // Group 2 sits at mu0, and d says how many SDs group 1 is away from it
-  function group1(c) { return c.mu0 + c.d * c.sigma; }
+  // How far apart the highest and lowest group means are
+  function range(means) { return Math.max.apply(null, means) - Math.min.apply(null, means); }
+
+  // Type one group's mean, and keep the others where they are
+  function setGroup(i, v) {
+    var c = B.state.c, means = E.truth(c).means.slice();
+    means[i] = v;
+    if (c.meta.kind === "two") update({ mu0: means[1], d: (means[0] - means[1]) / c.sigma });
+    else update({ gm: means });
+  }
+
+  // Widen or narrow the three means, keeping the pattern that was typed
+  function stretch(c, spread) {
+    var means = E.truth(c).means, now = range(means), middle = (means[0] + means[1] + means[2]) / 3;
+    if (now === 0) return [middle - spread * c.sigma / 2, middle, middle + spread * c.sigma / 2];
+    return means.map(function (m) { return middle + (m - middle) * spread * c.sigma / now; });
+  }
 
   function syncControls() {
     var c = B.state.c, m = c.meta, pairs = m.kind === "pairs" || m.kind === "binary";
@@ -42,12 +58,13 @@
     $("pop-field").style.display = pairs ? "none" : "";
     // Scatter plots are in SD units, and gains have H0 at zero
     $("scale-fields").style.display = pairs ? "none" : "";
-    // With two groups, H0 says they're equal, so it needs no value of its own
-    var two = m.kind === "two";
-    $("group-fields").style.display = two ? "" : "none";
-    $("mu-field").style.display = m.kind === "paired" || two ? "none" : "";
-    $("g1").value = +group1(c).toFixed(6);
-    $("g2").value = c.mu0;
+    // With groups, H0 says they're equal, so it needs no value of its own
+    var two = m.kind === "two", three = m.kind === "three", groups = two || three;
+    $("group-fields").style.display = groups ? "" : "none";
+    $("group-fields").classList.toggle("three", three);
+    $("g3-field").style.display = three ? "" : "none";
+    $("mu-field").style.display = m.kind === "paired" || groups ? "none" : "";
+    if (groups) E.truth(c).means.forEach(function (v, i) { $("g" + (i + 1)).value = +v.toFixed(6); });
     $("mu").value = c.mu0;
     $("sd").value = c.sigma;
     // A line's intercept and slope can be anything, so they're boxes, not sliders
@@ -62,11 +79,13 @@
     $("n").disabled = m.nMin === m.nMax;
     $("n-out").textContent = c.n;
     $("n-unit").textContent = m.kind === "two" || m.kind === "three" ? "group" : "sample";
-    $("d").min = m.kind === "pairs" ? -0.9 : two ? -3 : -1.5;
-    $("d").max = m.kind === "pairs" ? 0.9 : two ? 3 : 1.5;
-    $("d").value = c.d;
-    $("d-label").textContent = c.step === "6" ? "True correlation ρ" : "True effect d";
-    $("d-out").textContent = root.SimDraw.fmt(c.d);
+    $("d").min = m.kind === "pairs" ? -0.9 : three ? 0 : two ? -3 : -1.5;
+    $("d").max = m.kind === "pairs" ? 0.9 : groups ? 3 : 1.5;
+    // The spread of three means can't be negative
+    var shown = three ? range(E.truth(c).means) / c.sigma : c.d;
+    $("d").value = shown;
+    $("d-label").textContent = c.step === "6" ? "True correlation ρ" : three ? "Spread of the means, in SDs" : "True effect d";
+    $("d-out").textContent = root.SimDraw.fmt(shown);
     $("alpha").value = String(c.alpha);
     $("tails").value = c.tails;
     $("tails").disabled = m.kind === "three";
@@ -98,7 +117,7 @@
     $("next").onclick = function () { B.browse(1); };
     $("step").onchange = function () {
       var st = E.STEPS[this.value];
-      update({ step: this.value, n: st.n, d: 0, tails: "two", view: st.views[st.views.length - 1] });
+      update({ step: this.value, n: st.n, d: 0, gm: null, tails: "two", view: st.views[st.views.length - 1] });
     };
     $("pop").onchange = function () { update({ pop: this.value }); };
     // A blank or impossible entry goes back to the value in use
@@ -109,16 +128,17 @@
     $("sd").onchange = function () {
       var v = parseFloat(this.value), c = B.state.c;
       // Group means stay where they were typed, so the same gap gives a new d
-      if (v > 0) update(c.meta.kind === "two" ? { sigma: v, d: c.d * c.sigma / v } : { sigma: v }); else syncControls();
+      if (!(v > 0)) syncControls();
+      else if (c.meta.kind === "two") update({ sigma: v, d: c.d * c.sigma / v });
+      else if (c.meta.kind === "three") update({ sigma: v, gm: E.truth(c).means.slice() });
+      else update({ sigma: v });
     };
-    $("g1").onchange = function () {
-      var v = parseFloat(this.value), c = B.state.c;
-      if (isFinite(v)) update({ d: (v - c.mu0) / c.sigma }); else syncControls();
-    };
-    $("g2").onchange = function () {
-      var v = parseFloat(this.value), c = B.state.c;
-      if (isFinite(v)) update({ mu0: v, d: (group1(c) - v) / c.sigma }); else syncControls();
-    };
+    [0, 1, 2].forEach(function (i) {
+      $("g" + (i + 1)).onchange = function () {
+        var v = parseFloat(this.value);
+        if (isFinite(v)) setGroup(i, v); else syncControls();
+      };
+    });
     $("a0").onchange = function () {
       var v = parseFloat(this.value);
       if (isFinite(v)) update({ a0: v }); else syncControls();
@@ -128,7 +148,10 @@
       if (isFinite(v)) update({ d: v }); else syncControls();
     };
     $("n").oninput = function () { update({ n: parseInt(this.value, 10) }); };
-    $("d").oninput = function () { update({ d: parseFloat(this.value) }); };
+    $("d").oninput = function () {
+      var v = parseFloat(this.value), c = B.state.c;
+      if (c.meta.kind === "three") update({ gm: stretch(c, v) }); else update({ d: v });
+    };
     $("alpha").onchange = function () { update({ alpha: parseFloat(this.value) }); };
     $("tails").onchange = function () { update({ tails: this.value }); };
     $("scale").onchange = function () { update({ view: this.value }); };
@@ -257,7 +280,8 @@
     if (tab === "blueprint") {
       var c = B.state.c;
       q.set("step", c.step); q.set("n", c.n);
-      if (c.d) q.set("d", c.d);
+      if (c.gm) q.set("gm", c.gm.map(function (v) { return +v.toFixed(6); }).join(","));
+      else if (c.d) q.set("d", c.d);
       if (c.pop !== "normal") q.set("pop", c.pop);
       if (c.mu0 !== 100) q.set("mu", c.mu0);
       if (c.sigma !== 15) q.set("sd", c.sigma);
@@ -332,6 +356,7 @@
     B.configure({
       step: step, n: num("n", meta.n), d: tab === "blueprint" ? num("d", 0) : 0, pop: params.get("pop") || "normal",
       mu0: num("mu", 100), sigma: num("sd", 15) > 0 ? num("sd", 15) : 15, a0: num("a", 0),
+      gm: params.get("gm") ? params.get("gm").split(",").map(parseFloat) : null,
       alpha: tab === "blueprint" ? num("alpha", 0.05) : 0.05, tails: params.get("tails") || "two",
       view: params.get("view") || meta.views[meta.views.length - 1]
     });
