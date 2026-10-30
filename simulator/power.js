@@ -25,10 +25,12 @@
 
     ctx.strokeStyle = C.text;
     ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(x(cut), top - 8);
-    ctx.lineTo(x(cut), base);
-    ctx.stroke();
+    (state.tails === "two" ? [cut, -cut] : [cut]).forEach(function (v) {
+      ctx.beginPath();
+      ctx.moveTo(x(v), top - 8);
+      ctx.lineTo(x(v), base);
+      ctx.stroke();
+    });
     D.text(ctx, "critical value", x(cut) - 6, top + 8, { color: C.text, align: "right" });
     D.text(ctx, "H₀", x(0), top - 6, { color: C.text, align: "center", bold: true, size: 16 });
     if (d > 0.02) {

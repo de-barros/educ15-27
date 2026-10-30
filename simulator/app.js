@@ -47,6 +47,7 @@
     $("n").value = c.n;
     $("n").disabled = m.nMin === m.nMax;
     $("n-out").textContent = c.n;
+    $("n-unit").textContent = m.kind === "two" || m.kind === "three" ? "group" : "sample";
     $("d").value = c.d;
     $("d").min = m.kind === "pairs" ? -0.9 : -1.5;
     $("d").max = m.kind === "pairs" ? 0.9 : 1.5;

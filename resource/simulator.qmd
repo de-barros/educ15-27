@@ -41,7 +41,7 @@ Each link opens the simulator ready to go. Before you press a button, predict wh
 ### Why do we need the t-distribution?
 
 - [z with the true σ](../simulator/index.html?step=2&n=5&draws=2000). About 5% of samples land beyond ±1.96.
-- [t with the estimate σ̂](../simulator/index.html?step=3&n=5&draws=2000). Same samples, same cutoffs, but now we use an estimate. Look at **Beyond ±1.96** in the table. Then raise n and watch the problem fade.
+- [t with the estimate σ̂](../simulator/index.html?step=3&n=5&draws=2000). Same samples, but now we use an estimate, so the t cutoffs sit farther out. Look at **Beyond ±1.96** in the table: that's how often the old z cutoffs would mislead us. Then raise n and watch the problem fade.
 
 ### What does a p-value look like?
 
