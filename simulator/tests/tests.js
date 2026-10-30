@@ -113,6 +113,21 @@
   near("Scale: standard error", E.rawNull(E.config({ step: "2", n: 25, mu0: 500, sigma: 100 })).sd, 20, 1e-12);
   near("Scale: SD floor", E.config({ sigma: 0 }).sigma, 0.01, 1e-12);
 
+  // The intercept: a true intercept moves a and nothing else ----
+
+  ["7", "7b"].forEach(function (step) {
+    var base = E.config({ step: step, n: 20, d: 0.5 }), other = E.config({ step: step, n: 20, d: 0.5, a0: 8.87 });
+    var r1 = E.makeRng(12), r2 = E.makeRng(12), worst = 0, sumA = 0;
+    for (var i = 0; i < 4000; i++) {
+      var s1 = E.drawSample(base, r1), s2 = E.drawSample(other, r2);
+      worst = Math.max(worst, Math.abs(s1.b - s2.b), Math.abs(s1.stat - s2.stat));
+      sumA += s2.a;
+    }
+    near("Intercept leaves the slope alone, step " + step, worst, 0, 1e-9);
+    near("Average a finds the intercept, step " + step, sumA / 4000, 8.87, 0.03);
+  });
+  near("Correlation ignores the intercept", E.truth(E.config({ step: "6", a0: 5 })).intercept, 0, 1e-12);
+
   // Power: the z-steps must match the exact formula ----
 
   var pw = E.config({ step: "2", n: 10, d: 0.89 });

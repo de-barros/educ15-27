@@ -100,7 +100,7 @@
       title: "7. Regression slope b for a yes/no predictor" }
   };
 
-  var DEFAULTS = { step: "2", n: 10, d: 0, mu0: 100, sigma: 15, pop: "normal", alpha: 0.05, tails: "two", view: "stat" };
+  var DEFAULTS = { step: "2", n: 10, d: 0, mu0: 100, sigma: 15, a0: 0, pop: "normal", alpha: 0.05, tails: "two", view: "stat" };
 
   function config(opts) {
     var c = {}, k;
@@ -112,6 +112,7 @@
     c.meta = st;
     c.mu0 = Math.max(-10000, Math.min(10000, c.mu0));
     c.sigma = Math.max(0.01, Math.min(10000, c.sigma));
+    c.a0 = Math.max(-1000, Math.min(1000, c.a0));
     if (st.views.indexOf(c.view) < 0) c.view = st.views[0];
     // An F test only has an upper tail
     if (st.kind === "three") c.tails = "right";
@@ -191,8 +192,8 @@
     if (k === "paired") return { means: [d] };
     if (k === "two") return { means: [m + d, m] };
     if (k === "three") return { means: [m - d / 2, m, m + d / 2] };
-    if (k === "binary") return { beta: c.d };
-    return { rho: Math.max(-0.99, Math.min(0.99, c.d)) };
+    if (k === "binary") return { beta: c.d, intercept: c.a0 };
+    return { rho: Math.max(-0.99, Math.min(0.99, c.d)), intercept: c.step === "7" ? c.a0 : 0 };
   }
 
   function drawSample(c, rng) {
@@ -232,10 +233,10 @@
       for (var i = 0; i < n; i++) {
         if (k === "binary") {
           x[i] = i < n / 2 ? 0 : 1;
-          y[i] = tr.beta * x[i] + rng.normal();
+          y[i] = tr.intercept + tr.beta * x[i] + rng.normal();
         } else {
           x[i] = rng.normal();
-          y[i] = rho * x[i] + e * rng.normal();
+          y[i] = tr.intercept + rho * x[i] + e * rng.normal();
         }
       }
       res = S.bivariate(x, y);

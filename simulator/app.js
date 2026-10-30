@@ -1,7 +1,7 @@
 // Wires the interface to the views, and reads and writes the URL, so that a
 // slide can open any view in a preset state.
 //
-// Parameters: tab, ui=slide, theme=light (for printing), step, n, d, pop, mu, sd,
+// Parameters: tab, ui=slide, theme=light (for printing), step, n, d, pop, mu, sd, a,
 // alpha, tails, view, hide, draws, seed. Example: index.html?ui=slide&step=2&n=10&draws=551
 (function (root) {
   "use strict";
@@ -42,6 +42,8 @@
     $("mu-field").style.display = m.kind === "paired" ? "none" : "";
     $("mu").value = c.mu0;
     $("sd").value = c.sigma;
+    $("a-field").style.display = c.step === "7" || c.step === "7b" ? "" : "none";
+    $("a0").value = c.a0;
     $("n").min = m.nMin;
     $("n").max = m.nMax;
     $("n").value = c.n;
@@ -51,7 +53,7 @@
     $("d").value = c.d;
     $("d").min = m.kind === "pairs" ? -0.9 : -1.5;
     $("d").max = m.kind === "pairs" ? 0.9 : 1.5;
-    $("d-label").textContent = m.kind === "pairs" ? "True correlation ρ" : m.kind === "binary" ? "True slope β" : "True effect d";
+    $("d-label").textContent = c.step === "6" ? "True correlation ρ" : c.step === "7" || c.step === "7b" ? "True slope β" : "True effect d";
     $("d-out").textContent = root.SimDraw.fmt(c.d);
     $("alpha").value = String(c.alpha);
     $("tails").value = c.tails;
@@ -95,6 +97,10 @@
     $("sd").onchange = function () {
       var v = parseFloat(this.value);
       if (v > 0) update({ sigma: v }); else syncControls();
+    };
+    $("a0").onchange = function () {
+      var v = parseFloat(this.value);
+      if (isFinite(v)) update({ a0: v }); else syncControls();
     };
     $("n").oninput = function () { update({ n: parseInt(this.value, 10) }); };
     $("d").oninput = function () { update({ d: parseFloat(this.value) }); };
@@ -230,6 +236,7 @@
       if (c.pop !== "normal") q.set("pop", c.pop);
       if (c.mu0 !== 100) q.set("mu", c.mu0);
       if (c.sigma !== 15) q.set("sd", c.sigma);
+      if (c.a0) q.set("a", c.a0);
       if (c.alpha !== 0.05) q.set("alpha", c.alpha);
       if (c.tails !== "two") q.set("tails", c.tails);
       if (c.view !== "stat") q.set("view", c.view);
@@ -299,7 +306,7 @@
     B.state.hide = params.get("hide") === "1";
     B.configure({
       step: step, n: num("n", meta.n), d: tab === "blueprint" ? num("d", 0) : 0, pop: params.get("pop") || "normal",
-      mu0: num("mu", 100), sigma: num("sd", 15) > 0 ? num("sd", 15) : 15,
+      mu0: num("mu", 100), sigma: num("sd", 15) > 0 ? num("sd", 15) : 15, a0: num("a", 0),
       alpha: tab === "blueprint" ? num("alpha", 0.05) : 0.05, tails: params.get("tails") || "two",
       view: params.get("view") || meta.views[meta.views.length - 1]
     });

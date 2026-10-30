@@ -22,7 +22,7 @@
     state.samples = []; state.stats = []; state.raws = [];
     state.N = 0; state.selected = -1; state.dots = [];
     state.sumM = 0; state.sumM2 = 0; state.sumSSn = 0; state.sumVarHat = 0; state.sumSdHat = 0;
-    state.nEst = 0; state.beyondZ = 0; state.sumMsw = 0; state.sumMsb = 0;
+    state.nEst = 0; state.beyondZ = 0; state.sumMsw = 0; state.sumMsb = 0; state.sumA = 0;
     state.rng = E.makeRng(state.seed);
   }
 
@@ -73,7 +73,7 @@
 
   function configure(opts) {
     var old = state.c || {};
-    var c = E.config(Object.assign({}, old.step ? { step: old.step, n: old.n, d: old.d, pop: old.pop, mu0: old.mu0, sigma: old.sigma, alpha: old.alpha, tails: old.tails, view: old.view } : {}, opts));
+    var c = E.config(Object.assign({}, old.step ? { step: old.step, n: old.n, d: old.d, pop: old.pop, mu0: old.mu0, sigma: old.sigma, a0: old.a0, alpha: old.alpha, tails: old.tails, view: old.view } : {}, opts));
     state.c = c;
     // Scatter plots need height, so their two panels share a row
     document.querySelector("#view-blueprint .stage").classList.toggle("pairs", c.meta.kind === "pairs" || c.meta.kind === "binary");
@@ -102,6 +102,7 @@
       state.sumMsw += s.msw;
       state.sumMsb += s.msb;
     }
+    if (s.seB !== undefined) state.sumA += s.a;
     state.samples.push(s);
     if (state.samples.length > MAX_KEPT) state.samples.shift();
     state.selected = state.N - 1;
@@ -169,12 +170,10 @@
   function planDots(c, s, g) {
     var k = c.meta.kind, dots = [], p = g.pop, q = g.sample;
     if (k === "pairs" || k === "binary") {
-      var sc = scatterScales(c, q.w, q.h), binary = k === "binary";
+      // Panels 1 and 2 share their axes, so each dot goes straight across
+      var sc = scatterScales(c, q.w, q.h), scP = scatterScales(c, p.w, p.h), binary = k === "binary";
       s.x.forEach(function (v, i) {
-        var u = (p.h - 12) / 7;
-        var x0 = binary ? p.x + p.w * (v ? 0.62 : 0.38) : p.x + p.w / 2 + v * u * 1.6;
-        var y0 = binary ? p.y + p.h * 0.55 : p.y + p.h / 2 - s.y[i] * u;
-        dots.push({ x0: x0, y0: y0, x1: q.x + sc.x(v), y1: q.y + sc.y(s.y[i]), lag: (i % 8) * 0.018, color: C.dot });
+        dots.push({ x0: p.x + scP.x(v), y0: p.y + scP.y(s.y[i]), x1: q.x + sc.x(v), y1: q.y + sc.y(s.y[i]), lag: (i % 8) * 0.018, color: C.dot });
       });
       var xm = binary ? 0.5 : 0, ym = S.mean(s.y) + s.b * (xm - S.mean(s.x)) ;
       return { dots: dots, line: true, sc: sc, sx: q.x + sc.x(xm), sy: q.y + sc.y(ym), q: q, ymean: S.mean(s.y), xbar: S.mean(s.x) };
@@ -371,43 +370,51 @@
     else if (k === "paired") bits = "Gains: " + MU + " = " + D.fmt(truth.means[0], dec) + ", " + SIGMA + " = " + c.sigma + (c.d !== 0 ? ". Dashed: H₀ (no gain)" : "");
     else if (k === "two") bits = MU + "₁ = " + D.fmt(truth.means[0], dec) + ", " + MU + "₂ = " + D.fmt(truth.means[1], dec) + ", " + SIGMA + " = " + c.sigma;
     else if (k === "three") bits = "Group means " + truth.means.map(function (m) { return D.fmt(m, dec); }).join(", ") + ", " + SIGMA + " = " + c.sigma;
-    else if (k === "binary") bits = "β = " + D.fmt(truth.beta, 2) + ": the gap between the two groups, in SD units";
+    else if (k === "binary") bits = lineText("Y", truth.intercept, truth.beta) + ". Intercept: the mean at X = 0. Slope β = " + D.fmt(truth.beta) + ": the gap";
+    else if (c.step === "7") bits = lineText("Y", truth.intercept, truth.rho) + ": intercept " + D.fmt(truth.intercept) + ", slope β = " + D.fmt(truth.rho);
     else bits = RHO + " = " + D.fmt(truth.rho, 2);
     cap.textContent = bits;
     document.getElementById("c-pop").setAttribute("aria-label", "Population. " + bits);
   }
 
   function renderPopPairs(ctx, f, c, truth) {
-    var rho = truth.rho, side = f.h - 12, cx = f.w / 2, cy = f.h / 2, u = side / 7;
-    var binary = c.meta.kind === "binary";
-    if (binary) rho = 0;
+    var sc = scatterScales(c, f.w, f.h), binary = sc.binary, rho = truth.rho, mid = truth.intercept;
     if (binary) {
-      var dom = [-4.5, 4.5 + Math.max(0, truth.beta)], x = D.scale(dom[0] + Math.min(0, truth.beta), dom[1], 14, f.w - 14), base = f.h - 24;
-      [[0, C.pop], [truth.beta, C.pop2]].forEach(function (g) {
-        var fn = function (v) { return S.normPdf(v, g[0]); };
-        D.curve(ctx, fn, x, base, base - 6, 0.42, 14, f.w - 14, { fill: g[1] + "33" });
-        D.curve(ctx, fn, x, base, base - 6, 0.42, 14, f.w - 14, { color: g[1], width: 2.2 });
+      // How Y spreads at each value of X, turned on its side
+      var half = (sc.x(1) - sc.x(0)) * 0.38;
+      [[0, mid, C.pop], [1, mid + truth.beta, C.pop2]].forEach(function (g) {
+        var center = sc.x(g[0]), v;
+        ctx.beginPath();
+        for (v = -3.4; v <= 3.4; v += 0.1) ctx.lineTo(center - half * Math.exp(-v * v / 2), sc.y(g[1] + v));
+        for (v = 3.4; v >= -3.4; v -= 0.1) ctx.lineTo(center + half * Math.exp(-v * v / 2), sc.y(g[1] + v));
+        ctx.closePath();
+        ctx.fillStyle = g[2] + "33";
+        ctx.fill();
+        ctx.strokeStyle = g[2];
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
       });
-      D.xAxis(ctx, x, base, 14, f.w - 14, 9);
-      return;
+    } else {
+      // Ellipses holding 50%, 80% and 95% of the population
+      [1.177, 1.794, 2.448].forEach(function (rad, i) {
+        ctx.beginPath();
+        for (var t = 0; t <= 64; t++) {
+          var a = t / 64 * 2 * Math.PI;
+          var vx = rad * Math.cos(a);
+          var vy = rad * (rho * Math.cos(a) + Math.sqrt(1 - rho * rho) * Math.sin(a));
+          var px = sc.x(vx), py = sc.y(mid + vy);
+          if (t === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = C.pop + (i === 0 ? "44" : "22");
+        ctx.fill();
+        ctx.strokeStyle = C.pop;
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+      });
     }
-    // Ellipses holding 50%, 80% and 95% of the population
-    [1.177, 1.794, 2.448].forEach(function (rad, i) {
-      ctx.beginPath();
-      for (var t = 0; t <= 64; t++) {
-        var a = t / 64 * 2 * Math.PI;
-        var vx = rad * Math.cos(a);
-        var vy = rad * (rho * Math.cos(a) + Math.sqrt(1 - rho * rho) * Math.sin(a));
-        var px = cx + vx * u * 1.6, py = cy - vy * u;
-        if (t === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-      }
-      ctx.closePath();
-      ctx.fillStyle = C.pop + (i === 0 ? "44" : "22");
-      ctx.fill();
-      ctx.strokeStyle = C.pop;
-      ctx.lineWidth = 1.4;
-      ctx.stroke();
-    });
+    drawLine(ctx, c, sc, mid, binary ? truth.beta : rho, C.text, "intercept " + D.fmt(mid));
+    renderScatterAxes(ctx, f, c);
     if (state.hide) {
       ctx.fillStyle = "rgba(27, 31, 36, 0.86)";
       ctx.fillRect(0, 0, f.w, f.h);
@@ -474,18 +481,56 @@
   }
 
   function scatterScales(c, w, h) {
-    var left = 40, right = w - 10, top = 6, base = h - 22, binary = c.meta.kind === "binary";
+    var left = 40, right = w - 10, top = 6, base = h - 22, binary = c.meta.kind === "binary", mid = E.truth(c).intercept;
     return {
       left: left, right: right, top: top, base: base, binary: binary,
       xlo: binary ? 0 : -3.2, xhi: binary ? 1 : 3.2,
       x: binary ? D.scale(-0.5, 1.5, left, right) : D.scale(-3.2, 3.2, left, right),
-      y: binary ? D.scale(-3.6 + Math.min(0, c.d), 3.6 + Math.max(0, c.d), base, top) : D.scale(-3.6, 3.6, base, top)
+      y: binary ? D.scale(mid - 3.6 + Math.min(0, c.d), mid + 3.6 + Math.max(0, c.d), base, top) : D.scale(mid - 3.6, mid + 3.6, base, top)
     };
+  }
+
+  // "Y = 8.87 + 0.76 X", the way the slides write it
+  function lineText(y, a, b) {
+    return y + " = " + D.fmt(a) + (b < 0 ? " − " : " + ") + D.fmt(Math.abs(b)) + " X";
+  }
+
+  // The regression line. Where it meets X = 0 is the intercept, which isn't the
+  // left edge of the plot, so mark it.
+  function drawLine(ctx, c, sc, a, b, color, name) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(sc.x(sc.xlo), sc.y(a + b * sc.xlo));
+    ctx.lineTo(sc.x(sc.xhi), sc.y(a + b * sc.xhi));
+    ctx.stroke();
+    if (c.step === "6") return;
+    var px = sc.x(0), py = sc.y(a), right = b < 0, tx = px + (right ? 9 : -9), ty = py - 10;
+    if (!sc.binary) {
+      ctx.strokeStyle = C.muted;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(px, sc.base);
+      ctx.lineTo(px, sc.top);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(px, py, 5, 0, 2 * Math.PI);
+    ctx.fill();
+    // A backing keeps the label readable over the dots
+    D.text(ctx, "", tx, ty, { bold: true });
+    var w = ctx.measureText(name).width;
+    ctx.fillStyle = C.panel + "cc";
+    ctx.fillRect(right ? tx - 2 : tx - w - 2, ty - 12, w + 4, 16);
+    D.text(ctx, name, tx, ty, { color: color, bold: true, align: right ? "left" : "right" });
   }
 
   function renderScatterAxes(ctx, f, c) {
     var sc = scatterScales(c, f.w, f.h);
-    D.yAxis(ctx, sc.y, sc.left, sc.base, sc.top, 4);
+    D.yAxis(ctx, sc.y, sc.left, sc.base, sc.top, 4, "Y");
     if (sc.binary) {
       ctx.strokeStyle = C.line;
       ctx.beginPath();
@@ -495,7 +540,7 @@
       D.text(ctx, "X = 0", sc.x(0), sc.base + 15, { align: "center" });
       D.text(ctx, "X = 1", sc.x(1), sc.base + 15, { align: "center" });
     } else {
-      D.xAxis(ctx, sc.x, sc.base, sc.left, sc.right, 8);
+      D.xAxis(ctx, sc.x, sc.base, sc.left, sc.right, 8, "X");
     }
   }
 
@@ -507,12 +552,7 @@
       ctx.arc(x(v), y(s.y[i]), 4, 0, 2 * Math.PI);
       ctx.fill();
     });
-    ctx.strokeStyle = C.accent;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(x(sc.xlo), y(s.a + s.b * sc.xlo));
-    ctx.lineTo(x(sc.xhi), y(s.a + s.b * sc.xhi));
-    ctx.stroke();
+    drawLine(ctx, c, sc, s.a, s.b, C.accent, "a = " + D.fmt(s.a));
     renderScatterAxes(ctx, f, c);
   }
 
@@ -536,7 +576,7 @@
     } else if (c.step === "6") {
       out.push("r = " + f(s.r), "t(" + (c.n - 2) + ") = <b>" + f(s.stat) + "</b>");
     } else {
-      out.push("Ŷ = " + f(s.a) + " + " + f(s.b) + " X", "b = " + f(s.b), "SE = " + f(s.seB), "t(" + (c.n - 2) + ") = <b>" + f(s.stat) + "</b>");
+      out.push(lineText("Ŷ", s.a, s.b), "a = " + f(s.a), "b = " + f(s.b), "SE of b = " + f(s.seB), "t(" + (c.n - 2) + ") = <b>" + f(s.stat) + "</b>");
     }
     var p = s.p < 0.001 ? "p &lt; .001" : "p = " + s.p.toFixed(3).replace(/^0/, "");
     out.push(p);
@@ -705,6 +745,7 @@
   function estimates(c, N) {
     var f = D.fmt, t = truthOf(c), rows = "", e = extra(c), dec = t && t.se !== null ? 2 + e : 2, sq = 2 * e;
     if (N < 2) return "";
+    if (c.step === "7" || c.step === "7b") rows += row3("a", f(state.sumA / N), f(E.truth(c).intercept));
     if (t) {
       var avg = state.sumM / N, sd = Math.sqrt(Math.max(0, (state.sumM2 - N * avg * avg) / (N - 1)));
       rows += row3(t.name, f(avg, dec), f(t.value, dec));

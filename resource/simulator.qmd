@@ -55,7 +55,7 @@ Each link opens the simulator ready to go. Before you press a button, predict wh
 
 ### How do correlation and regression relate?
 
-- [A slope with n = 20](../simulator/index.html?step=7&n=20&d=0.4&draws=800). Each dot is one estimate b. The true slope sits in the table.
+- [A slope with n = 20](../simulator/index.html?step=7&n=20&d=0.4&draws=800). Each dot is one estimate b. The table compares the average a and b with the true intercept and slope. The intercept is where the line meets X = 0, so try a different true intercept: the line moves, and the slope doesn't.
 - [A yes/no predictor](../simulator/index.html?step=7b&n=20&d=0.5&draws=800). With a yes/no X, the slope is just the difference between two group means, and its t is the t from a two-sample test.
 - [Drag the points](../simulator/index.html?tab=correlation&r=0.6&n=12&resid=1). Pull one point far away, and see what happens to the line, r and the residuals. Then try it [with many points](../simulator/index.html?tab=correlation&r=0.6&n=200).
 
