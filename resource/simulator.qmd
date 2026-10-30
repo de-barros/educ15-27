@@ -22,7 +22,7 @@ Each link opens the simulator ready to go. Before you press a button, predict wh
 
 ### Why does a bigger sample help?
 
-- [Means of 5 observations](../simulator/index.html?step=2&n=5&view=raw&draws=500). Note how far the means spread. Then move the slider to 25 and draw again.
+- [Means of 5 observations](../simulator/index.html?step=2&n=5&view=raw&draws=500). Panels 1 and 3 share the same axis, so compare how far the means spread with how far the scores spread. Then move the slider to 25 and draw again.
 - Compare the **SD of M** in the table with the true standard error, σ / √n. The standard error is the SD of all those sample means.
 
 ### Does the population have to be normal?

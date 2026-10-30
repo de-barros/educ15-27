@@ -26,9 +26,17 @@
     state.rng = E.makeRng(state.seed);
   }
 
+  // A mean in score units lives on the same axis as the scores, so a statistic
+  // falls straight down and sample size shows up as a narrower distribution
+  function sharesAxis(c) { return c.view === "raw" && c.meta.kind === "one"; }
+
   // Fix the axis of panel 3 from a pilot run, so it doesn't jump around as dots land
   function setRange() {
     var c = state.c, rng = E.makeRng(99), vals = [], i;
+    if (sharesAxis(c)) {
+      state.range = popAxis(c);
+      return;
+    }
     for (i = 0; i < 800; i++) {
       var s = E.drawSample(c, rng);
       vals.push(c.view === "raw" ? s.raw : s.stat);
@@ -539,7 +547,7 @@
     var pad = 14, base = f.h - 24, top = 10, height = base - top, dist = state.dist;
     var dom = state.range, x = D.scale(dom[0], dom[1], pad, f.w - pad);
     var useRaw = c.view === "raw", rn = useRaw ? E.rawNull(c) : null;
-    var fn = null, cutLo, cutHi;
+    var fn = null, cutLo, cutHi, shared = sharesAxis(c);
 
     if (!useRaw) {
       fn = function (v) { return E.pdf(dist, v); };
@@ -634,7 +642,9 @@
       ctx.moveTo(x(v), top);
       ctx.lineTo(x(v), base);
       ctx.stroke();
-      D.text(ctx, D.fmt(v, Math.abs(v) >= 20 ? 1 : 2), x(v) + (v < 0 && dist.family !== "f" ? -4 : 4), top + 11, { color: C.crit, align: v < 0 && dist.family !== "f" ? "right" : "left" });
+      // Each label sits outside its cutoff, because a large n brings them close together
+      var outward = shared ? v < rn.mean : v < 0 && dist.family !== "f";
+      D.text(ctx, D.fmt(v, Math.abs(v) >= 20 ? 1 : 2), x(v) + (outward ? -4 : 4), top + 11, { color: C.crit, align: outward ? "right" : "left" });
     });
 
     // The current sample
@@ -652,7 +662,7 @@
       ctx.fill();
     }
 
-    D.xAxis(ctx, x, base, pad, f.w - pad, 10);
+    D.xAxis(ctx, x, base, pad, f.w - pad, shared ? 9 : 10);
     D.text(ctx, axisName(c), f.w - pad, top + 3, { align: "right", color: C.text, size: 14, bold: true });
     var capDist = document.getElementById("cap-dist"), beyond = countBeyond();
     capDist.textContent = N ? N.toLocaleString("en-US") + (N === 1 ? " sample" : " samples") + ", " + D.pct(beyond / N) + " beyond the cutoffs" : "No samples yet";
