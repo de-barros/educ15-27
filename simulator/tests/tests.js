@@ -143,6 +143,16 @@
   });
   near("Correlation stays below 1", E.truth(E.config({ step: "6", d: 3 })).rho, 0.99, 1e-12);
 
+  // The largest samples: cutoffs from R's qt() and qf() ----
+
+  [["3", 1.971957], ["3p", 1.971957], ["4", 1.965942], ["6", 1.972017], ["7", 1.972017], ["7b", 1.972017]].forEach(function (v) {
+    var cfg = E.config({ step: v[0], n: 200 });
+    near("Sample size 200 allowed, step " + v[0], cfg.n, 200, 1e-9);
+    near("Cutoff at n = 200, step " + v[0], E.critical(cfg, E.nullDist(cfg)).hi, v[1], 1e-5);
+  });
+  var f200 = E.config({ step: "5", n: 200 });
+  near("F cutoff at n = 200", E.critical(f200, E.nullDist(f200)).hi, 3.010815, 1e-5);
+
   // Power: the z-steps must match the exact formula ----
 
   var pw = E.config({ step: "2", n: 10, d: 0.89 });
