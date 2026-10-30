@@ -1,6 +1,6 @@
 ---
 title: "Data"
-description: "Where to find the Mindspark data used throughout the course."
+description: "Download the Mindspark data used throughout the course."
 ---
 
 Most examples in this course use data from a real study. It evaluated the impact of Mindspark, a learning software, on children's learning in after-school centers in Delhi, India.
@@ -9,24 +9,28 @@ Most examples in this course use data from a real study. It evaluated the impact
 - [The academic article](https://www.aeaweb.org/articles?id=10.1257/aer.20171112)
 - [A 3-minute video about the study](https://www.youtube.com/watch?v=fpChwrfYnI8)
 
-## If you're in the class
+## Download the data
 
-The data for the labs are on Canvas. You don't need to download anything from this page.
+Anyone can use these files, whether you're in the class, teaching a similar one, or learning on your own. Each opens in Excel, Google Sheets or R.
 
-## If you're teaching or learning on your own
+| File | What's in it |
+|---|---|
+| [`ms_blel_jpal_long.csv`](../files/data/mindspark/ms_blel_jpal_long.csv) | All 1,158 rows: one per student, per round |
+| [`ms_blel_jpal_baseline.csv`](../files/data/mindspark/ms_blel_jpal_baseline.csv) | The 619 students at baseline |
+| [`ms_blel_jpal_endline.csv`](../files/data/mindspark/ms_blel_jpal_endline.csv) | The 539 students at endline |
+| [`codebook.csv`](../files/data/mindspark/codebook.csv) | What each of the 36 variables means |
+| [`README.txt`](../files/data/mindspark/README.txt) | Source, license and what we changed |
 
-You're welcome to use the slides, labs and simulator here. The data themselves aren't on this site or on GitHub, because we can't repost them. You can get them directly from the study's authors, who shared them with their published article:
+The data are deidentified: each student has a study ID, and no names.
 
-1. Go to the [replication package on openICPSR](https://doi.org/10.3886/E113192V2).
-2. Sign in, or create an account.
-3. Download the `data` folder and `LICENSE.txt`.
+These are the data sheets from the workbook used in EDUC 15 in Fall 2024. We saved them as CSV files and corrected two labels in the codebook. For the authors' original files, see their [replication package on openICPSR](https://www.openicpsr.org/openicpsr/project/113192/version/V2/view).
 
-Read `LICENSE.txt` before you share the data with anyone, and cite the study when you use them.
+## License
 
-The slides and most of each lab work without the data. You'll only need them for the spreadsheet part of a lab.
+The data are © 2019 American Economic Association and licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). That's different from the rest of this site: you may reuse and share them, including commercially, as long as you credit the authors. The data come with no warranty, and the authors aren't connected with this course.
 
-## How to cite the study
-
-Muralidharan, Karthik, Abhijeet Singh, and Alejandro J. Ganimian. 2019. "Disrupting Education? Experimental Evidence on Technology-Aided Instruction in India." *American Economic Review* 109 (4): 1426–60. <https://doi.org/10.1257/aer.20171112>.
+## How to cite the data and the study
 
 Muralidharan, Karthik, Abhijeet Singh, and Alejandro J. Ganimian. 2019. "Replication Data for: Disrupting Education? Experimental Evidence on Technology-Aided Instruction in India." Version 2. Nashville, TN: American Economic Association. Distributed by ICPSR, Ann Arbor, MI. <https://doi.org/10.3886/E113192V2>.
+
+Muralidharan, Karthik, Abhijeet Singh, and Alejandro J. Ganimian. 2019. "Disrupting Education? Experimental Evidence on Technology-Aided Instruction in India." *American Economic Review* 109 (4): 1426–60. <https://doi.org/10.1257/aer.20171112>.

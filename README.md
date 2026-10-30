@@ -28,15 +28,12 @@ of California, Irvine
 ## Data
 
 Most examples use data from the Mindspark study ([Muralidharan, Singh,
-and Ganimian 2019](https://doi.org/10.1257/aer.20171112)). The data
-aren’t in this repository or on the site, because we can’t repost them.
-Students get them on Canvas. Anyone else can download them from the
-[authors’ replication package on
-openICPSR](https://doi.org/10.3886/E113192V2), and the [data
-page](https://educ15.de-barros.com/resource/data.html) explains how.
-
-To rebuild the decks that use the data, put your copy in `slides/data/`,
-which git ignores.
+and Ganimian 2019](https://doi.org/10.1257/aer.20171112)). The files
+used in class are in [`files/data/mindspark/`](files/data/mindspark/),
+with a README giving their source and what we changed. The [data
+page](https://educ15.de-barros.com/resource/data.html) has the same
+files. The authors’ originals are in their [replication package on
+openICPSR](https://doi.org/10.3886/E113192V2).
 
 ## Licenses
 
@@ -45,6 +42,11 @@ Commons ([CC-BY-NC
 4.0](https://creativecommons.org/licenses/by-nc/4.0/)).
 
 **Code:** All code is licensed under the [MIT License](LICENSE.md).
+
+**Data:** The Mindspark data in `files/data/mindspark/` are © 2019
+American Economic Association and licensed under [CC BY
+4.0](https://creativecommons.org/licenses/by/4.0/), not the licenses
+above.
 
 ## Credits
 

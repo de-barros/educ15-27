@@ -1,0 +1,44 @@
+Variable Name,Variable Label,Answer Label,Answer Code,Variable Type
+st_id,Student ID,Open ended,,String
+round,Round of data collection (BL or EL),,,Numeric
+,,Baseline,1.0,
+,,Endline,2.0,
+ms_center1,Mindspark center,Open ended,,String
+st_age1,Age,Open ended,,Numeric
+st_female1,Female,Open ended,,Numeric
+st_grade1,Grade,Open ended,,Numeric
+treat,Treatment,Open ended,,Numeric
+strata,Randomization stratum,Open ended,,Numeric
+st_tui_math,Attends Math extra tuition,Open ended,,Numeric
+st_tui_hindi,Attends Hindi extra tuition,Open ended,,Numeric
+st_tui_other,Attends extra tuition in other subjects,Open ended,,Numeric
+st_tui_math_hrs,Hours of extra math tuition per week,,,long
+,,Less than 1 hour,1.0,
+,,1-2 hours,2.0,
+,,2-3 hours,3.0,
+,,3-4 hours,4.0,
+,,More than 4 hours,5.0,
+ts_grade,Test grade,Open ended,,String
+tot_hindi,"Hindi test, total raw score",Open ended,,Numeric
+tot_math,"Math test, total raw score",Open ended,,Numeric
+per_math,"Math test, percent-correct score",Open ended,,Numeric
+per_hindi,"Hindi test, percent-correct score",Open ended,,Numeric
+m_theta_eap,"Math test, IRT-scaled score (EAP)",Open ended,,Numeric
+m_theta_mle,"Math test, IRT-scaled score (MLE)",Open ended,,Numeric
+h_theta_eap,"Hindi test, IRT-scaled score (EAP)",Open ended,,Numeric
+h_theta_mle,"Hindi test, IRT-scaled score (MLE)",Open ended,,Numeric
+ses_index,SES index,Open ended,,Numeric
+d_sch_grade4,Grade 4,Open ended,,Numeric
+d_sch_grade5,Grade 5,Open ended,,Numeric
+d_sch_grade6,Grade 6,Open ended,,Numeric
+d_sch_grade7,Grade 7,Open ended,,Numeric
+d_sch_grade8,Grade 8,Open ended,,Numeric
+d_sch_grade9,Grade 9,Open ended,,Numeric
+any_tuition,Attends tuition in any subject,Open ended,,Numeric
+quint_math1,Quintile of performance in math,Open ended,,Numeric
+quint_hindi1,Quintile of performance in Hindi,Open ended,,Numeric
+terc_math1,Tercile of performance in math,Open ended,,Numeric
+terc_hindi1,Tercile of performance in Hindi,Open ended,,Numeric
+control,Control student,Open ended,,Numeric
+r2,Endline,Open ended,,Numeric
+in_r2,Present at endline,Open ended,,Numeric
