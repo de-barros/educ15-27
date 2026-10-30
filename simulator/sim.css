@@ -148,7 +148,7 @@ label { font-size: 0.95rem; color: var(--muted); }
 
 output { color: var(--text); font-weight: 700; }
 
-select, input[type="file"] {
+select, input[type="file"], input[type="number"] {
   background: var(--panel);
   color: var(--text);
   border: 1px solid #7d8894;

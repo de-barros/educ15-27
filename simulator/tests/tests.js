@@ -101,6 +101,18 @@
   near("Type I one-tailed", rejectRate({ step: "3", n: 12, d: 0, tails: "right" }, N), 0.05, tol);
   near("Type I alpha .01", rejectRate({ step: "4", n: 12, d: 0, alpha: 0.01 }, N), 0.01, 3.5 * Math.sqrt(0.01 * 0.99 / N));
 
+  // The scale of the test: a new mean and SD must not change any test statistic ----
+
+  ["1", "2", "3", "3p", "4", "5"].forEach(function (step) {
+    var base = E.config({ step: step, d: 0.4 }), other = E.config({ step: step, d: 0.4, mu0: 3, sigma: 0.5 });
+    var r1 = E.makeRng(11), r2 = E.makeRng(11), worst = 0;
+    for (var i = 0; i < 200; i++) worst = Math.max(worst, Math.abs(E.drawSample(base, r1).stat - E.drawSample(other, r2).stat));
+    near("Scale doesn't change step " + step, worst, 0, 1e-7);
+  });
+  near("Scale: true mean", E.truth(E.config({ step: "2", d: 0.5, mu0: 500, sigma: 100 })).means[0], 550, 1e-12);
+  near("Scale: standard error", E.rawNull(E.config({ step: "2", n: 25, mu0: 500, sigma: 100 })).sd, 20, 1e-12);
+  near("Scale: SD floor", E.config({ sigma: 0 }).sigma, 0.01, 1e-12);
+
   // Power: the z-steps must match the exact formula ----
 
   var pw = E.config({ step: "2", n: 10, d: 0.89 });

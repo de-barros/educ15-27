@@ -25,6 +25,10 @@ Each link opens the simulator ready to go. Before you press a button, predict wh
 - [Means of 5 observations](../simulator/index.html?step=2&n=5&view=raw&draws=500). Panels 1 and 3 share the same axis, so compare how far the means spread with how far the scores spread. Then move the slider to 25 and draw again.
 - Compare the **SD of M** in the table with the true standard error, σ / √n. The standard error is the SD of all those sample means.
 
+### Does the scale of the test matter?
+
+- [A test with mean 500 and SD 100](../simulator/index.html?step=2&n=10&mu=500&sd=100&view=raw&draws=500). The means are on a new scale. Now set "Show the statistic as" to z. How does this compare with a test that has mean 100 and SD 15, or a GPA with mean 3 and SD 0.5? Type those values in to check.
+
 ### Does the population have to be normal?
 
 - [Means from a skewed population](../simulator/index.html?step=2&n=2&pop=rightskew&view=raw&draws=500). With n = 2 the means are still skewed. Raise n to 30 and draw again. This is the central limit theorem.

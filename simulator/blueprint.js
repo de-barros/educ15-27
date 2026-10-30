@@ -30,6 +30,9 @@
   // falls straight down and sample size shows up as a narrower distribution
   function sharesAxis(c) { return c.view === "raw" && c.meta.kind === "one"; }
 
+  // Extra decimals for a small scale, so a GPA doesn't read 3.0 in every sample
+  function extra(c) { return c.sigma >= 5 ? 0 : c.sigma >= 0.5 ? 1 : c.sigma >= 0.05 ? 2 : 3; }
+
   // Fix the axis of panel 3 from a pilot run, so it doesn't jump around as dots land
   function setRange() {
     var c = state.c, rng = E.makeRng(99), vals = [], i;
@@ -70,7 +73,7 @@
 
   function configure(opts) {
     var old = state.c || {};
-    var c = E.config(Object.assign({}, old.step ? { step: old.step, n: old.n, d: old.d, pop: old.pop, alpha: old.alpha, tails: old.tails, view: old.view } : {}, opts));
+    var c = E.config(Object.assign({}, old.step ? { step: old.step, n: old.n, d: old.d, pop: old.pop, mu0: old.mu0, sigma: old.sigma, alpha: old.alpha, tails: old.tails, view: old.view } : {}, opts));
     state.c = c;
     // Scatter plots need height, so their two panels share a row
     document.querySelector("#view-blueprint .stage").classList.toggle("pairs", c.meta.kind === "pairs" || c.meta.kind === "binary");
@@ -362,12 +365,12 @@
       }
     }
 
-    var bits;
+    var bits, dec = 1 + extra(c);
     if (state.hide) bits = "We don't get to see this. We only have the sample.";
-    else if (k === "one") bits = MU + " = " + D.fmt(truth.means[0], 1) + ", " + SIGMA + " = " + c.sigma + (c.d !== 0 ? ". Dashed: what H₀ claims (" + MU + " = " + c.mu0 + ")" : "");
-    else if (k === "paired") bits = "Gains: " + MU + " = " + D.fmt(truth.means[0], 1) + ", " + SIGMA + " = " + c.sigma + (c.d !== 0 ? ". Dashed: H₀ (no gain)" : "");
-    else if (k === "two") bits = MU + "₁ = " + D.fmt(truth.means[0], 1) + ", " + MU + "₂ = " + D.fmt(truth.means[1], 1) + ", " + SIGMA + " = " + c.sigma;
-    else if (k === "three") bits = "Group means " + truth.means.map(function (m) { return D.fmt(m, 1); }).join(", ") + ", " + SIGMA + " = " + c.sigma;
+    else if (k === "one") bits = MU + " = " + D.fmt(truth.means[0], dec) + ", " + SIGMA + " = " + c.sigma + (c.d !== 0 ? ". Dashed: what H₀ claims (" + MU + " = " + c.mu0 + ")" : "");
+    else if (k === "paired") bits = "Gains: " + MU + " = " + D.fmt(truth.means[0], dec) + ", " + SIGMA + " = " + c.sigma + (c.d !== 0 ? ". Dashed: H₀ (no gain)" : "");
+    else if (k === "two") bits = MU + "₁ = " + D.fmt(truth.means[0], dec) + ", " + MU + "₂ = " + D.fmt(truth.means[1], dec) + ", " + SIGMA + " = " + c.sigma;
+    else if (k === "three") bits = "Group means " + truth.means.map(function (m) { return D.fmt(m, dec); }).join(", ") + ", " + SIGMA + " = " + c.sigma;
     else if (k === "binary") bits = "β = " + D.fmt(truth.beta, 2) + ": the gap between the two groups, in SD units";
     else bits = RHO + " = " + D.fmt(truth.rho, 2);
     cap.textContent = bits;
@@ -514,22 +517,22 @@
   }
 
   function sampleText(c, s) {
-    var f = D.fmt, k = c.meta.kind, out = [];
+    var f = D.fmt, k = c.meta.kind, out = [], e = extra(c), one = 1 + e, two = 2 + e, sq = 2 * e;
     function hatM() { return "σ̂<sub>M</sub>"; }
     if (c.step === "1") {
-      out.push("X = " + f(s.M, 1), "z = (X − " + MU + ") / " + SIGMA + " = <b>" + f(s.stat) + "</b>");
+      out.push("X = " + f(s.M, one), "z = (X − " + MU + ") / " + SIGMA + " = <b>" + f(s.stat) + "</b>");
     } else if (c.step === "2") {
-      out.push("M = " + f(s.M, 1));
-      if (s.sdHat !== undefined) out.push(HAT + " = " + f(s.sdHat, 1));
-      out.push(SIGMA + "<sub>M</sub> = " + f(s.se), "z = <b>" + f(s.stat) + "</b>");
+      out.push("M = " + f(s.M, one));
+      if (s.sdHat !== undefined) out.push(HAT + " = " + f(s.sdHat, one));
+      out.push(SIGMA + "<sub>M</sub> = " + f(s.se, two), "z = <b>" + f(s.stat) + "</b>");
     } else if (k === "one" || k === "paired") {
-      out.push("M = " + f(s.M, 1), HAT + " = " + f(s.sdHat, 1), hatM() + " = " + f(s.se), "t(" + (c.n - 1) + ") = <b>" + f(s.stat) + "</b>");
+      out.push("M = " + f(s.M, one), HAT + " = " + f(s.sdHat, one), hatM() + " = " + f(s.se, two), "t(" + (c.n - 1) + ") = <b>" + f(s.stat) + "</b>");
     } else if (k === "two") {
-      out.push("M₁ = " + f(s.M1, 1), "M₂ = " + f(s.M2, 1), "M₁ − M₂ = " + f(s.raw, 1),
-        "σ̂<sub>M₁−M₂</sub> = " + f(s.se), "t(" + (2 * c.n - 2) + ") = <b>" + f(s.stat) + "</b>");
+      out.push("M₁ = " + f(s.M1, one), "M₂ = " + f(s.M2, one), "M₁ − M₂ = " + f(s.raw, one),
+        "σ̂<sub>M₁−M₂</sub> = " + f(s.se, two), "t(" + (2 * c.n - 2) + ") = <b>" + f(s.stat) + "</b>");
     } else if (k === "three") {
-      out.push("Means " + s.means.map(function (m) { return f(m, 1); }).join(", "), "MS<sub>between</sub> = " + f(s.msb, 0),
-        "MS<sub>within</sub> = " + f(s.msw, 0), "F(2, " + (3 * c.n - 3) + ") = <b>" + f(s.stat) + "</b>");
+      out.push("Means " + s.means.map(function (m) { return f(m, one); }).join(", "), "MS<sub>between</sub> = " + f(s.msb, sq),
+        "MS<sub>within</sub> = " + f(s.msw, sq), "F(2, " + (3 * c.n - 3) + ") = <b>" + f(s.stat) + "</b>");
     } else if (c.step === "6") {
       out.push("r = " + f(s.r), "t(" + (c.n - 2) + ") = <b>" + f(s.stat) + "</b>");
     } else {
@@ -644,7 +647,7 @@
       ctx.stroke();
       // Each label sits outside its cutoff, because a large n brings them close together
       var outward = shared ? v < rn.mean : v < 0 && dist.family !== "f";
-      D.text(ctx, D.fmt(v, Math.abs(v) >= 20 ? 1 : 2), x(v) + (outward ? -4 : 4), top + 11, { color: C.crit, align: outward ? "right" : "left" });
+      D.text(ctx, D.fmt(v, (Math.abs(v) >= 20 ? 1 : 2) + (rn ? extra(c) : 0)), x(v) + (outward ? -4 : 4), top + 11, { color: C.crit, align: outward ? "right" : "left" });
     });
 
     // The current sample
@@ -700,24 +703,24 @@
   }
 
   function estimates(c, N) {
-    var f = D.fmt, t = truthOf(c), rows = "";
+    var f = D.fmt, t = truthOf(c), rows = "", e = extra(c), dec = t && t.se !== null ? 2 + e : 2, sq = 2 * e;
     if (N < 2) return "";
     if (t) {
       var avg = state.sumM / N, sd = Math.sqrt(Math.max(0, (state.sumM2 - N * avg * avg) / (N - 1)));
-      rows += row3(t.name, f(avg), f(t.value));
-      rows += row3("SD of " + t.name, f(sd), t.se === null ? "–" : f(t.se));
+      rows += row3(t.name, f(avg, dec), f(t.value, dec));
+      rows += row3("SD of " + t.name, f(sd, dec), t.se === null ? "–" : f(t.se, dec));
     }
     if (state.nEst > 1 && c.n > 1) {
-      var true2 = f(c.sigma * c.sigma, 0);
-      rows += row3(HAT + "² = SS / (n − 1)", f(state.sumVarHat / state.nEst, 1), true2);
-      rows += row3("SS / n", f(state.sumSSn / state.nEst, 1), true2);
-      rows += row3(HAT, f(state.sumSdHat / state.nEst), f(c.sigma, 0));
+      var true2 = f(c.sigma * c.sigma, sq);
+      rows += row3(HAT + "² = SS / (n − 1)", f(state.sumVarHat / state.nEst, 1 + sq), true2);
+      rows += row3("SS / n", f(state.sumSSn / state.nEst, 1 + sq), true2);
+      rows += row3(HAT, f(state.sumSdHat / state.nEst, 2 + e), f(c.sigma, e));
     }
     if (c.meta.kind === "three") {
       var within = c.sigma * c.sigma, tr = E.truth(c), mean3 = S.mean(tr.means);
       var between = within + c.n * S.sumSquares(tr.means, mean3) / 2;
-      rows += row3("MS<sub>within</sub>", f(state.sumMsw / N, 0), f(within, 0));
-      rows += row3("MS<sub>between</sub>", f(state.sumMsb / N, 0), f(between, 0));
+      rows += row3("MS<sub>within</sub>", f(state.sumMsw / N, sq), f(within, sq));
+      rows += row3("MS<sub>between</sub>", f(state.sumMsb / N, sq), f(between, sq));
     }
     if (!rows) return "";
     return "<div class=\"extra\"><h2>Estimates and the truth</h2><table class=\"three\"><thead><tr>" +

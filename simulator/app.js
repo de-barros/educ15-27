@@ -1,8 +1,8 @@
 // Wires the interface to the views, and reads and writes the URL, so that a
 // slide can open any view in a preset state.
 //
-// Parameters: tab, ui=slide, theme=light (for printing), step, n, d, pop, alpha,
-// tails, view, hide, draws, seed. Example: index.html?ui=slide&step=2&n=10&draws=551
+// Parameters: tab, ui=slide, theme=light (for printing), step, n, d, pop, mu, sd,
+// alpha, tails, view, hide, draws, seed. Example: index.html?ui=slide&step=2&n=10&draws=551
 (function (root) {
   "use strict";
   var E = root.SimEngine, B = root.SimBlueprint, P = root.SimPower, I = root.SimIntervals, R = root.SimCorrelation;
@@ -37,6 +37,11 @@
     $("step").value = c.step;
     $("pop").value = c.pop;
     $("pop-field").style.display = pairs ? "none" : "";
+    // Scatter plots are in SD units, and gains have H0 at zero
+    $("scale-fields").style.display = pairs ? "none" : "";
+    $("mu-field").style.display = m.kind === "paired" ? "none" : "";
+    $("mu").value = c.mu0;
+    $("sd").value = c.sigma;
     $("n").min = m.nMin;
     $("n").max = m.nMax;
     $("n").value = c.n;
@@ -81,6 +86,15 @@
       update({ step: this.value, n: st.n, d: 0, tails: "two", view: st.views[st.views.length - 1] });
     };
     $("pop").onchange = function () { update({ pop: this.value }); };
+    // A blank or impossible entry goes back to the value in use
+    $("mu").onchange = function () {
+      var v = parseFloat(this.value);
+      if (isFinite(v)) update({ mu0: v }); else syncControls();
+    };
+    $("sd").onchange = function () {
+      var v = parseFloat(this.value);
+      if (v > 0) update({ sigma: v }); else syncControls();
+    };
     $("n").oninput = function () { update({ n: parseInt(this.value, 10) }); };
     $("d").oninput = function () { update({ d: parseFloat(this.value) }); };
     $("alpha").onchange = function () { update({ alpha: parseFloat(this.value) }); };
@@ -213,6 +227,8 @@
       q.set("step", c.step); q.set("n", c.n);
       if (c.d) q.set("d", c.d);
       if (c.pop !== "normal") q.set("pop", c.pop);
+      if (c.mu0 !== 100) q.set("mu", c.mu0);
+      if (c.sigma !== 15) q.set("sd", c.sigma);
       if (c.alpha !== 0.05) q.set("alpha", c.alpha);
       if (c.tails !== "two") q.set("tails", c.tails);
       if (c.view !== "stat") q.set("view", c.view);
@@ -282,6 +298,7 @@
     B.state.hide = params.get("hide") === "1";
     B.configure({
       step: step, n: num("n", meta.n), d: tab === "blueprint" ? num("d", 0) : 0, pop: params.get("pop") || "normal",
+      mu0: num("mu", 100), sigma: num("sd", 15) > 0 ? num("sd", 15) : 15,
       alpha: tab === "blueprint" ? num("alpha", 0.05) : 0.05, tails: params.get("tails") || "two",
       view: params.get("view") || meta.views[meta.views.length - 1]
     });

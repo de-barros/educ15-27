@@ -110,6 +110,8 @@
     c.step = STEPS[c.step] ? c.step : "2";
     c.n = Math.max(st.nMin, Math.min(st.nMax, Math.round(c.n)));
     c.meta = st;
+    c.mu0 = Math.max(-10000, Math.min(10000, c.mu0));
+    c.sigma = Math.max(0.01, Math.min(10000, c.sigma));
     if (st.views.indexOf(c.view) < 0) c.view = st.views[0];
     // An F test only has an upper tail
     if (st.kind === "three") c.tails = "right";
