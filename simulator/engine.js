@@ -113,6 +113,7 @@
     c.mu0 = Math.max(-10000, Math.min(10000, c.mu0));
     c.sigma = Math.max(0.01, Math.min(10000, c.sigma));
     c.a0 = Math.max(-1000, Math.min(1000, c.a0));
+    c.d = Math.max(-1000, Math.min(1000, c.d));
     if (st.views.indexOf(c.view) < 0) c.view = st.views[0];
     // An F test only has an upper tail
     if (st.kind === "three") c.tails = "right";
@@ -192,8 +193,9 @@
     if (k === "paired") return { means: [d] };
     if (k === "two") return { means: [m + d, m] };
     if (k === "three") return { means: [m - d / 2, m, m + d / 2] };
-    if (k === "binary") return { beta: c.d, intercept: c.a0 };
-    return { rho: Math.max(-0.99, Math.min(0.99, c.d)), intercept: c.step === "7" ? c.a0 : 0 };
+    // A slope can be any size. Only a correlation stops at 1.
+    if (k === "binary" || c.step === "7") return { beta: c.d, intercept: c.a0 };
+    return { rho: Math.max(-0.99, Math.min(0.99, c.d)), intercept: 0 };
   }
 
   function drawSample(c, rng) {
@@ -231,13 +233,9 @@
     } else {
       var x = new Array(n), y = new Array(n), rho = tr.rho, e = Math.sqrt(1 - rho * rho);
       for (var i = 0; i < n; i++) {
-        if (k === "binary") {
-          x[i] = i < n / 2 ? 0 : 1;
-          y[i] = tr.intercept + tr.beta * x[i] + rng.normal();
-        } else {
-          x[i] = rng.normal();
-          y[i] = tr.intercept + rho * x[i] + e * rng.normal();
-        }
+        x[i] = k === "binary" ? (i < n / 2 ? 0 : 1) : rng.normal();
+        // The spread around a regression line stays at 1, whatever the slope
+        y[i] = tr.beta === undefined ? rho * x[i] + e * rng.normal() : tr.intercept + tr.beta * x[i] + rng.normal();
       }
       res = S.bivariate(x, y);
       s.x = x; s.y = y; s.r = res.r; s.b = res.b; s.a = res.a; s.seB = res.seB;

@@ -42,8 +42,12 @@
     $("mu-field").style.display = m.kind === "paired" ? "none" : "";
     $("mu").value = c.mu0;
     $("sd").value = c.sigma;
-    $("a-field").style.display = c.step === "7" || c.step === "7b" ? "" : "none";
+    // A line's intercept and slope can be anything, so they're boxes, not sliders
+    var line = c.step === "7" || c.step === "7b";
+    $("line-fields").style.display = line ? "" : "none";
+    $("d-field").style.display = line ? "none" : "";
     $("a0").value = c.a0;
+    $("beta").value = c.d;
     $("n").min = m.nMin;
     $("n").max = m.nMax;
     $("n").value = c.n;
@@ -53,7 +57,7 @@
     $("d").value = c.d;
     $("d").min = m.kind === "pairs" ? -0.9 : -1.5;
     $("d").max = m.kind === "pairs" ? 0.9 : 1.5;
-    $("d-label").textContent = c.step === "6" ? "True correlation ρ" : c.step === "7" || c.step === "7b" ? "True slope β" : "True effect d";
+    $("d-label").textContent = c.step === "6" ? "True correlation ρ" : "True effect d";
     $("d-out").textContent = root.SimDraw.fmt(c.d);
     $("alpha").value = String(c.alpha);
     $("tails").value = c.tails;
@@ -101,6 +105,10 @@
     $("a0").onchange = function () {
       var v = parseFloat(this.value);
       if (isFinite(v)) update({ a0: v }); else syncControls();
+    };
+    $("beta").onchange = function () {
+      var v = parseFloat(this.value);
+      if (isFinite(v)) update({ d: v }); else syncControls();
     };
     $("n").oninput = function () { update({ n: parseInt(this.value, 10) }); };
     $("d").oninput = function () { update({ d: parseFloat(this.value) }); };

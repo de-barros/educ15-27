@@ -65,8 +65,15 @@
       var q = Math.min(6.5, Math.max(4, E.quantile(dist, 0.9985)));
       lo = Math.min(lo, -q);
       hi = Math.max(hi, q);
-      lo = Math.max(lo, -9);
-      hi = Math.min(hi, 12);
+      if (c.step === "7" || c.step === "7b") {
+        // A steep slope sends t far out, so this axis follows the samples
+        var extraRoom = (hi - lo) * 0.06;
+        lo -= extraRoom;
+        hi += extraRoom;
+      } else {
+        lo = Math.max(lo, -9);
+        hi = Math.min(hi, 12);
+      }
     }
     state.range = [lo, hi];
   }
@@ -371,14 +378,15 @@
     else if (k === "two") bits = MU + "₁ = " + D.fmt(truth.means[0], dec) + ", " + MU + "₂ = " + D.fmt(truth.means[1], dec) + ", " + SIGMA + " = " + c.sigma;
     else if (k === "three") bits = "Group means " + truth.means.map(function (m) { return D.fmt(m, dec); }).join(", ") + ", " + SIGMA + " = " + c.sigma;
     else if (k === "binary") bits = lineText("Y", truth.intercept, truth.beta) + ". Intercept: the mean at X = 0. Slope β = " + D.fmt(truth.beta) + ": the gap";
-    else if (c.step === "7") bits = lineText("Y", truth.intercept, truth.rho) + ": intercept " + D.fmt(truth.intercept) + ", slope β = " + D.fmt(truth.rho);
+    else if (c.step === "7") bits = lineText("Y", truth.intercept, truth.beta) + ": intercept " + D.fmt(truth.intercept) + ", slope β = " + D.fmt(truth.beta);
     else bits = RHO + " = " + D.fmt(truth.rho, 2);
     cap.textContent = bits;
     document.getElementById("c-pop").setAttribute("aria-label", "Population. " + bits);
   }
 
   function renderPopPairs(ctx, f, c, truth) {
-    var sc = scatterScales(c, f.w, f.h), binary = sc.binary, rho = truth.rho, mid = truth.intercept;
+    var sc = scatterScales(c, f.w, f.h), binary = sc.binary, mid = truth.intercept, line = truth.beta !== undefined;
+    var slope = line ? truth.beta : truth.rho, spread = line ? 1 : Math.sqrt(1 - slope * slope);
     if (binary) {
       // How Y spreads at each value of X, turned on its side
       var half = (sc.x(1) - sc.x(0)) * 0.38;
@@ -401,7 +409,7 @@
         for (var t = 0; t <= 64; t++) {
           var a = t / 64 * 2 * Math.PI;
           var vx = rad * Math.cos(a);
-          var vy = rad * (rho * Math.cos(a) + Math.sqrt(1 - rho * rho) * Math.sin(a));
+          var vy = rad * (slope * Math.cos(a) + spread * Math.sin(a));
           var px = sc.x(vx), py = sc.y(mid + vy);
           if (t === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
         }
@@ -413,7 +421,7 @@
         ctx.stroke();
       });
     }
-    drawLine(ctx, c, sc, mid, binary ? truth.beta : rho, C.text, "intercept " + D.fmt(mid));
+    drawLine(ctx, c, sc, mid, slope, C.text, "intercept " + D.fmt(mid));
     renderScatterAxes(ctx, f, c);
     if (state.hide) {
       ctx.fillStyle = "rgba(27, 31, 36, 0.86)";
@@ -482,11 +490,13 @@
 
   function scatterScales(c, w, h) {
     var left = 40, right = w - 10, top = 6, base = h - 22, binary = c.meta.kind === "binary", mid = E.truth(c).intercept;
+    // A steeper line needs a taller plot, or it would run off the top
+    var tall = c.step === "7" ? 3.6 * Math.sqrt(1 + c.d * c.d) : 3.6;
     return {
       left: left, right: right, top: top, base: base, binary: binary,
       xlo: binary ? 0 : -3.2, xhi: binary ? 1 : 3.2,
       x: binary ? D.scale(-0.5, 1.5, left, right) : D.scale(-3.2, 3.2, left, right),
-      y: binary ? D.scale(mid - 3.6 + Math.min(0, c.d), mid + 3.6 + Math.max(0, c.d), base, top) : D.scale(mid - 3.6, mid + 3.6, base, top)
+      y: binary ? D.scale(mid - 3.6 + Math.min(0, c.d), mid + 3.6 + Math.max(0, c.d), base, top) : D.scale(mid - tall, mid + tall, base, top)
     };
   }
 
@@ -733,7 +743,8 @@
     if (k === "one") return { value: tr.means[0], se: s / Math.sqrt(n), name: c.step === "1" ? "X" : "M" };
     if (k === "paired") return { value: tr.means[0], se: s / Math.sqrt(n), name: "Gain" };
     if (k === "two") return { value: tr.means[0] - tr.means[1], se: s * Math.sqrt(2 / n), name: "M₁ − M₂" };
-    if (k === "pairs") return { value: tr.rho, se: null, name: c.step === "6" ? "r" : "b" };
+    if (c.step === "6") return { value: tr.rho, se: null, name: "r" };
+    if (c.step === "7") return { value: tr.beta, se: null, name: "b" };
     if (k === "binary") return { value: tr.beta, se: null, name: "b" };
     return null;
   }

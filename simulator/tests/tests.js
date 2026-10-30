@@ -128,6 +128,21 @@
   });
   near("Correlation ignores the intercept", E.truth(E.config({ step: "6", a0: 5 })).intercept, 0, 1e-12);
 
+  // A slope has no limit, but a correlation does ----
+
+  [["7", 2.5], ["7", -4], ["7b", 3]].forEach(function (v) {
+    var cfg = E.config({ step: v[0], n: 30, d: v[1], a0: 1 }), r3 = E.makeRng(13), sumB = 0, sumA2 = 0, sumRes = 0;
+    for (var i = 0; i < 4000; i++) {
+      var sm = E.drawSample(cfg, r3), res = S.bivariate(sm.x, sm.y);
+      sumB += sm.b; sumA2 += sm.a;
+      sumRes += res.ssres / 28;
+    }
+    near("Average b finds slope " + v[1] + ", step " + v[0], sumB / 4000, v[1], 0.02);
+    near("Average a with slope " + v[1] + ", step " + v[0], sumA2 / 4000, 1, 0.03);
+    near("Spread around the line, slope " + v[1], sumRes / 4000, 1, 0.03);
+  });
+  near("Correlation stays below 1", E.truth(E.config({ step: "6", d: 3 })).rho, 0.99, 1e-12);
+
   // Power: the z-steps must match the exact formula ----
 
   var pw = E.config({ step: "2", n: 10, d: 0.89 });
@@ -144,12 +159,16 @@
 
   // Steps 6 and 7 must give the same t for the same data ----
 
-  var c6 = E.config({ step: "6", n: 20, d: 0.3 }), c7 = E.config({ step: "7", n: 20, d: 0.3 });
-  var r6 = E.makeRng(9), r7 = E.makeRng(9), same = true;
+  // Slope ρ / √(1 − ρ²), with spread 1 around the line, is the same population as ρ
+  var c6 = E.config({ step: "6", n: 20, d: 0.3 }), c7 = E.config({ step: "7", n: 20, d: 0.3 / Math.sqrt(1 - 0.09) });
+  var r6 = E.makeRng(9), r7 = E.makeRng(9), same = true, sameInSample = true;
   for (var j = 0; j < 200; j++) {
-    if (Math.abs(E.drawSample(c6, r6).stat - E.drawSample(c7, r7).stat) > 1e-9) same = false;
+    var s6 = E.drawSample(c6, r6), s7 = E.drawSample(c7, r7);
+    if (Math.abs(s6.stat - s7.stat) > 1e-7) same = false;
+    if (Math.abs(s7.r * Math.sqrt(18 / (1 - s7.r * s7.r)) - s7.stat) > 1e-7) sameInSample = false;
   }
   ok("r and b give the same t", same);
+  ok("t from r matches t from b in one sample", sameInSample);
 
   // A yes/no predictor makes the slope the difference in group means ----
 

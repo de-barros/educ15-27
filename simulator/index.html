@@ -72,12 +72,18 @@
         </div>
       </div>
 
-      <div class="field slide-hide" id="a-field">
-        <label for="a0">True intercept</label>
-        <input type="number" id="a0" min="-1000" max="1000" step="any">
+      <div class="field-row slide-hide" id="line-fields">
+        <div class="field">
+          <label for="a0">True intercept</label>
+          <input type="number" id="a0" min="-1000" max="1000" step="any">
+        </div>
+        <div class="field">
+          <label for="beta">True slope &beta;</label>
+          <input type="number" id="beta" min="-1000" max="1000" step="any">
+        </div>
       </div>
 
-      <div class="field slide-hide">
+      <div class="field slide-hide" id="d-field">
         <label for="d"><span id="d-label">True effect</span>: <output id="d-out" for="d"></output></label>
         <input type="range" id="d" min="-1.5" max="1.5" step="0.01">
       </div>
