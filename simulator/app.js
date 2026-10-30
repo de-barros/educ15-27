@@ -32,6 +32,9 @@
     });
   }
 
+  // Group 2 sits at mu0, and d says how many SDs group 1 is away from it
+  function group1(c) { return c.mu0 + c.d * c.sigma; }
+
   function syncControls() {
     var c = B.state.c, m = c.meta, pairs = m.kind === "pairs" || m.kind === "binary";
     $("step").value = c.step;
@@ -39,7 +42,12 @@
     $("pop-field").style.display = pairs ? "none" : "";
     // Scatter plots are in SD units, and gains have H0 at zero
     $("scale-fields").style.display = pairs ? "none" : "";
-    $("mu-field").style.display = m.kind === "paired" ? "none" : "";
+    // With two groups, H0 says they're equal, so it needs no value of its own
+    var two = m.kind === "two";
+    $("group-fields").style.display = two ? "" : "none";
+    $("mu-field").style.display = m.kind === "paired" || two ? "none" : "";
+    $("g1").value = +group1(c).toFixed(6);
+    $("g2").value = c.mu0;
     $("mu").value = c.mu0;
     $("sd").value = c.sigma;
     // A line's intercept and slope can be anything, so they're boxes, not sliders
@@ -54,9 +62,9 @@
     $("n").disabled = m.nMin === m.nMax;
     $("n-out").textContent = c.n;
     $("n-unit").textContent = m.kind === "two" || m.kind === "three" ? "group" : "sample";
+    $("d").min = m.kind === "pairs" ? -0.9 : two ? -3 : -1.5;
+    $("d").max = m.kind === "pairs" ? 0.9 : two ? 3 : 1.5;
     $("d").value = c.d;
-    $("d").min = m.kind === "pairs" ? -0.9 : -1.5;
-    $("d").max = m.kind === "pairs" ? 0.9 : 1.5;
     $("d-label").textContent = c.step === "6" ? "True correlation ρ" : "True effect d";
     $("d-out").textContent = root.SimDraw.fmt(c.d);
     $("alpha").value = String(c.alpha);
@@ -99,8 +107,17 @@
       if (isFinite(v)) update({ mu0: v }); else syncControls();
     };
     $("sd").onchange = function () {
-      var v = parseFloat(this.value);
-      if (v > 0) update({ sigma: v }); else syncControls();
+      var v = parseFloat(this.value), c = B.state.c;
+      // Group means stay where they were typed, so the same gap gives a new d
+      if (v > 0) update(c.meta.kind === "two" ? { sigma: v, d: c.d * c.sigma / v } : { sigma: v }); else syncControls();
+    };
+    $("g1").onchange = function () {
+      var v = parseFloat(this.value), c = B.state.c;
+      if (isFinite(v)) update({ d: (v - c.mu0) / c.sigma }); else syncControls();
+    };
+    $("g2").onchange = function () {
+      var v = parseFloat(this.value), c = B.state.c;
+      if (isFinite(v)) update({ mu0: v, d: (group1(c) - v) / c.sigma }); else syncControls();
     };
     $("a0").onchange = function () {
       var v = parseFloat(this.value);

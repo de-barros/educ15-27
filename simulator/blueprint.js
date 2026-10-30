@@ -360,9 +360,10 @@
       truth.means.forEach(function (m, g) {
         var fn = function (v) { return p.pdf((v - m) / c.sigma); };
         D.curve(ctx, fn, x, base, base - top, peak * 1.06, pad, f.w - pad, { fill: colors[g] + "33" });
-        D.curve(ctx, fn, x, base, base - top, peak * 1.06, pad, f.w - pad, { color: colors[g], width: 2.2 });
+        // Equal groups sit on top of each other, so let the first show through
+        D.curve(ctx, fn, x, base, base - top, peak * 1.06, pad, f.w - pad, { color: colors[g], width: 2.2, dash: k === "two" && g === 1 && c.d === 0 ? [12, 12] : null });
       });
-      if (c.d !== 0) D.curve(ctx, nullFn, x, base, base - top, peak * 1.06, pad, f.w - pad, { color: dashed, dash: [5, 4], width: 1.5 });
+      if (c.d !== 0 && k !== "two") D.curve(ctx, nullFn, x, base, base - top, peak * 1.06, pad, f.w - pad, { color: dashed, dash: [5, 4], width: 1.5 });
       D.xAxis(ctx, x, base, pad, f.w - pad, 9);
       if (state.hide) {
         ctx.fillStyle = "rgba(27, 31, 36, 0.86)";
@@ -375,7 +376,7 @@
     if (state.hide) bits = "We don't get to see this. We only have the sample.";
     else if (k === "one") bits = MU + " = " + D.fmt(truth.means[0], dec) + ", " + SIGMA + " = " + c.sigma + (c.d !== 0 ? ". Dashed: what H₀ claims (" + MU + " = " + c.mu0 + ")" : "");
     else if (k === "paired") bits = "Gains: " + MU + " = " + D.fmt(truth.means[0], dec) + ", " + SIGMA + " = " + c.sigma + (c.d !== 0 ? ". Dashed: H₀ (no gain)" : "");
-    else if (k === "two") bits = MU + "₁ = " + D.fmt(truth.means[0], dec) + ", " + MU + "₂ = " + D.fmt(truth.means[1], dec) + ", " + SIGMA + " = " + c.sigma;
+    else if (k === "two") bits = MU + "₁ = " + D.fmt(truth.means[0], dec) + ", " + MU + "₂ = " + D.fmt(truth.means[1], dec) + ", " + SIGMA + " = " + c.sigma + ", d = " + D.fmt(c.d);
     else if (k === "three") bits = "Group means " + truth.means.map(function (m) { return D.fmt(m, dec); }).join(", ") + ", " + SIGMA + " = " + c.sigma;
     else if (k === "binary") bits = lineText("Y", truth.intercept, truth.beta) + ". Intercept: the mean at X = 0. Slope β = " + D.fmt(truth.beta) + ": the gap";
     else if (c.step === "7") bits = lineText("Y", truth.intercept, truth.beta) + ": intercept " + D.fmt(truth.intercept) + ", slope β = " + D.fmt(truth.beta);
