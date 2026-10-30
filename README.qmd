@@ -6,7 +6,7 @@ format: gfm
 
 # Statistics for Education Research <a href='https://educ15.de-barros.com/'><img src='files/icon-512.png' align="right" height="139" /></a>
 
-[EDUC 15](https://educ15.de-barros.com/)
+[EDUC 15 • Winter 2027](https://educ15.de-barros.com/)<br>
 [Andreas de Barros](https://www.de-barros.com/) • School of Education • University of California, Irvine
 
 ---

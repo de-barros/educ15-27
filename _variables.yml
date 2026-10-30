@@ -27,12 +27,11 @@ attribution:
 
 course:
   number: "EDUC 15"
-  # TODO: confirm the term and first/last day
-  semester: "2027"
+  semester: "Winter 2027"
   days: "Lecture: Tue/Thu. Lab: Fri."
   time: "Lecture 12:30–1:50PM. Lab 12:00 or 1:00PM."
   location: "Lecture and lab A1: EDUC 2009. Lab A2: EDUC 2001."
-  dates: "To be announced"
+  dates: "Tue, Jan 05–Fri, Mar 12, 2027"
   github: "https://github.com/de-barros/educ15-27"
   url: "https://educ15.de-barros.com"
   copyright_year: "2027"

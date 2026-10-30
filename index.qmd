@@ -2,7 +2,7 @@
 title: "Statistics for Education Research"
 subtitle: "Read, interpret, and draw conclusions from quantitative education research"
 details: |
-  EDUC 15 • 2027<br>School of Education<br>University of California, Irvine
+  EDUC 15 • Winter 2027<br>School of Education<br>University of California, Irvine
 sidebar: false
 toc: false
 page-layout: full
