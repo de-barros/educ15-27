@@ -86,7 +86,11 @@ main { flex: 1; min-height: 0; display: flex; }
 
 .view[hidden] { display: none; }
 
+/* The animation runs on a layer over all three panels */
+#c-fx { z-index: 5; pointer-events: none; }
+
 .stage {
+  position: relative;
   min-width: 0;
   min-height: 460px;
   display: grid;

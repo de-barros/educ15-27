@@ -49,6 +49,7 @@ Run commands from the project root. Outside RStudio, set `RSTUDIO_PANDOC="C:/Pro
 - **Printing:** `sim_frame()` also screenshots the preset in a light theme for the PDF, into `slides/img/sim/`. Delete those files after changing the tool, or the PDF keeps old screenshots.
 - **Canvas:** the single-file deck loads the simulator from the live site, so it needs the site deployed and an internet connection.
 - **Tests:** open `simulator/tests/index.html` through a local server. `simulator/tests/make_reference.R` writes the R values they check against. Run the tests after any change to `stats.js` or `engine.js`.
+- **Animation:** the buttons play it, on the `#c-fx` layer over the panels. `?draws=` presets and `prefers-reduced-motion` skip it. A browser tab that isn't in front barely runs `requestAnimationFrame`, so test frames directly with `SimBlueprint.fxStep(time)`.
 - **Rebuilding:** {targets} doesn't track `simulator/`. After changing it, run `tar_invalidate("site")`.
 
 ## Accessibility

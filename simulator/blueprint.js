@@ -18,6 +18,7 @@
   }
 
   function resetDraws() {
+    cancelFx();
     state.samples = []; state.stats = []; state.raws = [];
     state.N = 0; state.selected = -1; state.dots = [];
     state.sumM = 0; state.sumM2 = 0; state.sumSSn = 0; state.sumVarHat = 0; state.sumSdHat = 0;
@@ -71,53 +72,247 @@
     resetDraws();
   }
 
-  function draw(count, quiet) {
-    var c = state.c, i, s, zCut = 1.96;
-    for (i = 0; i < count; i++) {
-      s = E.drawSample(c, state.rng);
-      state.stats.push(s.stat);
-      state.raws.push(s.raw);
-      state.N++;
-      if (Math.abs(s.stat) > zCut) state.beyondZ++;
-      state.sumM += s.raw;
-      state.sumM2 += s.raw * s.raw;
-      if (s.sdHat !== undefined) {
-        state.nEst++;
-        state.sumSSn += s.ss / c.n;
-        state.sumVarHat += s.sdHat * s.sdHat;
-        state.sumSdHat += s.sdHat;
-      }
-      if (s.msw !== undefined) {
-        state.sumMsw += s.msw;
-        state.sumMsb += s.msb;
-      }
-      state.samples.push(s);
-      if (state.samples.length > MAX_KEPT) state.samples.shift();
+  // A sample only counts once its statistic has landed in panel 3
+  function land(s) {
+    var c = state.c;
+    state.stats.push(s.stat);
+    state.raws.push(s.raw);
+    state.N++;
+    if (Math.abs(s.stat) > 1.96) state.beyondZ++;
+    state.sumM += s.raw;
+    state.sumM2 += s.raw * s.raw;
+    if (s.sdHat !== undefined) {
+      state.nEst++;
+      state.sumSSn += s.ss / c.n;
+      state.sumVarHat += s.sdHat * s.sdHat;
+      state.sumSdHat += s.sdHat;
     }
+    if (s.msw !== undefined) {
+      state.sumMsw += s.msw;
+      state.sumMsb += s.msb;
+    }
+    state.samples.push(s);
+    if (state.samples.length > MAX_KEPT) state.samples.shift();
     state.selected = state.N - 1;
-    if (count === 1 && !quiet && !reduced()) animate(); else render();
   }
 
-  function animate() {
-    var start = null;
-    function frame(ts) {
-      if (start === null) start = ts;
-      state.anim = Math.min(1, (ts - start) / 450);
-      renderSample();
-      if (state.anim < 1) {
-        root.requestAnimationFrame(frame);
-      } else {
-        state.anim = 0;
-        render();
-      }
+  function draw(count, quiet) {
+    var c = state.c, i, list = [];
+    for (i = 0; i < count; i++) list.push(E.drawSample(c, state.rng));
+    if (quiet || reduced()) {
+      list.forEach(land);
+      render();
+    } else {
+      launch(list);
     }
-    state.anim = 0.001;
-    renderDist();
-    readout();
-    root.requestAnimationFrame(frame);
+  }
+
+  // The animation ----
+  //
+  // One beat at a time, on a canvas that lies over all three panels: the
+  // observations fall out of the population, slide together into the statistic,
+  // and that one statistic drops into panel 3. The timing follows Magnusson's
+  // p-value visualization. Bigger batches run faster, and +500 is just a shower.
+
+  var FALL = 0.55, COLLAPSE = 0.5, DROP = 0.6;
+  var fx = { items: [], raf: 0 };
+
+  function bounce(t) {
+    var n = 7.5625, d = 2.75;
+    if (t < 1 / d) return n * t * t;
+    if (t < 2 / d) { t -= 1.5 / d; return n * t * t + 0.75; }
+    if (t < 2.5 / d) { t -= 2.25 / d; return n * t * t + 0.9375; }
+    t -= 2.625 / d;
+    return n * t * t + 0.984375;
+  }
+
+  function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+
+  function clamp01(t) { return Math.max(0, Math.min(1, t)); }
+
+  function fxCanvas() { return document.getElementById("c-fx"); }
+
+  function cancelFx() {
+    fx.items = [];
+    state.pendingSample = null;
+    state.sampleHidden = false;
+    if (fx.raf) root.cancelAnimationFrame(fx.raf);
+    fx.raf = 0;
+    var el = fxCanvas();
+    if (el) D.fit(el);
+  }
+
+  // Land everything still in the air, for example when the window is resized
+  function flushFx() {
+    if (!fx.items.length) return;
+    fx.items.slice().sort(function (a, b) { return a.start - b.start; }).forEach(function (it) { land(it.s); });
+    cancelFx();
+  }
+
+  function offset(id, stage) {
+    var r = document.getElementById(id).getBoundingClientRect();
+    return { x: r.left - stage.left, y: r.top - stage.top, w: r.width, h: r.height };
+  }
+
+  // Where each observation starts, where it lands, and where it collapses to
+  function planDots(c, s, g) {
+    var k = c.meta.kind, dots = [], p = g.pop, q = g.sample;
+    if (k === "pairs" || k === "binary") {
+      var sc = scatterScales(c, q.w, q.h), binary = k === "binary";
+      s.x.forEach(function (v, i) {
+        var u = (p.h - 12) / 7;
+        var x0 = binary ? p.x + p.w * (v ? 0.62 : 0.38) : p.x + p.w / 2 + v * u * 1.6;
+        var y0 = binary ? p.y + p.h * 0.55 : p.y + p.h / 2 - s.y[i] * u;
+        dots.push({ x0: x0, y0: y0, x1: q.x + sc.x(v), y1: q.y + sc.y(s.y[i]), lag: (i % 8) * 0.018, color: C.dot });
+      });
+      var xm = binary ? 0.5 : 0, ym = S.mean(s.y) + s.b * (xm - S.mean(s.x)) ;
+      return { dots: dots, line: true, sc: sc, sx: q.x + sc.x(xm), sy: q.y + sc.y(ym), q: q, ymean: S.mean(s.y), xbar: S.mean(s.x) };
+    }
+    var dom = popAxis(c), x = D.scale(dom[0], dom[1], 14, q.w - 14);
+    var groups = k === "two" ? [s.a, s.b] : k === "three" ? s.groups : [s.x];
+    var colors = [C.pop, C.pop2, C.pop3], rows = groups.length, rowH = (q.h - 30) / rows, centers = [];
+    groups.forEach(function (list, gi) {
+      var m = q.x + x(S.mean(list)), y = q.y + 6 + rowH * (gi + 0.5);
+      centers.push(m);
+      list.forEach(function (v, i) {
+        dots.push({
+          x0: p.x + x(v), y0: p.y + (p.h - 24) * (0.45 + 0.4 * ((i * 7) % 11) / 11), x1: q.x + x(v), y1: y,
+          cx: m, lag: (i % 9) * 0.02, color: rows === 1 ? C.dot : colors[gi]
+        });
+      });
+    });
+    var sx = centers.reduce(function (a, b) { return a + b; }, 0) / rows;
+    return { dots: dots, line: false, merge: rows > 1, sx: sx, sy: q.y + 6 + rowH * rows / 2, q: q };
+  }
+
+  function launch(list) {
+    var c = state.c, now = root.performance.now(), stageEl = document.querySelector("#view-blueprint .stage");
+    var stage = stageEl.getBoundingClientRect();
+    var g = { pop: offset("c-pop", stage), sample: offset("c-sample", stage), dist: offset("c-dist", stage) };
+    var count = list.length, shower = count > 60;
+    var speed = count === 1 ? 1 : 0.5, gap = shower ? 3 : 30;
+    var base = fx.items.length ? Math.max(now, fx.items[fx.items.length - 1].start + 0.15 * 1000) : now;
+    list.forEach(function (s, i) {
+      var it = { s: s, start: base + i * gap, speed: speed, shower: shower, g: g, stage: false };
+      it.plan = shower ? null : planDots(c, s, g);
+      fx.items.push(it);
+    });
+    if (!fx.raf) fx.raf = root.requestAnimationFrame(tick);
+  }
+
+  function landingSpot(s, g) {
+    var c = state.c, L = state.layout, v = c.view === "raw" ? s.raw : s.stat;
+    var px = Math.max(L.left, Math.min(L.right, L.x(v)));
+    var h = L.heights[Math.floor(px / L.bin)] || 0;
+    return { x: g.dist.x + px, y: g.dist.y + L.base - (h + 0.5) * L.step };
+  }
+
+  function ball(ctx, x, y, color, r) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  // Draw one sample at this moment. Returns true once it has landed.
+  function drawItem(ctx, it, sec) {
+    var T = it.speed, fall = FALL * T, col = COLLAPSE * T, drop = DROP * T, g = it.g, p = it.plan;
+    var target = landingSpot(it.s, g), beyond = isBeyond(it.s.stat);
+    if (it.shower) {
+      var ts = sec / 0.5;
+      if (ts >= 1) return true;
+      var y0 = g.dist.y + 6;
+      ball(ctx, target.x, y0 + (target.y - y0) * bounce(clamp01(ts)), beyond ? C.crit : C.dot, 3);
+      return false;
+    }
+    if (sec < fall + col) {
+      state.sampleHidden = true;
+      p.dots.forEach(function (d) {
+        var t = clamp01((sec - d.lag * T) / (fall - 0.16 * T)), x, y;
+        if (p.line) {
+          var e = 1 - Math.pow(1 - t, 3);
+          x = d.x0 + (d.x1 - d.x0) * e;
+          y = d.y0 + (d.y1 - d.y0) * e;
+        } else {
+          x = d.x1;
+          y = d.y0 + (d.y1 - d.y0) * bounce(t);
+          if (sec > fall) {
+            var u = (sec - fall) / col;
+            var slide = easeInOut(clamp01(p.merge ? u / 0.65 : u));
+            x = d.x1 + (d.cx - d.x1) * slide;
+            if (p.merge && u > 0.65) {
+              var m = easeInOut((u - 0.65) / 0.35);
+              x += (p.sx - x) * m;
+              y += (p.sy - y) * m;
+            }
+          }
+        }
+        ball(ctx, x, y, d.color, it.speed < 1 ? 3.2 : 4.5);
+      });
+      if (p.line && sec > fall) {
+        // The fitted line swings up from the flat line at the mean of Y
+        var w = easeInOut((sec - fall) / col), sc = p.sc, q = p.q, x0 = sc.xlo, x1 = sc.xhi, s = it.s;
+        var yAt = function (v) { return p.ymean + (s.a + s.b * v - p.ymean) * w; };
+        ctx.strokeStyle = C.accent;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(q.x + sc.x(x0), q.y + sc.y(yAt(x0)));
+        ctx.lineTo(q.x + sc.x(x1), q.y + sc.y(yAt(x1)));
+        ctx.stroke();
+      }
+      return false;
+    }
+    if (!it.stage) {
+      // The statistic exists now, so panel 2 can show it
+      it.stage = true;
+      state.pendingSample = it.s;
+      state.sampleHidden = false;
+      renderSample();
+    }
+    var t = clamp01((sec - fall - col) / drop);
+    if (t >= 1) return true;
+    var bx = p.sx + (target.x - p.sx) * easeInOut(clamp01(t * 1.4));
+    var by = p.sy + (target.y - p.sy) * bounce(t);
+    ball(ctx, bx, by, C.accent, 6 - 1.5 * t);
+    return false;
+  }
+
+  function step(now) {
+    var f = D.fit(fxCanvas()), ctx = f.ctx, landed = false, keep = [];
+    state.sampleHidden = false;
+    fx.items.forEach(function (it) {
+      var sec = (now - it.start) / 1000;
+      if (sec < 0) { keep.push(it); return; }
+      if (drawItem(ctx, it, sec)) {
+        land(it.s);
+        landed = true;
+        if (state.pendingSample === it.s) state.pendingSample = null;
+      } else {
+        keep.push(it);
+      }
+    });
+    fx.items = keep;
+    if (landed) {
+      renderDist();
+      readout();
+    }
+    if (!keep.length) {
+      state.sampleHidden = false;
+      render();
+      f.ctx.clearRect(0, 0, f.w, f.h);
+    } else if (state.sampleHidden !== state.wasHidden) {
+      renderSample();
+    }
+    state.wasHidden = state.sampleHidden;
+    return keep.length > 0;
+  }
+
+  function tick(now) {
+    fx.raf = step(now) ? root.requestAnimationFrame(tick) : 0;
   }
 
   function shownSample() {
+    if (state.pendingSample) return state.pendingSample;
     if (state.selected < 0) return null;
     var offset = state.N - state.samples.length;
     return state.samples[state.selected - offset] || null;
@@ -215,16 +410,26 @@
     var f = D.fit(document.getElementById("c-sample")), ctx = f.ctx, c = state.c, k = c.meta.kind;
     var s = shownSample(), cap = document.getElementById("cap-sample"), canvas = document.getElementById("c-sample");
     var pad = 14, base = f.h - 24;
+    if (state.sampleHidden) {
+      // The observations are in the air, so show only the empty axes
+      if (k === "pairs" || k === "binary") {
+        renderScatterAxes(ctx, f, c);
+      } else {
+        var dom0 = popAxis(c);
+        D.xAxis(ctx, D.scale(dom0[0], dom0[1], pad, f.w - pad), base, pad, f.w - pad, 9);
+      }
+      cap.textContent = "";
+      return;
+    }
     if (!s) {
       D.text(ctx, "Press +1 to draw a sample", f.w / 2, f.h / 2, { size: 16, align: "center", base: "middle", color: C.text });
       cap.textContent = "";
       canvas.setAttribute("aria-label", "No sample drawn yet.");
       return;
     }
-    var drop = state.anim ? 1 - Math.pow(1 - state.anim, 3) : 1;
 
     if (k === "pairs" || k === "binary") {
-      renderScatter(ctx, f, c, s, drop);
+      renderScatter(ctx, f, c, s);
     } else {
       var dom = popAxis(c), x = D.scale(dom[0], dom[1], pad, f.w - pad), groups, colors = [C.pop, C.pop2, C.pop3];
       if (k === "two") groups = [s.a, s.b];
@@ -235,13 +440,12 @@
         var y = 6 + rowH * (i + 0.5), color = rows === 1 ? C.dot : colors[i], m = S.mean(g);
         if (rows > 1) D.text(ctx, "Group " + (i + 1), pad, y, { color: color, base: "middle" });
         ctx.fillStyle = color;
-        g.forEach(function (v, j) {
-          var fall = (1 - drop) * (y + 10) * (1 - (j % 7) / 14);
+        g.forEach(function (v) {
           ctx.beginPath();
-          ctx.arc(x(v), y - fall, c.n > 60 ? 3 : 4.5, 0, 2 * Math.PI);
+          ctx.arc(x(v), y, c.n > 60 ? 3 : 4.5, 0, 2 * Math.PI);
           ctx.fill();
         });
-        if (drop === 1 && c.n > 1) {
+        if (c.n > 1) {
           ctx.strokeStyle = C.accent;
           ctx.lineWidth = 3;
           ctx.beginPath();
@@ -258,38 +462,47 @@
     canvas.setAttribute("aria-label", "Sample " + (state.selected + 1) + ". " + cap.textContent);
   }
 
-  function renderScatter(ctx, f, c, s, drop) {
-    var left = 40, right = f.w - 10, top = 6, base = f.h - 22, binary = c.meta.kind === "binary";
-    var xs = s.x, ys = s.y;
-    var x = binary ? D.scale(-0.5, 1.5, left, right) : D.scale(-3.2, 3.2, left, right);
-    var y = binary ? D.scale(-3.6 + Math.min(0, c.d), 3.6 + Math.max(0, c.d), base, top) : D.scale(-3.6, 3.6, base, top);
-    ctx.fillStyle = C.dot;
-    xs.forEach(function (v, i) {
-      ctx.beginPath();
-      ctx.arc(x(v), y(ys[i]) - (1 - drop) * 30, 4, 0, 2 * Math.PI);
-      ctx.fill();
-    });
-    if (drop === 1) {
-      var x0 = binary ? 0 : -3.2, x1 = binary ? 1 : 3.2;
-      ctx.strokeStyle = C.accent;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(x(x0), y(s.a + s.b * x0));
-      ctx.lineTo(x(x1), y(s.a + s.b * x1));
-      ctx.stroke();
-    }
-    D.yAxis(ctx, y, left, base, top, 4);
-    if (binary) {
+  function scatterScales(c, w, h) {
+    var left = 40, right = w - 10, top = 6, base = h - 22, binary = c.meta.kind === "binary";
+    return {
+      left: left, right: right, top: top, base: base, binary: binary,
+      xlo: binary ? 0 : -3.2, xhi: binary ? 1 : 3.2,
+      x: binary ? D.scale(-0.5, 1.5, left, right) : D.scale(-3.2, 3.2, left, right),
+      y: binary ? D.scale(-3.6 + Math.min(0, c.d), 3.6 + Math.max(0, c.d), base, top) : D.scale(-3.6, 3.6, base, top)
+    };
+  }
+
+  function renderScatterAxes(ctx, f, c) {
+    var sc = scatterScales(c, f.w, f.h);
+    D.yAxis(ctx, sc.y, sc.left, sc.base, sc.top, 4);
+    if (sc.binary) {
       ctx.strokeStyle = C.line;
       ctx.beginPath();
-      ctx.moveTo(left, base + 0.5);
-      ctx.lineTo(right, base + 0.5);
+      ctx.moveTo(sc.left, sc.base + 0.5);
+      ctx.lineTo(sc.right, sc.base + 0.5);
       ctx.stroke();
-      D.text(ctx, "X = 0", x(0), base + 15, { align: "center" });
-      D.text(ctx, "X = 1", x(1), base + 15, { align: "center" });
+      D.text(ctx, "X = 0", sc.x(0), sc.base + 15, { align: "center" });
+      D.text(ctx, "X = 1", sc.x(1), sc.base + 15, { align: "center" });
     } else {
-      D.xAxis(ctx, x, base, left, right, 8);
+      D.xAxis(ctx, sc.x, sc.base, sc.left, sc.right, 8);
     }
+  }
+
+  function renderScatter(ctx, f, c, s) {
+    var sc = scatterScales(c, f.w, f.h), x = sc.x, y = sc.y;
+    ctx.fillStyle = C.dot;
+    s.x.forEach(function (v, i) {
+      ctx.beginPath();
+      ctx.arc(x(v), y(s.y[i]), 4, 0, 2 * Math.PI);
+      ctx.fill();
+    });
+    ctx.strokeStyle = C.accent;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x(sc.xlo), y(s.a + s.b * sc.xlo));
+    ctx.lineTo(x(sc.xhi), y(s.a + s.b * sc.xhi));
+    ctx.stroke();
+    renderScatterAxes(ctx, f, c);
   }
 
   function sampleText(c, s) {
@@ -379,6 +592,7 @@
       }
       // Rare spikes (from discrete or capped values) must not leave the panel
       var step = Math.min(bin, height / maxH);
+      state.layout = { x: x, bin: bin, step: step, heights: heights, base: base, left: pad, right: f.w - pad };
       ctx.fillStyle = C.dot;
       var hot = [];
       dots.forEach(function (d) {
@@ -407,6 +621,7 @@
       state.dots = dots;
     } else {
       state.dots = [];
+      state.layout = { x: x, bin: 10, step: 10, heights: {}, base: base, left: pad, right: f.w - pad };
     }
 
     // The curve and the cutoffs sit on top of the dots
@@ -515,10 +730,18 @@
   }
 
   function render() {
+    flushOnResize();
     renderPop();
     renderSample();
     renderDist();
     readout();
+  }
+
+  // Positions planned before a resize would be wrong, so land what's in the air
+  function flushOnResize() {
+    var el = document.getElementById("c-dist"), w = el.clientWidth, h = el.clientHeight;
+    if (fx.items.length && state.size && (state.size[0] !== w || state.size[1] !== h)) flushFx();
+    state.size = [w, h];
   }
 
   // Click a dot to see that sample
@@ -545,6 +768,11 @@
 
   root.SimBlueprint = {
     state: state, configure: configure, draw: draw, render: render, pick: pick, browse: browse,
-    clear: function () { resetDraws(); render(); }
+    clear: function () { resetDraws(); render(); },
+    // For tests: run one animation frame at a chosen time
+    fxStep: step, fxItems: function () { return fx.items; }, fxCancelLoop: function () {
+      if (fx.raf) root.cancelAnimationFrame(fx.raf);
+      fx.raf = 0;
+    }
   };
 })(typeof window !== "undefined" ? window : this);
