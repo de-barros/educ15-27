@@ -1,0 +1,1002 @@
+---
+title: "Displaying data"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css"]
+    seal: false
+    anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+library(knitr)
+source(here::here("R", "slide-things.R"))
+
+# Colors from the slide theme, all readable on white ----
+clr_bar <- "#538ba2"
+clr_soft <- "#c5d9e2"
+clr_mean <- "#a93e31"
+clr_median <- "#244a70"
+clr_mode <- "#8a6100"
+
+theme_slides <- function(base_size = 20) {
+  theme_minimal(base_size = base_size, base_family = "Fira Sans Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_text(face = "bold"),
+          strip.text = element_text(face = "bold", size = rel(1)))
+}
+
+fmt <- function(x, d = 2) formatC(x, format = "f", digits = d)
+
+# Baseline and endline math scores ----
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+math <- baseline$tot_math
+n_all <- length(math)
+n_end <- nrow(endline)
+n_treat <- sum(baseline$treat == 1)
+n_control <- sum(baseline$treat == 0)
+
+# Frequency table, with every score from lowest to highest ----
+score_f <- tibble(score = math) %>%
+  count(score, name = "f") %>%
+  complete(score = min(math):max(math), fill = list(f = 0)) %>%
+  mutate(pct = 100 * f / n_all)
+score_top <- score_f$score[which.max(score_f$f)]
+f_top <- max(score_f$f)
+zero_scores <- score_f$score[score_f$f == 0]
+
+# Grouped table, with intervals of 5 ----
+group_table <- function(x) {
+  tibble(score = x) %>%
+    mutate(low = 5 * floor(score / 5)) %>%
+    count(low, name = "f") %>%
+    complete(low = seq(0, 25, 5), fill = list(f = 0)) %>%
+    mutate(interval = paste0(low, "–", low + 4), mid = low + 2)
+}
+grouped <- group_table(math)
+top_interval <- grouped$interval[which.max(grouped$f)]
+
+# Twenty real students for the exercise ----
+set.seed(2)
+try_scores <- sample(math, 20)
+try_table <- group_table(try_scores) %>% filter(low <= 15)
+try_top <- try_table$interval[which.max(try_table$f)]
+
+# Girls and boys, for the percentages ----
+n_girls <- sum(baseline$st_female1 == 1)
+n_boys <- sum(baseline$st_female1 == 0)
+by_group <- baseline %>%
+  mutate(group = if_else(st_female1 == 1, "Girls", "Boys"),
+         low = 5 * floor(tot_math / 5)) %>%
+  count(group, low, name = "f") %>%
+  complete(group, low = seq(0, 25, 5), fill = list(f = 0)) %>%
+  group_by(group) %>%
+  mutate(pct = 100 * f / sum(f)) %>%
+  ungroup() %>%
+  mutate(mid = low + 2)
+
+# Students per center ----
+centers <- baseline %>%
+  count(ms_center1, name = "f") %>%
+  mutate(ms_center1 = fct_reorder(ms_center1, -f))
+
+# First rows of the data ----
+first_rows <- baseline %>%
+  slice(1:6) %>%
+  transmute(Student = st_id, Center = ms_center1, Grade = st_grade1, Female = st_female1,
+            Treatment = treat, Hindi = tot_hindi, Math = tot_math)
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# Displaying data
+
+.class-info[
+
+**Topic 2 · Thursday, January 7**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+
+.center[**We are here**]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Statistics has three purposes, and we start with the first. Today is about seeing data. Next week we summarize it in a few numbers.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[The Mindspark study]
+
+.box-6.medium.sp-after-half[Frequency tables]
+
+.box-3.medium.sp-after-half[Plots and shapes]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: predict, try, predict.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# The Mindspark study
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Recap: The Mindspark study
+
+.box-1.small.sp-after-half[Does the Mindspark program improve children's learning?]
+
+.pull-left-3[
+.box-inv-1.small[Where]
+
+After-school centers in Delhi, India
+]
+
+.pull-middle-3[
+.box-inv-1.small[Who]
+
+`r n_all` children, mostly in grades 6 to 9
+]
+
+.pull-right-3[
+.box-inv-1.small[What]
+
+Software that adapts to each child, plus small-group help from a teaching assistant
+]
+
+.source[Muralidharan, Singh, and Ganimian (2019), *American Economic Review* 109(4).]
+
+???
+
+A quick recap from Tuesday. We'll use this study all quarter, so every new method gets tried on these same children.
+
+Each session was about 45 minutes on the software and 45 minutes with a teaching assistant.
+
+---
+
+# A lottery split the 619 students in two
+
+.flow[
+.flow-box[
+**Population**
+
+Students like these
+]
+.flow-step[
+Sampling
+
+→
+]
+.flow-box[
+**Sample**
+
+`r n_all` children
+]
+.flow-step[
+Random assignment
+
+→
+]
+.flow-pair[
+.flow-box[
+**Treatment**, n = `r n_treat`
+
+Free access now
+]
+.flow-box[
+**Control**, n = `r n_control`
+
+Gets the program later
+]
+]
+]
+
+.box-1.small[Luck alone decided who went first. That makes this an experiment]
+
+.source[Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Be honest about the first arrow. These children applied for the lottery, so the sample isn't a random draw from any population. Who the population is remains a real question, as we said Tuesday. The second arrow really is random.
+
+We come back to this picture of population, sample and groups all quarter.
+
+---
+
+# We have scores from before and after
+
+.pull-left[
+.box-inv-1.medium[Baseline]
+
+.center[Before the program
+
+Math and Hindi tests
+
+**`r n_all` students**]
+]
+
+.pull-right[
+.box-inv-1.medium[Endline]
+
+.center[About 4.5 months later
+
+Math and Hindi tests
+
+**`r n_end` students**]
+]
+
+.box-1.small[Today we start with one column: math scores at baseline]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+`r n_all - n_end` students didn't take the endline tests. We'll say more about that when we compare groups.
+
+---
+
+# Tidy data: One student, one row
+
+```{r first-rows, results="asis"}
+kable(first_rows, format = "html", align = "llccccc", table.attr = 'class="deck-table tight"')
+```
+
+.box-1.small.sp-after-half[Each variable is a column. Each observation is a row. Each cell is one measurement]
+
+.box-inv-1.small[That's the first 6 of `r n_all` rows. Lab 1 opens the whole file]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Tidy data: Wickham (2014), *Journal of Statistical Software* 59(10).]
+
+???
+
+Female and Treatment are coded 1 for yes and 0 for no. Scale check from Tuesday: which of these columns are nominal? Which are numbers we could average?
+
+---
+
+# Tidy, but where is the pattern?
+
+```{r wall, fig.width=11, fig.height=4.7, out.width="90%", fig.alt=paste("A dense wall of all", n_all, "baseline math scores, printed as numbers in rows, in the order they appear in the data file. No pattern is visible.")}
+tibble(score = math) %>%
+  mutate(col = (row_number() - 1) %% 31, row = (row_number() - 1) %/% 31) %>%
+  ggplot(aes(x = col, y = row, label = score)) +
+  geom_text(size = 4.7, color = clr_median, family = "Fira Sans Condensed") +
+  scale_y_reverse() +
+  theme_void()
+```
+
+.source[All `r n_all` baseline math scores. Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Give them a moment with this. It's all here, and nobody can see a thing. That's the problem today solves.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: The most common score
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+You just saw all `r n_all` scores. The test has 35 points. Which score do you think came up most often?
+]
+
+.options[
+.option[
+**A** `r score_top - 6`
+]
+.option[
+**B** `r score_top`
+]
+.option[
+**C** `r score_top + 6`
+]
+.option[
+**D** `r score_top + 12`
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** `r score_top - 6`
+]
+.option.correct[
+**B** `r score_top`
+]
+.option.wrong[
+**C** `r score_top + 6`
+]
+.option.wrong[
+**D** `r score_top + 12`
+]
+]
+
+.box-inv-8.small.sp-after-half[
+`r f_top` students scored `r score_top`, about a third of the 35 points
+]
+
+.box-8.small[
+Nobody can see that in a wall of numbers. A simple table finds it in seconds
+]
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Frequency tables
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# A frequency table counts each score
+
+.pull-left[
+.box-inv-6.small[Left column: each score X]
+
+.box-inv-6.small[Right column: how many students, called the frequency f]
+
+.box-6.small[Show every category, even a zero]
+]
+
+.pull-right[
+```{r frequency-rules, results="asis"}
+score_f %>%
+  filter(score >= 20) %>%
+  transmute(`Score X` = score, f = f) %>%
+  kable(format = "html", align = "c", table.attr = 'class="deck-table tight"')
+```
+
+.center.small[Nobody scored `r paste(zero_scores, collapse = " or ")`]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+A gap in the table would hide something real: nobody scored 22. The next slide has the full table.
+
+These are whole-number scores. The test could give anything from 0 to 35, and the highest anyone scored was `r max(math)`.
+
+The book lists the highest score at the top. Either order is fine.
+
+---
+
+# The full table has a peak at `r score_top`
+
+```{r frequency-full, results="asis"}
+full_table <- score_f %>%
+  mutate(f = if_else(score == score_top, paste0('<strong class="peak">', f, "</strong>"), as.character(f)),
+         score = if_else(score == score_top, paste0('<strong class="peak">', score, "</strong>"), as.character(score)))
+per_col <- ceiling(nrow(full_table) / 3)
+bind_cols(full_table[1:per_col, c("score", "f")],
+          full_table[(per_col + 1):(2 * per_col), c("score", "f")],
+          full_table[(2 * per_col + 1):(3 * per_col), c("score", "f")],
+          .name_repair = "minimal") %>%
+  kable(format = "html", align = "c", escape = FALSE, col.names = rep(c("Score X", "f"), 3),
+        table.attr = 'class="deck-table tight tighter"')
+```
+
+.box-inv-6.small[The f column adds up to n = `r sum(score_f$f)`, so every student is counted once]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). In the book, this total is written N.]
+
+---
+
+# Grouping trades detail for clarity
+
+.pull-left[
+.box-inv-6.small[Ten or fewer intervals is typical]
+
+.box-inv-6.small[Use a simple width: 2, 5, 10 or 20]
+
+.box-inv-6.small[Start at a multiple of the width]
+
+.box-inv-6.small[Keep all intervals the same width]
+]
+
+.pull-right[
+```{r frequency-grouped, results="asis"}
+grouped %>%
+  transmute(`Interval` = interval, f = f) %>%
+  kable(format = "html", align = "c", table.attr = 'class="deck-table tight"')
+```
+]
+
+.box-6.small[Inside `r top_interval`, we no longer know any one student's exact score]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+These are guidelines, so use good judgment. With a width of 5 we get six intervals, down from `r nrow(score_f)` rows.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Group 20 real scores
+
+.box-inv-8.medium.sp-after-half[`r paste(try_scores, collapse = ", ")`]
+
+.box-8.small.sp-after-half[Make a grouped table with intervals of 5, starting at 0. Then check your total]
+
+.box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote on 5–9]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). A random draw of 20 students.]
+
+???
+
+About 6 minutes. Students who finish early can sketch a histogram of their table, as a preview. Vote by hands.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+```{r try-answer, results="asis"}
+try_table %>%
+  transmute(`Interval` = interval, f = f) %>%
+  kable(format = "html", align = "c", table.attr = 'class="deck-table tight"')
+```
+
+.box-inv-8.small.sp-after-half[The total is `r sum(try_table$f)`, one count per student. Nobody got lost]
+
+.box-8.small[Even these 20 peak at `r try_top`, the same interval as all `r n_all`]
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# Plots and shapes
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# A histogram draws the grouped table
+
+```{r histogram, fig.width=10, fig.height=4.3, out.width="84%", fig.alt=paste0("Histogram of baseline math scores in intervals of 5, with touching bars labeled with their counts: ", paste0(grouped$interval, " has ", grouped$f, collapse = ", "), ". The tallest bar is ", top_interval, ".")}
+ggplot(grouped, aes(x = mid, y = f)) +
+  geom_col(width = 5, fill = clr_bar, color = "white") +
+  geom_text(aes(label = f), vjust = -0.4, size = 6.5, fontface = "bold", color = clr_median,
+            family = "Fira Sans Condensed") +
+  scale_x_continuous(breaks = grouped$mid, labels = grouped$interval) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.12))) +
+  labs(x = "Math score at baseline (out of 35)", y = "Students (f)") +
+  theme_slides()
+```
+
+.box-inv-3.small[Each bar is one row of the table. The bars touch: the scale has no gaps]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+# A polygon swaps bars for dots and lines
+
+```{r polygon-grouped, fig.width=10, fig.height=4.3, out.width="84%", fig.alt="The same histogram in pale blue, with a dark line on top. Each dot sits at the middle of an interval at the height of its bar, and the line drops to zero at both ends. The line rises to a peak at the interval from 10 to 14 and then falls."}
+poly_grouped <- bind_rows(tibble(mid = -3, f = 0), select(grouped, mid, f), tibble(mid = 32, f = 0))
+
+ggplot(grouped, aes(x = mid, y = f)) +
+  geom_col(width = 5, fill = clr_soft, color = "white") +
+  geom_line(data = poly_grouped, color = clr_median, linewidth = 1.3) +
+  geom_point(data = poly_grouped, color = clr_median, size = 4) +
+  scale_x_continuous(breaks = grouped$mid, labels = grouped$interval) +
+  labs(x = "Math score at baseline (out of 35)", y = "Students (f)") +
+  theme_slides()
+```
+
+.box-inv-3.small[Each dot sits at the middle of its interval. A line is easier to overlay than bars]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The line drops to zero one interval past each end, so the shape closes on the axis.
+
+---
+
+# Every score: more detail, more bumps
+
+```{r polygon-full, fig.width=10, fig.height=4.3, out.width="84%", fig.alt=paste0("A polygon with one dot for every score from 0 to ", max(math), ". It rises to a jagged peak of ", f_top, " students at a score of ", score_top, ", with a sharp dip right after it, and then falls to almost nothing above 20.")}
+poly_full <- bind_rows(tibble(score = min(math) - 1, f = 0), score_f, tibble(score = max(math) + 1, f = 0))
+
+ggplot(poly_full, aes(x = score, y = f)) +
+  geom_line(color = clr_median, linewidth = 1.3) +
+  geom_point(color = clr_median, size = 3) +
+  annotate("text", x = score_top + 1, y = f_top, label = paste(f_top, "students scored", score_top),
+           hjust = 0, color = clr_median, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  scale_x_continuous(breaks = seq(0, max(math), 2)) +
+  scale_y_continuous(expand = expansion(mult = c(0.02, 0.08))) +
+  labs(x = "Math score at baseline (out of 35)", y = "Students (f)") +
+  theme_slides()
+```
+
+.box-inv-3.small[With no grouping we keep every count, and the picture gets jagged]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+# Percentages put groups on one scale
+
+```{r percentages, fig.width=11, fig.height=3.9, out.width="90%", fig.alt=paste0("Two polygons of baseline math scores for ", n_girls, " girls and ", n_boys, " boys. In the left panel, which shows counts, the line for girls towers over the line for boys. In the right panel, which shows the percent of each group, the two lines have nearly the same height and shape.")}
+panels <- by_group %>%
+  pivot_longer(c(f, pct), names_to = "scale", values_to = "value") %>%
+  mutate(scale = factor(scale, levels = c("f", "pct"),
+                        labels = c("Number of students (f)", "% of each group")))
+group_labels <- tibble(scale = factor("Number of students (f)", levels = levels(panels$scale)),
+                       mid = c(14, 19.5), value = c(max(by_group$f), 68), group = c("Girls", "Boys"),
+                       text = c(paste0("Girls, n = ", n_girls), paste0("Boys, n = ", n_boys)))
+
+ggplot(panels, aes(x = mid, y = value, color = group, linetype = group)) +
+  geom_line(linewidth = 1.3) +
+  geom_point(size = 3) +
+  geom_text(data = group_labels, aes(label = text), hjust = 0, size = 6, fontface = "bold",
+            family = "Fira Sans Condensed", show.legend = FALSE) +
+  scale_color_manual(values = c(Girls = clr_median, Boys = clr_mean), guide = "none") +
+  scale_linetype_manual(values = c(Girls = "solid", Boys = "dashed"), guide = "none") +
+  scale_x_continuous(breaks = grouped$mid, labels = grouped$interval) +
+  facet_wrap(vars(scale), scales = "free_y") +
+  labs(x = "Math score at baseline", y = NULL) +
+  theme_slides(18)
+```
+
+.box-inv-3.small[% = 100 × f / n. On the left, size hides the shape. On the right, we can compare]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The shapes are the point. Girls and boys look much alike once we use percentages. There are simply about `r round(n_girls / n_boys)` times as many girls in this sample.
+
+---
+
+# A density plot smooths out the bumps
+
+```{r density, fig.width=10, fig.height=3.9, out.width="80%", fig.alt="The percentage of students at each math score, shown as pale bars, with a smooth dark curve running through them. The curve has one peak near 12 and falls away evenly on both sides."}
+ggplot(baseline, aes(x = tot_math)) +
+  geom_col(data = score_f, aes(x = score, y = pct), fill = clr_soft, width = 0.85) +
+  geom_density(aes(y = after_stat(density) * 100), color = clr_median, linewidth = 1.5) +
+  annotate("text", x = 16.5, y = 9.5, label = "Kernel density plot", hjust = 0, color = clr_median,
+           size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  scale_x_continuous(breaks = seq(0, 26, 2)) +
+  labs(x = "Math score at baseline (out of 35)", y = "% of students") +
+  theme_slides()
+```
+
+.box-inv-3.small[It adds up a small bump at each score. You'll read these, not compute them]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The name is fancy, the idea isn't. Smooth curves are how we'll draw distributions for the rest of the quarter, starting with the normal curve.
+
+---
+
+# Categories get bars with gaps
+
+```{r bar-graph, fig.width=10, fig.height=3.7, out.width="80%", fig.alt=paste0("Bar graph of students at the three Mindspark centers, with gaps between the bars: ", paste0(centers$ms_center1, " has ", centers$f, collapse = ", "), ".")}
+ggplot(centers, aes(x = ms_center1, y = f)) +
+  geom_col(width = 0.6, fill = clr_bar) +
+  geom_text(aes(label = f), vjust = -0.4, size = 6.5, fontface = "bold", color = clr_median,
+            family = "Fira Sans Condensed") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.14))) +
+  labs(x = "Mindspark center", y = "Students (f)") +
+  theme_slides()
+```
+
+.box-inv-3.small[Scores have an order and even steps, so a histogram's bars touch. Centers are just names, so these bars stand apart]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is Tuesday's scales of measurement at work. Nominal and ordinal variables get a bar graph. Interval and ratio variables get a histogram or polygon.
+
+---
+
+# Symmetric, unimodal and normal differ
+
+```{r shapes, fig.width=11, fig.height=2.9, out.width="92%", fig.alt="Three curves side by side. The first has two equal peaks and mirrors around its center, so it's symmetric but not unimodal. The second has one peak on the left and a long tail to the right, so it's unimodal but not symmetric. The third is a bell curve: symmetric, unimodal and normal."}
+shape_grid <- seq(0, 10, length.out = 300)
+shapes <- bind_rows(
+  tibble(x = shape_grid, y = 0.5 * dnorm(shape_grid, 3, 0.9) + 0.5 * dnorm(shape_grid, 7, 0.9),
+         shape = "Symmetric, not unimodal"),
+  tibble(x = shape_grid, y = dgamma(shape_grid, 3, 1), shape = "Unimodal, not symmetric"),
+  tibble(x = shape_grid, y = dnorm(shape_grid, 5, 1.4), shape = "Normal: both, and a bell")
+) %>%
+  mutate(shape = fct_inorder(shape))
+
+ggplot(shapes, aes(x = x, y = y)) +
+  geom_area(fill = clr_soft, color = clr_bar, linewidth = 1.1) +
+  facet_wrap(vars(shape), nrow = 1) +
+  labs(x = NULL, y = NULL) +
+  theme_slides(18) +
+  theme(axis.text = element_blank(), panel.grid = element_blank())
+```
+
+.pull-left-3[
+.box-inv-3.small[Symmetric: each side mirrors the other]
+]
+
+.pull-middle-3[
+.box-inv-3.small[Unimodal: one high point]
+]
+
+.pull-right-3[
+.box-inv-3.small[Normal: a bell, common in nature]
+]
+
+???
+
+A normal distribution is symmetric and unimodal, with the most scores in the middle. Not every symmetric, unimodal shape is normal, but that's a detail for later.
+
+Our math scores are unimodal and close to symmetric. Many measurements in nature look like this, which is why the bell curve keeps coming back.
+
+---
+
+# Skewed distributions have one long tail
+
+```{r skew, fig.width=11, fig.height=3.1, out.width="90%", fig.alt="Two curves. On the left, a peak near the high end with a long tail stretching to the left, labeled skewed left. On the right, a peak near the low end with a long tail stretching to the right, labeled skewed right."}
+skews <- bind_rows(
+  tibble(x = shape_grid, y = dgamma(10 - shape_grid, 3, 1), shape = "Skewed left"),
+  tibble(x = shape_grid, y = dgamma(shape_grid, 3, 1), shape = "Skewed right")
+)
+tails <- tibble(shape = c("Skewed left", "Skewed right"), x = c(1.9, 8.1), y = c(0.07, 0.07),
+                label = c("Long tail", "Long tail"))
+
+ggplot(skews, aes(x = x, y = y)) +
+  geom_area(fill = clr_soft, color = clr_bar, linewidth = 1.1) +
+  geom_text(data = tails, aes(label = label), color = clr_median, size = 6, fontface = "bold",
+            family = "Fira Sans Condensed") +
+  facet_wrap(vars(shape), nrow = 1) +
+  labs(x = NULL, y = NULL) +
+  theme_slides(18) +
+  theme(axis.text = element_blank(), panel.grid = element_blank())
+```
+
+.pull-left[
+.box-inv-3.small[A very easy test: scores pile up high, and a few trail off to the left]
+]
+
+.pull-right[
+.box-inv-3.small[A very hard test: scores pile up low, and a few trail off to the right]
+]
+
+.book-tag[In the book: skewed left is negatively skewed, and skewed right is positively skewed]
+
+???
+
+Skew is named after the tail, not the peak. That's the common mistake. Tuesday we'll see what a long tail does to the mean.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: The endline scores
+
+.box-inv-8.small.sp-after-half[The same study, about 4.5 months later. Picture the baseline curve you just saw. What does the endline curve look like?]
+
+.options[
+.option[
+**A** In about the same place
+]
+.option[
+**B** Moved right, still one peak
+]
+.option[
+**C** Moved right, now two peaks
+]
+.option[
+**D** Moved left
+]
+]
+
+.box-8.small[Tell a neighbor why. Half these students had Mindspark, and half didn't]
+
+???
+
+About 6 minutes. Hands are fine here. Ask a few students to defend their answer before the next slide, especially anyone who picked C. If half got a program and half didn't, why wouldn't we see two peaks?
+
+---
+
+class: title title-8
+
+# Predict it: The whole pile moved right
+
+```{r endline, fig.width=10, fig.height=3.8, out.width="82%", fig.alt=paste0("Two smooth curves of math scores, on a percent scale. The baseline curve, for ", n_all, " students, peaks near 12. The endline curve, for ", n_end, " students, sits about 6 points to the right. It's wider and lower, with one broad peak.")}
+rounds <- bind_rows(tibble(score = math, round = "Baseline"),
+                    tibble(score = endline$tot_math, round = "Endline"))
+
+ggplot(rounds, aes(x = score, color = round, linetype = round)) +
+  geom_density(aes(y = after_stat(density) * 100), linewidth = 1.5, bw = 1.5) +
+  annotate("text", x = 5.3, y = 9.2, label = paste0("Baseline, n = ", n_all), hjust = 1, color = clr_median,
+           size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  annotate("text", x = 24.5, y = 6.5, label = paste0("Endline, n = ", n_end), hjust = 0, color = clr_mean,
+           size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  scale_color_manual(values = c(Baseline = clr_median, Endline = clr_mean), guide = "none") +
+  scale_linetype_manual(values = c(Baseline = "solid", Endline = "dashed"), guide = "none") +
+  scale_x_continuous(breaks = seq(0, 35, 5)) +
+  labs(x = "Math score", y = "% of students") +
+  theme_slides()
+```
+
+.box-inv-8.small[So, B: one wide peak. Half the students scored at least `r median(math)` at baseline, and half at least `r median(endline$tot_math)` at endline]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Percentages again, because the two rounds have different numbers of students.
+
+Why not two peaks, with one group ahead? At endline the treatment group's mean is about `r round(mean(endline$tot_math[endline$treat == 1]) - mean(endline$tot_math[endline$treat == 0]), 1)` points higher, but scores spread much wider than that, so the two piles overlap into one.
+
+Why did the pile move? Everyone had 4.5 more months of school, and half also had Mindspark. A plot of everyone can't separate those two. That's what the rest of the course is for: this is description, and explanation comes later.
+
+The endline tests aren't identical to the baseline test. They were out of 34 or 35, depending on the grade band. So treat this as a rough picture.
+
+---
+
+layout: false
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Say what the Mindspark study did, and why it used a lottery]
+
+.box-inv-8.small[Build a frequency table, ungrouped or grouped]
+
+.box-inv-8.small[Read a histogram, a polygon, a density plot and a bar graph]
+
+.box-inv-8.small[Describe a shape: symmetric, unimodal, normal or skewed]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Before Tuesday]
+
+Read Chapters 3 and 4
+]
+
+.pull-right[
+.box-6.small[Tomorrow: Lab 1]
+
+Meet the data. Go to your own lab, and bring a calculator and a laptop
+]
+
+.box-3.small[Nothing is due this Sunday. The first MindTap work is due January 17 at 6 PM]
+
+```{css, echo=FALSE}
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table.tighter td,
+table.deck-table.tighter th {
+  padding: 0.05em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+strong.peak {
+  color: #a93e31;
+}
+
+/* The study design, from population to the two groups */
+.flow {
+  display: grid;
+  grid-template-columns: 1fr auto 0.8fr auto 1.1fr;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0.9em 0 1em;
+  font-size: 0.72em;
+}
+
+.flow-box {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.2em 0.6em;
+  text-align: center;
+}
+
+.flow-box p {
+  margin: 0.25em 0;
+}
+
+.flow-pair {
+  display: grid;
+  gap: 0.5em;
+}
+
+.flow-step {
+  text-align: center;
+  font-size: 0.8em;
+  max-width: 7.5em;
+}
+
+.flow-step p {
+  margin: 0;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.9em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+```

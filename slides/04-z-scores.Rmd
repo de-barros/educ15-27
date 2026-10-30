@@ -1,0 +1,965 @@
+---
+title: "z-scores"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css", "css/simulator.css"]
+    seal: false
+    anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+library(knitr)
+source(here::here("R", "slide-things.R"))
+
+# Colors from the slide theme, all readable on white ----
+clr_bar <- "#538ba2"
+clr_soft <- "#c5d9e2"
+clr_mean <- "#a93e31"
+clr_andy <- "#244a70"
+clr_dev <- "#8a6100"
+
+theme_slides <- function(base_size = 20) {
+  theme_minimal(base_size = base_size, base_family = "Fira Sans Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_text(face = "bold"),
+          strip.text = element_text(face = "bold", size = rel(1)))
+}
+
+fmt <- function(x, d = 2) str_replace(formatC(x, format = "f", digits = d), "^-", "−")
+sgn <- function(x, d = 2) paste0(if_else(x < 0, "−", "+"), fmt(abs(x), d))
+
+# Baseline scores. Treat the 619 students as a population ----
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+math <- baseline$tot_math
+hindi <- baseline$tot_hindi
+n_all <- length(math)
+mu <- mean(math)
+sigma <- sqrt(sum((math - mu)^2) / n_all)
+mu_h <- mean(hindi)
+sigma_h <- sqrt(sum((hindi - mu_h)^2) / n_all)
+max_m <- round(max(math / baseline$per_math, na.rm = TRUE))
+max_h <- round(max(hindi / baseline$per_hindi, na.rm = TRUE))
+
+z_of <- function(x) (x - mu) / sigma
+z_math <- z_of(math)
+
+score_pct <- tibble(score = math) %>%
+  count(score) %>%
+  mutate(pct = 100 * n / n_all) %>%
+  complete(score = 0:26, fill = list(n = 0, pct = 0))
+
+# Andy's score ----
+andy <- 19
+dev <- andy - mu
+z_andy <- z_of(andy)
+z_andy_h <- (andy - mu_h) / sigma_h
+same_score <- sum(math == andy & hindi == andy)
+share_below <- mean(math < andy)
+share_below_h <- mean(hindi < andy)
+
+# The five students from Tuesday, as a sample ----
+five <- baseline$tot_math[4:8]
+five_m <- mean(five)
+five_sd <- sd(five)
+
+# Squared scores, to show a change of shape ----
+sq <- math^2
+mu_sq <- mean(sq)
+sigma_sq <- sqrt(sum((sq - mu_sq)^2) / n_all)
+sq_binned <- tibble(sq = sq) %>%
+  mutate(bin = floor(sq / 40) * 40 + 20) %>%
+  count(bin) %>%
+  mutate(pct = 100 * n / n_all)
+
+# The bars of a histogram, with the mean and Andy marked, under any new labels ----
+relabel_plot <- function(f, x_title, d = 2, y_top = 15.5) {
+  label_y <- y_top * 0.93
+  ggplot(score_pct, aes(x = score, y = pct)) +
+    geom_col(fill = clr_soft, width = 0.85) +
+    geom_vline(xintercept = mu, color = clr_mean, linewidth = 1.2) +
+    geom_vline(xintercept = andy, color = clr_andy, linewidth = 1.2, linetype = "dashed") +
+    annotate("text", x = mu - 0.3, y = label_y, label = paste("Mean:", fmt(f(mu), d)), hjust = 1,
+             color = clr_mean, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+    annotate("text", x = andy + 0.3, y = label_y, label = paste("Andy:", fmt(f(andy), 0)), hjust = 0,
+             color = clr_andy, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+    scale_x_continuous(breaks = seq(0, 24, 4), labels = function(x) fmt(f(x), 0)) +
+    scale_y_continuous(limits = c(0, y_top), breaks = seq(0, 15, 5)) +
+    labs(x = x_title, y = "% of students") +
+    theme_slides()
+}
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# z-scores
+
+.class-info[
+
+**Topic 4 · Thursday, January 14**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+
+.center[**We are here**]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Still description. On Tuesday we summarized a whole distribution in two numbers. Today we use those two numbers to say where one score sits.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[z-scores and locations]
+
+.box-6.medium.sp-after-half[Transforming distributions]
+
+.box-3.medium.sp-after-half[Standardized distributions]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: try, predict, play.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# z-scores and locations
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Andy scored 19. Is that good?
+
+```{r andy-plot, fig.width=10, fig.height=4.4, out.width="84%", fig.alt=paste0("Bar chart of baseline math scores for ", n_all, " Mindspark students, from 0 to 26 out of ", max_m, ". The bars peak near 12. A dashed vertical line marks Andy's score of 19, far out on the right side, where the bars are short.")}
+ggplot(score_pct, aes(x = score, y = pct)) +
+  geom_col(fill = clr_soft, width = 0.85) +
+  geom_vline(xintercept = andy, color = clr_andy, linewidth = 1.2, linetype = "dashed") +
+  annotate("text", x = andy + 0.3, y = 13.8, label = paste("Andy:", andy), hjust = 0,
+           color = clr_andy, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  scale_x_continuous(breaks = seq(0, 26, 2)) +
+  scale_y_continuous(limits = c(0, 14.5)) +
+  labs(x = paste0("Math score at baseline (out of ", max_m, ")"), y = "% of students") +
+  theme_slides()
+```
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). `r n_all` students in Delhi.]
+
+???
+
+Andy isn't a real student in the data, but real students did score 19. Ask: how would you say how typical or unusual this score is? It's only 19 out of 35, so is that bad? A raw score means little until we know where the other scores are.
+
+---
+
+# Measure the distance in SDs
+
+```{r ruler-plot, fig.width=11, fig.height=4.25, out.width="82%", fig.alt=paste0("The same bar chart with a solid line at the mean of ", fmt(mu), " and a dashed line at Andy's score of 19. An arrow between them is labeled as a deviation of ", fmt(dev), " points. Above it, a ruler of two segments, each one standard deviation of ", fmt(sigma), " points long, reaches almost exactly from the mean to Andy.")}
+ruler <- tibble(from = mu + 0:1 * sigma, to = mu + 1:2 * sigma)
+
+ggplot(score_pct, aes(x = score, y = pct)) +
+  geom_col(fill = clr_soft, width = 0.85) +
+  annotate("segment", x = mu, xend = mu, y = 0, yend = 19.2, color = clr_mean, linewidth = 1.2) +
+  annotate("segment", x = andy, xend = andy, y = 0, yend = 19.2, color = clr_andy, linewidth = 1.2,
+           linetype = "dashed") +
+  annotate("text", x = mu - 0.3, y = 18.3, label = paste("Mean:", fmt(mu)), hjust = 1,
+           color = clr_mean, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  annotate("text", x = andy + 0.3, y = 18.3, label = paste("Andy:", andy), hjust = 0,
+           color = clr_andy, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  annotate("segment", x = mu, xend = andy, y = 14.2, yend = 14.2, color = clr_dev, linewidth = 1.1,
+           arrow = arrow(ends = "both", length = unit(0.12, "inches"), type = "closed")) +
+  annotate("text", x = andy + 0.3, y = 14.2, label = paste("Deviation:", fmt(dev), "points"), hjust = 0,
+           color = clr_dev, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  geom_segment(data = ruler, aes(x = from, xend = to, y = 16.8, yend = 16.8), inherit.aes = FALSE,
+               color = clr_bar, linewidth = 1.6) +
+  geom_segment(data = tibble(x = mu + 0:2 * sigma), aes(x = x, xend = x, y = 16.1, yend = 17.5),
+               inherit.aes = FALSE, color = clr_bar, linewidth = 1.6) +
+  annotate("text", x = mu + c(0.5, 1.5) * sigma, y = 15.6, label = "1 SD",
+           color = "#35586a", size = 6, fontface = "bold", family = "Fira Sans Condensed") +
+  scale_x_continuous(breaks = seq(0, 26, 2), limits = c(-0.5, 27)) +
+  scale_y_continuous(limits = c(0, 19.5), breaks = seq(0, 15, 5)) +
+  labs(x = paste0("Math score at baseline (out of ", max_m, ")"), y = "% of students") +
+  theme_slides(19)
+```
+
+.box-inv-1.small[Each SD is `r fmt(sigma)` points. Andy's `r fmt(dev)` points are `r fmt(dev)` / `r fmt(sigma)` = `r fmt(z_andy)` SDs]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Four questions. What's typical? The mean. How far is Andy from it? The deviation. How much do scores vary overall? The SD. So how many SDs away is he?
+
+---
+
+# A z-score counts SDs from the mean
+
+$$
+z = \frac{X - \mu}{\sigma} = \frac{19 - `r fmt(mu)`}{`r fmt(sigma)`} = `r fmt(z_andy)`
+$$
+
+.pull-left[
+.box-inv-1.small[X − μ]
+
+How far the score is from the mean, in points. This is the deviation from Tuesday
+]
+
+.pull-right[
+.box-inv-1.small[σ]
+
+The ruler. It says how big a step is in this distribution
+]
+
+.box-1.small[Treat the `r n_all` students as a population: μ = `r fmt(mu)` and σ = `r fmt(sigma)`]
+
+???
+
+The z has no units. Points divided by points. That's why it will work across different tests later today.
+
+---
+
+# Sign: which side. Size: how far
+
+```{r sign-table, results="asis"}
+tibble(X = c(andy, 15, 11, 5)) %>%
+  mutate(`Score X` = X,
+         `Deviation X − μ` = sgn(X - mu),
+         z = sgn(z_of(X)),
+         `In words` = c("About two SDs above the mean",
+                        "About one SD above the mean",
+                        "Almost exactly at the mean",
+                        "About one and a half SDs below the mean")) %>%
+  select(-X) %>%
+  kable(format = "html", align = "ccccl", table.attr = 'class="deck-table"')
+```
+
+.box-inv-1.small[z = 0 is the mean. Most of these students sit between z = −2 and z = +2: `r round(100 * mean(abs(z_math) < 2))`% of them]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+# From a z-score back to a score
+
+$$
+X = \mu + z\sigma = `r fmt(mu)` + `r fmt(z_andy)` \times `r fmt(sigma)` = `r fmt(mu + z_andy * sigma)`
+$$
+
+.pull-left-3[
+.box-inv-1.small[First, read the z]
+
+.center[z = `r fmt(z_andy)`, so Andy is above the mean]
+]
+
+.pull-middle-3[
+.box-inv-1.small[Then go back to points]
+
+.center[`r fmt(z_andy)` × `r fmt(sigma)` = `r fmt(dev)` points away]
+]
+
+.pull-right-3[
+.box-inv-1.small[Last, add the mean]
+
+.center[`r fmt(mu)` + `r fmt(dev)` = `r fmt(andy)`]
+]
+
+???
+
+If you round z to 2, you get `r fmt(mu + 2 * sigma)`, not 19. Keep two decimals along the way. The lab and the homework will say how much to round.
+
+---
+
+# A sample works the same way
+
+```{r formula-table, results="asis"}
+tribble(
+  ~` `, ~`Score to z`, ~`z to score`,
+  "Population", "\\(z = \\dfrac{X - \\mu}{\\sigma}\\)", "\\(X = \\mu + z\\sigma\\)",
+  "Sample", "\\(z = \\dfrac{X - M}{\\hat{\\sigma}}\\)", "\\(X = M + z\\hat{\\sigma}\\)"
+) %>%
+  kable(format = "html", align = "lcc", escape = FALSE, table.attr = 'class="deck-table"')
+```
+
+.box-inv-1.small[
+Tuesday's five: M = `r fmt(five_m, 1)` and σ̂ = `r fmt(five_sd)`. In this sample, the `r max(five)` has z = `r fmt((max(five) - five_m) / five_sd)`
+]
+
+.book-tag[
+In the book: σ̂ is written s
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Same idea, different symbols. Greek means population, and a Latin letter or a hat means an estimate. A z-score in a sample uses the estimates.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Go there and back
+
+.box-8.small.sp-after-half[For the math test: μ = `r fmt(mu)` and σ = `r fmt(sigma)`]
+
+.box-inv-8.small[**1.** A student scored 9. What's the z-score?]
+
+.box-inv-8.small[**2.** A student has z = +1.50. What's the score?]
+
+.box-inv-8.small.sp-after-half[**3.** In Tuesday's sample, M = `r fmt(five_m, 1)` and σ̂ = `r fmt(five_sd)`. Find the z of the `r min(five)`.]
+
+.box-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote]
+
+???
+
+About 6 minutes, with calculators. For the vote, ask for hands on the sign of each answer first, then call out the value.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left-3[
+.box-inv-8.medium[Question 1]
+
+.center[(9 − `r fmt(mu)`) / `r fmt(sigma)` = **`r fmt(z_of(9))`**]
+]
+
+.pull-middle-3[
+.box-inv-8.medium[Question 2]
+
+.center[`r fmt(mu)` + 1.50 × `r fmt(sigma)` = **`r fmt(mu + 1.5 * sigma)`**]
+]
+
+.pull-right-3[
+.box-inv-8.medium[Question 3]
+
+.center[(`r min(five)` − `r fmt(five_m, 1)`) / `r fmt(five_sd)` = **`r fmt((min(five) - five_m) / five_sd)`**]
+]
+
+.box-8.small[A negative z-score means below the mean. It doesn't mean a bad score]
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Transforming distributions
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# A 12 means nothing by itself
+
+```{r twelve-plot, fig.width=10, fig.height=4.2, out.width="84%", fig.alt="Bar chart of baseline math scores with the mean and Andy's score of 19 marked by vertical lines."}
+relabel_plot(identity, paste0("Math score at baseline (out of ", max_m, ")"))
+```
+
+.box-inv-6.small[It's only a label. We could relabel every score, and everyone would keep their place]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+# Subtract 10: the labels slide
+
+```{r minus-plot, fig.width=10, fig.height=4.2, out.width="84%", fig.alt=paste0("The same bars with a new axis, running from −10 to 14. The mean is now ", fmt(mu - 10), " and Andy's score is now ", andy - 10, ". The picture is the same.")}
+relabel_plot(function(x) x - 10, "Score − 10")
+```
+
+.box-inv-6.small[Mean: `r fmt(mu)` → `r fmt(mu - 10)`. The SD stays at `r fmt(sigma)`. Andy is still `r fmt(z_andy)` SDs above the mean]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+# Multiply by 10: the labels stretch
+
+```{r times-plot, fig.width=10, fig.height=4.2, out.width="84%", fig.alt=paste0("The same bars with a new axis, running from 0 to 240. The mean is now ", fmt(mu * 10, 1), " and Andy's score is now ", andy * 10, ". The picture is the same.")}
+relabel_plot(function(x) x * 10, "Score × 10", d = 1)
+```
+
+.box-inv-6.small[Mean: `r fmt(mu)` → `r fmt(mu * 10, 1)`. SD: `r fmt(sigma)` → `r fmt(sigma * 10, 1)`. Andy is still `r fmt(z_andy)` SDs above the mean]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+# Do both: subtract, then multiply
+
+```{r both-plot, fig.width=10, fig.height=4.2, out.width="84%", fig.alt=paste0("The same bars with a new axis, running from −100 to 140. The mean is now ", fmt((mu - 10) * 10, 1), " and Andy's score is now ", (andy - 10) * 10, ". The picture is the same.")}
+relabel_plot(function(x) (x - 10) * 10, "(Score − 10) × 10", d = 1)
+```
+
+.box-inv-6.small[Mean: `r fmt(mu)` → `r fmt((mu - 10) * 10, 1)`. SD: `r fmt(sigma)` → `r fmt(sigma * 10, 1)`. Andy is still `r fmt(z_andy)` SDs above the mean]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+# These only change the labels
+
+```{r rules-table, results="asis"}
+tribble(
+  ~`Do this to every score`, ~Mean, ~SD, ~Shape,
+  "Add or subtract a constant", "Moves by the constant", "Stays the same", "Stays the same",
+  "Multiply or divide by a positive constant", "Multiplied or divided", "Multiplied or divided", "Stays the same"
+) %>%
+  kable(format = "html", align = "lccc", table.attr = 'class="deck-table"')
+```
+
+.box-6.small.sp-after-half[We call these "scale-invariant" transformations]
+
+.box-inv-6.small[They keep the shape and the relative distances between students]
+
+???
+
+The SD ignores a shift because it's built from distances between scores and the mean. Both move together, so the distances don't change.
+
+---
+
+# Squaring changes the shape
+
+```{r square-plot, fig.width=11, fig.height=3.9, out.width="88%", fig.alt="Two bar charts. The left one shows math scores, close to symmetric. The right one shows the same scores squared, with a peak at the low end and a long tail to the right."}
+bind_rows(
+  score_pct %>% transmute(x = score, pct, panel = "Math score", w = 0.85),
+  sq_binned %>% transmute(x = bin, pct, panel = "Math score squared", w = 34)
+) %>%
+  mutate(panel = fct_inorder(panel)) %>%
+  ggplot(aes(x = x, y = pct, width = w)) +
+  geom_col(fill = clr_bar) +
+  facet_wrap(vars(panel), nrow = 1, scales = "free_x") +
+  labs(x = NULL, y = "% of students") +
+  theme_slides(19)
+```
+
+.box-inv-6.small[Now 4 and 6 are 20 apart, but 18 and 20 are 76 apart]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Not every transformation is a relabeling. Both pairs of students were 2 points apart. After squaring, 4 and 6 become 16 and 36, while 18 and 20 become 324 and 400. So this isn't a relabeling. It changed who is close to whom.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Two steps at once
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Take every math score. Subtract `r fmt(mu)`, the mean. Then divide by `r fmt(sigma)`, the SD. What are the new mean and SD?
+]
+
+.options[
+.option[
+**A** Mean `r fmt(mu)`, SD `r fmt(sigma)`
+]
+.option[
+**B** Mean 0, SD `r fmt(sigma)`
+]
+.option[
+**C** Mean 0, SD 1
+]
+.option[
+**D** Mean 1, SD 0
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer. Point back to the table: what does subtracting do, then what does dividing do?
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** Mean `r fmt(mu)`, SD `r fmt(sigma)`
+]
+.option.wrong[
+**B** Mean 0, SD `r fmt(sigma)`
+]
+.option.correct[
+**C** Mean 0, SD 1
+]
+.option.wrong[
+**D** Mean 1, SD 0
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Subtracting moves the mean from `r fmt(mu)` to 0. The SD doesn't change
+]
+
+.box-8.small[
+Dividing takes the SD from `r fmt(sigma)` to 1. The mean stays at 0
+]
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# Standardized distributions
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# A z-score is the same kind of relabeling
+
+$$
+z = \frac{X - \mu}{\sigma}
+$$
+
+.pull-left[
+.box-inv-3.small[Subtract one constant]
+
+That constant is the mean
+]
+
+.pull-right[
+.box-inv-3.small[Divide by another constant]
+
+That constant is the standard deviation
+]
+
+.box-3.small[Do it to every score and you get a *standardized* distribution]
+
+---
+
+# Same picture, new axis: mean 0, SD 1
+
+```{r z-axis-plot, fig.width=10, fig.height=4.3, out.width="84%", fig.alt=paste0("The same bars of math scores with two axes. The bottom axis shows raw scores. The top axis shows z-scores from −3 to 4, with 0 at the mean of ", fmt(mu), ". Andy's score of 19 lines up with a z-score of ", fmt(z_andy), ".")}
+ggplot(score_pct, aes(x = score, y = pct)) +
+  geom_col(fill = clr_soft, width = 0.85) +
+  geom_vline(xintercept = mu + c(-2, -1, 1) * sigma, color = "#8d99a5", linewidth = 0.5) +
+  geom_vline(xintercept = mu, color = clr_mean, linewidth = 1.2) +
+  geom_vline(xintercept = andy, color = clr_andy, linewidth = 1.2, linetype = "dashed") +
+  annotate("text", x = andy + 0.3, y = 13.8, label = paste("Andy: z =", fmt(z_andy)), hjust = 0,
+           color = clr_andy, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  annotate("text", x = mu + 0.3, y = 13.8, label = "z = 0", hjust = 0,
+           color = clr_mean, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  scale_x_continuous(breaks = seq(0, 26, 2), limits = c(-0.6, 27),
+                     sec.axis = sec_axis(~ z_of(.), breaks = -3:4, name = "z-score",
+                                         labels = function(x) fmt(x, 0))) +
+  scale_y_continuous(limits = c(0, 14.5)) +
+  labs(x = "Math score at baseline", y = "% of students") +
+  theme_slides()
+```
+
+.box-inv-3.small[The z-scores have mean `r fmt(abs(round(mean(z_math), 2)))` and SD `r fmt(sqrt(mean(z_math^2)))`. Every student keeps their place]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The book draws this with a normal curve. Here it's the real data. Nothing moved: we printed a second ruler on the plot.
+
+---
+
+# z-scores don't make a shape normal
+
+```{r shape-plot, fig.width=11, fig.height=3.9, out.width="88%", fig.alt="Two bar charts with the same right-skewed shape. The left one shows the squared math scores on their own axis. The right one shows the same values after standardizing, with mean 0 and SD 1. The shape is identical."}
+shape_data <- bind_rows(
+  sq_binned %>% transmute(x = bin, pct, panel = "Squared scores", w = 34),
+  sq_binned %>% transmute(x = (bin - mu_sq) / sigma_sq, pct, panel = "Squared scores, standardized", w = 34 / sigma_sq)
+) %>%
+  mutate(panel = fct_inorder(panel))
+
+shape_notes <- tibble(
+  panel = factor(c("Squared scores", "Squared scores, standardized"), levels = levels(shape_data$panel)),
+  x = c(310, (310 - mu_sq) / sigma_sq), y = 15,
+  label = c(paste0("Mean ", fmt(mu_sq, 1), ", SD ", fmt(sigma_sq, 1)), "Mean 0, SD 1")
+)
+
+ggplot(shape_data, aes(x = x, y = pct, width = w)) +
+  geom_col(fill = clr_bar) +
+  geom_text(data = shape_notes, aes(x = x, y = y, label = label), inherit.aes = FALSE, hjust = 0,
+            color = clr_mean, size = 6, fontface = "bold", family = "Fira Sans Condensed") +
+  facet_wrap(vars(panel), nrow = 1, scales = "free_x") +
+  labs(x = NULL, y = "% of students") +
+  theme_slides(19)
+```
+
+.box-inv-3.small[A skewed distribution stays skewed. Only the axis changes]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is a common mistake. Standardizing moves the center and sets the spread. It can't touch the shape. Math scores look bell-shaped because they already were.
+
+---
+
+# We can add labels we like better
+
+$$
+\text{New score} = \text{new mean} + z \times \text{new SD}
+$$
+
+.pull-left[
+.box-inv-3.small[Mean 500, SD 100]
+
+.center[Andy: 500 + `r fmt(z_andy)` × 100 = **`r fmt(500 + round(z_andy, 2) * 100, 0)`**]
+]
+
+.pull-right[
+.box-inv-3.small[Mean 100, SD 15]
+
+.center[Andy: 100 + `r fmt(z_andy)` × 15 = **`r fmt(100 + round(z_andy, 2) * 15, 0)`**]
+]
+
+.box-3.small[Same student, same place. Nobody needs to see a negative score or a decimal]
+
+???
+
+Why not stop at z? People don't like being told their score is −0.54. So test makers go one step further. It's one more scale-invariant transformation.
+
+---
+
+# Score reports are tables like this one
+
+```{r report-table, results="asis"}
+tibble(X = c(3, 7, 11, 15, 19)) %>%
+  mutate(`Math score` = X,
+         z = sgn(z_of(X)),
+         `Mean 500, SD 100` = fmt(500 + 100 * z_of(X), 0),
+         `Mean 100, SD 15` = fmt(100 + 15 * z_of(X), 0),
+         `% who scored lower` = fmt(100 * map_dbl(X, ~ mean(math < .x)), 0)) %>%
+  select(-X) %>%
+  kable(format = "html", align = "c", table.attr = 'class="deck-table tight"')
+```
+
+.box-inv-3.small[The study's scaled math scores do this too: mean `r fmt(abs(round(mean(baseline$m_theta_eap, na.rm = TRUE), 2)))`, SD `r fmt(sd(baseline$m_theta_eap, na.rm = TRUE))` at baseline]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Tests like the SAT and GRE report a scaled score and a percentile. Each testing program picks its own scale, and the percentile comes from the people who took it.
+
+The study's scaled scores come from a measurement model, not from this simple formula. The idea of reporting in SDs is the same. Don't go further than that unless someone asks.
+
+---
+
+# A 19 in math beats a 19 in Hindi
+
+```{r compare-plot, fig.width=11, fig.height=3.9, out.width="86%", fig.alt=paste0("Two bar charts of baseline scores, on the same axis. Math has mean ", fmt(mu), " and SD ", fmt(sigma), ", and a score of 19 has a z-score of ", fmt(z_andy), ", far in the right tail. Hindi has mean ", fmt(mu_h), " and SD ", fmt(sigma_h), ", and a score of 19 has a z-score of ", fmt(z_andy_h), ", closer to the middle.")}
+labels_two <- c(paste0("Math: mean ", fmt(mu), ", SD ", fmt(sigma)),
+                paste0("Hindi: mean ", fmt(mu_h), ", SD ", fmt(sigma_h)))
+
+two_tests <- tibble(score = c(math, hindi), test = rep(labels_two, each = n_all)) %>%
+  mutate(test = factor(test, levels = labels_two)) %>%
+  count(test, score) %>%
+  mutate(pct = 100 * n / n_all)
+
+mark_two <- tibble(test = factor(labels_two, levels = labels_two),
+                   label = paste("Andy: z =", fmt(c(z_andy, z_andy_h))))
+
+ggplot(two_tests, aes(x = score, y = pct)) +
+  geom_col(fill = clr_soft, width = 0.85) +
+  geom_vline(xintercept = andy, color = clr_andy, linewidth = 1.2, linetype = "dashed") +
+  geom_text(data = mark_two, aes(x = andy + 0.4, y = 11.5, label = label), inherit.aes = FALSE, hjust = 0,
+            color = clr_andy, size = 6, fontface = "bold", family = "Fira Sans Condensed") +
+  facet_wrap(vars(test), nrow = 1) +
+  scale_x_continuous(breaks = seq(0, 30, 5), limits = c(-0.6, 33)) +
+  scale_y_continuous(breaks = seq(0, 10, 5)) +
+  labs(x = "Score at baseline", y = "% of students") +
+  theme_slides(19)
+```
+
+.box-inv-3.small[Percent correct says Hindi: `r round(100 * andy / max_h)`% against `r round(100 * andy / max_m)`%. z-scores say math: `r fmt(z_andy)` against `r fmt(z_andy_h)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Ask first: which test did Andy do better on? The tests differ in length, average and spread, so raw scores can't be compared. z-scores have no units, so they can. `r same_score` real students scored 19 on both tests.
+
+Andy beat `r round(100 * share_below)`% of students in math and `r round(100 * share_below_h)`% in Hindi.
+
+---
+
+# The blueprint starts here
+
+```{r sim-one-score, results="asis"}
+sim_frame(
+  alt = "Simulator at step 1. It draws one score at a time from a normal population, converts each to a z-score, and stacks the z-scores into a bell shape centered at 0",
+  step = 1, mu = fmt(mu), sd = fmt(sigma), view = "stat", draws = 300, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Click to draw a few times. Panel 1 is the population, a smooth curve with our test's mean and SD. Panel 2 is one score and its z. Panel 3 stacks the z-scores. This is step 1 of the blueprint, and every test later in the course has these three panels. Ignore the cutoffs and the p for now. They arrive with hypothesis testing.
+
+---
+
+layout: false
+class: title title-8
+
+# Play it: z-scores
+
+.pull-left-3[
+.box-inv-8.medium[100]
+
+.center[The mean of any full set of z-scores]
+]
+
+.pull-middle-3[
+.box-inv-8.medium[200]
+
+.center[On a test with μ = 40 and σ = 8, the score with z = −1.5]
+]
+
+.pull-right-3[
+.box-inv-8.medium[300]
+
+.center[What 5 bonus points for everyone do to a z-score]
+]
+
+.box-8.small.sp-after-half[Answer with a neighbor, as a question. Nothing is scored]
+
+???
+
+About 6 minutes. Read one clue at a time, in order. No calculators. Take answers by hands or by calling out. This is the format of the Jeopardy games in the labs.
+
+---
+
+class: title title-8
+
+# Play it: Answers
+
+.pull-left-3[
+.box-inv-8.medium[100]
+
+.center[**What is 0?**]
+
+.center[The deviations add up to zero]
+]
+
+.pull-middle-3[
+.box-inv-8.medium[200]
+
+.center[**What is 28?**]
+
+.center[40 − 1.5 × 8 = 28]
+]
+
+.pull-right-3[
+.box-inv-8.medium[300]
+
+.center[**What is nothing?**]
+
+.center[X and μ both rise by 5, and σ stays]
+]
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Turn a score into a z-score, and a z-score back into a score]
+
+.box-inv-8.small[Say what the sign and the size of a z-score mean]
+
+.box-inv-8.small[Say what adding, multiplying and standardizing do to a distribution]
+
+.box-inv-8.small[Compare scores from two different tests]
+
+???
+
+Topic 5 on Tuesday is probability. It connects a z-score to how likely a score is.
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Before Tuesday]
+
+Read Chapter 6
+]
+
+.pull-right[
+.box-6.small[Tomorrow: Lab 2]
+
+Bring a calculator and a laptop. It includes a 15-minute individual check
+]
+
+.box-3.small[Mastery and Problem Set for Chapter 5 are due Sunday at 6 PM]
+
+```{css, echo=FALSE}
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+```
