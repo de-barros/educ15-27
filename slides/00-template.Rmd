@@ -1,0 +1,114 @@
+---
+title: "EDUC 15 deck template"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css"]
+    seal: false
+    anchor_sections: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+
+set.seed(15)
+scores <- tibble(score = rnorm(500, mean = 75, sd = 10))
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# Deck template
+
+.class-info[
+
+**Week 0**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+--
+
+.box-1.medium.sp-after-half[Math]
+
+--
+
+.box-6.medium.sp-after-half[A figure]
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# Math
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# The z-score
+
+.box-inv-1.small[Where a score sits, in standard deviations from the mean]
+
+$$
+z = \frac{X - \mu}{\sigma}
+$$
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# A figure
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Every plot needs alt text
+
+```{r score-hist, echo=FALSE, fig.width=9, fig.height=4.2, out.width="85%", fig.alt="Histogram of 500 simulated test scores, roughly bell-shaped and centered at 75"}
+ggplot(scores, aes(x = score)) +
+  geom_histogram(binwidth = 2.5, fill = "#538ba2", color = "white") +
+  labs(x = "Test score", y = "Students") +
+  theme_minimal(base_family = "Fira Sans Condensed", base_size = 18)
+```

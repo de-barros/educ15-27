@@ -7,10 +7,11 @@ Undergraduate *Statistics for Education Research* at UC Irvine, taught by Andrea
 ## Rules
 
 - **Student records stay out of everything.** The old course folder holds grades, rosters, attendance, graded exams and evaluations. Don't open them, and never copy anything from them into this repo, a deck, or a chat. If a file turns out to contain student names, stop reading it and say so. `.claude/settings.local.json` blocks the known locations, but only for the Read tool.
-- **Publisher material stays out of the repo and the website.** Cengage test banks, instructor manuals, publisher slides and textbook figures don't go in tracked files or on the site. Prior instructors' materials are for reference: don't republish them.
-- **Slides go on the website and on Canvas.** Each topic page embeds its deck, as on Andrew Heiss's course sites. The user also uploads the single-file HTML (the accessible version) and PDF (for printing) to Canvas. So everything in a deck is public: no book figures, no exam material or solutions, and check third-party images.
+- **Textbook figures are fine on slides, with a citation.** Cite the source on every slide that uses a textbook or other third-party figure. No permission check is needed.
+- **Other publisher material stays out of the repo and the website.** Cengage test banks, instructor manuals and publisher slides don't go in tracked files or on the site. Prior instructors' materials are for reference: don't republish them.
+- **Slides go on the website and on Canvas.** Each topic page embeds its deck, as on Andrew Heiss's course sites. The user also uploads the single-file HTML (the accessible version) and PDF (for printing) to Canvas. So everything in a deck is public: no exam material or solutions. All decks are released at once, not one by one.
 - **Canvas holds what can't be public or only works there.** Cengage MindTap works only through Canvas. Grades, solutions and any book chapters stay on Canvas too.
-- **`slides/` is git-ignored on purpose.** Don't propose tracking it. Don't delete anything in it without asking.
+- **`slides/` is tracked, and the repo goes public at release.** Rendered output (`slides/*.html`, `slides/*.pdf`, `slides/canvas/`, `slides/libs/`) stays git-ignored because {targets} rebuilds it. `slides/old-pptx/` stays git-ignored too: the original PowerPoints can hold images nobody has checked. Don't delete anything in `slides/` without asking.
 - **Accessibility is required, not optional:** WCAG 2.1 AA for the site and every deck. See below.
 - **Leave `educ265-27` alone.** It's a read-only reference here, and it has uncommitted work.
 - **Don't publish without being asked.** Don't change DNS (the user does that at IONOS) or create Netlify projects without asking.
@@ -23,7 +24,7 @@ Run commands from the project root. Outside RStudio, set `RSTUDIO_PANDOC="C:/Pro
 - `tar_make(names = ...)` runs in a separate process, so write target names literally, not through a variable.
 - {targets} doesn't track `slides/css` or `html/custom.scss`. After a CSS-only change, run `tar_invalidate("slide_pdf_XX")` and re-render.
 - A PDF target is also skipped when only figures changed: it watches the HTML file only. Invalidate it the same way.
-- The renv "out-of-sync" message is expected. `renv.lock` is the EDUC 265 lockfile, so it lists packages this course doesn't use yet. **Don't run a bare `renv::snapshot()`:** renv skips the git-ignored `slides/` folder, so it would drop the packages the decks need. Add a package with `renv::install()` and `renv::record()`.
+- The renv "out-of-sync" message is expected. `renv.lock` is the EDUC 265 lockfile, so it lists packages this course doesn't use yet. **Don't run a bare `renv::snapshot()` yet:** real decks don't exist, so it would drop packages they'll need. Add a package with `renv::install()` and `renv::record()`.
 - `publish.R` uploads `_site/` through Netlify's deploy API. Its project ids are still `NA`, so it stops with a message. Don't use `quarto publish netlify`: Quarto 1.10.19 exits 0 without uploading. It needs `NETLIFY_AUTH_TOKEN`, a Windows user environment variable the user has set. Never ask for it, print it, or put it on a command line.
 
 ## Writing decks
