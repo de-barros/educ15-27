@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Deck check</title>
+</head>
+<body>
+<!-- Checks every slide of a deck at its real size: overflow, wrapped titles,
+     broken images, leftover markup and accessibility. Serve the repo root over
+     HTTP and open tests/deck-qa.html?deck=03-central-variability -->
+<pre id="out">running</pre>
+<iframe id="deck" title="Deck under test" style="width: 1210px; height: 681px; border: 0;"></iframe>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.10.2/axe.min.js"></script>
+<script>
+(async function () {
+  const out = document.getElementById("out"), frame = document.getElementById("deck");
+  const deck = new URLSearchParams(location.search).get("deck");
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  frame.src = "../slides/" + deck + ".html?nocache=" + Date.now();
+  await new Promise(r => { frame.onload = r; });
+  const win = frame.contentWindow;
+  for (let i = 0; i < 100 && !win.slideshow; i++) await wait(100);
+  await wait(3000);
+  const axeSrc = document.querySelector('script[src*="axe"]').src;
+  await new Promise(r => { const s = win.document.createElement("script"); s.src = axeSrc; s.onload = r; win.document.head.appendChild(s); });
+
+  const n = win.slideshow.getSlideCount(), issues = [];
+  const rules = { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"] };
+  for (let i = 1; i <= n; i++) {
+    win.slideshow.gotoSlide(i);
+    await wait(250);
+    const el = win.document.querySelector(".remark-visible .remark-slide-content");
+    if (!el) continue;
+    const box = el.getBoundingClientRect();
+    let bottom = 0, right = 0;
+    el.querySelectorAll("*").forEach(c => {
+      if (c.closest(".remark-slide-number") || c.closest(".mjx-assistive-mml") || /^(SCRIPT|STYLE)$/.test(c.tagName)) return;
+      const r = c.getBoundingClientRect();
+      if (!r.height) return;
+      bottom = Math.max(bottom, r.bottom - box.top);
+      right = Math.max(right, r.right - box.left);
+    });
+    const h1 = el.querySelector("h1"), main = el.closest(".main-title") || el.classList.contains("main-title");
+    const section = /section-title/.test(el.className);
+    const lines = h1 ? Math.round(h1.getBoundingClientRect().height / parseFloat(win.getComputedStyle(h1).lineHeight)) : 0;
+    const long = el.classList.contains("long-title");
+    const add = what => issues.push("slide " + i + ": " + what);
+    if (bottom > 681) add("overflows the bottom, " + Math.round(bottom) + " of 681 px");
+    if (right > 1210) add("overflows the right, " + Math.round(right) + " of 1210 px");
+    if (lines > 1 && !main && !section && !long) add("title wraps to " + lines + " lines");
+    el.querySelectorAll("img").forEach(img => {
+      if (!img.complete || !img.naturalWidth) add("broken image " + img.getAttribute("src"));
+      if (!img.alt && !img.closest(".sim-slide")) add("image without alt text");
+    });
+    if (/`r |\.box-|\.pull-|\.option\[|\$\$/.test(el.innerText)) add("leftover markup in the text");
+    const result = await win.axe.run(el.closest(".remark-slide-container"), rules);
+    result.violations.forEach(v => v.nodes.forEach(x => {
+      const d = (x.any[0] && x.any[0].data) || {};
+      add("axe " + v.id + (d.contrastRatio ? " " + d.fgColor + " on " + d.bgColor + " is " + d.contrastRatio : "") + ": " + x.html.slice(0, 80));
+    }));
+  }
+  out.textContent = JSON.stringify({ deck: deck, slides: n, lang: win.document.documentElement.lang, title: win.document.title, issues: issues }, null, 1);
+  document.title = "done";
+})().catch(e => { document.getElementById("out").textContent = "ERROR " + e; document.title = "done"; });
+</script>
+</body>
+</html>

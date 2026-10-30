@@ -33,5 +33,6 @@ _site-*/
 
 # Local handover notes (course history, not for a public repo) and local Claude settings
 HANDOVER.md
+REVIEW.md
 CLAUDE.local.md
 .claude/settings.local.json
