@@ -8,7 +8,8 @@ Undergraduate *Statistics for Education Research* at UC Irvine, taught by Andrea
 
 - **Student records stay out of everything.** The old course folder holds grades, rosters, attendance, graded exams and evaluations. Don't open them, and never copy anything from them into this repo, a deck, or a chat. If a file turns out to contain student names, stop reading it and say so. `.claude/settings.local.json` blocks the known locations, but only for the Read tool.
 - **Publisher material stays out of the repo and the website.** Cengage test banks, instructor manuals, publisher slides and textbook figures don't go in tracked files or on the site. Prior instructors' materials are for reference: don't republish them.
-- **Slides never go on the website.** The user uploads them to Canvas: HTML (the accessible version) and PDF (for printing). Nothing in `slides/` reaches `_site/`.
+- **Slides go on the website and on Canvas.** Each topic page embeds its deck, as on Andrew Heiss's course sites. The user also uploads the single-file HTML (the accessible version) and PDF (for printing) to Canvas. So everything in a deck is public: no book figures, no exam material or solutions, and check third-party images.
+- **Canvas holds what can't be public or only works there.** Cengage MindTap works only through Canvas. Grades, solutions and any book chapters stay on Canvas too.
 - **`slides/` is git-ignored on purpose.** Don't propose tracking it. Don't delete anything in it without asking.
 - **Accessibility is required, not optional:** WCAG 2.1 AA for the site and every deck. See below.
 - **Leave `educ265-27` alone.** It's a read-only reference here, and it has uncommitted work.
