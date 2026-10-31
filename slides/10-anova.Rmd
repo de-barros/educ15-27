@@ -686,6 +686,8 @@ tribble(
 
 .box-6.small[Check the split: `r base$df_b` + `r base$df_w` = `r base$df_t`. F has two df, and we report both]
 
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
 ???
 
 Same logic as Topic 9, where two groups gave n₁ + n₂ − 2. Within is that same df, with three groups.
@@ -954,6 +956,8 @@ There are many such tests. The book covers Tukey's and Scheffé's. We use Bonfer
 .box-3.small[That's just under 0.05, as we wanted. Bonferroni plays it a little safe]
 
 ???
+
+The 0.049 assumes independent tests, and these three aren't. Bonferroni keeps the overall rate at or under 0.05 either way.
 
 Compare with `r fmt(rate_at(3))` for three tests at 0.05.
 
