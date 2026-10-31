@@ -1,0 +1,1181 @@
+---
+title: "ANOVA"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css", "css/simulator.css"]
+    seal: false
+    anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+library(knitr)
+source(here::here("R", "slide-things.R"))
+
+# Colors from the slide theme, all readable on white ----
+clr_bar <- "#538ba2"
+clr_soft <- "#c5d9e2"
+clr_mean <- "#a93e31"
+clr_median <- "#244a70"
+clr_mode <- "#8a6100"
+
+theme_slides <- function(base_size = 20) {
+  theme_minimal(base_size = base_size, base_family = "Fira Sans Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_text(face = "bold"),
+          strip.text = element_text(face = "bold", size = rel(1)))
+}
+
+fmt <- function(x, d = 2) formatC(x, format = "f", digits = d, big.mark = ",")
+plain <- function(x, d = 2) formatC(x, format = "f", digits = d)  # no comma, for math
+minus <- function(x) str_replace(as.character(x), "-", "−")
+
+label_text <- function(x, y, label, color = clr_median, hjust = 0.5, size = 6.5) {
+  annotate("text", x = x, y = y, label = label, color = color, hjust = hjust, size = size,
+           fontface = "bold", family = "Fira Sans Condensed")
+}
+
+# A one-way ANOVA, written out step by step ----
+one_way <- function(y, g) {
+  groups <- tibble(y = y, g = g) %>%
+    group_by(g) %>%
+    summarize(n = n(), T = sum(y), M = mean(y), SS = sum((y - mean(y))^2), .groups = "drop") %>%
+    mutate(var = SS / (n - 1))
+  N <- length(y)
+  k <- nrow(groups)
+  G <- sum(y)
+  overall <- G / N
+  groups <- mutate(groups, dev = M - overall, part = n * dev^2)
+  ss_total <- sum((y - overall)^2)
+  ss_within <- sum(groups$SS)
+  ss_between <- sum(groups$part)
+  df_b <- k - 1
+  df_w <- N - k
+  ms_b <- ss_between / df_b
+  ms_w <- ss_within / df_w
+  f <- ms_b / ms_w
+  list(groups = groups, N = N, k = k, G = G, overall = overall, ss_total = ss_total,
+       ss_within = ss_within, ss_between = ss_between, df_b = df_b, df_w = df_w, df_t = N - 1,
+       ms_b = ms_b, ms_w = ms_w, f = f, crit = qf(0.95, df_b, df_w),
+       p = pf(f, df_b, df_w, lower.tail = FALSE), eta = ss_between / ss_total)
+}
+
+# Mindspark math scores ----
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+
+# Block 1 and 2: baseline math across the three centers ----
+base <- one_way(baseline$tot_math, baseline$ms_center1)
+cen <- base$groups
+chh <- filter(cen, g == "Chhatarpur")
+gov <- filter(cen, g == "Govindpuri")
+tek <- filter(cen, g == "Tekhand")
+welch <- oneway.test(tot_math ~ ms_center1, baseline)
+
+center_pct <- baseline %>%
+  count(g = ms_center1, score = tot_math) %>%
+  group_by(g) %>%
+  mutate(pct = 100 * n / sum(n)) %>%
+  ungroup() %>%
+  left_join(select(cen, g, size = n, M), by = "g") %>%
+  mutate(panel = paste0(g, " (n = ", size, ")"))
+
+# Block 2's try-it: the same centers at endline ----
+ends <- one_way(endline$tot_math, endline$ms_center1)
+
+# More tests, more false alarms ----
+tests <- tibble(c = 1:10, rate = 1 - 0.95^c)
+rate_at <- function(c) 1 - 0.95^c
+
+# The three pairs aren't independent, because each group is in two of them ----
+set.seed(15)
+null_scores <- array(rnorm(3 * 30 * 20000), dim = c(20000, 30, 3))
+group_means <- apply(null_scores, c(1, 3), mean)
+group_vars <- apply(null_scores, c(1, 3), var)
+se_pair <- sqrt(rowMeans(group_vars) * 2 / 30)
+cut_pair <- qt(0.975, 87)
+any_hit <- abs(group_means[, 1] - group_means[, 2]) / se_pair > cut_pair |
+  abs(group_means[, 1] - group_means[, 3]) / se_pair > cut_pair |
+  abs(group_means[, 2] - group_means[, 3]) / se_pair > cut_pair
+family_sim <- mean(any_hit)
+
+# Toy groups for the picture of between and within: same means, different spreads ----
+toy <- expand_grid(group = 1:3, offset = c(-3, -2, -1, 0, 1, 2, 3)) %>%
+  mutate(center = c(8, 12, 16)[group], label = paste("Group", group))
+toy_tight <- mutate(toy, score = center + 0.5 * offset, spread = "Little spread within groups")
+toy_wide <- mutate(toy, score = center + 2.2 * offset, spread = "Much spread within groups")
+toy_all <- bind_rows(toy_tight, toy_wide) %>%
+  mutate(spread = fct_inorder(spread))
+toy_means <- distinct(toy_all, spread, label, center)
+
+# Simulator numbers ----
+sim_mu <- 100
+sim_sd <- 15
+sim_n <- 10
+sim_gm <- c(100, 100, 115)
+sim_df <- 3 * sim_n - 3
+sim_crit <- qf(0.95, 2, sim_df)
+true_w <- sim_sd^2
+true_b_h1 <- true_w + sim_n * sum((sim_gm - mean(sim_gm))^2) / 2
+
+# What the two mean squares average out to, across many samples ----
+set.seed(15)
+mean_squares <- function(means, reps = 20000) {
+  x <- array(rnorm(reps * sim_n * 3), dim = c(reps, sim_n, 3)) * sim_sd
+  for (j in 1:3) x[, , j] <- x[, , j] + means[j]
+  m <- apply(x, c(1, 3), mean)
+  v <- apply(x, c(1, 3), var)
+  msw <- rowMeans(v)
+  msb <- sim_n * apply(m, 1, var)
+  c(msw = mean(msw), msb = mean(msb), f = mean(msb / msw))
+}
+world_h0 <- mean_squares(c(100, 100, 100))
+world_h1 <- mean_squares(sim_gm)
+
+# F = t²: treatment and control at endline, from Topic 9 ----
+pooled_t <- t.test(tot_math ~ treat, endline, var.equal = TRUE)
+two <- one_way(endline$tot_math, endline$treat)
+t_val <- abs(unname(pooled_t$statistic))
+t_df <- unname(pooled_t$parameter)
+t_crit <- qt(0.975, t_df)
+
+# After F: every pair of centers, with MS within as the pooled variance ----
+pair_test <- function(a, b) {
+  gap <- abs(a$M - b$M)
+  se <- sqrt(base$ms_w / a$n + base$ms_w / b$n)
+  t <- gap / se
+  list(gap = gap, se = se, t = t, p = 2 * pt(t, base$df_w, lower.tail = FALSE))
+}
+pair_ct <- pair_test(chh, tek)
+pair_gt <- pair_test(gov, tek)
+pair_cg <- pair_test(chh, gov)
+alpha_adj <- 0.05 / 3
+crit_adj <- qt(1 - alpha_adj / 2, base$df_w)
+family_adj <- 1 - (1 - alpha_adj)^3
+tukey <- TukeyHSD(aov(tot_math ~ ms_center1, baseline))$ms_center1
+
+# 2024's Scheffé result for the same pair, for the notes ----
+pair_ss <- chh$T^2 / chh$n + tek$T^2 / tek$n - (chh$T + tek$T)^2 / (chh$n + tek$n)
+scheffe_f <- (pair_ss / 2) / base$ms_w
+
+# The F curve ----
+f_grid <- seq(0.01, 6, length.out = 601)
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# ANOVA
+
+.class-info[
+
+**Topic 10 · Tuesday, February 23**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Do these groups differ in the population?]
+
+.center[**We are here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Same map. Last week, the lottery let us read a gap as an effect. Today's groups are three Mindspark centers, and nobody drew lots for those. So we're back in the middle column: are these populations different? Not: what caused it?
+
+---
+
+class: title title-8
+
+# Same four steps, more means
+
+.box-inv-8.small.sp-after-half[Step 1: State a hypothesis about the means of two or more populations]
+
+.box-inv-8.small.sp-after-half[Step 2: Set the criteria: how large must F be to count as unexpected?]
+
+.box-8.small.sp-after-half[Step 3: Observe a sample from each population. How unexpected is the spread between the group means, given the spread within the groups?]
+
+.box-inv-8.small[Step 4: Reject or maintain H₀]
+
+???
+
+The same four steps as Topics 7, 8 and 9. Step 3 changes the most, and that's today's main idea.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[Why not more t-tests?]
+
+.box-6.medium.sp-after-half[Splitting the variability]
+
+.box-3.medium.sp-after-half[The test, and what comes after]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: predict, try, try.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# Why not more t-tests?
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Three centers, three means
+
+```{r center-plot, fig.width=11, fig.height=3.9, out.width="90%", fig.alt=paste0("Three histograms of baseline math scores, one per Mindspark center. All three are bell-shaped, span about the same scores, and overlap almost fully. The means are ", fmt(chh$M), " in Chhatarpur, ", fmt(gov$M), " in Govindpuri and ", fmt(tek$M), " in Tekhand.")}
+ggplot(center_pct, aes(x = score, y = pct)) +
+  geom_col(fill = clr_soft, width = 0.85) +
+  geom_vline(aes(xintercept = M), color = clr_mean, linewidth = 1.2) +
+  geom_text(data = distinct(center_pct, panel, M), aes(x = 13.5, y = 16.5, label = paste("M =", fmt(M))),
+            hjust = 0, color = clr_mean, size = 6.5, fontface = "bold", family = "Fira Sans Condensed",
+            inherit.aes = FALSE) +
+  facet_wrap(vars(panel), nrow = 1) +
+  scale_x_continuous(breaks = seq(0, 25, 5)) +
+  labs(x = "Math score at baseline (out of 35)", y = "% of students") +
+  theme_slides(18)
+```
+
+.box-inv-1.small[Did the centers differ before the program, or is this sampling error?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). `r fmt(base$N, 0)` students at baseline.]
+
+???
+
+These are the three after-school centers from Topic 1. Children weren't sorted into them by a lottery, so a gap here would be a difference, not an effect. A real worry too: if centers start out different, that matters for reading anything later.
+
+---
+
+# More tests, more false alarms
+
+```{r inflation-plot, fig.width=10, fig.height=3.1, out.width="80%", fig.alt=paste0("A rising curve of points. The x axis is the number of tests, from 1 to 10. The y axis is the chance of at least one false alarm when every null hypothesis is true. It is 5 percent for one test, ", round(100 * rate_at(3)), " percent for three and ", round(100 * rate_at(10)), " percent for ten. A dashed line stays at 5 percent, the risk we meant to take.")}
+ggplot(tests, aes(x = c, y = 100 * rate)) +
+  geom_hline(yintercept = 5, linetype = "dashed", color = clr_median, linewidth = 1) +
+  geom_line(color = clr_bar, linewidth = 1.2) +
+  geom_point(color = clr_mean, size = 4) +
+  label_text(0.9, 14.5, "1 test: 5%", clr_mean, hjust = 0) +
+  label_text(3, 23, paste0("3 tests: ", round(100 * rate_at(3)), "%"), clr_mean, hjust = 0.5) +
+  label_text(9.8, 45, paste0("10 tests: ", round(100 * rate_at(10)), "%"), clr_mean, hjust = 1) +
+  label_text(10, 1, "The 5% we meant to risk", clr_median, hjust = 1, size = 6) +
+  scale_x_continuous(breaks = 1:10) +
+  scale_y_continuous(limits = c(0, 48), breaks = seq(0, 40, 10), labels = ~ paste0(.x, "%")) +
+  labs(x = "Number of tests", y = "At least one\nfalse alarm") +
+  theme_slides(18)
+```
+
+<div class="math-display">\[
+\text{Chance of at least one false alarm} = 1 - (1 - \alpha)^{\text{tests}}
+\]</div>
+
+.box-1.small[Three centers need 3 t-tests, and five groups need 10]
+
+???
+
+A Type 1 error is a false alarm, from Topic 7. Each t-test at α = 0.05 has a 5% risk of a Type 1 error. Across three tests, the chance that at least one goes off is 1 − 0.95³ = `r fmt(rate_at(3))`.
+
+That formula treats the tests as independent. Ours share groups, so it runs a little high: a simulation of three t-tests on three identical groups gives `r round(100 * family_sim)`%, not `r round(100 * rate_at(3))`%. Either way, it's well past 5%.
+
+Number of pairs: k(k − 1) / 2, where k is the number of groups.
+
+---
+
+# One question about all the means
+
+<div class="math-display">\[
+H_0\!: \mu_1 = \mu_2 = \mu_3
+\]</div>
+
+.pull-left[
+.box-inv-1.small[H₀: all population means are equal]
+]
+
+.pull-right[
+.box-inv-1.small[H₁: at least one differs from another]
+]
+
+.box-1.small.sp-after-half[One test, so α stays at 0.05 for the whole question]
+
+.pull-left[
+.box-inv-1.small[**Factor:** the variable that makes the groups. Here, center]
+]
+
+.pull-right[
+.box-inv-1.small[**Levels:** the groups of that factor. Here, 3 centers]
+]
+
+.book-tag[ANOVA stands for analysis of variance]
+
+???
+
+The test covers everything at once. Statisticians call that an omnibus test. H₁ doesn't say that all the means differ: one odd group is enough.
+
+Two or more factors at once is a factorial design. Regression picks that up in Topic 14.
+
+---
+
+# Same gaps, but the spread matters
+
+```{r spread-plot, fig.width=11, fig.height=3.5, out.width="86%", fig.alt="Two panels, each with three rows of dots for three groups. In both, the group means are 8, 12 and 16, marked with a tick. In the left panel, each group's dots sit tight around its mean, so the groups are clearly apart. In the right panel, each group's dots spread widely and the groups overlap heavily."}
+ggplot(toy_all, aes(x = score, y = label)) +
+  geom_point(color = clr_bar, size = 4, alpha = 0.85) +
+  geom_point(data = toy_means, aes(x = center, y = label), shape = 124, size = 11, color = clr_mean) +
+  facet_wrap(vars(spread), nrow = 1) +
+  scale_x_continuous(breaks = seq(0, 24, 4)) +
+  scale_y_discrete(limits = rev) +
+  labs(x = "Score", y = NULL) +
+  theme_slides(18) +
+  theme(panel.spacing.x = unit(2, "lines"))
+```
+
+.box-inv-1.small[On the left, the gaps stand out. On the right, they could be chance]
+
+.source[After a figure in Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*, 10e. Scores made up.]
+
+???
+
+Red ticks are the group means. This is the idea of the day, and it's the t-test's idea too: a gap only means something next to the spread.
+
+With two groups, t compares one gap with the spread. With three or more means, there's no single gap. So ANOVA measures how spread out the means are, as a variance.
+
+---
+
+# F compares two variances
+
+<div class="math-display">\[
+F = \frac{\text{variance between the group means}}{\text{variance within the groups}}
+= \frac{MS_{\text{between}}}{MS_{\text{within}}}
+\]</div>
+
+.pull-left[
+.box-inv-1.small[**Top:** how far the group means sit apart. It holds any real difference, plus chance]
+]
+
+.pull-right[
+.box-inv-1.small[**Bottom:** how far people sit from their own group's mean. It holds chance only]
+]
+
+.box-1.small[MS means mean square: ANOVA's word for a variance]
+
+???
+
+The bottom is the pooled variance from Topic 9, with three groups. It assumes one σ² across the populations, as the pooled t did.
+
+Why chance only? Everyone in a group is treated the same way, so differences within a group can't come from the factor. Differences between groups could come from the factor, and they also carry chance: even identical populations give different sample means.
+
+---
+
+# Step 5: three populations
+
+```{r sim-one-draw, results="asis"}
+sim_frame(
+  alt = "Simulator at step 5 with one sample of ten people drawn from each of three identical normal populations with a mean of 100 and an SD of 15. Panel 2 shows the three samples and reports their means, MS between, MS within and F. Panel 3 holds one dot for that F on an F curve with 2 and 27 degrees of freedom.",
+  step = 5, n = sim_n, mu = sim_mu, sd = sim_sd, draws = 1, seed = 15, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Step 5 on the blueprint. Same three panels. Here all three population means are 100, so H₀ is true, and the three curves sit on top of each other.
+
+Panel 2 has three samples, with MS between, MS within and F written under them. Panel 3 records that one F.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: No real differences
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+All three population means are the same, so H₀ is true. Draw three samples, compute F, and repeat thousands of times. What does F average out to?
+]
+
+.options[
+.option[
+**A** About 0
+]
+.option[
+**B** About 1
+]
+.option[
+**C** About 3
+]
+.option[
+**D** It depends on the size of σ
+]
+]
+
+???
+
+About 6 minutes, with the next two slides. Vote, turn to a neighbor, vote again, then show the answer.
+
+A is the common answer: no differences, so zero. But sample means always differ a little.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** About 0
+]
+.option.correct[
+**B** About 1
+]
+.option.wrong[
+**C** About 3
+]
+.option.wrong[
+**D** It depends on the size of σ
+]
+]
+
+.box-inv-8.small.sp-after-half[
+With no real differences, the top holds only chance, just as the bottom does
+]
+
+.box-8.small[
+So the top and bottom estimate the same thing, and their ratio averages about 1
+]
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Under H₀, F averages about 1
+
+```{r sim-null, results="asis"}
+sim_frame(
+  alt = paste0("Simulator at step 5 with 551 sets of three samples of ten and no true differences. Panel 3 shows F values stacked along an F curve with 2 and 27 degrees of freedom. Most sit between 0 and 2, and about 5 percent lie beyond the cutoff near ", fmt(sim_crit), "."),
+  step = 5, n = sim_n, mu = sim_mu, sd = sim_sd, draws = 551, seed = 15, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same world, 551 draws. Most F values fall between 0 and 2, and they average about 1. F can't go below 0, because variances can't be negative, so it has one long tail to the right. With three groups, the pile is tallest near 0. About 5% of samples land past the cutoff of `r fmt(sim_crit)`. That's α.
+
+---
+
+# When means differ, the pile moves
+
+```{r sim-effect, results="asis"}
+sim_frame(
+  alt = "Simulator at step 5 with 551 sets of three samples of ten. The population means are now 100, 100 and 115. Panel 3 shows the F values spread far to the right of the F curve, with many of them beyond the cutoff.",
+  step = 5, n = sim_n, mu = sim_mu, sd = sim_sd, gm = "100,100,115", draws = 551, seed = 15, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+One group's mean moves up to 115. Only one group differs, and that's enough for H₁. The share beyond the cutoff is now power.
+
+Try other means live in the group boxes, or use the sample size slider.
+
+---
+
+# MS between grows when means differ
+
+```{r worlds-table, results="asis"}
+tribble(
+  ~`Population means`, ~`MS within averages`, ~`MS between averages`, ~`F averages`,
+  "100, 100, 100 (H₀ is true)", fmt(world_h0[["msw"]], 0), fmt(world_h0[["msb"]], 0), fmt(world_h0[["f"]]),
+  "100, 100, 115 (H₁ is true)", fmt(world_h1[["msw"]], 0), fmt(world_h1[["msb"]], 0), fmt(world_h1[["f"]])
+) %>%
+  kable(format = "html", align = "lccc", table.attr = 'class="deck-table"')
+```
+
+.box-inv-1.small.sp-after-half[Here σ² = `r fmt(true_w, 0)`. MS within estimates σ² in both worlds]
+
+.box-inv-1.small.sp-after-half[MS between estimates σ² only when H₀ is true. If the means differ, it adds their real spread]
+
+.box-1.small[So F near 1 fits H₀, and a large F is evidence against it]
+
+???
+
+Each row is 20,000 sets of three samples of 10, run in R. The true values are `r fmt(true_w, 0)` for MS within, and `r fmt(true_w, 0)` and then `r fmt(true_b_h1, 0)` for MS between. On the simulator's page, these are in the table "Estimates and the truth". That table is hidden on a slide, so it's copied here.
+
+F averages a little above 1 even under H₀: exactly `r sim_df` / `r sim_df - 2` = `r fmt(sim_df / (sim_df - 2))` here. With large samples, it's closer to 1.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Splitting the variability
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# The total splits into two parts
+
+.box-6.medium.tree-top[Total variability]
+
+<div class="tree-arrows" aria-hidden="true"><span>↙</span><span>↘</span></div>
+
+.pull-left[
+.box-inv-6.medium[Between the groups]
+
+.box-inv-6.small[Any real differences, plus chance]
+
+.box-6.small[Goes on top of F]
+]
+
+.pull-right[
+.box-inv-6.medium[Within the groups]
+
+.box-inv-6.small[Chance only]
+
+.box-6.small[Goes on the bottom of F]
+]
+
+.source[After a figure in Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*, 10e.]
+
+???
+
+Every score sits some distance from the overall mean. Part of that distance is its group's distance from the overall mean. The rest is its distance from its own group's mean. Three numbers to find: SS, df and MS. SS and df add up across the split. MS doesn't.
+
+---
+
+# First, each center's own spread
+
+```{r within-table, results="asis"}
+cen %>%
+  transmute(Center = g, n = fmt(n, 0), `Sum of scores T` = fmt(T, 0), M = fmt(M), `SS within the center` = fmt(SS, 1)) %>%
+  add_row(Center = "All three", n = fmt(base$N, 0), `Sum of scores T` = fmt(base$G, 0), M = fmt(base$overall),
+          `SS within the center` = paste0("<strong>", fmt(base$ss_within, 1), "</strong>")) %>%
+  kable(format = "html", escape = FALSE, align = "lcccc", table.attr = 'class="deck-table"')
+```
+
+.box-inv-6.small.sp-after-half[SS<sub>within</sub> adds up each group's SS: every score against its **own** group's mean]
+
+.box-6.small[SS<sub>total</sub> treats everyone as one group, against the overall mean. Here it's `r fmt(base$ss_total, 1)`]
+
+.book-tag[In the book: k = `r base$k` groups, N = `r base$N` students, and G = `r fmt(base$G, 0)` is the grand total of T]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Each SS is the one from Topic 3. In a spreadsheet, the computational formula from Topic 3 is the quick way.
+
+The pooled variance assumes one σ². Govindpuri's own σ̂² is `r fmt(gov$var)`, against `r fmt(chh$var)` in Chhatarpur and `r fmt(tek$var)` in Tekhand, so that assumption is strained here. A version that drops the assumption, Welch's ANOVA, gives F(`r welch$parameter[[1]]`, `r fmt(welch$parameter[[2]], 1)`) = `r fmt(welch$statistic)` and p = `r fmt(welch$p.value, 3)`, so the decision doesn't change.
+
+---
+
+# Next, the means' own spread
+
+```{r between-table, results="asis"}
+cen %>%
+  transmute(Center = g, n = fmt(n, 0), M = fmt(M), `M − overall mean` = minus(fmt(dev)), `n × (M − overall mean)²` = fmt(part, 1)) %>%
+  add_row(Center = "Add them up", n = " ", M = " ", `M − overall mean` = " ",
+          `n × (M − overall mean)²` = paste0("<strong>", fmt(base$ss_between, 1), "</strong>")) %>%
+  kable(format = "html", escape = FALSE, align = "lcccc", table.attr = 'class="deck-table"')
+```
+
+.box-inv-6.small.sp-after-half[Every student counts, so a bigger center gets more weight. The overall mean is `r fmt(base$overall)`]
+
+.box-6.small[Check the split: `r fmt(base$ss_within, 1)` + `r fmt(base$ss_between, 1)` = `r fmt(base$ss_total, 1)`. The parts add up to SS<sub>total</sub>]
+
+.book-tag[In the book: SS<sub>between</sub> = ΣT² / n − G² / N. It's the same number]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The book's version, with our numbers: `r fmt(chh$T, 0)`² / `r chh$n` + `r fmt(gov$T, 0)`² / `r gov$n` + `r fmt(tek$T, 0)`² / `r tek$n` − `r fmt(base$G, 0)`² / `r base$N` = `r fmt(base$ss_between)`. It's easier on a calculator, while the table shows the idea.
+
+Rounded means can drift by a little, so keep several decimals by hand. Another shortcut: SS between = SS total − SS within.
+
+---
+
+# df split the same way
+
+```{r df-table, results="asis"}
+tribble(
+  ~Source, ~df, ~`Our numbers`, ~`Why`,
+  "Between", "k − 1", paste0(base$k, " − 1 = ", base$df_b), "3 means, and 1 df spent on the overall mean",
+  "Within", "N − k", paste0(base$N, " − ", base$k, " = ", base$df_w), "Each group spends 1 df on its own mean",
+  "Total", "N − 1", paste0(base$N, " − 1 = ", base$df_t), "Everyone, around 1 overall mean"
+) %>%
+  kable(format = "html", align = "lccl", table.attr = 'class="deck-table"')
+```
+
+.box-6.small[Check the split: `r base$df_b` + `r base$df_w` = `r base$df_t`. F has two df, and we report both]
+
+???
+
+Same logic as Topic 9, where two groups gave n₁ + n₂ − 2. Within is that same df, with three groups.
+
+---
+
+# A mean square is a variance
+
+<div class="math-display">\[
+MS_{\text{between}} = SS_{\text{between}} \,/\, df_{\text{between}} = `r plain(base$ss_between)` \,/\, `r base$df_b` = `r plain(base$ms_b)`
+\]</div>
+
+<div class="math-display">\[
+MS_{\text{within}} = SS_{\text{within}} \,/\, df_{\text{within}} = `r plain(base$ss_within)` \,/\, `r base$df_w` = `r plain(base$ms_w)`
+\]</div>
+
+<div class="math-display">\[
+F = MS_{\text{between}} \,/\, MS_{\text{within}} = `r plain(base$ms_b)` \,/\, `r plain(base$ms_w)` = `r plain(base$f)`
+\]</div>
+
+.box-inv-6.small[MS<sub>within</sub> is the pooled variance from Topic 9, now with three groups]
+
+.book-tag[In the book: each MS is also written s². Both are estimates, like σ̂²]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+SS / df is the recipe from Topic 3 for an estimate of a variance. It's the same recipe here, twice. Unlike SS and df, the two MS don't add up to a total, so a source table leaves that cell empty.
+
+---
+
+# The source table holds all of it
+
+```{r source-table, results="asis"}
+tribble(
+  ~Source, ~SS, ~df, ~MS, ~F,
+  "Between centers", fmt(base$ss_between), as.character(base$df_b), fmt(base$ms_b), paste0("<strong>", fmt(base$f), "</strong>"),
+  "Within centers", fmt(base$ss_within), as.character(base$df_w), fmt(base$ms_w), " ",
+  "Total", fmt(base$ss_total), as.character(base$df_t), " ", " "
+) %>%
+  kable(format = "html", escape = FALSE, align = "lcccc", table.attr = 'class="deck-table"')
+```
+
+.box-inv-6.small.sp-after-half[Read it left to right: SS / df = MS, then MS between / MS within = F]
+
+.box-6.small[Software prints this same table. Now you can read it]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The book calls this an ANOVA summary table. Next up, students fill one in. Topic 14 returns to this table with regression, which gives the same F.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Centers at endline
+
+```{r try-source, results="asis"}
+tribble(
+  ~Source, ~SS, ~df, ~MS, ~F,
+  "Between centers", "?", "?", "?", "?",
+  "Within centers", fmt(ends$ss_within, 1), "?", "?", " ",
+  "Total", fmt(ends$ss_total, 1), "?", " ", " "
+) %>%
+  kable(format = "html", align = "lcccc", table.attr = 'class="deck-table tight"')
+```
+
+.box-inv-8.small.sp-after-half[`r ends$k` centers, `r ends$N` students. The cutoff is F(`r ends$df_b`, `r ends$df_w`) = `r fmt(ends$crit)`. Fill in the table, then decide]
+
+.box-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote: reject or maintain?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+About 6 minutes, with calculators. Vote with hands on the decision. Common slips: using N for the total df, or dividing MS between by SS within.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+```{r try-answer, results="asis"}
+tribble(
+  ~Source, ~SS, ~df, ~MS, ~F,
+  "Between centers", paste0("<strong>", fmt(ends$ss_between, 1), "</strong>"), paste0("<strong>", ends$df_b, "</strong>"), paste0("<strong>", fmt(ends$ms_b, 1), "</strong>"), paste0("<strong>", fmt(ends$f), "</strong>"),
+  "Within centers", fmt(ends$ss_within, 1), paste0("<strong>", ends$df_w, "</strong>"), paste0("<strong>", fmt(ends$ms_w, 2), "</strong>"), " ",
+  "Total", fmt(ends$ss_total, 1), paste0("<strong>", ends$df_t, "</strong>"), " ", " "
+) %>%
+  kable(format = "html", escape = FALSE, align = "lcccc", table.attr = 'class="deck-table tight"')
+```
+
+.box-inv-8.small.sp-after-half[`r fmt(ends$f)` is well past `r fmt(ends$crit)`, so we reject H₀]
+
+.box-8.small[At least one center's mean differs at endline. F doesn't say which one]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+The between part is the total minus the within part. By hand, 393.0 / 34.25 gives 11.47. Unrounded, it's `r fmt(ends$f)`. The means are `r fmt(ends$groups$M[1])`, `r fmt(ends$groups$M[2])` and `r fmt(ends$groups$M[3])` for Chhatarpur, Govindpuri and Tekhand.
+
+Don't read this as the centers changing students. Each center's mix of Mindspark and control students isn't part of this table.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# The test, and what comes after
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# Steps 1 and 2: set up the test
+
+.box-3.small.sp-after-half[At baseline, do math scores differ across the three centers?]
+
+```{r steps-12, results="asis"}
+tribble(
+  ~Step, ~`In words`, ~`In symbols`,
+  "1. State H₀", "The three population means are the same", "μ<sub>Chhatarpur</sub> = μ<sub>Govindpuri</sub> = μ<sub>Tekhand</sub>",
+  "2. Set the criteria", "α = 0.05, and two df", paste0("df = ", base$df_b, " and ", base$df_w),
+  " ", "Reject H₀ if F is beyond the cutoff", paste0("F(", base$df_b, ", ", base$df_w, ") beyond ", fmt(base$crit))
+) %>%
+  kable(format = "html", escape = FALSE, table.attr = 'class="deck-table"')
+```
+
+.box-inv-3.small[There's one cutoff. Differences in any direction make F bigger, so H₁ needs no direction]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The F table has df between across the top and df within down the side. If the exact df isn't in the table, use the next lower one. Each pair of dfs has its own curve, just as each df had its own t curve.
+
+Don't call an F-test two-tailed. H₁ is non-directional, but we only look in the upper tail.
+
+---
+
+# Steps 3 and 4: F passes the cutoff
+
+```{r decision-plot, fig.width=11, fig.height=3.8, out.width="90%", fig.alt=paste0("An F curve with 2 and 616 degrees of freedom. It starts high at 0 and falls toward a long right tail. The tail beyond the cutoff of ", fmt(base$crit), " is shaded. A vertical line marks our F of ", fmt(base$f), ", a little past the cutoff.")}
+curve_f <- tibble(x = f_grid, y = df(f_grid, base$df_b, base$df_w))
+shade_f <- filter(curve_f, x >= base$crit)
+
+ggplot(curve_f, aes(x = x, y = y)) +
+  geom_area(fill = clr_soft) +
+  geom_area(data = shade_f, fill = clr_bar) +
+  geom_line(color = clr_median, linewidth = 1) +
+  annotate("segment", x = base$f, xend = base$f, y = 0, yend = 0.34, color = clr_mean, linewidth = 1.4) +
+  annotate("segment", x = base$crit, xend = base$crit, y = 0, yend = 0.2, color = clr_median, linewidth = 1.2) +
+  label_text(base$f + 0.06, 0.39, paste("Our F =", fmt(base$f)), clr_mean, hjust = 0) +
+  label_text(base$crit - 0.08, 0.235, paste("Cutoff:", fmt(base$crit)), hjust = 1) +
+  scale_x_continuous(breaks = 0:6) +
+  labs(x = paste0("F(", base$df_b, ", ", base$df_w, ")"), y = NULL) +
+  theme_slides() +
+  theme(panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+.box-3.small[`r fmt(base$f)` is beyond `r fmt(base$crit)`, so we reject H₀. p = `r fmt(base$p, 3)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+If the three population means were the same, an F this large would turn up about `r round(100 * base$p, 1)`% of the time. So at least one center differs.
+
+F can't go below zero, so there's no lower tail to worry about.
+
+---
+
+# How big? About `r fmt(100 * base$eta, 1)`% of the total
+
+<div class="math-display">\[
+\hat{\eta}^2 = \frac{SS_{\text{between}}}{SS_{\text{total}}} = \frac{`r plain(base$ss_between, 1)`}{`r plain(base$ss_total, 1)`} = `r fmt(base$eta, 3)`
+\]</div>
+
+.box-inv-3.small.sp-after-half[At baseline, math scores differed across the three centers, F(`r base$df_b`, `r base$df_w`) = `r fmt(base$f)`, p = `r fmt(base$p, 3)`, η̂² = `r fmt(base$eta, 3)`]
+
+.box-3.small[Real, but small. And no lottery made these groups, so it's a difference, not an effect]
+
+.book-tag[In the book: η² (eta squared), with no hat. Regression calls this share r²]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Topic 8's notes promised this. η̂² is the share of the total variability that sits between the groups. With `r base$N` students, a small difference can reach significance, as Topic 7 warned.
+
+Greek means population, so this deck adds a hat to the book's η². The sample value is an estimate.
+
+---
+
+# With two groups, F is just t²
+
+```{r f-t-table, results="asis"}
+tribble(
+  ~`Mindspark and control at endline`, ~`Topic 9: t-test`, ~`Today: ANOVA`,
+  "Test statistic", paste0("t(", t_df, ") = ", fmt(t_val, 3)), paste0("F(", two$df_b, ", ", two$df_w, ") = ", fmt(two$f)),
+  "Cutoff", paste0("±", fmt(t_crit, 3)), fmt(two$crit, 3),
+  "p", "Below 0.001", "Below 0.001"
+) %>%
+  kable(format = "html", align = "lcc", table.attr = 'class="deck-table"')
+```
+
+.box-inv-3.small.sp-after-half[`r fmt(t_val, 3)`² = `r fmt(two$f)`, and `r fmt(t_crit, 3)`² = `r fmt(two$crit, 3)`. Same test, same decision]
+
+.box-3.small[Squaring folds t's two tails into F's one. ANOVA is the t-test, opened up to more groups]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is the blueprint's point. t compares a gap with its standard error. F compares a squared gap, stretched to any number of groups, with a variance. Topic 14 shows that regression gives this same number too.
+
+---
+
+# F doesn't say which group differs
+
+.box-inv-3.small.sp-after-half[With three or more groups, a significant F doesn't name the group]
+
+.pull-left[
+.box-inv-3.small[One center against the other two?]
+]
+
+.pull-right[
+.box-inv-3.small[All three apart?]
+]
+
+.box-3.small.sp-after-half[So after a significant F, we compare pairs. These are called post hoc tests]
+
+.box-inv-3.small[That's our t-tests again, so the false alarms are back. Post hoc tests set a stricter α]
+
+???
+
+Post hoc means "after this". They come after a significant F. If F isn't significant, we stop there.
+
+There are many such tests. The book covers Tukey's and Scheffé's. We use Bonferroni's, because it's simple, and it shows the logic.
+
+---
+
+# Bonferroni: split α across tests
+
+<div class="math-display">\[
+\alpha_{\text{adjusted}} = \frac{\alpha}{\text{tests}} = \frac{0.05}{3} = `r fmt(alpha_adj, 4)`
+\]</div>
+
+.pull-left[
+.box-inv-3.small[Test each pair at `r fmt(alpha_adj, 4)`, not 0.05]
+]
+
+.pull-right[
+.box-inv-3.small[Overall: 1 − (1 − `r fmt(alpha_adj, 4)`)³ = `r fmt(family_adj, 3)`]
+]
+
+.box-3.small[That's just under 0.05, as we wanted. Bonferroni plays it a little safe]
+
+???
+
+Compare with `r fmt(rate_at(3))` for three tests at 0.05.
+
+Keep four decimals here. With 0.017 you'd get `r fmt(1 - (1 - 0.017)^3, 4)`, a shade over 0.05, but that's only rounding. The exact 0.05 / 3 gives `r fmt(family_adj, 3)`.
+
+A slightly less cautious correction, Šidák's, hits 0.05 exactly. It isn't needed in this course.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Chhatarpur against Tekhand
+
+.box-inv-8.small.sp-after-half[Chhatarpur: n = `r chh$n`, M = `r fmt(chh$M)`. Tekhand: n = `r tek$n`, M = `r fmt(tek$M)`. MS within = `r fmt(base$ms_w)`]
+
+.box-8.small.sp-after-half[MS within is our pooled variance. Find the standard error of the gap, then t]
+
+.box-inv-8.small.sp-after-half[With α = `r fmt(alpha_adj, 4)`, the cutoff is t(`r base$df_w`) = ±`r fmt(crit_adj)`. Decide: reject or maintain?]
+
+.box-8.small[Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Vote with hands on the decision. This is Topic 9's t, with MS within in place of the pooled variance and df = `r base$df_w`. The standard error is √(MS within / n₁ + MS within / n₂). It's the biggest gap of the three.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.box-inv-8.small.sp-after-half[σ̂<sub>M₁−M₂</sub> = √(`r fmt(base$ms_w)` / `r chh$n` + `r fmt(base$ms_w)` / `r tek$n`) = `r fmt(pair_ct$se, 3)`, so t = `r fmt(pair_ct$gap)` / `r fmt(pair_ct$se, 3)` = **`r fmt(pair_ct$t)`**: reject H₀]
+
+```{r pairs-table, results="asis"}
+tribble(
+  ~Pair, ~Gap, ~t, ~p, ~`At α = 0.0167`,
+  "Chhatarpur and Tekhand", fmt(pair_ct$gap), fmt(pair_ct$t), fmt(pair_ct$p, 3), "<strong>Reject H₀</strong>",
+  "Govindpuri and Tekhand", fmt(pair_gt$gap), fmt(pair_gt$t), fmt(pair_gt$p, 3), "Maintain H₀",
+  "Chhatarpur and Govindpuri", fmt(pair_cg$gap), fmt(pair_cg$t), fmt(pair_cg$p, 3), "Maintain H₀"
+) %>%
+  kable(format = "html", escape = FALSE, align = "lcccc", table.attr = 'class="deck-table tight"')
+```
+
+.box-8.small[Only one pair clears the stricter bar. Tukey's test agrees: p = `r fmt(tukey["Tekhand-Chhatarpur", "p adj"], 3)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+A close call: `r fmt(pair_ct$t)` against `r fmt(crit_adj)`. Tukey's test is the other common choice, and software runs it. Its p already carries its adjustment, so it's compared with 0.05. The p of `r fmt(pair_ct$p, 3)` is just under `r fmt(alpha_adj, 4)`. Maintaining H₀ for the other pairs doesn't show they're equal. Govindpuri has only `r gov$n` students.
+
+Post hoc tests can disagree on a close call. The 2024 deck used Scheffé's test on this pair, and it maintained H₀, with F = `r fmt(scheffe_f)` against `r fmt(base$crit)`. Scheffé's is more cautious than Bonferroni's or Tukey's.
+
+---
+
+class: title title-8
+
+# The blueprint so far
+
+```{r blueprint-table, results="asis"}
+tribble(
+  ~`Blueprint step`, ~Statistic, ~`Bottom of the fraction`, ~df,
+  "1. One score", "z", "σ", "None",
+  "2. One mean, σ known", "z", "σ<sub>M</sub>", "None",
+  "3a. One mean, σ unknown", "t", "σ̂<sub>M</sub>", "n − 1",
+  "3b. Mean gain", "t", "σ̂<sub>M</sub> of the gains", "n − 1",
+  "4. Two means", "t", "σ̂<sub>M₁−M₂</sub>", "n₁ + n₂ − 2",
+  "<strong>5. Two or more means</strong>", "<strong>F</strong>", "<strong>MS<sub>within</sub></strong>", "<strong>k − 1 and N − k</strong>"
+) %>%
+  kable(format = "html", escape = FALSE, align = "lccc", table.attr = 'class="deck-table tight"')
+```
+
+.box-8.small[Same idea every time: what we saw, over what chance alone would give]
+
+???
+
+Step 5 still has a fraction. The top became a variance of means, and the bottom became a variance of people. Steps 6 and 7 are next: relationships between two variables.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Say why many t-tests inflate the risk of a Type 1 error]
+
+.box-inv-8.small[Explain F as a ratio of two variances, and why it averages about 1 under H₀]
+
+.box-inv-8.small[Split SS and df, then build a source table]
+
+.box-inv-8.small[Run the four steps for an F-test, and report it with η̂²]
+
+.box-inv-8.small[Use a Bonferroni correction to find which groups differ]
+
+???
+
+Lab 8 on Friday is a game, not a regular lab, so ANOVA gets no spreadsheet practice there. Chapter 12's Mastery and Problem Set are due March 7.
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Thursday, February 25: Topic 11]
+
+Correlation. Read the correlation part of Chapter 14
+]
+
+.pull-right[
+.box-6.small[Friday, February 26: Lab 8]
+
+Predict the Simulator: a game on t-tests, gains, intervals and ANOVA
+]
+
+.box-3.small[Mastery and Problem Set for Chapter 11 are due Sunday, February 28 at 6 PM]
+
+```{css, echo=FALSE}
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The tree of variability: one box over two, as in the book's figure */
+.tree-top {
+  width: 42%;
+  margin: 0 auto;
+}
+
+.tree-arrows {
+  display: flex;
+  justify-content: space-around;
+  width: 60%;
+  margin: 0 auto;
+  font-size: 1.1em;
+  line-height: 1.1;
+  color: #47505a;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+```
