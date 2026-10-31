@@ -336,7 +336,7 @@ H_1\!: \mu_1 - \mu_2 \neq 0
 \]</div>
 
 .pull-left[
-.box-inv-1.small[H₀: the two populations are the same. Across samples, gaps average zero]
+.box-inv-1.small[H₀: the two population means are the same. Across samples, gaps average zero]
 ]
 
 .pull-right[
@@ -754,7 +754,7 @@ g = \frac{M_1 - M_2}{\hat{\sigma}_p}
 
 Same as Topic 8: g is in people's SDs, not in standard errors, so n isn't in the formula. Use the pooled SD, not the standard error of the gap.
 
-Topic 7's table from Kraft put typical effects near 0.15 SD. Please keep ignoring the book's Table 8.2 here.
+Topic 7's table from Kraft put the median effect at 0.10 SD. Please keep ignoring the book's Table 8.2 here.
 
 ---
 
@@ -843,7 +843,7 @@ class: title title-8
 .box-inv-8.small[g = `r fmt(center$gap)` / √`r fmt(center$pooled)` = **`r fmt(center$g)`**]
 ]
 
-.box-8.small[Nearly the same g as the whole study, `r fmt(end$g)`, and a different decision. With `r center$n1 + center$n2` students, we can't tell]
+.box-8.small[A similar g to the whole study's `r fmt(end$g)`, and a different decision. With `r center$n1 + center$n2` students, we can't tell]
 
 .source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
 
@@ -1286,6 +1286,8 @@ This is what a study without a control group would report. Ask students to name 
 
 .box-4.small[A paired test can't separate any of this from the program]
 
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
 ???
 
 The last one is specific to our data. The endline tests were different from the baseline test, out of 34 or 35 by grade band, so a raw gain can't be read as pure learning.
@@ -1426,7 +1428,7 @@ Be careful with the words. Every number here is right. The mistake is reading a 
 
 ---
 
-# Why isn't it `r fmt(gain_t$M)` − `r fmt(gain_c$M)` = `r fmt(end$gap)`?
+# Why doesn't `r fmt(gain_t$M)` − `r fmt(gain_c$M)` give `r fmt(end$gap)`?
 
 .box-inv-4.small.sp-after-half[Subtracting gains gives `r fmt(gain_gap$gap)`, a two-sample t on gains: t(`r gain_gap$df`) = `r fmt(gain_gap$t)`]
 
@@ -1455,6 +1457,8 @@ The two estimates, `r fmt(end$gap)` and `r fmt(gain_gap$gap)`, give the same sto
 .box-inv-4.small.sp-after-half[The lottery gave us the next best thing: similar students, who lived through the same months]
 
 .box-4.small[The control group's rise is what would have happened anyway. Whatever goes beyond it is the program]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -1514,7 +1518,7 @@ tribble(
   "3a. One mean, σ unknown", "t", "σ̂<sub>M</sub>", "n − 1",
   "3b. Mean gain", "t", "σ̂<sub>M</sub> of the gains", "n − 1",
   "4. Two means", "t", "σ̂<sub>M₁−M₂</sub>", "n₁ + n₂ − 2",
-  "5. Three or more means: next", "F", "Topic 10", " "
+  "5. Two or more means: next", "F", "Topic 10", " "
 ) %>%
   kable(format = "html", escape = FALSE, align = "lccc", table.attr = 'class="deck-table tight"')
 ```
