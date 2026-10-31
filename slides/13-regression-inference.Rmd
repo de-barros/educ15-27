@@ -1078,7 +1078,7 @@ tribble(
 
 ???
 
-Step 7b is the last one. When X is 0 or 1, the slope is the gap between two groups. That's where Topic 14 starts, and it takes us back to step 4.
+Step 7b is the last one. When X is 0 or 1, the slope is the gap between two groups. Topic 14 picks that up, and it takes us back to step 4.
 
 ---
 
