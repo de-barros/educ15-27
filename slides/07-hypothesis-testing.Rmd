@@ -1,0 +1,1822 @@
+---
+title: "Hypothesis testing"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css", "css/simulator.css"]
+    seal: false
+    anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+library(knitr)
+source(here::here("R", "slide-things.R"))
+
+# Colors from the slide theme, all readable on white ----
+clr_bar <- "#538ba2"
+clr_soft <- "#c5d9e2"
+clr_mean <- "#a93e31"
+clr_median <- "#244a70"
+clr_mode <- "#8a6100"
+clr_gold <- "#ecd9a6"
+
+theme_slides <- function(base_size = 20) {
+  theme_minimal(base_size = base_size, base_family = "Fira Sans Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_text(face = "bold"),
+          strip.text = element_text(face = "bold", size = rel(1)))
+}
+
+fmt <- function(x, d = 2) formatC(x, format = "f", digits = d)
+pct <- function(x, d = 0) paste0(fmt(100 * x, d), "%")
+minus <- function(x) str_replace(as.character(x), "-", "−")
+
+# H₀ and H₁ with real subscripts, for HTML. The Unicode ones look like a small o
+sub_h <- function(x) x %>%
+  str_replace_all("H₀", "H<sub>0</sub>") %>%
+  str_replace_all("H₁", "H<sub>1</sub>")
+
+deck_table <- function(df, class = "deck-table", align = NULL) {
+  df %>%
+    mutate(across(everything(), ~ sub_h(as.character(.x)))) %>%
+    rename_with(sub_h) %>%
+    kable(format = "html", escape = FALSE, align = align, table.attr = paste0('class="', class, '"'))
+}
+
+label_text <- function(x, y, label, color = clr_median, hjust = 0.5, size = 6.5) {
+  annotate("text", x = x, y = y, label = label, color = color, hjust = hjust, size = size,
+           fontface = "bold", family = "Fira Sans Condensed")
+}
+
+# The running example: a test with μ = 100 and σ = 15, and samples of 10 ----
+mu_0 <- 100
+sigma_ex <- 15
+n_ex <- 10
+se_ex <- sigma_ex / sqrt(n_ex)
+z_crit <- qnorm(0.975)
+cut_lo <- mu_0 - z_crit * se_ex
+cut_hi <- mu_0 + z_crit * se_ex
+
+two_p <- function(z) 2 * pnorm(-abs(z))
+
+# The simulator's seeds. seed_a and seed_b make the first sample at n = 10 have a
+# mean of 105.5 or 113.5, so the slides can quote them. sim_seed puts 5.0% of 500
+# draws beyond the cutoffs at n = 10 and at n = 100 ----
+sim_seed <- 64
+seed_a <- 24308
+seed_b <- 4069
+M_a <- 105.5
+M_b <- 113.5
+z_a <- (M_a - mu_0) / se_ex
+z_b <- (M_b - mu_0) / se_ex
+p_a <- two_p(z_a)
+p_b <- two_p(z_b)
+
+# Power, from the normal curve ----
+d_ex <- 0.89
+mu_1 <- 113.4
+power_two <- function(d, n, alpha = 0.05) {
+  z <- qnorm(1 - alpha / 2)
+  pnorm(d * sqrt(n) - z) + pnorm(-z - d * sqrt(n))
+}
+power_one <- function(d, n, alpha = 0.05) pnorm(d * sqrt(n) - qnorm(1 - alpha))
+
+pw_base <- power_two(d_ex, n_ex)
+pw_alpha <- power_two(d_ex, n_ex, 0.10)
+pw_tail <- power_one(d_ex, n_ex)
+pw_n <- power_two(d_ex, 15)
+d_big <- 1.07
+pw_d <- power_two(d_big, n_ex)
+z_one <- qnorm(0.95)
+
+# A weak study, and two ways to help it ----
+d_weak <- 0.20
+n_more <- 40
+pw_weak <- power_two(d_weak, n_ex)
+pw_weak_alpha <- power_two(d_weak, n_ex, 0.10)
+pw_weak_n <- power_two(d_weak, n_more)
+
+# Count the four cells of the table with simulated samples ----
+set.seed(15)
+count_each <- 500
+means_h0 <- rnorm(count_each, mu_0, se_ex)
+means_h1 <- rnorm(count_each, mu_0 + d_ex * sigma_ex, se_ex)
+beyond <- function(M) abs((M - mu_0) / se_ex) > z_crit
+rej_h0 <- sum(beyond(means_h0))
+rej_h1 <- sum(beyond(means_h1))
+
+# Planning a study ----
+z_a2 <- qnorm(0.975)
+z_pw <- qnorm(0.80)
+z_sum <- z_a2 + z_pw
+mde <- function(n) z_sum / sqrt(n)
+need_n <- function(d) ceiling((z_sum / d)^2)
+mu_mde <- mu_0 + z_sum * se_ex
+
+# Kraft (2020), Table 1, from randomized trials of education interventions ----
+kraft <- tribble(
+  ~`Which studies`, ~Mean, ~Median, ~`90th percentile`,
+  "All", 0.16, 0.10, 0.47,
+  "Math tests", 0.11, 0.07, 0.37,
+  "100 students or fewer", 0.30, 0.24, 0.77,
+  "More than 2,000 students", 0.05, 0.03, 0.17
+)
+kraft_all <- kraft[1, ]
+
+# The same tiny effect at three sample sizes ----
+d_tiny <- 0.05
+verdicts <- tibble(n = c(100, 1000, 10000)) %>%
+  mutate(z = d_tiny * sqrt(n), p = two_p(z))
+
+# The 619 baseline math scores, treated as a population ----
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+math <- baseline$tot_math
+N <- length(math)
+mu <- mean(math)
+sigma <- sqrt(sum((math - mu)^2) / N)
+
+# The study's ninth graders, for the Try it ----
+g9 <- math[which(baseline$st_grade1 == 9)]
+g9_n <- length(g9)
+g9_M <- mean(g9)
+g9_se <- sigma / sqrt(g9_n)
+g9_z <- (g9_M - mu) / g9_se
+g9_p <- two_p(g9_z)
+
+# Endline math gap, in standard deviations ----
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+groups <- endline %>%
+  filter(!is.na(tot_math)) %>%
+  group_by(treat) %>%
+  summarize(n = n(), M = mean(tot_math), var = var(tot_math))
+gap <- groups$M[2] - groups$M[1]
+sd_pooled <- sqrt(sum((groups$n - 1) * groups$var) / (sum(groups$n) - 2))
+gap_sd <- gap / sd_pooled
+
+# Curves ----
+grid_z <- tibble(z = seq(-4, 4, 0.01), y = dnorm(z))
+
+# The four-step summary, as one row of boxes
+step_row <- function(s1, s2, s3, s4) {
+  cards <- paste0('<div class="box-', c(1, 6, 3, 8), ' step-card">', sub_h(c(s1, s2, s3, s4)), '</div>')
+  cat(paste0('<div class="step-row">', paste(cards, collapse = ""), '</div>\n'))
+}
+
+# The sampling distribution of z, with the critical region and one sample marked
+decide_plot <- function(z_obs, top_label, label_hjust = 0.5, fig_base = 18) {
+  ggplot(grid_z, aes(x = z, y = y)) +
+    geom_area(fill = clr_soft) +
+    geom_area(data = filter(grid_z, z >= z_crit), fill = clr_mean) +
+    geom_area(data = filter(grid_z, z <= -z_crit), fill = clr_mean) +
+    geom_line(color = clr_median, linewidth = 1) +
+    geom_vline(xintercept = c(-z_crit, z_crit), color = clr_mean, linewidth = 1, linetype = "dashed") +
+    annotate("segment", x = z_obs, xend = z_obs, y = 0, yend = 0.455, color = clr_median, linewidth = 1.6) +
+    label_text(z_obs, 0.485, top_label, hjust = label_hjust, size = 6) +
+    label_text(0, 0.1, "Maintain H₀", size = 6) +
+    label_text(-3.45, 0.12, "Reject H₀", clr_mean, size = 6) +
+    label_text(3.45, 0.12, "Reject H₀", clr_mean, size = 6) +
+    scale_x_continuous(breaks = c(-4, -z_crit, 0, z_crit, 4),
+                       labels = c("−4", "−1.96", "0", "1.96", "4")) +
+    coord_cartesian(ylim = c(0, 0.51)) +
+    labs(x = "z-score of the sample mean", y = NULL) +
+    theme_slides(fig_base) +
+    theme(axis.text.y = element_blank(), panel.grid = element_blank())
+}
+
+# Sampling distributions of M, one for each possible world
+grid_M <- tibble(M = seq(78, 136, 0.05),
+                 h0 = dnorm(M, mu_0, se_ex),
+                 h1 = dnorm(M, mu_1, se_ex))
+
+two_worlds <- function(mean_1 = mu_1) {
+  grid_M %>%
+    mutate(h1 = dnorm(M, mean_1, se_ex)) %>%
+    ggplot(aes(x = M)) +
+    scale_x_continuous(breaks = seq(80, 130, 10)) +
+    coord_cartesian(xlim = c(80, 134), ylim = c(0, 0.112)) +
+    labs(x = "Sample mean M, with n = 10", y = NULL) +
+    theme_slides(18) +
+    theme(axis.text.y = element_blank(), panel.grid = element_blank())
+}
+
+# Two populations
+pop_plot <- function(gap_arrow = FALSE) {
+  pops <- tibble(x = seq(50, 165, 0.25), h0 = dnorm(x, mu_0, sigma_ex), h1 = dnorm(x, mu_1, sigma_ex))
+  p <- ggplot(pops, aes(x = x)) +
+    geom_area(aes(y = h0), fill = clr_soft) +
+    geom_line(aes(y = h0), color = clr_median, linewidth = 1.2) +
+    geom_line(aes(y = h1), color = clr_mean, linewidth = 1.2, linetype = "dashed") +
+    label_text(70, 0.021, "H₀ says: μ = 100", hjust = 0.5) +
+    label_text(146, 0.021, paste0("Maybe: μ = ", mu_1, "?"), clr_mean) +
+    scale_x_continuous(breaks = seq(60, 160, 20)) +
+    coord_cartesian(ylim = c(0, 0.033)) +
+    labs(x = "Test score in the population", y = NULL) +
+    theme_slides(18) +
+    theme(axis.text.y = element_blank(), panel.grid = element_blank())
+  if (gap_arrow) {
+    p <- p +
+      annotate("segment", x = mu_0, xend = mu_1, y = 0.0292, yend = 0.0292, color = clr_median, linewidth = 1.2,
+               arrow = arrow(ends = "both", length = unit(0.12, "inches"))) +
+      label_text((mu_0 + mu_1) / 2, 0.0312, paste0(fmt(mu_1 - mu_0, 1), " points, or ", fmt(d_ex), " SD"))
+  }
+  p
+}
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# Hypothesis testing
+
+.class-info[
+
+**Topic 7 · Thursday, January 28, and Tuesday, February 2**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[From a sample to a population]
+
+.center[**We are here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+We've moved. Until now we described what we saw. From today we use one sample to say something about a population we can't see.
+
+This topic takes two sessions, so six blocks in all.
+
+---
+
+class: title title-8
+
+# The question we keep asking
+
+.box-8.medium.sp-after-half[If what I think about the population is true, how weird is my sample?]
+
+.box-inv-8.small.sp-after-half[Topic 6 gave us the tool: z = (M − μ) / σ<sub>M</sub> says how far a mean is from μ]
+
+.box-inv-8.small[Today's new question: how weird must it be before I change my mind?]
+
+???
+
+A z-score for a mean measures weirdness. A hypothesis test adds a rule, written down in advance, for what to do with that number.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[Two steps before any data]
+
+.box-6.medium.sp-after-half[Observe and decide]
+
+.box-3.medium.sp-after-half[When the decision is wrong]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: predict, try, play.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# Two steps before any data
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# The four steps of a hypothesis test
+
+```{r steps-table, results="asis"}
+tribble(
+  ~Step, ~`What we do`, ~`On the blueprint`,
+  "1. State a null hypothesis, H₀", "Say what we assume about the population", "Panel 1",
+  "2. Set criteria", "Say what would be too unexpected if H₀ is true", "Panel 3",
+  "3. Observe a sample", "Ask how unexpected this one sample is", "Panel 2",
+  "4. Reject or maintain H₀", "Decide what to believe about the population", "Back to panel 1"
+) %>%
+  deck_table()
+```
+
+.box-1.small[These same four steps return in every test this quarter: z, t, F and regression]
+
+???
+
+This is the thread of the course. If students remember one slide from this deck, it should be this one. The order on the blueprint is 1, 3, 2: we decide what's weird before we look at our sample.
+
+---
+
+# Step 1: State a null hypothesis
+
+.box-inv-1.small.sp-after-half[The null hypothesis, H<sub>0</sub>, says that in the population there's no change, no difference or no relationship, or it names a specific value]
+
+.box-1.small.sp-after-half[Our example: a reading test has μ = 100 and σ = 15. A school tries a new program with 10 students]
+
+.pull-left[
+.box-inv-1.medium[H<sub>0</sub>: μ = 100]
+
+.center[The program changes nothing]
+]
+
+.pull-right[
+.box-inv-1.medium[H<sub>1</sub>: μ ≠ 100]
+
+.center[The program changes the mean]
+]
+
+.book-tag[H<sub>1</sub> is the alternative hypothesis. It's everything H<sub>0</sub> rules out]
+
+???
+
+These are always statements about the population, so they use Greek letters. Nobody writes H<sub>0</sub>: M = 100, because we can see M.
+
+The numbers match the simulator's defaults on purpose.
+
+---
+
+# The truth stays hidden
+
+```{r pop-unknown, fig.width=10, fig.height=4.2, out.width="86%", fig.alt="Two normal curves of test scores with the same spread. The shaded curve, centered at 100, is what the null hypothesis says. A dashed curve centered at 113.4, labeled maybe, is one other possible population."}
+pop_plot()
+```
+
+.box-inv-1.small[Maybe the program really moved μ to `r mu_1`. We can't see it]
+
+???
+
+H<sub>0</sub> might be true or false. All we'll ever get is a sample. So the logic runs the other way: assume H<sub>0</sub>, then see whether the sample fits. We come back to the dashed curve on Tuesday.
+
+---
+
+# Step 2: Say what's too unexpected
+
+```{r alpha-plot, fig.width=10, fig.height=3.4, out.width="84%", fig.alt="The standard normal curve of z-scores for sample means if the null hypothesis is true. The tail below z of minus 1.96 and the tail above z of 1.96 are shaded red. Each tail holds 2.5 percent of means."}
+ggplot(grid_z, aes(x = z, y = y)) +
+  geom_area(fill = clr_soft) +
+  geom_area(data = filter(grid_z, z >= z_crit), fill = clr_mean) +
+  geom_area(data = filter(grid_z, z <= -z_crit), fill = clr_mean) +
+  geom_line(color = clr_median, linewidth = 1) +
+  label_text(0, 0.14, "95% of means", size = 7) +
+  label_text(-2.75, 0.13, "2.5% of means\nz < −1.96", clr_mean, size = 6) +
+  label_text(2.75, 0.13, "2.5% of means\nz > 1.96", clr_mean, size = 6) +
+  scale_x_continuous(breaks = c(-4, -z_crit, 0, z_crit, 4), labels = c("−4", "−1.96", "0", "1.96", "4")) +
+  labs(x = "z-score of the sample mean, if H₀ is true", y = NULL) +
+  theme_slides(18) +
+  theme(axis.text.y = element_blank(), panel.grid = element_blank())
+```
+
+.pull-left[
+.box-inv-1.small[The **alpha level**, α, is our cutoff. The usual choice is α = 0.05]
+]
+
+.pull-right[
+.box-inv-1.small[The **critical region** holds the 5% of means least likely if H<sub>0</sub> is true]
+]
+
+???
+
+Alpha is also called the level of significance. ±1.96 comes from the table in Topic 5: 2.5% in each tail. We pick alpha before seeing any data.
+
+Now students can finally stop ignoring the red lines in the simulator.
+
+---
+
+class: title title-1 press-slide
+
+# Step 2 on the blueprint: press +500
+
+```{r sim-press, results="asis"}
+sim_frame(
+  alt = "Simulator with no samples drawn yet. The population has mean 100 and SD 15, H0 is true, and panel 3 shows the z curve with cutoffs at minus 1.96 and 1.96.",
+  step = 2, n = 10, view = "stat", d = 0, seed = sim_seed, height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+These are the cutoffs from last class. There's no true effect here, so H<sub>0</sub> is true. **Press +500.** Read "Beyond the cutoffs". It should say about 5%. Press +500 again if you like.
+
+---
+
+# About 5% land beyond the cutoffs
+
+```{r sim-500, results="asis"}
+sim_frame(
+  alt = "Simulator with 500 samples of 10 and no true effect. Panel 3 stacks the z-scores into a bell around 0. About 5 percent of the dots are red, beyond the cutoffs at minus 1.96 and 1.96.",
+  step = 2, n = 10, view = "stat", d = 0, draws = 500, seed = sim_seed, height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The red dots are real samples from a population where H<sub>0</sub> is true. They still land in the critical region. Hold on to that for block 3.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Ten times the sample
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+H<sub>0</sub> is still true. With n = 10, about 5% of z-scores landed beyond ±1.96. Now each sample has 100 people. What share lands beyond ±1.96?
+]
+
+.options[
+.option[
+**A** Far less than 5%: bigger samples are more accurate
+]
+.option[
+**B** About 5%
+]
+.option[
+**C** Far more than 5%
+]
+.option[
+**D** It depends on the value of μ
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** Far less than 5%: bigger samples are more accurate
+]
+.option.correct[
+**B** About 5%
+]
+.option.wrong[
+**C** Far more than 5%
+]
+.option.wrong[
+**D** It depends on the value of μ
+]
+]
+
+.box-inv-8.small.sp-after-half[
+A bigger n does make means land closer to μ. But z divides by σ<sub>M</sub>, which shrinks by just as much
+]
+
+.box-8.small[
+So z-scores keep the same curve, and α stays what we set it to
+]
+
+---
+
+class: title title-8
+
+# Predict it: Still about 5% at n = 100
+
+```{r sim-100, results="asis"}
+sim_frame(
+  alt = "Simulator with 500 samples of 100 and no true effect. Panel 3 is again a bell around 0, with about 5 percent of dots beyond the cutoffs at minus 1.96 and 1.96.",
+  step = 2, n = 100, view = "stat", d = 0, draws = 500, seed = sim_seed, height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Press +500 once or twice more, so the students see the share settle.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Observe and decide
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Step 3: Observe one sample
+
+```{r sim-sample-a, results="asis"}
+sim_frame(
+  alt = paste0("Simulator with one sample of 10 from a population with mean 100. Panel 2 shows M = ", M_a, " and z = ", fmt(z_a), ". In panel 3 that one z-score sits between the cutoffs."),
+  step = 2, n = 10, view = "stat", d = 0, draws = 1, seed = seed_a, height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+This is the only sample a real researcher would see. Read panel 2 aloud: M = `r M_a`, z = `r fmt(z_a)`, p = `r fmt(p_a, 3)`. The pink line in panel 3 shows where it falls. We work out the z and the p by hand next.
+
+---
+
+# Step 3: How far, in standard errors?
+
+.box-inv-6.small[First, the standard error]
+
+$$
+\sigma_M = \frac{\sigma}{\sqrt{n}} = \frac{15}{\sqrt{10}} = `r fmt(se_ex)`
+$$
+
+.box-inv-6.small[Then the test statistic: our mean sits `r fmt(z_a)` standard errors above what H<sub>0</sub> says]
+
+$$
+z = \frac{M - \mu}{\sigma_M} = \frac{`r M_a` - 100}{`r fmt(se_ex)`} = `r fmt(z_a)`
+$$
+
+???
+
+The z-score is our *test statistic*: one number that says how far the sample is from H<sub>0</sub>. Later tests swap in t and F, but they do the same job.
+
+---
+
+# Step 3: The p-value is an area
+
+```{r p-plot, fig.width=10, fig.height=3.8, out.width="86%", fig.alt=paste0("Standard normal curve. The area above z of ", fmt(z_a), " and the mirror area below minus ", fmt(z_a), " are shaded blue, ", pct(p_a / 2, 1), " in each tail. Dashed lines mark the cutoffs at plus and minus 1.96, farther out than the shaded edges.")}
+ggplot(grid_z, aes(x = z, y = y)) +
+  geom_area(fill = "#eef1f4") +
+  geom_area(data = filter(grid_z, z >= z_a), fill = clr_bar) +
+  geom_area(data = filter(grid_z, z <= -z_a), fill = clr_bar) +
+  geom_line(color = clr_median, linewidth = 1) +
+  geom_vline(xintercept = c(-z_crit, z_crit), color = clr_mean, linewidth = 1, linetype = "dashed") +
+  annotate("segment", x = c(-z_a, z_a), xend = c(-z_a, z_a), y = 0, yend = dnorm(z_a), color = clr_median, linewidth = 1.3) +
+  label_text(z_a - 0.08, 0.14, paste0("Our z = ", fmt(z_a)), hjust = 1, size = 6) +
+  label_text(-z_a + 0.08, 0.14, paste0("−", fmt(z_a)), hjust = 0, size = 6) +
+  label_text(2.95, 0.125, paste0(pct(p_a / 2, 1), " of means\nfrom here out"), size = 5.5) +
+  label_text(-2.95, 0.125, paste0(pct(p_a / 2, 1), " of means\nfrom here out"), size = 5.5) +
+  label_text(0, 0.03, paste0("p = ", fmt(p_a, 3)), size = 7) +
+  scale_x_continuous(breaks = c(-4, -z_crit, 0, z_crit, 4), labels = c("−4", "−1.96", "0", "1.96", "4")) +
+  labs(x = "z-score of the sample mean, if H₀ is true", y = NULL) +
+  theme_slides(18) +
+  theme(axis.text.y = element_blank(), panel.grid = element_blank())
+```
+
+.box-inv-6.small[The **p-value** is the probability of a mean at least this extreme, if H<sub>0</sub> is true]
+
+???
+
+Both tails count, because H<sub>1</sub> says μ ≠ 100: a surprise in either direction counts. From the table, the tail beyond `r fmt(z_a)` is `r fmt(p_a / 2, 4)`. Double it to get `r fmt(p_a, 3)`.
+
+So if H<sub>0</sub> is true, `r pct(p_a, 1)` of samples of 10 land this far out or farther. That's not weird. The simulator gives p as a number, but it doesn't shade this area, which is why this one is a plot.
+
+---
+
+# Step 4: p is above α, so we maintain H<sub>0</sub>
+
+```{r card-a, results="asis"}
+step_row("<b>1. State a hypothesis</b><br>H₀: μ = 100",
+         "<b>2. Set criteria</b><br>α = 0.05",
+         paste0("<b>3. Observe</b><br>−1.96 &lt; z &lt; 1.96<br>p = ", fmt(p_a, 3), " &gt; 0.05"),
+         "<b>4. Decide</b><br>Here, maintain H₀")
+```
+
+```{r decide-a, fig.width=10, fig.height=3.6, out.width="84%", fig.alt=paste0("Standard normal curve with both critical regions shaded red and labeled reject H0, and the middle labeled maintain H0. A line marks our z of ", fmt(z_a), ", inside the maintain region.")}
+decide_plot(z_a, paste0("Our sample: z = ", fmt(z_a)), 0.8)
+```
+
+???
+
+This is the summary box for the whole test. Two checks, same answer: z is not in the critical region, and p is bigger than alpha.
+
+The simulator stops at p. It doesn't write the decision, so that's our job.
+
+---
+
+# Maintaining H<sub>0</sub> doesn't prove it
+
+.box-6.medium.sp-after-half[We looked for evidence against H<sub>0</sub> and didn't find enough]
+
+.pull-left[
+.box-inv-6.small[A sample with M = `r M_a` fits μ = 100]
+]
+
+.pull-right[
+.box-inv-6.small[It also fits μ = 104, or μ = 108]
+]
+
+.box-6.small[So we say "maintain H<sub>0</sub>", and never "H<sub>0</sub> is true"]
+
+.book-tag[In the book: "fail to reject H<sub>0</sub>", which means the same]
+
+???
+
+Think of a court. "Not guilty" doesn't mean "innocent". It means the evidence fell short.
+
+---
+
+# What the p-value doesn't tell you
+
+```{r p-table, results="asis"}
+tribble(
+  ~`A common reading`, ~`Why it's wrong`,
+  paste0("\"There's a ", pct(p_a, 1), " chance that H₀ is true\""), "p assumes H₀ is true, so it can't be the chance that it is",
+  "\"A small p means a big effect\"", "p also depends on n. We show this on Tuesday",
+  "\"p > 0.05 means there's no effect\"", "The sample may just be too small to show it"
+) %>%
+  deck_table()
+```
+
+.box-6.small[p answers one question: if H<sub>0</sub> is true, how unusual is a sample like mine?]
+
+???
+
+The first one is the most common mistake, among researchers too.
+
+---
+
+# The four steps, ready to use
+
+```{r steps-full, results="asis"}
+tribble(
+  ~Step, ~`In practice`,
+  "1. State H₀", "H₀: μ = some value, in the population",
+  "2. Set criteria", "Pick α. Find the critical values, such as z = ±1.96",
+  "3. Observe a sample", "Compute the test statistic: z = (M − μ) / σ<sub>M</sub>. Find p",
+  "4. Reject or maintain H₀", "Reject if z is in the critical region, which is the same as p &lt; α"
+) %>%
+  deck_table()
+```
+
+.box-6.small[z and p always agree on the decision. Use whichever is quicker]
+
+???
+
+If z is past ±1.96, then p must be below 0.05, because that's how ±1.96 was chosen. This is the version to use on Friday's lab.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: The ninth graders
+
+.box-inv-8.small.sp-after-half[Treat all `r N` Mindspark students as a population: at baseline, μ = `r fmt(mu)` and σ = `r fmt(sigma)` in math]
+
+.box-inv-8.small.sp-after-half[The `r g9_n` ninth graders have M = `r fmt(g9_M)`. If they were a random draw from the `r N`, would that mean be too unexpected?]
+
+.box-8.small.sp-after-half[Run all four steps, with α = 0.05]
+
+.box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote: reject or maintain?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators and the table. Hands for the vote.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+```{r card-g9, results="asis"}
+step_row(paste0("<b>1. State a hypothesis</b><br>H₀: μ = ", fmt(mu)),
+         "<b>2. Set criteria</b><br>α = 0.05, so z = ±1.96",
+         paste0("<b>3. Observe</b><br>z = ", fmt(g9_z), "<br>p = ", fmt(g9_p, 3), " &lt; 0.05"),
+         "<b>4. Decide</b><br>Here, reject H₀")
+```
+
+.box-inv-8.small.sp-after-half[
+σ<sub>M</sub> = `r fmt(sigma)` / √`r g9_n` = `r fmt(g9_se)`, so z = (`r fmt(g9_M)` − `r fmt(mu)`) / `r fmt(g9_se)` ≈ `r fmt(g9_z)`
+]
+
+.box-8.small[They don't look like a random draw from the `r N`. The test can't say why]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+They're in a higher grade, so a gap isn't a shock. Rejecting H<sub>0</sub> tells us the gap is too big for sampling error alone. It says nothing about the cause.
+
+By hand, rounded inputs give about `r fmt((round(g9_M, 2) - round(mu, 2)) / round(g9_se, 2))`. Anything near 3 gives the same decision.
+
+For anyone who asks: the ninth graders are part of the 619, which makes the true standard error a little smaller. That doesn't change the point.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# When the decision is wrong
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# Same population, a different sample
+
+```{r sim-sample-b, results="asis"}
+sim_frame(
+  alt = paste0("Simulator with a different sample of 10 from the same population with mean 100. Panel 2 shows M = ", M_b, " and z = ", fmt(z_b), ". In panel 3 that z-score sits beyond the upper cutoff."),
+  step = 2, n = 10, view = "stat", d = 0, draws = 1, seed = seed_b, height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same settings, just a different draw. M = `r M_b`, z = `r fmt(z_b)`, p = `r fmt(p_b, 3)`. Ask what they'd conclude if this were their one sample.
+
+---
+
+# This sample says reject H<sub>0</sub>
+
+```{r card-b, results="asis"}
+step_row("<b>1. State a hypothesis</b><br>H₀: μ = 100",
+         "<b>2. Set criteria</b><br>α = 0.05",
+         paste0("<b>3. Observe</b><br>z &gt; 1.96<br>p = ", fmt(p_b, 3), " &lt; 0.05"),
+         "<b>4. Decide</b><br>Here, reject H₀")
+```
+
+```{r decide-b, fig.width=10, fig.height=3, out.width="72%", fig.alt=paste0("Standard normal curve with both critical regions shaded red and labeled reject H0. A line marks our z of ", fmt(z_b), ", inside the upper critical region.")}
+decide_plot(z_b, paste0("Our sample: z = ", fmt(z_b)), 0.32)
+```
+
+.box-inv-3.small[We'd write: the mean differs from 100, and it's **statistically significant** at the 5% level (p < .05)]
+
+???
+
+"Statistically significant" is a technical phrase. It means only that p fell below alpha. It doesn't mean large or important: that's Tuesday.
+
+---
+
+# But we know H<sub>0</sub> was true here
+
+.box-3.medium.sp-after-half[The simulator set μ = 100, and we still rejected H<sub>0</sub>]
+
+.box-inv-3.small.sp-after-half[We would have falsely concluded that μ ≠ 100]
+
+.box-inv-3.small.sp-after-half[Nothing went wrong with the sample or the math. This was an unlucky draw]
+
+.box-3.small[In real research, nobody tells you afterward]
+
+???
+
+This is what a simulator gives us that real data can't: we know the truth, so we can see when a test gets it wrong.
+
+---
+
+# Two ways to be wrong
+
+```{r error-table, results="asis"}
+tribble(
+  ~`Our decision`, ~`If H₀ is true`, ~`If H₀ is false`,
+  "Reject H₀", "<b>Type 1 error</b>: a false alarm", "Correct",
+  "Maintain H₀", "Correct", "<b>Type 2 error</b>: a miss"
+) %>%
+  deck_table("deck-table error-table", "lcc")
+```
+
+.pull-left[
+.box-inv-3.small[**Type 1 error:** rejecting H<sub>0</sub> when it's true]
+]
+
+.pull-right[
+.box-inv-3.small[**Type 2 error:** failing to reject H<sub>0</sub> when it's false]
+]
+
+.book-tag[In the book and the simulator: Type I and Type II]
+
+???
+
+We get to pick a row. We never get to see the column. Our last sample was the top-left cell, and the first one was the bottom-left cell.
+
+The simulator has no live version of this table, so we build it by hand.
+
+---
+
+# Every red dot is a false alarm
+
+```{r sim-500-again, results="asis"}
+sim_frame(
+  alt = "Simulator with 500 samples of 10 and no true effect. Each red dot beyond the cutoffs at minus 1.96 and 1.96 is a sample that would lead us to reject a true null hypothesis. About 5 percent of dots are red.",
+  step = 2, n = 10, view = "stat", d = 0, draws = 500, seed = sim_seed, height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+So this is what alpha means. By setting α = 0.05, we accept that 5% of the time when H<sub>0</sub> is true, we'll make a Type 1 error. The chance of a Type 1 error is alpha. We chose it.
+
+---
+
+# α = 0.05 is a convention, not a law
+
+```{r alpha-table, results="asis"}
+tibble(a = c(0.10, 0.05, 0.01)) %>%
+  mutate(`Critical z` = paste0("±", fmt(qnorm(1 - a / 2))),
+         `Type 1 errors, if H₀ is true` = paste0("About 1 sample in ", round(1 / a)),
+         α = fmt(a)) %>%
+  select(α, `Critical z`, `Type 1 errors, if H₀ is true`) %>%
+  deck_table(align = "ccc")
+```
+
+.box-3.small.sp-after-half[Researchers mostly use 0.05, sometimes 0.01 or 0.10]
+
+.box-inv-3.small[p = 0.099 and p = 0.101 are nearly the same evidence, even if α = 0.10 splits them. Report the p-value, not just the verdict]
+
+???
+
+"Significant" and "not significant" sound like opposites. The evidence behind them can be almost the same. There's nothing special about any of these numbers.
+
+---
+
+layout: false
+class: title title-8
+
+# Play it: Name that error
+
+.pull-left-3[
+.box-inv-8.medium[100]
+
+.center[H<sub>0</sub> is true, and you reject it]
+]
+
+.pull-middle-3[
+.box-inv-8.medium[200]
+
+.center[A program really works, but your small study maintains H<sub>0</sub>]
+]
+
+.pull-right-3[
+.box-inv-8.medium[300]
+
+.center[Lowering α from 0.05 to 0.01 makes this error rarer, and this other one more likely]
+]
+
+.box-8.small.sp-after-half[Answer with a neighbor, as a question. Nothing is scored]
+
+???
+
+About 6 minutes. Read one clue at a time, in order. Take answers by hands or by calling out.
+
+---
+
+class: title title-8
+
+# Play it: Answers
+
+.pull-left-3[
+.box-inv-8.medium[100]
+
+.center[**What is a Type 1 error?**]
+
+.center[A false alarm]
+]
+
+.pull-middle-3[
+.box-inv-8.medium[200]
+
+.center[**What is a Type 2 error?**]
+
+.center[A miss]
+]
+
+.pull-right-3[
+.box-inv-8.medium[300]
+
+.center[**What are Type 1, then Type 2?**]
+
+.center[A stricter α means fewer alarms, and more misses]
+]
+
+???
+
+The 300 clue leads into Tuesday. We can't shrink both errors just by moving alpha. Power is about how else to reduce the misses.
+
+---
+
+class: title title-8
+
+# Before Tuesday
+
+.pull-left[
+.box-1.small[This Friday: Lab 4]
+
+Sampling distributions and the four steps. Bring a calculator and a laptop
+]
+
+.pull-right[
+.box-6.small[Over the weekend]
+
+Finish Chapter 8. Tuesday we ask: what if H<sub>0</sub> is false?
+]
+
+.box-3.small[Mastery and Problem Set for Chapter 7 are due Sunday, January 31 at 6 PM]
+
+---
+
+class: title title-8
+
+# Session 2: Tuesday, February 2
+
+.box-inv-8.small.sp-after-half[Thursday in one line: four steps, and two ways to get the decision wrong]
+
+.box-5.medium.sp-after-half[What if H<sub>0</sub> is false?]
+
+.box-7.medium.sp-after-half[Power]
+
+.box-4.medium.sp-after-half[Planning a study, reading a result]
+
+???
+
+Three blocks of about 20 minutes, each ending with something to do: predict, predict, try.
+
+---
+
+layout: false
+class: center middle section-title section-title-5 animated fadeIn
+
+# What if H<sub>0</sub> is false?
+
+---
+
+layout: true
+class: title title-5
+
+---
+
+# So far H<sub>0</sub> was true. What if it isn't?
+
+```{r pop-gap, fig.width=10, fig.height=4, out.width="84%", fig.alt="Two normal curves of test scores with the same spread, centered at 100 and at 113.4. An arrow between the two centers reads 13.4 points, or 0.89 SD."}
+pop_plot(gap_arrow = TRUE)
+```
+
+.box-inv-5.small[Suppose the program really works, and the true mean is `r mu_1`]
+
+???
+
+The dashed curve from Thursday. On Thursday we lived in the world where H<sub>0</sub> is true. Now let's see what the test does when it's false.
+
+---
+
+# Effect size: how big is the gap, in SDs?
+
+$$
+\text{Cohen's } d = \frac{\mu_1 - \mu_0}{\sigma} = \frac{`r mu_1` - 100}{15} = `r fmt(d_ex)`
+$$
+
+.pull-left[
+.box-inv-5.small[It has no units, so we can compare tests on different scales]
+]
+
+.pull-right[
+.box-inv-5.small[n isn't in the formula. It's about the size of the effect, not the sample]
+]
+
+.box-5.small[d is about the population, so we can only estimate it. Its estimate, Hedges' g, comes in Topic 8]
+
+.book-tag[In the book: g is called "estimated d"]
+
+???
+
+Cohen's d is a z-score for the effect: how far the true mean moved, in standard deviations. μ₀ is the value under H<sub>0</sub>, and μ₁ is the true value in the world where the program works.
+
+---
+
+# Two worlds: where sample means land
+
+```{r worlds-plain, fig.width=10, fig.height=4.1, out.width="86%", fig.alt=paste0("Two bell curves of sample means with n of 10. The H0 world is centered at 100 and the H1 world at 113.4. Dashed lines mark the critical values at ", fmt(cut_lo, 1), " and ", fmt(cut_hi, 1), ", worked out under H0.")}
+two_worlds() +
+  geom_area(aes(y = h0), fill = clr_soft, alpha = 0.7) +
+  geom_line(aes(y = h0), color = clr_median, linewidth = 1.2) +
+  geom_line(aes(y = h1), color = clr_mean, linewidth = 1.2) +
+  geom_vline(xintercept = c(cut_lo, cut_hi), color = clr_median, linewidth = 1, linetype = "dashed") +
+  label_text(cut_hi + 0.3, 0.106, paste0("Critical value: ", fmt(cut_hi, 1)), hjust = 0, size = 5.5) +
+  label_text(cut_lo - 0.3, 0.106, fmt(cut_lo, 1), hjust = 1, size = 5.5) +
+  label_text(94.5, 0.092, "H₀ world", size = 6.5) +
+  label_text(120, 0.09, "H₁ world", clr_mean, size = 6.5)
+```
+
+.box-inv-5.small[Critical values come from the H<sub>0</sub> world. Any mean past them gets "reject"]
+
+???
+
+Each curve is the sampling distribution of M, with n = 10. Both have σ<sub>M</sub> = `r fmt(se_ex)`. The critical values are `r fmt(z_crit)` standard errors from 100: `r fmt(cut_lo, 1)` and `r fmt(cut_hi, 1)`.
+
+A test doesn't know which world it's in. It just checks where M landed.
+
+---
+
+# Each kind of outcome is an area
+
+```{r worlds-shaded, fig.width=10, fig.height=4.1, out.width="86%", fig.alt=paste0("The same two curves. Under the H0 curve, the tails past the critical values are red and labeled alpha, the Type 1 error rate. Under the H1 curve, the part left of ", fmt(cut_hi, 1), " is gold and labeled beta, the Type 2 error rate. The part right of ", fmt(cut_hi, 1), " is blue and labeled power, one minus beta.")}
+two_worlds() +
+  geom_area(aes(y = if_else(M >= cut_hi, h1, 0)), fill = clr_bar, alpha = 0.75) +
+  geom_area(aes(y = if_else(M <= cut_hi, h1, 0)), fill = clr_gold) +
+  geom_area(aes(y = if_else(M >= cut_hi, h0, 0)), fill = clr_mean) +
+  geom_area(aes(y = if_else(M <= cut_lo, h0, 0)), fill = clr_mean) +
+  geom_line(aes(y = h0), color = clr_median, linewidth = 1.2) +
+  geom_line(aes(y = h1), color = clr_median, linewidth = 1.2) +
+  annotate("segment", x = cut_hi, xend = cut_hi, y = 0, yend = 0.086, color = clr_median, linewidth = 1, linetype = "dashed") +
+  annotate("segment", x = 86.5, xend = 89.6, y = 0.036, yend = 0.004, color = clr_mean, linewidth = 0.9) +
+  annotate("segment", x = 106.7, xend = 106.9, y = 0.088, yend = 0.018, color = clr_mode, linewidth = 0.9) +
+  annotate("segment", x = 122, xend = 117, y = 0.052, yend = 0.04, color = clr_median, linewidth = 0.9) +
+  label_text(85.5, 0.043, "α: Type 1 error", clr_mean, size = 6) +
+  label_text(92, 0.104, "H₀ world", size = 6) +
+  label_text(121, 0.104, "H₁ world", size = 6) +
+  label_text(106.7, 0.095, "β: Type 2 error", clr_mode, size = 6) +
+  label_text(125, 0.062, "Power: 1 − β", size = 6)
+```
+
+.box-inv-5.small[**Power** is the chance of rejecting H<sub>0</sub> when it's false. It's the opposite of a miss]
+
+.book-tag[Careful: β here is a probability. In regression, it will be a population slope]
+
+???
+
+Red is alpha, in the H<sub>0</sub> world. Gold and blue split the H<sub>1</sub> world at the critical value: gold is a miss, blue is a catch. They add up to 1, so power is 1 − β.
+
+There's a sliver of the H<sub>1</sub> curve below `r fmt(cut_lo, 1)` too, which also counts as power. It's too thin to see.
+
+Don't give the percentages yet: the next slide asks for them.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: How often do we catch it?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+The program works: μ = `r mu_1`, so d = `r fmt(d_ex)`. We test it with n = 10 and α = 0.05, two-tailed. In what share of samples do we reject H<sub>0</sub>?
+]
+
+.options[
+.option[
+**A** About 5%
+]
+.option[
+**B** About 50%
+]
+.option[
+**C** About 80%
+]
+.option[
+**D** About 100%
+]
+]
+
+???
+
+About 6 minutes. Students can reason from the last picture: how much of the H<sub>1</sub> curve sits right of the critical value? Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** About 5%
+]
+.option.wrong[
+**B** About 50%
+]
+.option.correct[
+**C** About 80%
+]
+.option.wrong[
+**D** About 100%
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Power is `r pct(pw_base)`. So β is `r pct(1 - pw_base)`: one real effect in five gets missed
+]
+
+.box-8.small[
+A is α: that's how often we reject when H<sub>0</sub> is true
+]
+
+---
+
+class: title title-8
+
+# Predict it: About 80% get rejected
+
+```{r sim-power-blueprint, results="asis"}
+sim_frame(
+  alt = "Simulator with 500 samples of 10 from a population with mean 113.4. In panel 3 the sample means pile up around 113, and about 80 percent of them are red, beyond the upper cutoff at 109.3.",
+  step = 2, n = 10, view = "raw", d = 0.893, draws = 500, seed = 2, height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Now H<sub>0</sub> is false, and the population in panel 1 has mean 113.4. The dashed curve is still the H<sub>0</sub> world, and this pile is the H<sub>1</sub> world. Every red dot is a correct rejection, and every white dot is a Type 2 error. The readout gives the true power. Press +500 again to see the share settle.
+
+The link uses d = 0.893 so that the mean shows as 113.4. At d = 0.89 it would show 113.3.
+
+---
+
+layout: false
+class: center middle section-title section-title-7 animated fadeIn
+
+# Power
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# Power: catching a real effect
+
+```{r sim-power, results="asis"}
+sim_frame(
+  alt = "Simulator's Power tab with d of 0.89 and n of 10. Two curves, H0 and H1, with the critical values marked. The readout gives a Type I error rate of 5 percent, a Type II error rate of 20 percent and power of 80 percent.",
+  tab = "power", d = 0.89, n = 10, height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+This is the same picture as our two worlds, in SD units. If H<sub>1</sub> is true, with this alpha, `r pct(pw_base)` of samples correctly reject H<sub>0</sub>.
+
+Power of 0.80 is the usual target, in the same way α = 0.05 is: a convention. Drag d to 0 and power disappears from the readout, because H<sub>0</sub> is then true.
+
+---
+
+# 1,000 samples fill in the table
+
+```{r count-table, results="asis"}
+tribble(
+  ~`Our decision`, ~`H₀ is true (μ = 100)`, ~`H₀ is false (μ = 113.4)`,
+  "Reject H₀", paste0("<b>", rej_h0, "</b> Type 1 errors"), paste0("<b>", rej_h1, "</b> correct"),
+  "Maintain H₀", paste0("<b>", count_each - rej_h0, "</b> correct"), paste0("<b>", count_each - rej_h1, "</b> Type 2 errors")
+) %>%
+  deck_table("deck-table error-table", "lcc")
+```
+
+.pull-left[
+.box-inv-7.small[First column: `r rej_h0` of `r count_each` is `r pct(rej_h0 / count_each, 1)`. That estimates α = 5%]
+]
+
+.pull-right[
+.box-inv-7.small[Second column: `r rej_h1` of `r count_each` is `r pct(rej_h1 / count_each, 1)`. That estimates power = `r pct(pw_base)`]
+]
+
+.source[Simulated in R: 500 samples of 10 from each population.]
+
+???
+
+Each column is one world, and each adds up to 500. Rates are read down a column, never across. The deck computes this table, because the simulator has no live version of it.
+
+---
+
+# Four ways to raise power
+
+.pull-left[
+.box-inv-7.small.sp-after-half[**1. Loosen α:** from 5% to 10%]
+
+.box-inv-7.small[**2. Use one tail:** a directional test]
+]
+
+.pull-right[
+.box-inv-7.small.sp-after-half[**3. Raise n:** more people per sample]
+
+.box-inv-7.small[**4. Find a larger effect:** a larger d]
+]
+
+.box-7.small[We start from d = `r fmt(d_ex)`, n = 10 and α = 5%, two-tailed, with power of `r pct(pw_base)`]
+
+???
+
+We'll change one thing at a time, and use the Power tab for each. Ask students to guess which moves the blue area the most.
+
+---
+
+# Way 1: Looser α lifts power to `r pct(pw_alpha)`
+
+```{r sim-way-1, results="asis"}
+sim_frame(
+  alt = paste0("Power tab with alpha of 10 percent. The critical values move toward the center, so more of the H1 curve is past them. Power reads ", pct(pw_alpha), "."),
+  tab = "power", d = 0.89, n = 10, alpha = 0.1, height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The critical value drops from `r fmt(z_crit)` to `r fmt(qnorm(0.95))`, so more of H<sub>1</sub> is past it. The cost shows in red: Type 1 errors double. Move the Alpha slider live from 0.05 to 0.10.
+
+---
+
+# A directional test puts all of α in one tail
+
+```{r tails-plot, fig.width=11, fig.height=2.9, out.width="90%", fig.alt=paste0("Two normal curves. The left curve, two-tailed, has 2.5 percent shaded in each tail beyond minus and plus 1.96. The right curve, one-tailed, has 5 percent shaded in the upper tail only, beyond ", fmt(z_one), ".")}
+tails <- bind_rows(
+  mutate(grid_z, panel = "Two-tailed: H₁: μ ≠ 100", hit = abs(z) >= z_crit),
+  mutate(grid_z, panel = "One-tailed: H₁: μ > 100", hit = z >= z_one)
+) %>%
+  mutate(panel = fct_inorder(panel), shade = if_else(hit, y, 0))
+tail_labels <- tibble(
+  panel = factor(c("Two-tailed: H₁: μ ≠ 100", "Two-tailed: H₁: μ ≠ 100", "One-tailed: H₁: μ > 100"), levels = levels(tails$panel)),
+  z = c(-2.9, 2.9, 2.9), y = 0.16,
+  label = c("2.5%\nz < −1.96", "2.5%\nz > 1.96", paste0("5%\nz > ", fmt(z_one)))
+)
+ggplot(tails, aes(x = z, y = y)) +
+  geom_area(fill = clr_soft) +
+  geom_area(aes(y = shade), fill = clr_mean) +
+  geom_line(color = clr_median, linewidth = 1) +
+  geom_text(data = tail_labels, aes(label = label), color = clr_mean, size = 5.5, fontface = "bold",
+            family = "Fira Sans Condensed", lineheight = 0.9) +
+  facet_wrap(vars(panel), nrow = 1) +
+  scale_x_continuous(breaks = c(-4, -2, 0, 2, 4), labels = c("−4", "−2", "0", "2", "4")) +
+  labs(x = "z-score of the sample mean, if H₀ is true", y = NULL) +
+  theme_slides(17) +
+  theme(axis.text.y = element_blank(), panel.grid = element_blank())
+```
+
+.pull-left[
+.box-inv-7.small[H<sub>0</sub>: μ ≤ 100 and H<sub>1</sub>: μ > 100. α stays at 5%, so the cutoff moves in]
+]
+
+.pull-right[
+.box-inv-7.small[Choose the direction before seeing the data. An effect the other way can't be found]
+]
+
+???
+
+The total risk of a Type 1 error stays at 5%. All of it now sits where we expect the effect, so the critical value falls from `r fmt(z_crit)` to `r fmt(z_one)`. The book's table rounds this to 1.65.
+
+Choosing a direction after looking at the data would double the real alpha.
+
+---
+
+# Way 2: One tail lifts power to `r pct(pw_tail)`
+
+```{r sim-way-2, results="asis"}
+sim_frame(
+  alt = paste0("Power tab with a one-tailed test. There's one critical value, at z of ", fmt(z_one), ", and one red tail. Power reads ", pct(pw_tail), "."),
+  tab = "power", d = 0.89, n = 10, tails = "one", height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same power as way 1, and that's not a coincidence. Both put the upper cutoff at `r fmt(z_one)`. The difference: here the total Type 1 risk stays at 5%. The cost is that an effect in the other direction can't be found at all.
+
+---
+
+# Way 3: Larger n lifts power to `r pct(pw_n)`
+
+```{r sim-way-3, results="asis"}
+sim_frame(
+  alt = paste0("Power tab with n of 15. Both curves are narrower, so they overlap less. Power reads ", pct(pw_n), "."),
+  tab = "power", d = 0.89, n = 15, height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Remember Topic 6: a larger n makes the sampling distribution pointier. Both curves narrow and pull apart. Going from 10 to 15 raises power to `r pct(pw_n)`, with α still at 5%. The cost is real: more participants, more money.
+
+---
+
+# Way 4: Larger d lifts power to `r pct(pw_d)`
+
+```{r sim-way-4, results="asis"}
+sim_frame(
+  alt = paste0("Power tab with d of ", d_big, ". The H1 curve moves right, farther past the critical value. Power reads ", pct(pw_d), "."),
+  tab = "power", d = d_big, n = 10, height = 492
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+A bigger difference is easier to catch. The H<sub>1</sub> curve shifts right. We can't simply choose this one, but we can run a stronger version of a program, or use a test that's closer to what the program teaches.
+
+---
+
+# The four ways, side by side
+
+```{r ways-table, results="asis"}
+tribble(
+  ~`Change`, ~`Power`, ~`What it costs`,
+  paste0("Start: d = ", fmt(d_ex), ", n = 10, α = 5%, two-tailed"), pct(pw_base), "",
+  "1. Loosen α to 10%", pct(pw_alpha), "Twice the Type 1 errors",
+  "2. One-tailed test", pct(pw_tail), "Blind to an effect in the other direction",
+  "3. n = 15", pct(pw_n), "More students, more money",
+  paste0("4. d = ", d_big), pct(pw_d), "Needs a stronger program or a better-matched test"
+) %>%
+  deck_table(align = "lcl")
+```
+
+.box-7.small[Only ways 3 and 4 raise power without touching what we count as evidence]
+
+???
+
+Numbers are computed from the normal curve with pnorm and qnorm, and they match the Power tab.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: Rescue a weak study
+
+.box-inv-8.small.sp-after-half[A real but small effect: d = `r fmt(d_weak)`. With n = 10 and α = 5%, power is only `r pct(pw_weak)`]
+
+.box-8.small.sp-after-half[Which rescue helps more?]
+
+.options[
+.option[
+**A** Loosen α to 10%
+]
+.option[
+**B** Raise n from 10 to `r n_more`
+]
+.option[
+**C** They help about the same
+]
+]
+
+.box-inv-8.small[Then the Power tab decides]
+
+???
+
+About 6 minutes. Ask a neighbor, then hands. On the next slide, move one slider at a time.
+
+---
+
+class: title title-8
+
+# Predict it: Move the sliders
+
+```{r sim-weak, results="asis"}
+sim_frame(
+  alt = paste0("Power tab with d of 0.2 and n of 10. The two curves overlap almost completely. Power reads ", pct(pw_weak), "."),
+  tab = "power", d = d_weak, n = 10, height = 415
+)
+```
+
+.box-8.small[α = 10% gives `r pct(pw_weak_alpha)`. n = `r n_more` gives `r pct(pw_weak_n)`. Both are far from 80%]
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The answer is B. Alpha can only shuffle the cutoff. Sample size pulls the curves apart. But even at n = `r n_more`, this study misses most of the time, which is the point of the next block.
+
+---
+
+layout: false
+class: center middle section-title section-title-4 animated fadeIn
+
+# Planning a study, reading a result
+
+---
+
+layout: true
+class: title title-4
+
+---
+
+# Two questions before any data
+
+.box-inv-4.small.sp-after-half[The book finds the power of one test. Researchers usually fix power at 80% and turn the question around]
+
+.pull-left[
+.box-4.small[I know my n]
+
+How small an effect can I detect with 80% power? This is the **minimal detectable effect**
+]
+
+.pull-right[
+.box-4.small[I know my effect]
+
+How many people do I need for 80% power? This is the **required sample size**
+]
+
+???
+
+Both answers rest on one fact, which is on the next slide. Funders ask these questions, and every grant proposal answers them.
+
+---
+
+# Where 2.80 comes from
+
+```{r why-280, fig.width=10, fig.height=4, out.width="84%", fig.alt=paste0("Two bell curves of sample means, centered at 100 and at ", fmt(mu_mde, 1), ". A line marks the critical value at ", fmt(cut_hi, 1), ". A bracket shows 1.96 standard errors from the H0 mean to the critical value, and ", fmt(z_pw), " standard errors from the critical value to the H1 mean, for ", fmt(z_sum), " in all.")}
+two_worlds(mu_mde) +
+  geom_area(aes(y = if_else(M >= cut_hi, dnorm(M, mu_mde, se_ex), 0)), fill = clr_soft) +
+  geom_line(aes(y = h0), color = clr_median, linewidth = 1.2) +
+  geom_line(aes(y = dnorm(M, mu_mde, se_ex)), color = clr_mean, linewidth = 1.2) +
+  geom_vline(xintercept = cut_hi, color = clr_median, linewidth = 1, linetype = "dashed") +
+  annotate("segment", x = mu_0, xend = cut_hi, y = 0.093, yend = 0.093, color = clr_median, linewidth = 1.3,
+           arrow = arrow(ends = "both", length = unit(0.1, "inches"))) +
+  annotate("segment", x = cut_hi, xend = mu_mde, y = 0.093, yend = 0.093, color = clr_mean, linewidth = 1.3,
+           arrow = arrow(ends = "both", length = unit(0.1, "inches"))) +
+  label_text((mu_0 + cut_hi) / 2, 0.103, "1.96 SE", size = 6) +
+  label_text((cut_hi + mu_mde) / 2 + 2.2, 0.103, paste0(fmt(z_pw), " SE"), clr_mean, size = 6) +
+  label_text(123, 0.06, "80% of means", clr_median, size = 6, hjust = 0.5)
+```
+
+.box-inv-4.small[For 80% power, μ must sit 1.96 + `r fmt(z_pw)` = `r fmt(z_sum)` standard errors from 100]
+
+???
+
+1.96 gets us from the H<sub>0</sub> mean to the critical value. Then 80% of the H<sub>1</sub> curve must lie past that value, and z = `r fmt(z_pw)` is the 80th percentile of a normal curve. Add them up. This is why `r fmt(z_sum)` shows up in power calculations everywhere.
+
+---
+
+# Two formulas, one idea
+
+.pull-left[
+.box-4.small[Minimal detectable effect]
+
+<div class="math-display">\[
+d = \frac{1.96 + 0.84}{\sqrt{n}}
+\]</div>
+
+.center[With n = 10: 2.80 / √10 = **`r fmt(mde(10))`**]
+]
+
+.pull-right[
+.box-4.small[Required sample size]
+
+<div class="math-display">\[
+n = \left(\frac{1.96 + 0.84}{d}\right)^2
+\]</div>
+
+.center[With d = `r fmt(d_ex)`: (2.80 / `r fmt(d_ex)`)² = **`r fmt((z_sum / d_ex)^2, 1)`**, so `r need_n(d_ex)`]
+]
+
+.box-inv-4.small[That's why n = 10 had 80% power for d = `r fmt(d_ex)`. These use d in SD units, so σ = 1]
+
+???
+
+In points rather than SDs, multiply the left formula by σ: `r fmt(z_sum)` × 15 / √10 = `r fmt(z_sum * se_ex, 1)` points, so a true mean of about 113.3. Always round a sample size up.
+
+These are for one mean against a known μ, as in this topic. Comparing two groups takes about four times as many people in total. We'll meet that case in Topic 9.
+
+---
+
+# In education, an effect of 0.5 SD is rare
+
+```{r kraft-table, results="asis"}
+kraft %>%
+  mutate(across(c(Mean, Median, `90th percentile`), ~ fmt(.x))) %>%
+  deck_table("deck-table tight", "lccc")
+```
+
+.box-inv-4.small.sp-after-half[Effects from randomized trials of education programs, in SD units. Bigger studies find smaller effects]
+
+.box-4.small[Mindspark's endline gap, `r fmt(gap)` points, is about `r fmt(gap_sd)` SD: very large here]
+
+.book-tag[Please ignore the book's Table 8.2, where 0.2 is "small" and 0.8 is "large"]
+
+.source[Effects: Kraft (2020), *Educational Researcher*, 49(4). Mindspark: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Kraft collected 1,942 effects from 747 randomized trials in the US, with standardized achievement tests. Cohen's labels would call most real education programs tiny. By Kraft's numbers, 0.15 is about typical, and it gets even smaller at scale.
+
+Mindspark's number here is the plain endline gap divided by the pooled SD of raw scores. The published estimates use scaled scores and adjust for baseline, so they differ. And note it's an estimate, so in our notation it's a g.
+
+Our running d of `r fmt(d_ex)` would sit far above the 90th percentile of this table. It keeps the pictures readable, but it isn't realistic.
+
+---
+
+# Statistical significance isn't importance
+
+```{r verdicts-table, results="asis"}
+verdicts %>%
+  transmute(`Sample size` = format(n, big.mark = ","),
+            `Effect` = paste("d =", fmt(d_tiny)),
+            z = fmt(z),
+            p = if_else(p < 0.001, "&lt; 0.001", fmt(p, 3)),
+            Decision = if_else(p < 0.05, "Reject H₀", "Maintain H₀")) %>%
+  deck_table(align = "ccccc")
+```
+
+.box-inv-4.small.sp-after-half[Same tiny effect, opposite verdicts. With a large n, the sampling distribution gets so narrow that even small effects are significant]
+
+.box-4.small[Significance says an effect is detectable. Its size says if it matters]
+
+???
+
+Each row assumes the sample shows exactly d = `r fmt(d_tiny)`, so z = d × √n. The verdict changed. The effect didn't.
+
+The opposite also happens: a large effect in a small study can be "not significant". So when you read a result, ask two questions. Is it significant? And how big is it, compared with what's realistic?
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Plan two studies
+
+.box-inv-8.small.sp-after-half[Use power of 80% and α = 0.05, two-tailed. The multiplier is 2.80]
+
+.pull-left[
+.box-8.small[Study A]
+
+You can test 25 students. What's the smallest effect you can detect? Is it realistic, by Kraft's table?
+]
+
+.pull-right[
+.box-8.small[Study B]
+
+You expect Kraft's median effect, d = `r fmt(kraft_all$Median)`. How many students do you need?
+]
+
+.box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote]
+
+???
+
+About 6 minutes, with calculators.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-8.small[Study A]
+
+2.80 / √25 = **`r fmt(z_sum / sqrt(25))`** SD
+
+That's above the 90th percentile in Kraft's table. This study would miss most real programs
+]
+
+.pull-right[
+.box-8.small[Study B]
+
+(2.80 / `r fmt(kraft_all$Median)`)² = **`r format(round((2.8 / kraft_all$Median)^2), big.mark = ",")`** students
+
+Realistic effects need big samples
+]
+
+.box-inv-8.small[Small studies mostly find nothing, and when they do find something, it tends to be overstated]
+
+.source[Effects: Kraft (2020), *Educational Researcher*, 49(4).]
+
+???
+
+Using the unrounded multiplier in Study B gives `r format(need_n(kraft_all$Median), big.mark = ",")`, so either is fine.
+
+The last line is why the table's row for small studies has such a large mean: small studies only reach significance when their estimate lands far out, and journals favor those.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Run the four steps: state H<sub>0</sub>, set criteria, observe a sample, reject or maintain]
+
+.box-inv-8.small[Say what a p-value is, and what it isn't]
+
+.box-inv-8.small[Tell a Type 1 error from a Type 2 error, and locate α, β and power on two curves]
+
+.box-inv-8.small[Compute Cohen's d, and name four ways to raise power]
+
+.box-inv-8.small[Find a minimal detectable effect and a required sample size]
+
+.box-inv-8.small[Explain why statistical significance isn't importance]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Before Thursday]
+
+Read Chapter 9 on the t-test, for when σ is unknown
+]
+
+.pull-right[
+.box-6.small[This Friday: Lab 5]
+
+Jeopardy, as midterm review. Bring a calculator
+]
+
+.box-3.small[Mastery and Problem Set for Chapters 8 and 9 are due Sunday, February 7 at 6 PM. The midterm is Thursday, February 11]
+
+```{css, echo=FALSE}
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.5em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+  text-align: left;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+table.error-table td {
+  padding: 0.6em;
+}
+
+/* Subscripts shouldn't push a title or a line of text out of place */
+.remark-slide-content sub {
+  line-height: 0;
+}
+
+.remark-slide-content h1 sub {
+  font-size: 0.6em;
+}
+
+/* The summary of the four steps, one box per step */
+.step-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4em;
+  margin-bottom: 0.4em;
+}
+
+.step-card {
+  font-size: 0.62em;
+  line-height: 1.25;
+  padding: 0.4em 0.3em;
+  margin: 0;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.9em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide. A slide that
+   waits for a live button press would print empty, so it goes too */
+@media print {
+  .remark-slide-container:has(.poll-answer),
+  .remark-slide-container:has(.press-slide) {
+    display: none !important;
+  }
+}
+```
