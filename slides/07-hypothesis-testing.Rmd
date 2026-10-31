@@ -112,6 +112,7 @@ pw_n <- power_two(d_ex, 15)
 d_big <- 1.07
 pw_d <- power_two(d_big, n_ex)
 z_one <- qnorm(0.95)
+z_table <- 1.65  # What we write on slides. The simulator shows 1.64
 
 # A weak study, and two ways to help it ----
 d_weak <- 0.20
@@ -1296,7 +1297,7 @@ sim_frame(
 
 ???
 
-The critical value drops from `r fmt(z_crit)` to `r fmt(qnorm(0.95))`, so more of H<sub>1</sub> is past it. The cost shows in red: Type 1 errors double. Move the Alpha slider live from 0.05 to 0.10.
+The critical value drops from `r fmt(z_crit)` to `r fmt(z_table)`, so more of H<sub>1</sub> is past it. The tool shows 1.64, because the exact value is 1.645. The cost shows in red: Type 1 errors double. Move the Alpha slider live from 0.05 to 0.10.
 
 ---
 
@@ -1311,7 +1312,7 @@ tails <- bind_rows(
 tail_labels <- tibble(
   panel = factor(c("Two-tailed: H₁: μ ≠ 100", "Two-tailed: H₁: μ ≠ 100", "One-tailed: H₁: μ > 100"), levels = levels(tails$panel)),
   z = c(-2.9, 2.9, 2.9), y = 0.16,
-  label = c("2.5%\nz < −1.96", "2.5%\nz > 1.96", paste0("5%\nz > ", fmt(z_one)))
+  label = c("2.5%\nz < −1.96", "2.5%\nz > 1.96", paste0("5%\nz > ", fmt(z_table)))
 )
 ggplot(tails, aes(x = z, y = y)) +
   geom_area(fill = clr_soft) +
@@ -1336,7 +1337,7 @@ ggplot(tails, aes(x = z, y = y)) +
 
 ???
 
-The total risk of a Type 1 error stays at 5%. All of it now sits where we expect the effect, so the critical value falls from `r fmt(z_crit)` to `r fmt(z_one)`. The book's table rounds this to 1.65.
+The total risk of a Type 1 error stays at 5%. All of it now sits where we expect the effect, so the critical value falls from `r fmt(z_crit)` to `r fmt(z_table)`, as in the book's table. The simulator shows 1.64, because the exact value is 1.645.
 
 Choosing a direction after looking at the data would double the real alpha.
 
@@ -1355,7 +1356,7 @@ sim_frame(
 
 ???
 
-Same power as way 1, and that's not a coincidence. Both put the upper cutoff at `r fmt(z_one)`. The difference: here the total Type 1 risk stays at 5%. The cost is that an effect in the other direction can't be found at all.
+Same power as way 1, and that's not a coincidence. Both put the upper cutoff at `r fmt(z_table)`. The difference: here the total Type 1 risk stays at 5%. The cost is that an effect in the other direction can't be found at all.
 
 ---
 
@@ -1574,7 +1575,7 @@ kraft %>%
 
 ???
 
-Kraft collected 1,942 effects from 747 randomized trials in the US, with standardized achievement tests. Cohen's labels would call most real education programs tiny. By Kraft's numbers, 0.15 is about typical, and it gets even smaller at scale.
+Kraft collected 1,942 effects from 747 randomized trials, with standardized achievement tests. Cohen's labels would call most real education programs tiny. By Kraft's numbers, 0.10 is about typical, and it gets even smaller at scale.
 
 Mindspark's number here is the plain endline gap divided by the pooled SD of raw scores. The published estimates use scaled scores and adjust for baseline, so they differ. And note it's an estimate, so in our notation it's a g.
 
@@ -1589,8 +1590,9 @@ verdicts %>%
   transmute(`Sample size` = format(n, big.mark = ","),
             `Effect` = paste("d =", fmt(d_tiny)),
             z = fmt(z),
-            p = if_else(p < 0.001, "&lt; 0.001", fmt(p, 3)),
-            Decision = if_else(p < 0.05, "Reject H₀", "Maintain H₀")) %>%
+            Decision = if_else(p < 0.05, "Reject H₀", "Maintain H₀"),
+            p = if_else(p < 0.001, "&lt; 0.001", fmt(p, 3))) %>%
+  relocate(Decision, .after = p) %>%
   deck_table(align = "ccccc")
 ```
 
@@ -1627,6 +1629,8 @@ You expect Kraft's median effect, d = `r fmt(kraft_all$Median)`. How many studen
 
 .box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote]
 
+.source[Effects: Kraft (2020), *Educational Researcher*, 49(4).]
+
 ???
 
 About 6 minutes, with calculators.
@@ -1642,7 +1646,7 @@ class: title title-8
 
 2.80 / √25 = **`r fmt(z_sum / sqrt(25))`** SD
 
-That's above the 90th percentile in Kraft's table. This study would miss most real programs
+That's above the 90th percentile of all studies in Kraft's table. This study would miss most real programs
 ]
 
 .pull-right[
@@ -1661,7 +1665,7 @@ Realistic effects need big samples
 
 Using the unrounded multiplier in Study B gives `r format(need_n(kraft_all$Median), big.mark = ",")`, so either is fine.
 
-The last line is why the table's row for small studies has such a large mean: small studies only reach significance when their estimate lands far out, and journals favor those.
+The last line is one reason the table's row for small studies has such a large mean: small studies only reach significance when their estimate lands far out, and journals favor those.
 
 ---
 
