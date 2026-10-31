@@ -1,0 +1,1615 @@
+---
+title: "Introduction to the t-test"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css", "css/simulator.css"]
+    seal: false
+    anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+library(knitr)
+source(here::here("R", "slide-things.R"))
+
+# Colors from the slide theme, all readable on white ----
+clr_bar <- "#538ba2"
+clr_soft <- "#c5d9e2"
+clr_mean <- "#a93e31"
+clr_median <- "#244a70"
+clr_mode <- "#8a6100"
+
+theme_slides <- function(base_size = 20) {
+  theme_minimal(base_size = base_size, base_family = "Fira Sans Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_text(face = "bold"),
+          strip.text = element_text(face = "bold", size = rel(1)))
+}
+
+fmt <- function(x, d = 2) formatC(x, format = "f", digits = d)
+pct <- function(x, d = 0) paste0(fmt(100 * x, d), "%")
+minus <- function(x) str_replace(as.character(x), "-", "−")
+
+label_text <- function(x, y, label, color = clr_median, hjust = 0.5, size = 6.5) {
+  annotate("text", x = x, y = y, label = label, color = color, hjust = hjust, size = size,
+           fontface = "bold", family = "Fira Sans Condensed")
+}
+
+# At this seed, the first sample of 10 has a mean of 105.5, a z of 1.17 and a p of
+# 0.24, which are the numbers in the 2024 deck. Its σ̂ happens to run low ----
+sim_seed <- 258921
+sim_mu <- 100
+sim_sd <- 15
+
+# At this seed, 95.0% of the first 500 intervals from samples of 25 hold μ, and the
+# first three do, so the live slides start without a miss ----
+ci_seed <- 5
+
+# Power, for the same 2024 example: a true effect of d = 0.89 with n = 10 ----
+pow_n <- 10
+pow_d <- 0.89
+pow_mean <- 113.4
+z_two <- 1.96
+z_one <- 1.65  # The book's table value. It's 1.645 exactly
+pow_shift <- pow_d * sqrt(pow_n)
+pow_two <- 1 - pnorm(qnorm(0.975) - pow_shift) + pnorm(-qnorm(0.975) - pow_shift)
+pow_one <- 1 - pnorm(qnorm(0.95) - pow_shift)
+
+# The 2024 worked example, used all the way through ----
+ex_n <- 25
+ex_df <- ex_n - 1
+ex_M <- 106
+ex_SS <- 6144
+ex_mu <- 100
+ex_sd <- 15
+ex_gap <- ex_M - ex_mu
+ex_se <- ex_sd / sqrt(ex_n)
+ex_z <- ex_gap / ex_se
+ex_p_z <- 2 * pnorm(-abs(ex_z))
+ex_sd_hat <- sqrt(ex_SS / ex_df)
+ex_se_hat <- ex_sd_hat / sqrt(ex_n)
+ex_t <- ex_gap / ex_se_hat
+ex_t_crit <- round(qt(0.975, ex_df), 3)
+ex_p_t <- 2 * pt(-abs(ex_t), ex_df)
+ex_g <- ex_gap / ex_sd_hat
+ex_ci_z <- ex_M + c(-1, 1) * z_two * ex_se
+ex_ci_t <- ex_M + c(-1, 1) * ex_t_crit * ex_se_hat
+
+# The same M and σ̂ with four times the people ----
+big_n <- 100
+big_se <- ex_sd_hat / sqrt(big_n)
+big_t <- ex_gap / big_se
+big_crit <- qt(0.975, big_n - 1)
+
+# How the width of the interval depends on the confidence level and n ----
+ci_row <- function(level, n) {
+  crit <- qt(1 - (1 - level) / 2, n - 1)
+  half <- crit * ex_sd_hat / sqrt(n)
+  tibble(Confidence = pct(level), n = n, `Cutoff t` = fmt(crit, 3), `Margin of error` = fmt(half),
+         Interval = paste0("[", fmt(ex_M - half), ", ", fmt(ex_M + half), "]"))
+}
+
+# Math scores at baseline, treated as a population ----
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+math <- baseline$tot_math
+N <- length(math)
+mu <- mean(math)
+sigma <- sqrt(sum((math - mu)^2) / N)
+true_var <- sigma^2
+
+# Why t exists: many samples, once with the true σ and once with σ̂ ----
+set.seed(15)
+reps <- 100000
+reps_text <- format(reps, big.mark = ",", scientific = FALSE)
+draw_stats <- function(k) {
+  x <- matrix(sample(math, k * reps, replace = TRUE), nrow = reps)
+  M <- rowMeans(x)
+  ss <- rowSums((x - M)^2)
+  tibble(n = k, M = M, ss = ss, sd_hat = sqrt(ss / (k - 1)))
+}
+why_t <- map(c(5, 25, 100), draw_stats)
+beyond <- map_dfr(why_t, function(s) {
+  k <- s$n[1]
+  tibble(n = k,
+         `The true σ` = mean(abs((s$M - mu) / (sigma / sqrt(k))) > 1.96),
+         `Our estimate σ̂` = mean(abs((s$M - mu) / (s$sd_hat / sqrt(k))) > 1.96))
+})
+beyond_5 <- beyond$`Our estimate σ̂`[beyond$n == 5]
+five <- why_t[[1]]
+var_by_n <- mean(five$ss / 5)
+var_by_n1 <- mean(five$ss / 4)
+sd_hat_mean <- mean(five$sd_hat)
+share_low <- mean(five$sd_hat < sigma)
+
+# How often does a 95% interval from a sample of 25 hold μ? ----
+ci_check <- slice_head(why_t[[2]], n = 5000) %>%
+  mutate(half = qt(0.975, 24) * sd_hat / sqrt(25),
+         holds = M - half <= mu & mu <= M + half)
+ci_hold <- mean(ci_check$holds)
+
+# Real groups: students by weekly hours of extra math tuition ----
+tuition <- function(hours) {
+  x <- baseline$tot_math[which(baseline$st_tui_math_hrs == hours)]
+  n <- length(x)
+  M <- mean(x)
+  SS <- sum((x - M)^2)
+  sd_hat <- sqrt(SS / (n - 1))
+  se <- sd_hat / sqrt(n)
+  crit <- qt(0.975, n - 1)
+  t_stat <- (M - mu) / se
+  list(n = n, M = M, SS = SS, df = n - 1, sd_hat = sd_hat, se = se, crit = crit, t = t_stat,
+       p = 2 * pt(-abs(t_stat), n - 1), g = (M - mu) / sd_hat, gap = M - mu,
+       lo = M - crit * se, hi = M + crit * se)
+}
+few <- tuition("2-3 hours")
+many <- tuition("More than 4 hours")
+
+# Normal and t curves ----
+z_grid <- seq(-4, 4, length.out = 601)
+
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# Introduction to the<br>t-test
+
+.class-info[
+
+**Topic 8 · Thursday, February 4 and Tuesday, February 9**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.center[**We are here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Same map. We can test a hypothesis, but so far only when someone hands us the population's SD. This topic removes that crutch. Two sessions, six blocks.
+
+---
+
+class: title title-8
+
+# The four steps stay. Step 3 changes
+
+.box-inv-8.small.sp-after-half[Step 1: State a hypothesis about the population: H₀]
+
+.box-inv-8.small.sp-after-half[Step 2: Set the criteria: choose α and find the critical region]
+
+.box-8.small.sp-after-half[Step 3: Observe a sample and compute a test statistic]
+
+.box-inv-8.small[Step 4: Reject or maintain H₀]
+
+???
+
+Same four steps as Topic 7. By the end of Thursday, step 3 works without knowing σ, and step 2 has a new table.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[One tail or two?]
+
+.box-6.medium.sp-after-half[When we don't know σ]
+
+.box-3.medium.sp-after-half[The t-test]
+
+.box-inv-8.small[On Tuesday: how big is the effect, and how sure are we?]
+
+???
+
+Three blocks today, three on Tuesday. The first is a short review of something from Topic 7 that comes up again in every test.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# One tail or two?
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# A directional hypothesis picks a side
+
+```{r directional-table, results="asis"}
+tribble(
+  ~` `, ~`Non-directional H₀`, ~`Directional H₀`,
+  "In symbols", "μ = 100", "μ ≤ 100",
+  "Laptops in class", "Laptops don't affect learning", "Laptops don't improve learning",
+  "Cat videos", "Cat videos don't change your happiness", "Cat videos don't make you happier"
+) %>%
+  kable(format = "html", table.attr = 'class="deck-table"')
+```
+
+.box-1.small[A directional test says which way the mean should move, not only that it moves]
+
+???
+
+Ask students to state the H₁ for each one. For μ = 100, H₁ is μ ≠ 100. For μ ≤ 100, H₁ is μ > 100. For the laptops, H₁ is that laptops affect learning, or that they improve it.
+
+---
+
+# Same α, one tail: the cutoff moves in
+
+```{r one-tail-plot, fig.width=11, fig.height=3.9, out.width="92%", fig.alt="Two normal curves of z-scores. In the left curve, for a two-tailed test, 2.5 percent is shaded in each tail, beyond minus 1.96 and 1.96. In the right curve, for a one-tailed test, all 5 percent is shaded in the right tail, beyond 1.65."}
+panels <- c("Two tails: 2.5% on each side", "One tail: all 5% on the right")
+curve_z <- map_dfr(panels, ~ tibble(x = z_grid, y = dnorm(z_grid), panel = .x)) %>%
+  mutate(panel = factor(panel, levels = panels))
+shade_z <- bind_rows(
+  filter(curve_z, panel == panels[1], x <= -z_two) %>% mutate(part = "left"),
+  filter(curve_z, panel == panels[1], x >= z_two) %>% mutate(part = "right"),
+  filter(curve_z, panel == panels[2], x >= z_one) %>% mutate(part = "right")
+)
+cut_z <- tibble(x = c(-z_two, z_two, z_one), panel = factor(panels[c(1, 1, 2)], levels = panels),
+                label = c(paste0("−", fmt(z_two)), fmt(z_two), fmt(z_one)))
+
+ggplot(curve_z, aes(x = x, y = y)) +
+  geom_area(fill = clr_soft) +
+  geom_area(data = shade_z, aes(group = part), fill = clr_mean) +
+  geom_line(color = clr_median, linewidth = 1) +
+  geom_segment(data = cut_z, aes(x = x, xend = x, y = 0, yend = 0.17), color = clr_mean, linewidth = 1) +
+  geom_text(data = cut_z, aes(x = x, y = 0.195, label = label), color = clr_mean, size = 6.5,
+            fontface = "bold", family = "Fira Sans Condensed") +
+  facet_wrap(vars(panel), nrow = 1) +
+  labs(x = "z", y = NULL) +
+  theme_slides(18) +
+  theme(panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+.box-inv-1.small[With α = 0.05 in one tail, the critical z is `r fmt(z_one)`, not `r fmt(z_two)`. Type I errors stay at 5%]
+
+???
+
+The total of 5% hasn't changed. It's only moved. The exact one-tailed value is 1.645, and the book's table rounds it to 1.65.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: One tail, and a real effect
+
+.box-inv-8.small.sp-after-half[H₀ says μ = `r sim_mu`, with σ = `r sim_sd` and n = `r pow_n`. In truth, μ = `r pow_mean`, so d = `r pow_d`. A two-tailed test has `r pct(pow_two)` power]
+
+.box-8.small[We switch to a one-tailed test on the right, and keep α = 0.05. What happens to power?]
+
+.options[
+.option[
+**A** It goes up
+]
+.option[
+**B** It goes down
+]
+.option[
+**C** It stays the same
+]
+.option[
+**D** We can't say without the data
+]
+]
+
+???
+
+About 6 minutes for this slide and the next two. Hands are fine. Neighbor first, then vote. Power is the share of samples that correctly reject H₀.
+
+---
+
+class: title title-8 press-slide
+
+# Predict it: Switch to one tail
+
+```{r sim-power-two, results="asis"}
+sim_frame(
+  alt = "Simulator's power view for a two-tailed test with d of 0.89 and n of 10. Two normal curves, H0 and H1, with critical values on both sides. Power reads 80 percent.",
+  tab = "power", n = pow_n, d = pow_d, tails = "two", height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+**Change the Test menu to one-tailed.** The critical value moves left, the blue area grows, and power goes up.
+
+---
+
+class: title title-8
+
+# One tail adds power on that side
+
+```{r sim-power-one, results="asis"}
+sim_frame(
+  alt = "Simulator's power view for a one-tailed test with d of 0.89 and n of 10. There's one critical value, closer to H0 than before. Power reads 88 percent.",
+  tab = "power", n = pow_n, d = pow_d, tails = "one", height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The answer is A. Power goes from `r pct(pow_two)` to `r pct(pow_one)`. The simulator reads 1.64 as the critical z, because the exact value is 1.645. The book rounds up to 1.65.
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# So why not always use one tail?
+
+.box-inv-1.small.sp-after-half[A one-tailed test is blind on the other side. If the program hurts students, it can't say so]
+
+.box-inv-1.small.sp-after-half[You must pick the side before you see the data. Picking it afterward is really a test at α = 0.10]
+
+.box-1.small[Two tails is our default from now on, unless a problem says otherwise]
+
+???
+
+The second point is the one to land. If you look first and then put all of α on the side the data went, you've quietly doubled your Type I error rate.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# When we don't know σ
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# So far, z has needed σ
+
+<div class="math-display">\[
+z = \frac{M - \mu}{\sigma_M}
+\qquad \text{where} \qquad
+\sigma_M = \frac{\sigma}{\sqrt{n}}
+\]</div>
+
+.pull-left[
+.box-inv-6.small[Top: how far M is from the mean under H₀]
+]
+
+.pull-right[
+.box-inv-6.small[Bottom: how far a mean typically falls]
+]
+
+.box-6.small[All quarter, someone has told us σ = `r sim_sd`. Who told us?]
+
+???
+
+The standard error's second job from Topic 6: how surprising is this mean, if H₀ is true? In real research nobody hands us σ.
+
+---
+
+# Here's one sample of 10, with σ known
+
+```{r sim-known, results="asis"}
+sim_frame(
+  alt = "Simulator at step 2 with one sample of ten people drawn. Panel 1 shows the normal population with mean 100 and SD 15. Panel 2 shows the sample, with a mean of 105.5 and a z of 1.17. Panel 3 holds one dot at that z, inside the cutoffs.",
+  step = 2, n = 10, view = "stat", draws = 1, seed = sim_seed, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+This is step 2 of the blueprint. M is 105.5, z is 1.17, and p is 0.24. About a quarter of samples land this far out, or farther, so it isn't surprising. All of this used σ = 15, from panel 1.
+
+---
+
+# In real research, panel 1 goes dark
+
+```{r sim-hidden, results="asis"}
+sim_frame(
+  alt = "Simulator at step 3a with the same sample of ten people. Panel 1 is greyed out and marked with a question mark. Panel 2 shows the same mean of 105.5, with an estimated SD of 11.5 and a t of 1.52. Panel 3 holds one dot at that t.",
+  step = 3, n = 10, draws = 1, hide = 1, seed = sim_seed, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same seed, same ten people, same M. This is step 3a. Panel 1 is greyed out, because we can't see the population. It's the picture version of the hat: we've lost σ, so we estimate it from panel 2.
+
+Here σ̂ is 11.55, lower than the true 15. So the standard error shrinks, and the score rises from 1.17 to 1.52. Nothing about the sample changed. Only what we know changed.
+
+---
+
+# So σ̂ takes the place of σ
+
+<div class="math-display">\[
+z = \frac{M - \mu}{\sigma_M}
+\qquad \text{becomes} \qquad
+t = \frac{M - \mu}{\hat{\sigma}_M}
+\]</div>
+
+.pull-left[
+.box-inv-6.small[Only the bottom changes: σ̂<sub>M</sub> = σ̂ / √n. The hat says it's an estimate]
+]
+
+.pull-right[
+.box-inv-6.small[The new name warns us: this score behaves a little differently]
+]
+
+.book-tag[In the book: σ̂ is written s, and σ̂<sub>M</sub> is written s<sub>M</sub>]
+
+???
+
+Greek means population. A Latin letter or a hat means an estimate. μ here is still the value H₀ claims. We haven't seen it either, but we've said what it would be.
+
+---
+
+# Dividing by n − 1 fixes the variance
+
+```{r variance-table, results="asis"}
+tribble(
+  ~`Samples of 5 from our ` , ~`Average across samples`,
+  "The sample's own variance, SS / n", fmt(var_by_n),
+  "Our estimate, σ̂² = SS / (n − 1)", fmt(var_by_n1),
+  "The truth, σ²", fmt(true_var)
+) %>%
+  rename(!!paste("Samples of 5 from our", N, "students") := 1) %>%
+  kable(format = "html", align = "lc", table.attr = 'class="deck-table"')
+```
+
+.box-inv-6.small.sp-after-half[SS / n tends to underestimate σ². Dividing by n − 1 gives an unbiased estimate of the variance]
+
+.box-6.small[Then σ̂ is its square root. From here on, n − 1 is the degrees of freedom: df]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). `r reps_text` samples.]
+
+???
+
+A reminder from Topic 3. "Tends to", not "always": some samples overshoot. And it's the variance estimate that's unbiased. Taking the square root makes σ̂ run a little low: here it averages `r fmt(sd_hat_mean)` against a true σ of `r fmt(sigma)`. Say that only if someone asks.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Does swapping in σ̂ matter?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Treat our `r N` students as a population. Draw samples of 5, and use σ̂ in place of σ. With the true σ, `r pct(beyond[["The true σ"]][1])` of samples land beyond ±1.96. With σ̂?
+]
+
+.options[
+.option[
+**A** Much less than 5%
+]
+.option[
+**B** About 5%, the same
+]
+.option[
+**C** More than 5%
+]
+.option[
+**D** It depends on μ
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** Much less than 5%
+]
+.option.wrong[
+**B** About 5%, the same
+]
+.option.correct[
+**C** More than 5%
+]
+.option.wrong[
+**D** It depends on μ
+]
+]
+
+.box-inv-8.small.sp-after-half[
+With samples of 5, it's `r pct(beyond_5)`, more than twice the 5% we signed up for
+]
+
+.box-8.small[
+If we kept using ±1.96, we'd make far too many Type I errors
+]
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Small samples bring too many surprises
+
+```{r beyond-plot, fig.width=10, fig.height=3.9, out.width="84%", fig.alt=paste0("Bar chart of the share of samples beyond plus or minus 1.96, for samples of 5, 25 and 100, with a dashed line at 5 percent. With the true sigma, every bar is at about 5 percent. With sigma hat, the share is ", pct(beyond_5, 1), " at n of 5, ", pct(beyond[[3]][2], 1), " at n of 25 and ", pct(beyond[[3]][3], 1), " at n of 100.")}
+beyond_long <- beyond %>%
+  pivot_longer(-n, names_to = "using", values_to = "share") %>%
+  mutate(using = factor(using, levels = c("The true σ", "Our estimate σ̂")),
+         size = factor(paste("n =", n), levels = paste("n =", c(5, 25, 100))))
+
+ggplot(beyond_long, aes(x = using, y = 100 * share, fill = using)) +
+  geom_col(width = 0.75) +
+  geom_hline(yintercept = 5, linetype = "dashed", color = clr_median, linewidth = 1) +
+  geom_text(aes(y = pmax(100 * share, 5.6), label = pct(share, 1)), vjust = -0.3, size = 6.5, fontface = "bold", color = clr_median,
+            family = "Fira Sans Condensed") +
+  facet_wrap(vars(size), nrow = 1) +
+  scale_fill_manual(values = c(clr_soft, clr_bar), guide = "none") +
+  scale_y_continuous(limits = c(0, 14), breaks = c(0, 5, 10)) +
+  labs(x = NULL, y = "% beyond ±1.96") +
+  theme_slides(18)
+```
+
+.box-inv-6.small[As n grows, σ̂ gets closer to σ, and the problem fades]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). `r reps_text` samples of each size.]
+
+???
+
+Same scores, same samples, same cutoff. The only difference is what's in the bottom of the fraction. The dashed line is the 5% we promised.
+
+---
+
+# Why? σ̂ bounces, and often lands low
+
+```{r sd-hat-plot, fig.width=10, fig.height=3.9, out.width="84%", fig.alt=paste0("Histogram of sigma hat across samples of 5 math scores, spread widely from about 1 to 7, with a dashed line at the true sigma of ", fmt(sigma), ". About ", pct(share_low), " of the samples fall below the line.")}
+ggplot(five, aes(x = sd_hat)) +
+  geom_histogram(aes(fill = sd_hat < sigma), binwidth = 0.25, boundary = sigma, color = "white") +
+  geom_vline(xintercept = sigma, color = clr_median, linewidth = 1.2, linetype = "dashed") +
+  annotate("text", x = sigma + 0.15, y = Inf, vjust = 1.4, hjust = 0, label = paste("True σ =", fmt(sigma)),
+           color = clr_median, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  scale_fill_manual(values = c(`FALSE` = clr_soft, `TRUE` = clr_bar), guide = "none") +
+  scale_y_continuous(labels = NULL, expand = expansion(mult = c(0, 0.15))) +
+  coord_cartesian(xlim = c(0, 9)) +
+  labs(x = "σ̂ from one sample of 5", y = "Samples") +
+  theme_slides() +
+  theme(panel.grid.major.y = element_blank())
+```
+
+.box-inv-6.small[`r pct(share_low)` of samples give a σ̂ below σ. Then the bottom shrinks and the score grows]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+With z, the bottom is a fixed number. With t, the bottom changes from sample to sample. That extra wobble is what pushes more scores out into the tails.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# The t-test
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# With n = 5, the pile has fatter tails
+
+```{r sim-tails, results="asis"}
+sim_frame(
+  alt = "Simulator at step 3a with 5,000 samples of five people and panel 1 greyed out. Panel 3 shows the t-scores stacked along a dashed t curve with 4 degrees of freedom, with cutoffs at minus 2.78 and 2.78.",
+  step = 3, n = 5, draws = 5000, hide = 1, seed = sim_seed, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Panel 3 no longer uses the normal curve. It's a t curve with n − 1 = 4 degrees of freedom. The cutoffs moved out from ±1.96 to ±2.78, so about 5% of samples land beyond them again. The readout also shows how many land beyond ±1.96: far more than 5%.
+
+Drag n up, press +500, and watch the cutoffs come back toward 1.96.
+
+---
+
+# Fewer degrees of freedom, fatter tails
+
+```{r t-curves, fig.width=11, fig.height=3.9, out.width="94%", fig.alt="Four panels, each comparing a t curve with the normal curve, for 2, 4, 9 and 29 degrees of freedom. The t curve is lower in the middle and higher in the tails than the normal curve. The gap shrinks as degrees of freedom rise. The two-tailed 5 percent cutoffs are 4.30, 2.78, 2.26 and 2.05."}
+df_show <- c(2, 4, 9, 29)
+t_panels <- paste0("df = ", df_show, ": ±", fmt(qt(0.975, df_show)))
+t_grid <- seq(-4.6, 4.6, length.out = 601)
+curve_t <- map2_dfr(df_show, t_panels, ~ tibble(x = t_grid, t = dt(t_grid, .x), z = dnorm(t_grid), panel = .y)) %>%
+  mutate(panel = factor(panel, levels = t_panels))
+cut_t <- tibble(x = c(-1, 1) %>% rep(each = 4) * rep(qt(0.975, df_show), 2),
+                panel = factor(rep(t_panels, 2), levels = t_panels))
+
+ggplot(curve_t, aes(x = x)) +
+  geom_area(aes(y = t), fill = clr_soft) +
+  geom_line(aes(y = t), color = clr_median, linewidth = 1.1) +
+  geom_line(aes(y = z), color = clr_mean, linewidth = 1.1, linetype = "dashed") +
+  geom_segment(data = cut_t, aes(x = x, xend = x, y = 0, yend = 0.12), color = clr_median, linewidth = 1) +
+  facet_wrap(vars(panel), nrow = 1) +
+  scale_x_continuous(breaks = c(-4, -2, 0, 2, 4), labels = c("−4", "−2", "0", "2", "4")) +
+  labs(x = "Solid: t. Dashed: normal. Ticks: the 5% cutoffs", y = NULL) +
+  theme_slides(16) +
+  theme(panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+.box-inv-3.small[A family of curves, one for each df. Near df = 30, it's hard to tell from z]
+
+???
+
+Why df and not n? It's n − 1, the number we divided by to get σ̂. The more df, the better σ̂ is, and the closer t gets to z. These curves replace the rpsychologist screenshots from 2024.
+
+---
+
+# Each df has its own cutoff
+
+```{r t-table, results="asis"}
+t_df <- c(4, 9, 14, 24, 60, 120)
+t_rows <- tibble(df = as.character(t_df),
+                 two = fmt(qt(0.975, t_df), 3),
+                 one = fmt(qt(0.95, t_df), 3),
+                 two_01 = fmt(qt(0.995, t_df), 3))
+bind_rows(t_rows, tibble(df = "Very large (z)", two = fmt(qnorm(0.975), 3), one = fmt(qnorm(0.95), 3),
+                         two_01 = fmt(qnorm(0.995), 3))) %>%
+  mutate(across(everything(), ~ if_else(df == "24", paste0("<strong>", .x, "</strong>"), .x))) %>%
+  rename(`Two tails, α = 0.05` = two, `One tail, α = 0.05` = one, `Two tails, α = 0.01` = two_01) %>%
+  kable(format = "html", escape = FALSE, align = "c", table.attr = 'class="deck-table tight"')
+```
+
+.box-3.small[In practice, people use t at any n. With large samples it barely differs from z]
+
+.book-tag[The full t table is in the book's appendix, and comes with the exams]
+
+???
+
+Show how to read it: pick the column from the tails and α, and the row from df. If the book's table skips your df, use the next lower df, which is the cautious choice.
+
+The test also assumes independent observations and a roughly normal population. With larger samples, normality matters less, thanks to the central limit theorem.
+
+---
+
+# One example, with and without σ
+
+.box-inv-3.small[n = `r ex_n`, M = `r ex_M`, SS = `r format(ex_SS, big.mark = ",")`. H₀: μ = `r ex_mu`. α = 0.05, two tails]
+
+```{r four-steps-table, results="asis"}
+tribble(
+  ~Step, ~`If we know σ = 15`, ~`If we don't`,
+  "1. State H₀", paste0("μ = ", ex_mu), paste0("μ = ", ex_mu),
+  "2. Set the criteria", paste0("z beyond ±", fmt(z_two)), paste0("t(", ex_df, ") beyond ±", fmt(ex_t_crit, 3)),
+  "3. Find the spread", paste0("σ<sub>M</sub> = ", ex_sd, " / √", ex_n, " = ", fmt(ex_se)),
+  paste0("σ̂ = √(", format(ex_SS, big.mark = ","), " / ", ex_df, ") = ", ex_sd_hat, "<br>σ̂<sub>M</sub> = ", ex_sd_hat, " / √", ex_n, " = ", fmt(ex_se_hat)),
+  "3. Compute the score", paste0("z = ", ex_gap, " / ", fmt(ex_se, 0), " = ", fmt(ex_z)),
+  paste0("t = ", ex_gap, " / ", fmt(ex_se_hat, 1), " = ", fmt(ex_t, 3)),
+  "4. Decide", paste0("Reject H₀: ", fmt(ex_z), " > ", fmt(z_two)),
+  paste0("Maintain H₀: ", fmt(ex_t, 3), " < ", fmt(ex_t_crit, 3))
+) %>%
+  kable(format = "html", escape = FALSE, table.attr = 'class="deck-table tight"')
+```
+
+???
+
+Andy's example from 2024. Go down one column, then the other. The steps are the same, and only the numbers in steps 2 and 3 change.
+
+---
+
+# Same sample, different decisions
+
+```{r decision-plot, fig.width=11, fig.height=3.7, out.width="92%", fig.alt=paste0("Two curves with shaded tails. On the left, the normal curve has cutoffs at plus or minus 1.96, and our z of 2.00 lands in the shaded tail. On the right, a t curve with 24 degrees of freedom has cutoffs at plus or minus ", fmt(ex_t_crit, 3), ", and our t of ", fmt(ex_t, 3), " lands just short of the shaded tail.")}
+decide_panels <- c("σ known: z", paste0("σ unknown: t(", ex_df, ")"))
+curve_dec <- bind_rows(
+  tibble(x = z_grid, y = dnorm(z_grid), panel = decide_panels[1], cut = z_two),
+  tibble(x = z_grid, y = dt(z_grid, ex_df), panel = decide_panels[2], cut = ex_t_crit)
+) %>%
+  mutate(panel = factor(panel, levels = decide_panels))
+shade_dec <- curve_dec %>%
+  filter(abs(x) >= cut) %>%
+  mutate(part = paste(panel, x > 0))
+mark_dec <- tibble(x = c(ex_z, ex_t), label = c(paste("z =", fmt(ex_z)), paste("t =", fmt(ex_t, 3))),
+                   cut = c(fmt(z_two), fmt(ex_t_crit, 3)),
+                   panel = factor(decide_panels, levels = decide_panels))
+
+ggplot(curve_dec, aes(x = x, y = y)) +
+  geom_area(fill = clr_soft) +
+  geom_area(data = shade_dec, aes(group = part), fill = clr_bar) +
+  geom_line(color = clr_median, linewidth = 1) +
+  geom_segment(data = mark_dec, aes(x = x, xend = x, y = 0, yend = 0.25), color = clr_mean, linewidth = 1.4) +
+  geom_text(data = mark_dec, aes(x = x, y = 0.28, label = label), color = clr_mean, hjust = 0, nudge_x = -0.1,
+            size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  geom_text(data = mark_dec, aes(x = -3, y = 0.1, label = paste("Cutoffs:\n±", cut)), color = clr_median,
+            size = 5.5, lineheight = 0.9, fontface = "bold", family = "Fira Sans Condensed") +
+  facet_wrap(vars(panel), nrow = 1) +
+  labs(x = NULL, y = NULL) +
+  theme_slides(18) +
+  theme(panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+.pull-left[
+.box-inv-3.small[The score fell: σ̂ = `r ex_sd_hat` is above `r ex_sd`]
+]
+
+.pull-right[
+.box-inv-3.small[The cutoff rose: `r fmt(ex_t_crit, 3)` is above `r fmt(z_two)`]
+]
+
+.box-3.small[We report: t(`r ex_df`) = `r fmt(ex_t)`, p = `r fmt(ex_p_t)`. We maintain H₀]
+
+???
+
+Two things moved, and both worked against rejecting. Maintaining H₀ doesn't mean H₀ is true. It means this sample isn't surprising enough.
+
+The first number in brackets is always df. With σ known, p would be `r fmt(ex_p_z)`.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: A real group of students
+
+.box-inv-8.small.sp-after-half[`r few$n` Mindspark students take 2 to 3 hours a week of extra math lessons, called tuition in India. At baseline: M = `r fmt(few$M)`, SS = `r fmt(few$SS, 1)`]
+
+.box-8.small.sp-after-half[Test H₀: μ = `r fmt(mu)`, the mean of all `r N` students. Use α = 0.05 and two tails. The cutoff is t(`r few$df`) = ±`r fmt(few$crit, 3)`]
+
+.box-inv-8.small[Find σ̂, σ̂<sub>M</sub> and t, then decide. Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Vote with hands on the decision: reject or maintain. Common slips: dividing SS by n, or using n in place of n − 1 for df.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[σ̂ = √(`r fmt(few$SS, 1)` / `r few$df`) = **`r fmt(few$sd_hat)`**]
+
+.box-inv-8.small[σ̂<sub>M</sub> = `r fmt(few$sd_hat)` / √`r few$n` = **`r fmt(few$se, 3)`**]
+]
+
+.pull-right[
+.box-inv-8.small[t = (`r fmt(few$M)` − `r fmt(mu)`) / `r fmt(few$se, 3)` = **`r fmt(few$t)`**]
+
+.box-inv-8.small[`r fmt(few$t)` is inside ±`r fmt(few$crit, 3)`: **maintain H₀**]
+]
+
+.box-8.small[We report: t(`r few$df`) = `r fmt(few$t)`, p = `r fmt(few$p)`. These `r few$n` students aren't surprisingly far from `r fmt(mu)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Keep these `r few$n` students in mind. They come back twice on Tuesday.
+
+---
+
+class: title title-8
+
+# Before Tuesday
+
+.box-inv-8.medium.sp-after-half[Friday, February 5: Lab 5 is Jeopardy, our midterm review. Bring a calculator]
+
+.box-inv-8.medium.sp-after-half[Sunday, February 7 at 6 PM: Mastery and Problem Set for Chapters 8 and 9]
+
+.box-8.medium[Finish Chapter 9 for Tuesday]
+
+???
+
+Chapter 9's homework is due before we cover effect size and confidence intervals in class, so students should read those sections first. Nothing is due in midterm week.
+
+---
+
+class: title title-8
+
+# Session 2: Tuesday, February 9
+
+.box-inv-8.small.sp-after-half[Thursday in one line: when we estimate σ, z becomes t, and cutoffs depend on df]
+
+.box-5.medium.sp-after-half[How big is the effect?]
+
+.box-7.medium.sp-after-half[Confidence intervals]
+
+.box-4.medium[Intervals and tests]
+
+???
+
+Three blocks today, and then what to expect on Thursday. A test gives a yes or no. Today we ask for more than that.
+
+---
+
+layout: false
+class: center middle section-title section-title-5 animated fadeIn
+
+# How big is the effect?
+
+---
+
+layout: true
+class: title title-5
+
+---
+
+# d says how far apart, in SDs
+
+```{r d-plot, fig.width=10, fig.height=3.6, out.width="84%", fig.alt=paste0("Two normal curves with the same spread. One is centered at 100, the mean under H0, and the other at ", pow_mean, ", the true mean. An arrow between their centers is labeled d equals ", fmt((pow_mean - sim_mu) / sim_sd), ".")}
+score_grid <- seq(50, 165, length.out = 500)
+d_pop <- (pow_mean - sim_mu) / sim_sd
+d_curves <- bind_rows(
+  tibble(x = score_grid, y = dnorm(score_grid, sim_mu, sim_sd), pop = "H0"),
+  tibble(x = score_grid, y = dnorm(score_grid, pow_mean, sim_sd), pop = "True")
+)
+
+ggplot(d_curves, aes(x = x, y = y, linetype = pop)) +
+  geom_line(color = clr_median, linewidth = 1.2) +
+  annotate("segment", x = sim_mu, xend = pow_mean, y = 0.03, yend = 0.03, color = clr_mean, linewidth = 1.2,
+           arrow = arrow(length = unit(0.18, "in"), ends = "both", type = "closed")) +
+  label_text(sim_mu - 17, 0.0245, "H₀: μ = 100", hjust = 1) +
+  label_text(pow_mean + 17, 0.0245, paste("True μ =", pow_mean), hjust = 0) +
+  label_text((sim_mu + pow_mean) / 2, 0.0335, paste("d =", fmt(d_pop)), clr_mean) +
+  scale_linetype_manual(values = c(H0 = "dashed", True = "solid"), guide = "none") +
+  scale_x_continuous(breaks = seq(60, 160, 20)) +
+  scale_y_continuous(limits = c(0, 0.036)) +
+  labs(x = "Score", y = NULL) +
+  theme_slides() +
+  theme(panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+.box-inv-5.small[Cohen's d = (true μ − H₀ μ) / σ = (`r pow_mean` − `r sim_mu`) / `r sim_sd` = `r fmt(d_pop)`. It's a parameter: it doesn't depend on n]
+
+???
+
+A review from Topic 7. d is a z-score for a difference: the gap, in standard deviations. Greek letters all the way through, so d is a population quantity. In the simulator, a slider sets it.
+
+Here again, how do we know that σ? We usually don't.
+
+---
+
+# Hedges' g is the estimate of d
+
+<div class="math-display">\[
+d = \frac{\mu_{\text{true}} - \mu}{\sigma}
+\qquad \text{is estimated by} \qquad
+g = \frac{M - \mu}{\hat{\sigma}}
+\]</div>
+
+.box-inv-5.small.sp-after-half[In our example: g = (`r ex_M` − `r ex_mu`) / `r ex_sd_hat` = **`r fmt(ex_g, 3)`**, so the mean sits about four tenths of an SD above H₀]
+
+.box-5.small[Cohen's rough guide: 0.2 is small, 0.5 is medium, and 0.8 is large]
+
+.book-tag[In the book: g is called the estimated Cohen's d. The book also covers r² here: skip it for now, we come back to it]
+
+???
+
+Same hat logic: a Latin letter for an estimate. g uses σ̂, not σ̂<sub>M</sub>. It measures distance in people's SDs, not in standard errors, which is why n isn't in the formula.
+
+Some software applies a small-sample correction and also calls that g. We don't. We return to the variance-explained idea, r², in the ANOVA and regression topics.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Four times the people
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Our example has n = `r ex_n`, M = `r ex_M` and σ̂ = `r ex_sd_hat`, so t = `r fmt(ex_t, 3)` and g = `r fmt(ex_g, 3)`. Now keep M and σ̂, and make n = `r big_n`. What happens?
+]
+
+.options[
+.option[
+**A** t and g both go up
+]
+.option[
+**B** t goes up, and g stays the same
+]
+.option[
+**C** g goes up, and t stays the same
+]
+.option[
+**D** Neither changes
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** t and g both go up
+]
+.option.correct[
+**B** t goes up, and g stays the same
+]
+.option.wrong[
+**C** g goes up, and t stays the same
+]
+.option.wrong[
+**D** Neither changes
+]
+]
+
+.box-inv-8.small.sp-after-half[
+σ̂<sub>M</sub> falls from `r fmt(ex_se_hat, 1)` to `r fmt(big_se, 1)`, so t doubles to `r fmt(big_t)`. Now we reject H₀. But g is still `r fmt(ex_g, 3)`
+]
+
+.box-8.small[
+The effect is the same size. We just have a sharper view of it
+]
+
+---
+
+layout: true
+class: title title-5
+
+---
+
+# Similar effect, different decision
+
+```{r tuition-table, results="asis"}
+tuition_row <- function(s, label) {
+  tibble(Group = label, n = s$n, M = fmt(s$M), g = fmt(s$g), t = fmt(s$t), p = fmt(s$p, 3),
+         Decision = if_else(abs(s$t) > s$crit, "Reject H₀", "Maintain H₀"))
+}
+bind_rows(tuition_row(few, "2 to 3 hours of tuition"), tuition_row(many, "More than 4 hours")) %>%
+  kable(format = "html", align = "lcccccc", table.attr = 'class="deck-table"')
+```
+
+.box-inv-5.small.sp-after-half[Both groups sit about a third of an SD above `r fmt(mu)`. Only the larger group is significant]
+
+.box-5.small.sp-after-half[Significant means "hard to explain by sampling error". It doesn't mean big]
+
+.box-inv-5.small[These families chose tuition, so neither test shows that tuition works]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). H₀: μ = `r fmt(mu)`, α = 0.05, two tails.]
+
+???
+
+The first row is Thursday's try-it. The two values of g are close, and the decisions differ, because one group has more than three times the people.
+
+The last box matters. Stronger students may be the ones whose families pay for tuition. That's the difference between prediction and explanation, and it's why the lottery matters in Mindspark.
+
+---
+
+layout: false
+class: center middle section-title section-title-7 animated fadeIn
+
+# Confidence intervals
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# You already know the margin of error
+
+.box-7.medium.sp-after-half[A poll: 52% say yes, ± 3 points]
+
+.box-inv-7.small.sp-after-half[Election polls report one, and charts draw it as a band around the line]
+
+.box-inv-7.small.sp-after-half[It's about two standard errors: how far off this estimate might be]
+
+.box-7.small[That's the standard error's first job from Topic 6. Now, for a mean]
+
+???
+
+The poll is the made-up one from Topic 6. This replaces 2024's election screenshots. Topic 6 started from μ and asked where means land. Now we don't know μ, so we start from what we have, M, and go out from there.
+
+---
+
+# An interval: estimate ± margin of error
+
+<div class="math-display">\[
+M \pm z \, \sigma_M
+\qquad \text{or} \qquad
+M \pm t \, \hat{\sigma}_M
+\]</div>
+
+.pull-left[
+.box-inv-7.small[σ known: z = 1.96 for a 95% interval]
+]
+
+.pull-right[
+.box-inv-7.small[σ unknown: t from the table, n − 1 df]
+]
+
+.box-7.small[Use the two-tailed 5% cutoff. Margin of error = cutoff × standard error]
+
+.book-tag[In the book: the second one is M ± t s<sub>M</sub>]
+
+???
+
+Same ingredients as the test: M, a cutoff and a standard error. They're only arranged differently. The test centers on H₀'s μ. The interval centers on M.
+
+---
+
+# Our example: from `r fmt(ex_ci_t[1])` to `r fmt(ex_ci_t[2])`
+
+```{r ci-plot, fig.width=10, fig.height=2.9, out.width="84%", fig.alt=paste0("A number line of possible values of the population mean, with a point at the sample mean of 106 and a bar running from ", fmt(ex_ci_t[1]), " to ", fmt(ex_ci_t[2]), ".")}
+ggplot() +
+  annotate("segment", x = ex_ci_t[1], xend = ex_ci_t[2], y = 0, yend = 0, linewidth = 1.3, color = clr_median) +
+  annotate("segment", x = ex_ci_t, xend = ex_ci_t, y = -0.14, yend = 0.14, linewidth = 1.3, color = clr_median) +
+  annotate("point", x = ex_M, y = 0, size = 6, color = clr_mean) +
+  label_text(ex_M, 0.38, paste("M =", ex_M), clr_mean) +
+  label_text(ex_ci_t[1], -0.34, fmt(ex_ci_t[1])) +
+  label_text(ex_ci_t[2], -0.34, fmt(ex_ci_t[2])) +
+  scale_x_continuous(limits = c(96, 116), breaks = seq(96, 116, 4)) +
+  scale_y_continuous(limits = c(-0.6, 0.6)) +
+  labs(x = "Plausible values of μ", y = NULL) +
+  theme_slides() +
+  theme(panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+.box-inv-7.small.sp-after-half[`r ex_M` ± `r fmt(ex_t_crit, 3)` × `r fmt(ex_se_hat, 1)` = `r ex_M` ± `r fmt(ex_t_crit * ex_se_hat)`]
+
+.box-7.small[We're 95% confident that μ is between `r fmt(ex_ci_t[1])` and `r fmt(ex_ci_t[2])`]
+
+???
+
+Thursday's example: n = `r ex_n`, σ̂ = `r ex_sd_hat`, df = `r ex_df`. Every value in that range is a value of μ that this sample can't rule out.
+
+---
+
+layout: false
+class: title title-8 press-slide
+
+# Each sample gets its own interval
+
+```{r sim-ci-press, results="asis"}
+sim_frame(
+  alt = "Simulator's confidence interval view with one interval drawn from a sample of 25, around a vertical line at the true mean of 100.",
+  tab = "intervals", n = ex_n, level = 0.95, known = 0, draws = 1, seed = ci_seed, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+**Press +1 a few times, then +50.** Each row is one sample, with its own M, its own σ̂ and so its own width. The vertical line is μ. It doesn't move. Intervals that miss it turn red, with a square marker.
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# About 95% of the intervals catch μ
+
+```{r sim-ci-many, results="asis"}
+sim_frame(
+  alt = "Simulator's confidence interval view with 500 intervals drawn from samples of 25, with the latest 60 shown. Nearly all of them cross the vertical line at the true mean of 100, and a few miss it and carry a square marker.",
+  tab = "intervals", n = ex_n, level = 0.95, known = 0, draws = 500, seed = ci_seed, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Read "Contain μ" in the panel. Widths differ here, because each interval uses its own σ̂. Set Population SD to Known and they'd all have the same width.
+
+---
+
+# What the 95% describes
+
+.box-7.small.sp-after-half[The method: across many samples, about 95% of the intervals contain μ]
+
+.box-inv-7.small.sp-after-half[μ stays put. It's the interval that moves from sample to sample]
+
+.box-inv-7.small.sp-after-half[Our one interval either holds μ or it doesn't. We can't tell which]
+
+.box-inv-7.small[On real scores: `r pct(ci_hold, 1)` of 5,000 intervals from samples of 25 contain our `r N` students' μ = `r fmt(mu)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The precise wording is about repeated sampling, so "we're 95% confident" is shorthand for that. The last box uses samples with replacement from the 619 scores. They aren't normal, and the method still works.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: Ask for more confidence
+
+.box-inv-8.small.sp-after-half[We have a 95% interval from `r fmt(ex_ci_t[1])` to `r fmt(ex_ci_t[2])`. We want 99% instead, with the same sample]
+
+.box-8.small[What happens to the interval?]
+
+.options[
+.option[
+**A** It gets narrower
+]
+.option[
+**B** It gets wider
+]
+.option[
+**C** It stays the same
+]
+.option[
+**D** It shifts to the right
+]
+]
+
+???
+
+About 6 minutes for this slide and the next two. Hands are fine. Neighbor first, then vote. Ask for a reason: what would you do to be more sure of catching something?
+
+---
+
+class: title title-8 press-slide
+
+# Predict it: Change the confidence level
+
+```{r sim-ci-level, results="asis"}
+sim_frame(
+  alt = "Simulator's confidence interval view with 60 intervals from samples of 25 at a 95 percent level, ready for the level to be changed.",
+  tab = "intervals", n = ex_n, level = 0.95, known = 0, draws = 60, seed = ci_seed, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+**Change Confidence level to 99%, then press +50.** The intervals get wider, and the readout's margin of error grows. Then try dragging n up and pressing +50: they narrow.
+
+---
+
+class: title title-8
+
+# Predict it: More confidence costs width
+
+```{r ci-widths, results="asis"}
+bind_rows(ci_row(0.90, ex_n), ci_row(0.95, ex_n), ci_row(0.99, ex_n), ci_row(0.95, big_n)) %>%
+  kable(format = "html", align = "c", table.attr = 'class="deck-table tight"')
+```
+
+.box-inv-8.small.sp-after-half[The answer is B. To be more sure of catching μ, cast a wider net]
+
+.box-8.small[More people buy the width back: the last row is 95% with n = `r big_n`, same M and σ̂]
+
+???
+
+The center stays at M. Only the margin changes. Compare the second and last rows: four times the people, about half the margin. It isn't exactly half, because the cutoff also falls a little.
+
+---
+
+layout: false
+class: center middle section-title section-title-4 animated fadeIn
+
+# Intervals and tests
+
+---
+
+layout: true
+class: title title-4
+
+---
+
+# An interval can run the test for you
+
+```{r ci-steps-table, results="asis"}
+tribble(
+  ~Step, ~`If we know σ = 15`, ~`If we don't`,
+  "1. State H₀", paste0("μ = ", ex_mu), paste0("μ = ", ex_mu),
+  "2. Set the criteria", paste0("95% interval, z = ", fmt(z_two)), paste0("95% interval, t(", ex_df, ") = ", fmt(ex_t_crit, 3)),
+  "3. Build the interval", paste0(ex_M, " ± ", fmt(z_two), " × ", fmt(ex_se), "<br>[", fmt(ex_ci_z[1]), ", ", fmt(ex_ci_z[2]), "]"),
+  paste0(ex_M, " ± ", fmt(ex_t_crit, 3), " × ", fmt(ex_se_hat), "<br>[", fmt(ex_ci_t[1]), ", ", fmt(ex_ci_t[2]), "]"),
+  "4. Decide", paste0("Reject H₀: ", ex_mu, " isn't inside"), paste0("Maintain H₀: ", ex_mu, " is inside")
+) %>%
+  kable(format = "html", escape = FALSE, table.attr = 'class="deck-table"')
+```
+
+.box-4.small[A 95% interval that leaves out the H₀ mean means rejecting H₀ at α = 0.05, two tails]
+
+???
+
+Same example, same decisions as Thursday. It has to work out this way: M is more than a margin away from μ exactly when the score is beyond the cutoff.
+
+The level has to match: a 95% interval goes with a two-tailed test at α = 0.05, and a 99% interval with α = 0.01.
+
+---
+
+# Only one interval leaves out `r ex_mu`
+
+```{r two-ci-plot, fig.width=10, fig.height=3.5, out.width="84%", fig.alt=paste0("Two horizontal confidence intervals around a mean of 106, with a dashed vertical line at the H0 mean of 100. With sigma known, the interval runs from ", fmt(ex_ci_z[1]), " to ", fmt(ex_ci_z[2]), " and stops just right of the line. With sigma unknown, it runs from ", fmt(ex_ci_t[1]), " to ", fmt(ex_ci_t[2]), " and crosses the line.")}
+two_ci <- tibble(
+  how = factor(c("σ known", "σ unknown"), levels = c("σ unknown", "σ known")),
+  lo = c(ex_ci_z[1], ex_ci_t[1]), hi = c(ex_ci_z[2], ex_ci_t[2]),
+  verdict = c("Leaves out 100: reject", "Holds 100: maintain"),
+  lo_side = c(0, 1)  # Each low end's label sits on its own side of the dashed line
+)
+
+ggplot(two_ci, aes(y = how)) +
+  geom_vline(xintercept = ex_mu, linetype = "dashed", color = clr_mean, linewidth = 1.2) +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.2, linewidth = 1.3, color = clr_median) +
+  geom_point(aes(x = ex_M), size = 5, color = clr_median) +
+  geom_text(aes(x = lo + (0.5 - lo_side) * 0.3, label = fmt(lo), hjust = lo_side), vjust = 2, size = 6, fontface = "bold",
+            color = clr_median, family = "Fira Sans Condensed") +
+  geom_text(aes(x = hi, label = fmt(hi)), vjust = 2, size = 6, fontface = "bold", color = clr_median,
+            family = "Fira Sans Condensed") +
+  geom_text(aes(x = ex_M, label = verdict), vjust = -1.2, size = 6.5, fontface = "bold", color = clr_median,
+            family = "Fira Sans Condensed") +
+  label_text(ex_mu - 0.2, 2.5, "H₀: μ = 100", clr_mean, hjust = 1) +
+  scale_x_continuous(limits = c(94, 116), breaks = seq(94, 116, 4)) +
+  labs(x = "Possible values of μ", y = NULL) +
+  theme_slides() +
+  theme(panel.grid.major.y = element_blank())
+```
+
+.box-inv-4.small[The t interval is wider, for two reasons: a bigger σ̂ and a bigger cutoff]
+
+???
+
+The left end of the first interval only just clears 100. That's why z was only just past 1.96.
+
+---
+
+# With a real effect, intervals miss H₀
+
+```{r sim-ci-d, results="asis"}
+sim_frame(
+  alt = "Simulator's confidence interval view with 500 intervals from samples of 25 and a true effect d of 0.4. A solid line marks the true mean of 106, and a dashed line marks the H0 mean of 100. Many intervals stop short of the dashed line, which means rejecting H0.",
+  tab = "intervals", n = ex_n, level = 0.95, known = 0, d = 0.4, draws = 500, seed = ci_seed, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Here the true effect is d = 0.4, so the true mean really is 106, our example's M. The solid line is the truth, and the dashed line is what H₀ claims.
+
+"Exclude the H₀ mean: reject H₀" is the share of samples that reject. That's power. Our example's sample is one of the many whose interval still holds 100, so maintaining H₀ there was a Type II error in this world. Drag n up to watch the share climb.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: The `r few$n` students again
+
+.box-inv-8.small.sp-after-half[n = `r few$n`, M = `r fmt(few$M)`, σ̂ = `r fmt(few$sd_hat)`, σ̂<sub>M</sub> = `r fmt(few$se, 3)`, H₀: μ = `r fmt(mu)`, cutoff t(`r few$df`) = `r fmt(few$crit, 3)`]
+
+.box-8.small.sp-after-half[Find g, then a 95% confidence interval]
+
+.box-inv-8.small[Does the interval hold `r fmt(mu)`? Does that match Thursday's decision? Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. The numbers are Thursday's. Vote with hands on the last question.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[g = (`r fmt(few$M)` − `r fmt(mu)`) / `r fmt(few$sd_hat)` = **`r fmt(few$g)`**]
+]
+
+.pull-right[
+.box-inv-8.small[`r fmt(few$M)` ± `r fmt(few$crit, 3)` × `r fmt(few$se, 3)` = **[`r fmt(few$lo)`, `r fmt(few$hi)`]**]
+]
+
+.box-8.small.sp-after-half[The interval holds `r fmt(mu)`, so we maintain H₀, the same decision as Thursday]
+
+.box-inv-8.small[The interval also says what the test didn't: μ could be a bit below `r fmt(mu)`, or as much as `r fmt(few$hi - mu, 1)` points above it]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+A wide interval is a useful warning. With only `r few$n` students, "maintain" says we can't tell, not that there's no gap.
+
+---
+
+class: title title-8
+
+# One sample, three answers
+
+.pull-left-3[
+.box-1.medium[The t-test]
+
+.center.small[Is this mean surprising under H₀?]
+
+.center[t(`r few$df`) = `r fmt(few$t)`]
+]
+
+.pull-middle-3[
+.box-6.medium[Effect size]
+
+.center.small[How big is the gap, in SDs?]
+
+.center[g = `r fmt(few$g)`]
+]
+
+.pull-right-3[
+.box-3.medium[The interval]
+
+.center.small[Which values of μ fit the data?]
+
+.center[[`r fmt(few$lo)`, `r fmt(few$hi)`]]
+]
+
+.box-inv-8.small[Report all three. Each one says something the others don't]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+These are the `r few$n` students once more. From here on, every test in the course comes with an effect size and an interval.
+
+---
+
+class: title title-8
+
+# The blueprint so far
+
+```{r blueprint-table, results="asis"}
+tribble(
+  ~`Blueprint step`, ~Statistic, ~`Bottom of the fraction`, ~`In the book`,
+  "1. One score", "z", "σ", "σ",
+  "2. One mean, σ known", "z", "σ<sub>M</sub>", "σ<sub>M</sub>",
+  "3a. One mean, σ unknown", "t", "σ̂<sub>M</sub>", "s<sub>M</sub>",
+  "4. Two means: next", "t", "Topic 9", " "
+) %>%
+  kable(format = "html", escape = FALSE, align = "lccc", table.attr = 'class="deck-table"')
+```
+
+.box-8.small[Same three panels: population, one sample, the statistic across samples]
+
+???
+
+Each step is the same fraction: an observed gap over the gap we'd expect from sampling error. Panel 1 went dark at step 3a, and it stays dark from here on.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Choose one tail or two, and say what each costs]
+
+.box-inv-8.small[Say why σ̂ gives us t, not z, and why df matters]
+
+.box-inv-8.small[Run a one-sample t-test by hand, from n, M and SS]
+
+.box-inv-8.small[Compute Hedges' g, and tell significance from size]
+
+.box-inv-8.small[Build a confidence interval, and use it to test H₀]
+
+---
+
+class: title title-8
+
+# Thursday's midterm: what to expect
+
+.box-8.medium.sp-after-half[February 11, in class, 80 minutes]
+
+.box-inv-8.small.sp-after-half[It covers Chapters 1 to 9, which are Topics 1 to 8]
+
+.box-inv-8.small.sp-after-half[It's free response: show your work and explain your thinking]
+
+.box-inv-8.small.sp-after-half[z and t tables and a formula sheet come with it, in both sets of symbols]
+
+.box-inv-8.small[Bring a calculator. No other devices]
+
+???
+
+General format only. No exam content in this deck, since it's public.
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Thursday, February 11]
+
+The midterm, in class. Nothing is due this week
+]
+
+.pull-right[
+.box-6.small[Friday, February 12: Lab 6]
+
+One-sample t-tests and confidence intervals. Bring a calculator and a laptop
+]
+
+.box-3.small[For Tuesday, February 16: read Chapters 10 and 11. Topic 9 is t-tests for two samples]
+
+```{css, echo=FALSE}
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide. A slide that
+   waits for a live button press would print empty, so it goes too */
+@media print {
+  .remark-slide-container:has(.poll-answer),
+  .remark-slide-container:has(.press-slide) {
+    display: none !important;
+  }
+}
+```
