@@ -211,7 +211,7 @@ class: title title-1
 
 # A line sums up the cloud
 
-```{r line-plot, fig.width=10, fig.height=4.1, out.width="82%", fig.alt=paste0("Scatter plot of ", all$n, " Mindspark students, with baseline math score on the horizontal axis and endline math score on the vertical axis. A straight line rises through the wide cloud of dots, from about 9 at a baseline of 0 to about 28 at a baseline of 26.")}
+```{r line-plot, fig.width=10, fig.height=4.1, out.width="82%", fig.alt=paste0("Scatter plot of ", all$n, " Mindspark students, with baseline math score on the horizontal axis and endline math score on the vertical axis. A straight line rises through the wide cloud of dots, from about 9 at a baseline of 0 to about 29 at a baseline of 26.")}
 ggplot(both, aes(x = X, y = Y)) +
   geom_point(position = position_jitter(width = 0.25, height = 0.25, seed = 15),
              color = clr_bar, alpha = 0.5, size = 2.4) +
@@ -808,7 +808,7 @@ tribble(
 
 So a slope isn't a new idea. It's the correlation, stretched by how spread out Y is compared with X. If r is 0, b is 0. That's why a test of r and a test of b will agree on Thursday.
 
-The two groups show why b alone can't tell you how strong a relationship is. Our 8 students have b = `r fmt(eight$b)` mostly because their baseline scores are so close together.
+The two groups show why b alone can't tell you how strong a relationship is. Our 8 students have b = `r fmt(eight$b)` partly because their baseline scores are so close together.
 
 ---
 
@@ -960,7 +960,7 @@ class: title title-8
 tribble(
   ~Students, ~n, ~r, ~a, ~b,
   "Five from the try-it", as.character(five$n), fmt(five$r), fmt(five$a), fmt(five$b),
-  "Rows 25 to 32", as.character(eight$n), fmt(eight$r), fmt(eight$a, 3), fmt(eight$b),
+  "Students 25 to 32", as.character(eight$n), fmt(eight$r), fmt(eight$a, 3), fmt(eight$b),
   "Everyone with both scores", as.character(all$n), fmt(all$r), fmt(all$a), fmt(all$b)
 ) %>%
   kable(format = "html", align = "lcccc", table.attr = 'class="deck-table"')
@@ -974,7 +974,7 @@ tribble(
 
 ???
 
-This is the bridge to Topic 13, and it's the same step we took with r in Topic 11. A slope is a statistic, so it has a sampling distribution. That's step 7 of the blueprint, and the four steps come back with it. Don't test anything today.
+This is the bridge to Topic 13, and it's the same step we took with r in Topic 11. A slope is a statistic, so it has a sampling distribution. That's step 7a of the blueprint, and the four steps come back with it. Don't test anything today.
 
 ---
 
