@@ -1,0 +1,1513 @@
+---
+title: "Probability"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css", "css/simulator.css"]
+    seal: false
+    anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+library(knitr)
+source(here::here("R", "slide-things.R"))
+
+# Colors from the slide theme, all readable on white ----
+clr_bar <- "#538ba2"
+clr_soft <- "#c5d9e2"
+clr_mean <- "#a93e31"
+clr_median <- "#244a70"
+clr_mode <- "#8a6100"
+
+theme_slides <- function(base_size = 20) {
+  theme_minimal(base_size = base_size, base_family = "Fira Sans Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_text(face = "bold"),
+          strip.text = element_text(face = "bold", size = rel(1)))
+}
+
+fmt <- function(x, d = 2) formatC(x, format = "f", digits = d)
+pct <- function(x, d = 0) paste0(fmt(100 * x, d), "%")
+minus <- function(x) str_replace(as.character(x), "-", "−")
+
+# The 619 baseline math scores, treated as a population today ----
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+math <- baseline$tot_math
+N <- length(math)
+mu <- mean(math)
+sigma <- sqrt(sum((math - mu)^2) / N)
+
+score_tab <- tibble(score = math) %>%
+  count(score) %>%
+  mutate(prop = n / N) %>%
+  complete(score = 0:26, fill = list(n = 0, prop = 0))
+
+n_12 <- sum(math == 12)
+n_le12 <- sum(math <= 12)
+first_three <- score_tab$n[1:3]
+
+in_range <- function(lo, hi) sum(math >= lo & math <= hi)
+within_1 <- mean(abs(math - mu) < sigma)
+within_2 <- mean(abs(math - mu) < 2 * sigma)
+
+# Bars of the real scores, with some of them picked out ----
+score_bars <- function(keep, y, y_lab, base = 20) {
+  score_tab %>%
+    mutate(picked = keep(score)) %>%
+    ggplot(aes(x = score, y = .data[[y]], fill = picked)) +
+    geom_col(width = 0.85) +
+    scale_fill_manual(values = c(`FALSE` = clr_soft, `TRUE` = clr_median), guide = "none") +
+    scale_x_continuous(breaks = seq(0, 26, 2)) +
+    labs(x = "Math score at baseline (out of 35)", y = y_lab) +
+    theme_slides(base)
+}
+
+# A standard normal curve, with areas to shade ----
+z_grid <- seq(-3.6, 3.6, by = 0.01)
+curve_z <- tibble(z = z_grid, y = dnorm(z_grid))
+
+shade <- function(lo, hi, ...) {
+  lo <- max(lo, -3.6)
+  hi <- min(hi, 3.6)
+  xs <- sort(unique(c(lo, z_grid[z_grid > lo & z_grid < hi], hi)))
+  tibble(z = xs, y = dnorm(xs), ...)
+}
+
+bell <- function(base = 20) {
+  ggplot(curve_z, aes(x = z, y = y)) +
+    geom_area(fill = clr_soft) +
+    scale_x_continuous(breaks = -3:3, labels = minus) +
+    labs(x = "z-score", y = NULL) +
+    theme_slides(base) +
+    theme(panel.grid = element_blank(), axis.text.y = element_blank())
+}
+
+add_area <- function(data, fill = clr_bar) {
+  geom_ribbon(data = data, aes(x = z, ymin = 0, ymax = y), fill = fill, inherit.aes = FALSE)
+}
+
+add_line <- function() geom_line(data = curve_z, aes(x = z, y = y), color = clr_median, linewidth = 1)
+
+label_text <- function(x, y, label, color = clr_median, hjust = 0.5, size = 6.5) {
+  annotate("text", x = x, y = y, label = label, color = color, hjust = hjust, size = size,
+           fontface = "bold", family = "Fira Sans Condensed")
+}
+
+# The normal curve cut into bars of a given width ----
+bins_of <- function(w) {
+  lo <- seq(-2, 26 - w, by = w)
+  tibble(width = w, mid = lo + w / 2, p = pnorm(lo + w, mu, sigma) - pnorm(lo, mu, sigma))
+}
+top_p <- function(w) max(bins_of(w)$p)
+
+# Table values, computed so they match the book's unit normal table ----
+body <- function(z) pnorm(z)
+tail_p <- function(z) 1 - pnorm(abs(z))
+between <- function(z) pnorm(abs(z)) - 0.5
+
+z_table <- function(zs) {
+  tibble(z = fmt(zs), Body = fmt(body(zs), 4), Tail = fmt(tail_p(zs), 4), `Mean to z` = fmt(between(zs), 4))
+}
+
+# SAT, class of 2025, from the College Board's annual report ----
+sat_mu <- 1029
+sat_sd <- 235
+sat_n <- 2004965
+sat_1200_n <- 149767 + 357574
+sat_z <- round((1200 - sat_mu) / sat_sd, 2)
+sat_tail <- tail_p(sat_z)
+sat_95 <- sat_mu + 1.645 * sat_sd
+
+# Play it: the 90th percentile of the Mindspark curve ----
+ms_90 <- mu + 1.28 * sigma
+ms_real_90 <- unname(quantile(math, 0.9, type = 1))
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# Probability
+
+.class-info[
+
+**Topic 5 · Tuesday, January 19, and Thursday, January 21**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+
+.center[**We are here, heading right**]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+We can describe a distribution now. Probability is the bridge from describing data to saying something about people we never observed.
+
+---
+
+class: title title-8
+
+# Where are we? From sample to everyone
+
+```{r cycle-plot, fig.width=10, fig.height=3.9, out.width="84%", fig.alt="Diagram with two boxes, the population on the left and the sample on the right. An arrow along the top runs from population to sample and is labeled, we draw a sample. A darker arrow along the bottom runs from sample back to population and is labeled, we generalize, and today's groundwork."}
+tibble(x = c(0, 1), y = 0, label = c("The population\neveryone we care about", "The sample\nthe people we observe")) %>%
+  ggplot(aes(x = x, y = y)) +
+  geom_curve(aes(x = 0.12, xend = 0.88, y = 0.2, yend = 0.2), curvature = -0.22, color = clr_bar,
+             linewidth = 1.6, arrow = arrow(length = unit(0.25, "in"), type = "closed")) +
+  geom_curve(aes(x = 0.88, xend = 0.12, y = -0.2, yend = -0.2), curvature = -0.22, color = clr_mean,
+             linewidth = 2.2, arrow = arrow(length = unit(0.25, "in"), type = "closed")) +
+  geom_label(aes(label = label), size = 7, fontface = "bold", family = "Fira Sans Condensed", color = clr_median,
+             fill = "white", linewidth = 0.6, label.padding = unit(0.5, "lines")) +
+  label_text(0.5, 0.74, "We draw a sample", clr_bar) +
+  label_text(0.5, -0.78, "We generalize: today's groundwork", clr_mean) +
+  coord_cartesian(xlim = c(-0.25, 1.25), ylim = c(-1, 1)) +
+  theme_void()
+```
+
+.box-inv-8.small[A sample is never the whole story. Probability says how much it can fool us]
+
+.source[After a figure in Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*.]
+
+???
+
+Book's cycle, redrawn. The bottom arrow is the one we can't do yet.
+
+---
+
+class: title title-8
+
+# The question we'll keep asking
+
+```{r weird-plot, fig.width=10, fig.height=2.7, out.width="80%", fig.alt="A wide bell curve labeled what I think the population looks like. A small cluster of dots labeled my sample sits far out in the right tail."}
+set.seed(5)
+bell(18) +
+  add_line() +
+  geom_point(data = tibble(z = rnorm(8, 2.9, 0.16), y = runif(8, 0.03, 0.1)), color = clr_mean, size = 3.5) +
+  label_text(0, 0.08, "What I think the population looks like") +
+  label_text(2.9, 0.15, "My sample", clr_mean) +
+  labs(x = NULL) +
+  theme(axis.text.x = element_blank())
+```
+
+.box-8.small.sp-after-half[If what I think about the population is true, how weird would a sample like mine be?]
+
+--
+
+.box-inv-8.small[And how weird must it be before I decide I was wrong?]
+
+???
+
+Say the first question and let it sit before showing the second. The second one is the logic of hypothesis testing, which starts in Topic 7.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[What is probability?]
+
+.box-6.medium.sp-after-half[From bars to curves]
+
+.box-3.medium.sp-after-half[The normal distribution]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: try, predict, predict.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# What is probability?
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Probability is a share of outcomes
+
+$$
+p(A) = \frac{\text{outcomes that count as } A}{\text{all possible outcomes}}
+$$
+
+.pull-left[
+.box-inv-1.small[
+Roll a fair die: p(6) = 1 / 6 = `r fmt(1 / 6, 3)`
+]
+]
+
+.pull-right[
+.box-inv-1.small[
+A share always lies between 0 (never) and 1 (always)
+]
+]
+
+.box-1.small[0.25, 1 in 4 and 25% all say the same thing]
+
+???
+
+Proportion, probability and percentage are the same idea here. We'll move between them all quarter.
+
+---
+
+# This only works if we draw at random
+
+.pull-left[
+.box-1.medium[Random]
+
+Everyone has the same chance of being picked
+]
+
+.pull-right[
+.box-1.medium[Independent]
+
+One draw doesn't change the chances for the next
+]
+
+.box-inv-1.small[
+Together these are called *independent and identically distributed*, or i.i.d. Every formula in this course leans on it
+]
+
+???
+
+A friend-of-a-friend survey isn't random. Picking a whole classroom isn't independent: classmates share a teacher. Picking one student and putting them back keeps the chances the same on every draw.
+
+---
+
+# Pretend these 619 are everyone
+
+```{r pretend-plot, fig.width=10, fig.height=3.8, out.width="78%", fig.alt=paste0("Bar chart of how many of the ", N, " students got each baseline math score. Scores run from 0 to 26, and the tallest bar is ", n_12, " students at a score of 12.")}
+score_bars(function(s) rep(FALSE, length(s)), "n", "Students") +
+  scale_fill_manual(values = c(`FALSE` = clr_bar), guide = "none")
+```
+
+.box-inv-1.small[They're really a sample from Delhi. For today they're everyone, so we write μ = `r fmt(mu)` and σ = `r fmt(sigma)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). `r N` students in Delhi.]
+
+???
+
+Greek letters, no hats, because today we know everybody. We come back to this same trick in Topic 6, when we draw many samples from these 619 students.
+
+---
+
+# Pick one student: what's p(12)?
+
+```{r bar-12, fig.width=10, fig.height=3.9, out.width="82%", fig.alt=paste0("The same bar chart with the bar at a score of 12 picked out in a dark color. It holds ", n_12, " of the ", N, " students.")}
+score_bars(function(s) s == 12, "n", "Students") +
+  annotate("text", x = 12.7, y = n_12 - 3, label = paste(n_12, "students"), hjust = 0, color = clr_median,
+           size = 6.5, fontface = "bold", family = "Fira Sans Condensed")
+```
+
+--
+
+.box-1.small[p(X = 12) = `r n_12` / `r N` = `r fmt(n_12 / N, 3)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Ask first, then show the answer. The tallest bar is simply the most likely score.
+
+---
+
+# A range of scores just adds up bars
+
+```{r bar-range, fig.width=10, fig.height=3.9, out.width="82%", fig.alt=paste0("The same bar chart with every bar from 0 to 12 picked out in a dark color. Together they hold ", n_le12, " of the ", N, " students.")}
+score_bars(function(s) s <= 12, "n", "Students") +
+  annotate("text", x = 12.7, y = n_12 - 3, label = paste(n_le12, "students at 12 or below"), hjust = 0, color = clr_median,
+           size = 6.5, fontface = "bold", family = "Fira Sans Condensed")
+```
+
+--
+
+.box-1.small[p(X ≤ 12) = (`r paste(first_three, collapse = " + ")` + … + `r n_12`) / `r N` = `r n_le12` / `r N` = `r fmt(n_le12 / N, 3)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Read the counts
+
+```{r try-counts, results="asis"}
+score_tab %>%
+  filter(score %in% c(9:11, 20:26)) %>%
+  select(score, n) %>%
+  mutate(score = as.character(score)) %>%
+  pivot_wider(names_from = score, values_from = n) %>%
+  mutate(Score = "Students", .before = 1) %>%
+  kable(format = "html", align = "c", table.attr = 'class="deck-table"')
+```
+
+.box-8.small.sp-after-half[Pick one of the `r N` students at random. Find each probability]
+
+.pull-left-3[
+.box-inv-8.small[p(X = 10)]
+]
+
+.pull-middle-3[
+.box-inv-8.small[p(9 ≤ X ≤ 11)]
+]
+
+.pull-right-3[
+.box-inv-8.small[p(X ≥ 20)]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Work alone, compare with a neighbor, then hands.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left-3[
+.box-inv-8.small[p(X = 10)]
+
+.center[`r in_range(10, 10)` / `r N` = **`r fmt(in_range(10, 10) / N, 3)`**]
+]
+
+.pull-middle-3[
+.box-inv-8.small[p(9 ≤ X ≤ 11)]
+
+.center[(`r in_range(9, 9)` + `r in_range(10, 10)` + `r in_range(11, 11)`) / `r N` = **`r fmt(in_range(9, 11) / N, 3)`**]
+]
+
+.pull-right-3[
+.box-inv-8.small[p(X ≥ 20)]
+
+.center[`r in_range(20, 26)` / `r N` = **`r fmt(in_range(20, 26) / N, 3)`**]
+]
+
+.box-8.small[A score of 20 or more is rare here. That's the sense of "weird" we'll use all quarter]
+
+???
+
+Nobody scored 22 or 25, so in this population those probabilities are exactly 0.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# From bars to curves
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Shares make a probability distribution
+
+```{r prop-plot, fig.width=10, fig.height=3.8, out.width="78%", fig.alt=paste0("The same bars of Mindspark scores, now with proportion of students on the vertical axis. The tallest bar is ", fmt(n_12 / N, 3), " at a score of 12.")}
+score_bars(function(s) rep(FALSE, length(s)), "prop", "Proportion of students") +
+  scale_fill_manual(values = c(`FALSE` = clr_bar), guide = "none")
+```
+
+.box-inv-6.small[Same shape, new axis. Each bar is now a probability, and all the bars add up to 1]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Scores here are whole numbers from 0 to 26, so we can list every outcome. The word for the general idea is a probability distribution. The book reserves "density" for the continuous case, which is next.
+
+---
+
+# Continuous scores can't be counted
+
+```{r narrow-bars, fig.width=11, fig.height=3.5, out.width="92%", fig.alt=paste0("Three bar charts of the same normal curve with mean ", fmt(mu), " and standard deviation ", fmt(sigma), ". With bars 4 points wide the tallest bar is about ", fmt(top_p(4)), ". With bars 1 point wide it is about ", fmt(top_p(1)), ". With bars a quarter of a point wide it is about ", fmt(top_p(0.25)), ". The bars get shorter as they get narrower.")}
+binned <- map_dfr(c(4, 1, 0.25), bins_of) %>%
+  mutate(panel = fct_inorder(paste0("Bars ", width, ifelse(width == 1, " point", " points"), " wide")))
+tops <- binned %>% group_by(panel) %>% summarize(top = max(p))
+
+ggplot(binned, aes(x = mid, y = p)) +
+  geom_col(aes(width = width * 0.92), fill = clr_bar) +
+  geom_text(data = tops, aes(x = 26, y = 0.36, label = paste0("Tallest bar:\n", fmt(top))), hjust = 1, lineheight = 0.9,
+            color = clr_median, size = 6, fontface = "bold", family = "Fira Sans Condensed") +
+  facet_wrap(vars(panel), nrow = 1) +
+  scale_x_continuous(breaks = c(0, 10, 20)) +
+  labs(x = "Score", y = "Probability") +
+  theme_slides(18)
+```
+
+.box-inv-6.small[A continuous variable has endless possible values. The chance of any one exact value is zero]
+
+???
+
+Think of time spent on a test. Exactly 12.000000 minutes never happens. The bars shrink toward nothing, so we stop asking about single values and ask about ranges.
+
+---
+
+# Density: where probability piles up
+
+```{r density-plot, fig.width=10, fig.height=4, out.width="82%", fig.alt="A smooth bell curve of density over scores from 0 to 26. A label near the peak says scores crowd together here. A label near the right tail says they thin out here."}
+tibble(x = seq(-1, 24, by = 0.05), y = dnorm(x, mu, sigma)) %>%
+  ggplot(aes(x = x, y = y)) +
+  geom_area(fill = clr_soft) +
+  geom_line(color = clr_median, linewidth = 1.1) +
+  annotate("text", x = mu + 3.7, y = 0.098, label = "Scores crowd together here", hjust = 0, color = clr_median,
+           size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  annotate("text", x = 18.2, y = 0.034, label = "They thin out here", hjust = 0, color = clr_median,
+           size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  labs(x = "Score", y = "Density") +
+  theme_slides() +
+  theme(axis.text.y = element_blank(), panel.grid = element_blank())
+```
+
+.box-inv-6.small[Height isn't a probability. It tells you how concentrated the probability is around that point]
+
+---
+
+# Ask about ranges: area is the answer
+
+```{r area-plot, fig.width=10, fig.height=3.1, out.width="72%", fig.alt=paste0("The Mindspark bars drawn touching each other with a smooth curve over them. Every bar from 0 to 12 is dark. The dark bars cover ", fmt(n_le12 / N, 3), " of the total area.")}
+smooth <- density(math, adjust = 1.3, from = -1, to = 27)
+
+score_tab %>%
+  mutate(picked = score <= 12) %>%
+  ggplot(aes(x = score, y = prop, fill = picked)) +
+  geom_col(width = 1) +
+  geom_line(data = tibble(score = smooth$x, prop = smooth$y), aes(x = score, y = prop), color = clr_mean,
+            linewidth = 1.2, inherit.aes = FALSE) +
+  annotate("text", x = 17, y = 0.09, label = "Smooth version of the bars", hjust = 0, color = clr_mean,
+           size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  scale_fill_manual(values = c(`FALSE` = clr_soft, `TRUE` = clr_bar), guide = "none") +
+  scale_x_continuous(breaks = seq(0, 26, 2)) +
+  labs(x = "Math score at baseline (out of 35)", y = "Density") +
+  theme_slides()
+```
+
+.box-6.small.sp-after-half[What's the chance of 12 or below?]
+
+--
+
+.box-inv-6.small[The whole area is 1, and the dark area is `r n_le12` / `r N` = `r fmt(n_le12 / N, 3)`: the same answer as counting]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: Tall or wide?
+
+```{r tall-wide, fig.width=10, fig.height=3, out.width="74%", fig.alt="A bell curve with two shaded regions. Region A is a thin slice around the peak, where the curve is tallest. Region B is a wide stretch to the right, where the curve is lower."}
+bell() +
+  add_area(shade(-0.25, 0.25)) +
+  add_area(shade(0.5, 3), clr_mode) +
+  add_line() +
+  label_text(0, 0.44, "A") +
+  label_text(1.1, 0.27, "B", clr_mode) +
+  coord_cartesian(ylim = c(0, 0.46)) +
+  labs(x = NULL) +
+  theme(axis.text.x = element_blank())
+```
+
+.box-8.small.sp-after-half[Draw one person at random. Which is more likely?]
+
+.options[
+.option[
+**A** The person lands in region A, where the curve is tallest
+]
+.option[
+**B** The person lands in region B, where the curve is lower
+]
+]
+
+???
+
+About 6 minutes. Hands are fine here. Ask a few students to say why before showing the answer.
+
+---
+
+class: title title-8
+
+# Predict it: Area wins, not height
+
+```{r tall-wide-answer, fig.width=10, fig.height=3.5, out.width="82%", fig.alt=paste0("The same curve. Region A holds ", pct(pnorm(0.25) - pnorm(-0.25)), " of the area and region B holds ", pct(pnorm(3) - pnorm(0.5)), ".")}
+bell() +
+  add_area(shade(-0.25, 0.25)) +
+  add_area(shade(0.5, 3), clr_mode) +
+  add_line() +
+  label_text(0, 0.44, paste("A:", pct(pnorm(0.25) - pnorm(-0.25)))) +
+  label_text(1.35, 0.27, paste("B:", pct(pnorm(3) - pnorm(0.5))), clr_mode) +
+  coord_cartesian(ylim = c(0, 0.46)) +
+  labs(x = NULL) +
+  theme(axis.text.x = element_blank())
+```
+
+.box-inv-8.small[Region B is lower everywhere, but it's so much wider that it holds more of the area]
+
+.box-8.small[Probability is area. Height alone can't tell you]
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# The normal distribution
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# A bell curve, set by just two numbers
+
+.pull-left[
+```{r bell-plot, fig.width=6, fig.height=4, out.width="100%", fig.alt="A symmetric bell curve. A vertical line at the peak is labeled mean, median and mode."}
+bell(18) +
+  add_line() +
+  geom_segment(aes(x = 0, xend = 0, y = 0, yend = dnorm(0)), color = clr_mean, linewidth = 1.1) +
+  label_text(0, 0.43, "Mean = median = mode", clr_mean, size = 6) +
+  coord_cartesian(ylim = c(0, 0.45)) +
+  labs(x = NULL) +
+  theme(axis.text.x = element_blank())
+```
+]
+
+.pull-right[
+.box-inv-3.small[Symmetric, so one side mirrors the other]
+
+.box-inv-3.small[Most common in the middle]
+
+.box-inv-3.small[Tapers off toward both ends]
+
+$$
+Y = \frac{1}{\sqrt{2\pi\sigma^2}}\, e^{-(X - \mu)^2 / 2\sigma^2}
+$$
+]
+
+.box-3.small[Only μ and σ change. You'll never compute this by hand]
+
+???
+
+It's a common shape for populations, which is why we start here. Look at the formula once: only two parameters, both Greek, so the curve describes a population. Everything else is a constant.
+
+---
+
+# Every normal curve splits the same way
+
+```{r sections-plot, fig.width=10, fig.height=4, out.width="86%", fig.alt=paste0("A normal curve divided at each standard deviation. From the mean to 1 standard deviation holds ", pct(pnorm(1) - 0.5, 2), ". From 1 to 2 holds ", pct(pnorm(2) - pnorm(1), 2), ". Beyond 2 holds ", pct(1 - pnorm(2), 2), ". The left side mirrors the right.")}
+sections <- tibble(z = c(-2.5, -1.5, -0.5, 0.5, 1.5, 2.5),
+                   p = c(1 - pnorm(2), pnorm(2) - pnorm(1), pnorm(1) - 0.5, pnorm(1) - 0.5, pnorm(2) - pnorm(1), 1 - pnorm(2)),
+                   y = c(0.085, 0.055, 0.19, 0.19, 0.055, 0.085))
+
+bell() +
+  geom_segment(data = tibble(z = -2:2), aes(x = z, xend = z, y = 0, yend = dnorm(z)), color = "white", linewidth = 1.2) +
+  add_line() +
+  geom_text(data = sections, aes(x = z, y = y, label = pct(p, 2)), color = clr_median, size = 6.5,
+            fontface = "bold", family = "Fira Sans Condensed")
+```
+
+.box-inv-3.small[Each mark is one standard deviation. The areas are always the same]
+
+???
+
+The tail sections hold everything beyond 2, so the outer labels sit a little above the thin curve. Each side adds up to 50%.
+
+---
+
+# The standard normal relabels the axis
+
+```{r relabel-plot, fig.width=10, fig.height=4, out.width="84%", fig.alt=paste0("A normal curve with two axes. The bottom axis shows z-scores from minus 3 to 3. The top axis shows the same points as math scores, with the mean of ", fmt(mu), " above z equals 0.")}
+ticks <- -2:2
+bell() +
+  add_line() +
+  scale_x_continuous(breaks = -3:3, labels = minus,
+                     sec.axis = sec_axis(~ ., name = "Math score X", breaks = ticks, labels = fmt(mu + ticks * sigma, 1)))
+```
+
+.box-inv-3.small[z = (X − μ) / σ moves the mean to 0 and the SD to 1. The shape doesn't change]
+
+???
+
+This is Topic 4's z-score. A standard normal distribution is a normal distribution in z-score units. A normal curve doesn't have to be standardized, but once it is, the sections sit at whole numbers.
+
+---
+
+# Our 619 scores stay close to the curve
+
+```{r check-plot, fig.width=10, fig.height=3.9, out.width="82%", fig.alt=paste0("Bars of the Mindspark scores as proportions, with a normal curve of mean ", fmt(mu), " and standard deviation ", fmt(sigma), " drawn over them. The curve follows the bars closely.")}
+ggplot(score_tab, aes(x = score, y = prop)) +
+  geom_col(fill = clr_soft, width = 0.85) +
+  geom_line(data = tibble(score = seq(-1, 27, by = 0.05), prop = dnorm(score, mu, sigma)), color = clr_median, linewidth = 1.2) +
+  annotate("text", x = 16.5, y = 0.095, label = paste0("Normal curve with\nμ = ", fmt(mu), " and σ = ", fmt(sigma)),
+           hjust = 0, lineheight = 0.9, color = clr_median, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  scale_x_continuous(breaks = seq(0, 26, 2)) +
+  labs(x = "Math score at baseline (out of 35)", y = "Proportion of students") +
+  theme_slides()
+```
+
+.box-inv-3.small[Within 1 σ: `r pct(within_1)` of students, `r pct(pnorm(1) - pnorm(-1))` of the curve. Within 2 σ: `r pct(within_2)` and `r pct(pnorm(2) - pnorm(-2))`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Close, not perfect, and that's normal for real data. The curve even gives some area to scores below zero, which can't happen.
+
+---
+
+# Area is probability, so we can read it off
+
+```{r read-off, fig.width=11, fig.height=3.5, out.width="90%", fig.alt="Two normal curves. On the left, the area from z equals 1 to z equals 2 is shaded. On the right, the area beyond z equals 2 is shaded."}
+read_off <- bind_rows(
+  shade(1, 2, panel = "Between z = 1 and z = 2"),
+  shade(2, Inf, panel = "Above z = 2")
+) %>%
+  mutate(panel = fct_inorder(panel))
+
+bell(18) +
+  add_area(read_off) +
+  add_line() +
+  facet_wrap(vars(panel), nrow = 1)
+```
+
+.box-3.small.sp-after-half[Draw one person from a normal population. What's the chance of each?]
+
+--
+
+.pull-left[
+.box-inv-3.small[p(1 < z < 2) = `r fmt(pnorm(2) - pnorm(1), 4)`]
+]
+
+.pull-right[
+.box-inv-3.small[p(z > 2) = `r fmt(1 - pnorm(2), 4)`]
+]
+
+???
+
+Both come straight from the sections on the previous slide. A probability that small is what we'll later call weird.
+
+---
+
+# Watch it happen, one person at a time
+
+```{r sim-one, results="asis"}
+sim_frame(
+  alt = "Simulator with three panels. The top panel is a normal population with mean 100 and SD 15. The middle panel shows one person's score and z-score. The bottom panel stacks the z-scores of 551 people into a bell shape, with about 5 percent beyond plus or minus 1.96.",
+  step = 1, view = "stat", draws = 551, seed = 15, height = 515
+)
+```
+
+???
+
+This is step 1 of the blueprint from Topic 4, read a new way. Click +1 a few times, then +50 and +500. Each dot is one person drawn at random, and panel 3 shows the share of draws in each place. That's probability as a long-run share, and the shares settle on the areas. Ignore the H₀ label for now. Tool after Kristoffer Magnusson's rpsychologist.com.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Halfway out
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+You know that p(z > 1) = `r fmt(tail_p(1), 4)` and p(z > 2) = `r fmt(tail_p(2), 4)`. Now pick the spot halfway between. What's p(z > 1.5)?
+]
+
+.options[
+.option[
+**A** About 2%
+]
+.option[
+**B** About 7%
+]
+.option[
+**C** About 9%
+]
+.option[
+**D** About 16%
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer. C is what you get by splitting the 1-to-2 section in half. Sketching the curve shows why that's a little too much.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** About 2%
+]
+.option.correct[
+**B** About 7%
+]
+.option.wrong[
+**C** About 9%
+]
+.option.wrong[
+**D** About 16%
+]
+]
+
+```{r halfway-plot, fig.width=10, fig.height=2.6, out.width="72%", fig.alt="A normal curve from z equals 1 to z equals 2, split at 1.5. The first half of that stretch holds about 9 percent of the area and the second half about 4 percent, because the curve keeps falling."}
+bell(18) +
+  add_area(shade(1, 1.5)) +
+  add_area(shade(1.5, Inf), clr_mode) +
+  add_line() +
+  label_text(1.25, 0.26, pct(pnorm(1.5) - pnorm(1), 1), size = 6) +
+  label_text(2.2, 0.16, pct(tail_p(1.5), 1), clr_mode, size = 6)
+```
+
+.box-8.small[The curve keeps falling, so more of that section sits near z = 1. To get exact values for any z, we need a table]
+
+---
+
+class: title title-8
+
+# Before Thursday
+
+.box-inv-8.medium.sp-after-half[Finish Chapter 6]
+
+.box-inv-8.medium.sp-after-half[Read Chapter 7 for the second half of class]
+
+.box-8.medium[Bring a calculator: we'll use the table]
+
+---
+
+class: title title-8
+
+# Session 2: Thursday, January 21
+
+.box-inv-8.small.sp-after-half[Tuesday in one line: probability is area under a curve]
+
+.box-5.medium.sp-after-half[The unit normal table]
+
+.box-7.medium.sp-after-half[From scores to percentiles]
+
+.box-inv-8.small[Then Topic 6 begins: sampling distributions]
+
+???
+
+Two blocks of about 20 minutes, each ending with something to do: try, then play. Topic 6 takes the rest of the session.
+
+---
+
+layout: false
+class: center middle section-title section-title-5 animated fadeIn
+
+# The unit normal table
+
+---
+
+layout: true
+class: title title-5
+
+---
+
+# The table answers one z in three ways
+
+```{r columns-plot, fig.width=11, fig.height=3.5, out.width="92%", fig.alt=paste0("Three normal curves, each with a line at z equals 1. The body, everything below z, is shaded at ", fmt(body(1), 4), ". The tail, everything above z, is shaded at ", fmt(tail_p(1), 4), ". The area between the mean and z is shaded at ", fmt(between(1), 4), ".")}
+columns <- bind_rows(
+  shade(-Inf, 1, panel = "Body"),
+  shade(1, Inf, panel = "Tail"),
+  shade(0, 1, panel = "Mean to z")
+) %>%
+  mutate(panel = factor(panel, levels = c("Body", "Tail", "Mean to z")))
+column_labels <- tibble(panel = factor(c("Body", "Tail", "Mean to z"), levels = levels(columns$panel)),
+                        value = c(body(1), tail_p(1), between(1)))
+
+bell(18) +
+  add_area(columns) +
+  add_line() +
+  geom_text(data = column_labels, aes(x = -3.6, y = 0.37, label = fmt(value, 4)), hjust = 0, color = clr_median,
+            size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  facet_wrap(vars(panel), nrow = 1)
+```
+
+.box-inv-5.small[These are the three areas for z = 1. Body and tail always add up to 1]
+
+???
+
+The table in the book's appendix has these same columns, labeled A to D. The exams attach a copy.
+
+---
+
+# A piece of the table
+
+```{r table-piece, results="asis"}
+z_table(c(0.25, 0.5, 1, 1.5, 1.96, 2)) %>%
+  kable(format = "html", align = "c", table.attr = 'class="deck-table tight"')
+```
+
+.box-5.small.sp-after-half[Tuesday's poll: the row for 1.50, column Tail, gives p(z > 1.5) = `r fmt(tail_p(1.5), 4)`]
+
+.box-inv-5.small[The full table is at the back of the book, and exams come with a copy]
+
+---
+
+# Sketch first, then pick the column
+
+.pull-left[
+.steps[
+1. Draw the curve and shade the area you want
+2. Mark your z-scores
+3. Is that a body, a tail, or a piece from the mean?
+4. Read the column, then add or subtract
+]
+]
+
+.pull-right[
+```{r sketch-plot, fig.width=6, fig.height=3.6, out.width="100%", fig.alt="A normal curve with the area from z equals minus 1 to z equals 1.5 shaded and split at the mean. The left piece is 0.3413 and the right piece is 0.4332."}
+bell(18) +
+  add_area(shade(-1, 1.5)) +
+  geom_segment(aes(x = 0, xend = 0, y = 0, yend = dnorm(0)), color = "white", linewidth = 1.2) +
+  add_line() +
+  label_text(-0.5, 0.15, fmt(between(1), 4), "white", size = 5.5) +
+  label_text(0.72, 0.15, fmt(between(1.5), 4), "white", size = 5.5)
+```
+
+.center[p(−1 < z < 1.5) = **`r fmt(between(1) + between(1.5), 4)`**]
+]
+
+???
+
+Most mistakes in this chapter come from skipping the sketch. Here the area crosses the mean, so we add two "mean to z" values.
+
+---
+
+# Negative z? The curve is a mirror
+
+```{r mirror-plot, fig.width=11, fig.height=3.5, out.width="90%", fig.alt="Two normal curves. On the left the area below z equals minus 1.5 is shaded. On the right the area above z equals 1.5 is shaded. The two shaded areas match."}
+mirror <- bind_rows(
+  shade(-Inf, -1.5, panel = "p(z < −1.5)"),
+  shade(1.5, Inf, panel = "p(z > 1.5)")
+) %>%
+  mutate(panel = fct_inorder(panel))
+
+bell(18) +
+  add_area(mirror, clr_median) +
+  add_line() +
+  facet_wrap(vars(panel), nrow = 1)
+```
+
+.box-inv-5.small[The table lists only positive z. Both tails here equal `r fmt(tail_p(1.5), 4)`, so drop the sign and read the tail]
+
+---
+
+# The table also runs backwards
+
+```{r backwards-plot, fig.width=11, fig.height=3.3, out.width="90%", fig.alt="Two normal curves. On the left the top 5 percent is shaded beyond z equals 1.645. On the right the two outer tails are shaded beyond z equals minus 1.96 and 1.96, leaving the middle 95 percent."}
+backwards <- bind_rows(
+  shade(1.645, Inf, panel = "Top 5%", grp = "a"),
+  shade(-Inf, -1.96, panel = "Middle 95%", grp = "b"),
+  shade(1.96, Inf, panel = "Middle 95%", grp = "c")
+) %>%
+  mutate(panel = factor(panel, levels = c("Top 5%", "Middle 95%")))
+
+bell(18) +
+  geom_ribbon(data = backwards, aes(x = z, ymin = 0, ymax = y, group = grp), fill = clr_bar, inherit.aes = FALSE) +
+  add_line() +
+  scale_x_continuous(breaks = c(-3, -1.96, 0, 1.645, 1.96, 3), labels = function(b) ifelse(abs(b) == 3, minus(b), "")) +
+  geom_text(data = tibble(panel = factor(c("Top 5%", "Middle 95%", "Middle 95%"), levels = levels(backwards$panel)),
+                          z = c(2.4, -2.55, 2.55), label = c("1.645", "−1.96", "1.96")),
+            aes(x = z, y = 0.1, label = label), color = clr_median, size = 6, fontface = "bold",
+            family = "Fira Sans Condensed") +
+  facet_wrap(vars(panel), nrow = 1) +
+  labs(x = "z-score")
+```
+
+.pull-left[
+.box-inv-5.small[Find 0.0500 in the Tail column. It falls between z = 1.64 and 1.65]
+]
+
+.pull-right[
+.box-inv-5.small[Split 5% into 0.0250 per tail. The Tail column gives z = 1.96]
+]
+
+???
+
+Remember 1.96. It will come back for the rest of the quarter.
+
+---
+
+# A spreadsheet does the same lookup
+
+```{r spreadsheet-table, results="asis"}
+tribble(
+  ~`You want`, ~`Formula, in Excel or Google Sheets`, ~Result,
+  "Body for z = 1.5", "=NORM.DIST(1.5, 0, 1, TRUE)", fmt(body(1.5), 4),
+  "Tail for z = 1.5", "=1 - NORM.DIST(1.5, 0, 1, TRUE)", fmt(tail_p(1.5), 4),
+  "z for a body of 0.95", "=NORM.INV(0.95, 0, 1)", fmt(qnorm(0.95), 3)
+) %>%
+  kable(format = "html", align = "llc", table.attr = 'class="deck-table"')
+```
+
+.box-inv-5.small[The 0 and the 1 are μ and σ. The body is everything below z, so a tail is 1 minus the formula]
+
+???
+
+No devices on exams, so the table is still the skill to practice. The spreadsheet helps with homework.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Use the table
+
+```{r try-table, results="asis"}
+z_table(c(0.25, 0.84, 1.28)) %>%
+  kable(format = "html", align = "c", table.attr = 'class="deck-table tight"')
+```
+
+.options[
+.option[
+**1** Find p(z < 0.25)
+]
+.option[
+**2** Find p(z > −0.25)
+]
+.option[
+**3** 90% of scores fall below which z?
+]
+.option[
+**4** The middle 60% lies between which two z-scores?
+]
+]
+
+.box-8.small[Sketch first. Work alone, compare with a neighbor, then we vote]
+
+???
+
+About 6 minutes. Hands for the vote. Questions 1 and 2 have the same answer, and that's the point: sketch them.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+```{r try-answer, fig.width=11.5, fig.height=4.2, out.width="96%", fig.alt=paste0("Four normal curves. One: area below z equals 0.25 is shaded, ", fmt(body(0.25), 4), ". Two: area above z equals minus 0.25 is shaded, also ", fmt(body(0.25), 4), ". Three: area below z equals 1.28 is shaded, 90 percent. Four: area between z equals minus 0.84 and 0.84 is shaded, the middle 60 percent.")}
+answers <- bind_rows(
+  shade(-Inf, 0.25, panel = "1. p(z < 0.25)"),
+  shade(-0.25, Inf, panel = "2. p(z > −0.25)"),
+  shade(-Inf, 1.28, panel = "3. Below 90%"),
+  shade(-0.84, 0.84, panel = "4. Middle 60%")
+) %>%
+  mutate(panel = fct_inorder(panel))
+answer_text <- tibble(panel = factor(levels(answers$panel), levels = levels(answers$panel)),
+                      label = c(fmt(body(0.25), 4), fmt(body(0.25), 4), "z = 1.28", "z = ±0.84"))
+
+bell(17) +
+  add_area(answers) +
+  add_line() +
+  geom_text(data = answer_text, aes(x = -3.6, y = 0.39, label = label), hjust = 0, color = clr_median,
+            size = 6, fontface = "bold", family = "Fira Sans Condensed") +
+  facet_wrap(vars(panel), nrow = 2) +
+  coord_cartesian(ylim = c(0, 0.42))
+```
+
+.box-8.small[The first two match because the curve is symmetric. For the last one, each tail holds 20%]
+
+---
+
+layout: false
+class: center middle section-title section-title-7 animated fadeIn
+
+# From scores to percentiles
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# Normal curves differ only in their labels
+
+```{r three-normals, fig.width=11, fig.height=3.3, out.width="92%", fig.alt=paste0("Three identical bell curves with different horizontal axes: Mindspark math with mean ", fmt(mu), " and SD ", fmt(sigma), ", an IQ test with mean 100 and SD 15, and the SAT with mean ", sat_mu, " and SD ", sat_sd, ".")}
+scales_tbl <- tibble(panel = c(paste0("Mindspark: μ = ", fmt(mu), ", σ = ", fmt(sigma)), "IQ test: μ = 100, σ = 15",
+                               paste0("SAT: μ = ", sat_mu, ", σ = ", sat_sd)),
+                     m = c(mu, 100, sat_mu), s = c(sigma, 15, sat_sd), d = c(1, 0, 0)) %>%
+  mutate(panel = fct_inorder(panel))
+ticks_tbl <- scales_tbl %>%
+  mutate(z = list(-2:2)) %>%
+  unnest(z) %>%
+  mutate(lab = pmap_chr(list(m + z * s, d), ~ fmt(..1, ..2)))
+
+bell(16) +
+  add_line() +
+  geom_text(data = ticks_tbl, aes(x = z, y = -0.035, label = lab), color = "#47505a", size = 5.2,
+            family = "Fira Sans Condensed", inherit.aes = FALSE) +
+  facet_wrap(vars(panel), nrow = 1) +
+  coord_cartesian(ylim = c(0, 0.41), clip = "off") +
+  labs(x = NULL) +
+  theme(axis.text.x = element_blank(), panel.spacing.x = unit(1.4, "lines"),
+        plot.margin = margin(4, 8, 24, 8))
+```
+
+.box-inv-7.small[Convert to z and one table serves them all. But the population must be normal, or the table's areas are wrong]
+
+???
+
+For a heavily skewed population the table gives wrong answers, because its areas belong to the normal shape. Always ask whether normal is reasonable.
+
+---
+
+# Three stops: score, z, probability
+
+.stops[
+.stop[Score X]
+.link[
+z = (X − μ) / σ
+
+X = μ + zσ
+]
+.stop[z-score]
+.link[
+Unit normal table
+]
+.stop[Probability]
+]
+
+.pull-left[
+.box-7.small[Have a score?]
+
+Go right: find z, then read the area
+]
+
+.pull-right[
+.box-7.small[Have a share?]
+
+Go left: read z from the table, then find X
+]
+
+.box-inv-7.small[You can't jump straight from X to a probability. Every trip goes through z]
+
+.source[After a figure in Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*.]
+
+---
+
+# How many students scored above 1200?
+
+.pull-left[
+.box-7.small[Class of 2025: μ = `r sat_mu`, σ = `r sat_sd`. Treat it as normal]
+
+.box-inv-7.small[z = (1200 − `r sat_mu`) / `r sat_sd` = `r fmt(sat_z)`]
+
+.box-inv-7.small[Tail for z = `r fmt(sat_z)`: `r fmt(sat_tail, 4)`, so about `r pct(sat_tail)`]
+]
+
+.pull-right[
+```{r sat-plot, fig.width=6, fig.height=3.5, out.width="100%", fig.alt=paste0("A normal curve for SAT totals with the area above 1200 shaded. That is z equals ", fmt(sat_z), ", and the shaded tail is about ", pct(sat_tail), ".")}
+bell(18) +
+  add_area(shade(sat_z, Inf)) +
+  add_line() +
+  scale_x_continuous(breaks = (c(600, 1029, 1200, 1600) - sat_mu) / sat_sd,
+                     labels = c("600", "1029", "1200", "1600")) +
+  label_text(2.4, 0.27, paste("Above 1200:", pct(sat_tail)), size = 6) +
+  labs(x = "SAT total")
+```
+]
+
+--
+
+.box-7.small[Real count at 1200 or above: `r format(sat_1200_n, big.mark = ",")` of `r format(sat_n, big.mark = ",")`, or `r pct(sat_1200_n / sat_n)`. Close, not exact]
+
+.source[Data: College Board, 2025 SAT Suite Annual Report, Total Group.]
+
+???
+
+Work this one on the board and ask the room for each step. SAT totals run from 400 to 1600, so the real distribution is cut off at both ends and isn't perfectly normal.
+
+---
+
+# Percentile rank: the share at or below
+
+.box-7.medium.sp-after-half[1200 has a percentile rank of `r round(100 * (1 - sat_tail))`]
+
+.box-inv-7.small.sp-after-half[
+`r pct(sat_tail)` scored above it, so 100 − `r round(100 * sat_tail)` = `r 100 - round(100 * sat_tail)`% scored at or below it
+]
+
+.box-inv-7.small.sp-after-half[
+It's the body of the curve at that score
+]
+
+.box-inv-7.small[
+Percentile rank describes a person's place in the group. It isn't the percent they got right
+]
+
+.source[Data: College Board, 2025 SAT Suite Annual Report, Total Group.]
+
+---
+
+# A percentile: the score at a given share
+
+.pull-left[
+.box-7.small[To be in the top 5%, what score did you need?]
+
+.box-inv-7.small[The 95th percentile has a tail of 0.05, so z = 1.645]
+
+.box-inv-7.small[X = μ + zσ = `r sat_mu` + 1.645 × `r sat_sd`]
+
+.box-7.small[X = `r round(sat_95)`, or about 1420 on the SAT's scale]
+]
+
+.pull-right[
+```{r sat-95, fig.width=6, fig.height=3.5, out.width="100%", fig.alt=paste0("A normal curve for SAT totals with the top 5 percent shaded, beyond a score of about ", round(sat_95), ".")}
+bell(18) +
+  add_area(shade(1.645, Inf)) +
+  add_line() +
+  scale_x_continuous(breaks = (c(600, 1029, round(sat_95)) - sat_mu) / sat_sd,
+                     labels = c("600", "1029", as.character(round(sat_95)))) +
+  label_text(2.3, 0.1, "Top 5%", size = 6) +
+  labs(x = "SAT total")
+```
+]
+
+.source[Data: College Board, 2025 SAT Suite Annual Report, Total Group.]
+
+???
+
+Percentile rank starts with a score and ends with a percent. A percentile starts with a percent and ends with a score. Scores come in steps of 10, which is why 1416 becomes about 1420.
+
+---
+
+layout: false
+class: title title-8
+
+# Play it: Warm-up for Friday
+
+.box-inv-8.small.sp-after-half[Curves and percentiles. Answer as a question. Nothing is scored]
+
+.pull-left[
+.box-8.medium[For 100]
+
+The percentile rank of z = 0
+]
+
+.pull-right[
+.box-8.medium[For 200]
+
+The share of a normal population above z = −1
+]
+
+--
+
+.pull-left[
+.center[**What is the 50th?**]
+]
+
+.pull-right[
+.center[**What is about `r pct(body(1))`?**]
+]
+
+???
+
+About 6 minutes for all three clues. Tell a neighbor your answer to each one, then reveal.
+
+---
+
+class: title title-8 poll-slide
+
+# Play it: For 300
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Mindspark's curve has μ = `r fmt(mu)` and σ = `r fmt(sigma)`. Treating it as normal, this score is the 90th percentile. In the table, the tail 0.10 is closest at z = 1.28
+]
+
+.options[
+.option[
+**A** What is `r fmt(mu - 1.28 * sigma, 1)`?
+]
+.option[
+**B** What is `r fmt(mu + 0.9, 1)`?
+]
+.option[
+**C** What is `r fmt(mu + 0.9 * sigma, 1)`?
+]
+.option[
+**D** What is `r fmt(ms_90, 1)`?
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Play it: Answer
+
+.options[
+.option.wrong[
+**A** What is `r fmt(mu - 1.28 * sigma, 1)`?
+]
+.option.wrong[
+**B** What is `r fmt(mu + 0.9, 1)`?
+]
+.option.wrong[
+**C** What is `r fmt(mu + 0.9 * sigma, 1)`?
+]
+.option.correct[
+**D** What is `r fmt(ms_90, 1)`?
+]
+]
+
+.box-inv-8.small.sp-after-half[X = `r fmt(mu)` + 1.28 × `r fmt(sigma)` = `r fmt(ms_90, 1)`. The real 90th percentile of our `r N` students is `r ms_real_90`]
+
+.box-8.small[A takes the wrong sign. B and C use 0.90 as if it were a z-score, and 0.90 is a share]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+class: title title-8
+
+# From one score to a whole sample
+
+.box-1.medium.sp-after-half[So far: how weird is one score?]
+
+.box-3.medium.sp-after-half[Next: how weird is one sample's mean?]
+
+.box-inv-8.small.sp-after-half[Our `r N` students stay a population. We draw many samples, and their means pile up into a curve of their own]
+
+.box-inv-8.small[Areas under that curve drive the four steps of a hypothesis test]
+
+???
+
+The simulator's blueprint from Tuesday was the n = 1 case. Topic 6 raises n, right after this slide.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Find a probability as a share of outcomes, or as an area]
+
+.box-inv-8.small[Say why height on a density curve isn't a probability]
+
+.box-inv-8.small[Use the unit normal table, forward and backward]
+
+.box-inv-8.small[Go from a score to a z-score to a probability, and back]
+
+.box-inv-8.small[Find a percentile rank and a percentile]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Right now]
+
+Topic 6 starts: sampling distributions, from Chapter 7
+]
+
+.pull-right[
+.box-6.small[This Friday: Lab 3]
+
+Jeopardy, covering everything through z-scores and probability. Bring a calculator
+]
+
+.box-3.small[Mastery and Problem Set for Chapter 6 are due Sunday, January 24 at 6 PM]
+
+```{css, echo=FALSE}
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+.steps {
+  font-size: 0.8em;
+  line-height: 1.25;
+}
+
+.steps li {
+  margin-bottom: 0.4em;
+}
+
+/* The three stops from a score to a probability */
+.stops {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1fr 1.25fr 1fr;
+  align-items: center;
+  gap: 0.3em;
+  margin: 0.6em 0 0.8em;
+  font-size: 0.8em;
+}
+
+.stop {
+  background-color: #244a70;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 0.7em 0.2em;
+}
+
+.link {
+  text-align: center;
+  font-size: 0.8em;
+  border-top: 3px solid #244a70;
+  border-bottom: 3px solid #244a70;
+  padding: 0.2em 0;
+}
+
+.link p {
+  margin: 0.25em 0;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+```
