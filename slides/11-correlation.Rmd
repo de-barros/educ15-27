@@ -545,7 +545,7 @@ A theory says two things go together. Do they?
 
 ???
 
-The first three are everyday uses in education research, and none of them needs a causal story. The fourth is where people get into trouble, which we come back to at the end of today.
+The first three are everyday uses in education research, and none of them needs a causal story. The fourth is where people get into trouble, which we come back to later today.
 
 ---
 
@@ -587,7 +587,7 @@ ggplot(eight$d, aes(x = X, y = Y)) +
 
 ???
 
-The 2024 hand example. These are the students in rows 25 to 32 of the file. There's nothing special about them, and we'll see that their r isn't the same as everyone's.
+The 2024 hand example. These are the 25th to 32nd of the students with both scores. There's nothing special about them, and we'll see that their r isn't the same as everyone's.
 
 Lab 9 on March 5 does this with `CORREL` on all `r all$n`.
 
@@ -614,6 +614,8 @@ ggplot(eight$d, aes(x = X, y = Y)) +
 
 .box-inv-6.small[Multiply each student's two deviations. Same side of both means gives a positive product]
 
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
 ???
 
 This is a new idea with an old tool. For variance, we squared one deviation. Now we multiply two different deviations. If high goes with high and low goes with low, the products are mostly positive, and they add up to something big.
@@ -635,6 +637,8 @@ bind_rows(sp_rows, sp_sum) %>%
 ```
 
 .book-tag[Shortcut: SP = ΣXY − (ΣX)(ΣY) / n = `r format(sum(eight$d$X * eight$d$Y), big.mark = ",")` − (`r sum(eight$d$X)` × `r sum(eight$d$Y)`) / `r eight$n` = `r fmt(eight$sp, 0)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -779,7 +783,7 @@ class: title title-3
 ```{r three-r-table, results="asis"}
 tribble(
   ~Students, ~n, ~r,
-  "Rows 25 to 32", as.character(eight$n), fmt(eight$r),
+  "Students 25 to 32", as.character(eight$n), fmt(eight$r),
   "The five from the try-it", as.character(five$n), fmt(five$r),
   "Everyone with both scores", as.character(all$n), fmt(all$r)
 ) %>%
@@ -906,7 +910,7 @@ tribble(
 
 Rejecting H₀ means this sample would be surprising if ρ were 0. It doesn't say the relationship is strong. r and r² do that.
 
-The 8 students overstate the relationship, and the `r all$n` pin it down. The interval for r has its own formula, which is beyond this course, so we read it from software. Every test since Topic 8 comes with an effect size and an interval, and this one does too.
+The 8 students overstate the relationship, and the `r all$n` pin it down. The interval for r has its own formula, which is beyond this course, so we read it from software. Every t-test since Topic 8 comes with an effect size and an interval, and this one does too.
 
 ---
 
@@ -931,7 +935,7 @@ tribble(
 
 Tuition: X is 1 if the family pays for any extra lessons. Stronger students may be the ones whose families pay. Or families may pay because a child is struggling. Or keen parents may do both things. The data can't tell these apart.
 
-The lottery: X is 1 for a Mindspark spot, and nobody could choose it. Before the program, the same lottery had no link to math: r = `r fmt(win_before$r)`, t(`r win_before$df`) = `r fmt(win_before$t)`.
+The lottery: X is 1 for a Mindspark spot, and nobody could choose it. Before the program, the same lottery had no detectable link to math: r = `r fmt(win_before$r)`, t(`r win_before$df`) = `r fmt(win_before$t)`.
 
 Watch for the trick of hinting at a cause in the discussion section, then retreating to "it's only a correlation" when someone objects. This is the "motte and bailey" from 2024.
 
