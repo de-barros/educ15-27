@@ -1,0 +1,1406 @@
+---
+title: "Sampling distributions"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css", "css/simulator.css"]
+    seal: false
+    anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+library(knitr)
+source(here::here("R", "slide-things.R"))
+
+# Colors from the slide theme, all readable on white ----
+clr_bar <- "#538ba2"
+clr_soft <- "#c5d9e2"
+clr_mean <- "#a93e31"
+clr_median <- "#244a70"
+clr_mode <- "#8a6100"
+
+theme_slides <- function(base_size = 20) {
+  theme_minimal(base_size = base_size, base_family = "Fira Sans Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_text(face = "bold"),
+          strip.text = element_text(face = "bold", size = rel(1)))
+}
+
+fmt <- function(x, d = 2) formatC(x, format = "f", digits = d)
+pct <- function(x, d = 0) paste0(fmt(100 * x, d), "%")
+minus <- function(x) str_replace(as.character(x), "-", "−")
+
+label_text <- function(x, y, label, color = clr_median, hjust = 0.5, size = 6.5) {
+  annotate("text", x = x, y = y, label = label, color = color, hjust = hjust, size = size,
+           fontface = "bold", family = "Fira Sans Condensed")
+}
+
+# The simulator's seed. At this seed, the first draw at n = 1 is 106.2, which is
+# the number in the 2024 deck, so the slides can quote it ----
+sim_seed <- 1365
+sim_mu <- 100
+sim_sd <- 15
+first_M <- 106.2
+first_gap <- first_M - sim_mu
+first_z <- first_gap / sim_sd
+first_body <- pnorm(round(first_z, 2))
+
+# 551 fresh draws of n = 1, to count below the first one ----
+set.seed(551)
+count_draws <- tibble(M = rnorm(551, sim_mu, sim_sd))
+count_below <- sum(count_draws$M < first_M)
+
+# The 619 baseline math scores, treated as a population ----
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+math <- baseline$tot_math
+N <- length(math)
+mu <- mean(math)
+sigma <- sqrt(sum((math - mu)^2) / N)
+se_of <- function(n) sigma / sqrt(n)
+
+# 5,000 samples of each size from the 619 ----
+set.seed(15)
+pile <- map_dfr(c(1, 5, 25), function(k) {
+  tibble(n = k, M = replicate(5000, mean(sample(math, k, replace = TRUE))))
+})
+pile_sd <- pile %>%
+  group_by(n) %>%
+  summarize(m = mean(M), sd = sd(M)) %>%
+  mutate(panel = paste("Samples of", n))
+sd_25 <- pile_sd$sd[pile_sd$n == 25]
+
+# One real sample of 25 ----
+set.seed(25)
+one_25 <- sample(math, 25)
+M_25 <- mean(one_25)
+sd_25_hat <- sd(one_25)
+se_25_hat <- sd_25_hat / sqrt(25)
+
+# Four real students for the by-hand work ----
+four <- baseline$tot_math[25:28]
+four_M <- mean(four)
+four_ss <- sum((four - four_M)^2)
+four_var <- four_ss / 3
+four_sd <- sqrt(four_var)
+four_se <- four_sd / sqrt(4)
+
+# The middle 95% of means of 25 students ----
+lo_95 <- mu - 1.96 * se_of(25)
+hi_95 <- mu + 1.96 * se_of(25)
+
+# A poll of 1,000 people, split about evenly, with percentages as the units ----
+poll_n <- 1000
+poll_se <- 100 * sqrt(0.5 * 0.5 / poll_n)
+poll_margin <- 1.96 * poll_se
+
+# The lottery picked the treatment group, so it's a random sample of the 619 ----
+win <- math[baseline$treat == 1]
+win_n <- length(win)
+win_M <- mean(win)
+win_se <- se_of(win_n)
+win_z <- (win_M - mu) / win_se
+win_p <- 2 * pnorm(-abs(win_z))
+
+# Endline math scores for the two groups ----
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+groups <- endline %>%
+  filter(!is.na(tot_math)) %>%
+  group_by(treat) %>%
+  summarize(n = n(), M = mean(tot_math), sd = sd(tot_math)) %>%
+  mutate(se = sd / sqrt(n),
+         group = if_else(treat == 1, "Lottery winners", "Control"))
+ctrl <- filter(groups, treat == 0)
+wins <- filter(groups, treat == 1)
+gap <- wins$M - ctrl$M
+
+group_plot <- function(base = 20) {
+  ggplot(groups, aes(x = M, y = fct_rev(fct_inorder(group)))) +
+    geom_errorbarh(aes(xmin = M - se, xmax = M + se), height = 0.18, linewidth = 1.2, color = clr_median) +
+    geom_point(size = 5, color = clr_mean) +
+    geom_text(aes(label = paste0(group, ": M = ", fmt(M), ", standard error ", fmt(se))), nudge_y = 0.36, size = 6.5,
+              fontface = "bold", color = clr_median, family = "Fira Sans Condensed") +
+    scale_x_continuous(limits = c(13, 21), breaks = 13:21) +
+    scale_y_discrete(expand = expansion(add = c(0.35, 0.75))) +
+    labs(x = "Math score at endline: M ± one standard error", y = NULL) +
+    theme_slides(base) +
+    theme(panel.grid.major.y = element_blank(), axis.text.y = element_blank())
+}
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# Sampling distributions
+
+.class-info[
+
+**Topic 6 · Thursday, January 21 and Tuesday, January 26**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+
+.center[**We are here, heading right**]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Same map. This topic is the last piece of groundwork before we go from a sample to a population. It's the second half of Thursday and all of Tuesday, so five blocks in all.
+
+---
+
+class: title title-8
+
+# The question we keep asking
+
+.box-8.medium.sp-after-half[If what I think about the population is true, how weird is my sample?]
+
+.box-inv-8.small.sp-after-half[So far, a sample was one person. We asked how weird that one score was]
+
+.box-inv-8.small.sp-after-half[A real sample has many people. So we compute its mean, and ask how weird that mean is]
+
+.box-inv-8.small[Then, how weird must it be before I change my mind? That's Topic 7]
+
+???
+
+Topics 4 and 5 answered this for n = 1. We need one new tool: what means do when we draw sample after sample.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for the rest of today
+
+.box-1.medium.sp-after-half[The distribution of sample means]
+
+.box-6.medium.sp-after-half[How weird is one mean?]
+
+.box-inv-8.small[On Tuesday: standard errors, how to estimate them, and how to use them]
+
+???
+
+Two blocks today, three on Tuesday. Each block ends with a prediction or a try-it.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# The distribution of sample means
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Our blueprint: three panels, one story
+
+.box-1.medium[Panel 1: The population]
+
+.center.small[Everyone we care about. Its μ and σ are fixed, and usually hidden from us]
+
+.box-1.medium[Panel 2: One sample]
+
+.center.small[We draw n people and compute one statistic, such as their mean M]
+
+.box-1.medium[Panel 3: That statistic, across samples]
+
+.center.small[We repeat, and watch how the statistics stack up]
+
+???
+
+This is the blueprint, and it's the frame for the rest of the quarter. Topics 4 and 5 used step 1 of it. Today is step 2. Every later test fills in the same three panels with a different statistic.
+
+---
+
+# Start small: samples of one person
+
+```{r sim-empty, results="asis"}
+sim_frame(
+  alt = "Simulator with three panels and no samples drawn yet. Panel 1 is a normal population with mean 100 and SD 15. Panels 2 and 3 are empty and share the same axis.",
+  step = 2, n = 1, view = "raw", seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Read the panels from the top. The population is normal, with mean 100 and SD 15. Don't explain panel 3's dashed curve yet: it gives away the next prediction.
+
+**Press +1 once.** A dot falls from panel 1 into panel 2, and one ball drops into panel 3. Panel 2 shows M = 106.2. With one person, the mean is that person's score.
+
+Panel 3's red cutoffs, the share beyond them and p come from hypothesis testing. Ignore them for now: Topic 7 explains them.
+
+The tool opens at a fixed seed, so the first press always gives 106.2. Use Clear to get back to it. It's our own tool, built after Kristoffer Magnusson's p-value page at rpsychologist.com.
+
+---
+
+# That gap is called sampling error
+
+.pull-left[
+.box-inv-1.medium[In points]
+
+.center[M − μ = `r first_M` − `r sim_mu` = **`r fmt(first_gap, 1)`**]
+]
+
+.pull-right[
+.box-inv-1.medium[In SDs: a z-score]
+
+.center[(`r first_M` − `r sim_mu`) / `r sim_sd` = **`r fmt(first_z)`**]
+]
+
+.box-1.small.sp-after-half[Sampling error is the gap between a statistic and the parameter it estimates]
+
+.box-inv-1.small[Nobody made a mistake. A random sample rarely matches its population exactly]
+
+???
+
+You already know the z-score transformation, so this is familiar. The new word is sampling error.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: Fifty more samples of one
+
+.box-inv-8.small.sp-after-half[We have one dot in panel 3, at `r first_M`. We draw 50 more samples, then 500 more. Each gives one mean, and each mean is one dot]
+
+.box-8.small[What will the 551 dots look like?]
+
+.options[
+.option[
+**A** A bell around 100, as wide as the population
+]
+.option[
+**B** A narrow spike right at 100
+]
+.option[
+**C** A flat line across the whole axis
+]
+.option[
+**D** A bell around 106.2, our first sample
+]
+]
+
+???
+
+About 6 minutes for this slide and the next two. Hands are fine. Ask a neighbor first, then vote, and ask a few students why.
+
+---
+
+class: title title-8 press-slide
+
+# Predict it: Press +50, then +500
+
+```{r sim-press, results="asis"}
+sim_frame(
+  alt = "Simulator with one sample of one person drawn, a mean of 106.2, ready for more samples.",
+  step = 2, n = 1, view = "raw", draws = 1, seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+**Press +50** and let the dots land. That's 51 samples. Ask if anyone wants to change their vote. **Then press +500.** That's 551 samples, the same numbers as the next slide.
+
+Ignore the cutoffs and p for now.
+
+---
+
+class: title title-8
+
+# n = 1: the means copy the population
+
+```{r sim-551, results="asis"}
+sim_frame(
+  alt = "Simulator with 551 samples of one person. In panel 3 the 551 means stack into a bell shape around 100, as wide as the normal population in panel 1.",
+  step = 2, n = 1, view = "raw", draws = 551, seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The answer is A. The population is normal, so drawing one person at a time just rebuilds that same normal curve. All three panels share an axis, so the widths compare directly.
+
+Click any dot in panel 3 to see the sample behind it. Ignore the cutoffs and p for now.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# How weird is one mean?
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# That pile has a name
+
+.box-6.medium.sp-after-half[Sampling distribution]
+
+.center.small[The distribution of a statistic, across all possible samples of size n]
+
+.box-6.medium.sp-after-half[Distribution of sample means]
+
+.center.small[The same thing, when the statistic is the mean M]
+
+.box-inv-6.small[Each dot is a whole sample, not a person]
+
+???
+
+551 samples only approximates it. The real sampling distribution uses every possible sample. Keep saying "each dot is a sample": this is the idea students lose most easily.
+
+---
+
+# Count the dots to find a probability
+
+```{r count-plot, fig.width=10, fig.height=3.9, out.width="84%", fig.alt=paste0("Histogram of 551 means of samples of one person, bell-shaped around 100. Bars below 106.2 are dark and the rest are pale. ", count_below, " of the 551 means are below 106.2.")}
+ggplot(count_draws, aes(x = M, fill = M < first_M)) +
+  geom_histogram(binwidth = 5, boundary = first_M, color = "white") +
+  geom_vline(xintercept = first_M, color = clr_mean, linewidth = 1.2) +
+  label_text(first_M + 1.5, 80, paste("Our mean,", first_M), clr_mean, hjust = 0) +
+  scale_fill_manual(values = c(`FALSE` = clr_soft, `TRUE` = clr_bar), guide = "none") +
+  scale_x_continuous(breaks = seq(40, 160, 20)) +
+  scale_y_continuous(limits = c(0, 90)) +
+  labs(x = "Sample mean M", y = "Samples") +
+  theme_slides()
+```
+
+.box-inv-6.small[`r count_below` of 551 means are below `r first_M`. So p(M < `r first_M`) is about `r fmt(count_below / 551)`]
+
+???
+
+Probability is a share of outcomes, as in Topic 5. These are 551 fresh draws, not the ones in the tool, so the count won't match its dots exactly.
+
+---
+
+# Turn every mean into a z-score
+
+```{r sim-z, results="asis"}
+sim_frame(
+  alt = "Simulator with 551 samples of one person, shown as z-scores. Panel 3 is a bell shape around 0, matching the standard normal curve.",
+  step = 2, n = 1, view = "stat", draws = 551, seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The same 551 samples. Only panel 3's axis changed: it's now in z-scores, and the bell sits on the standard normal curve. Ignore the cutoffs and p for now.
+
+---
+
+# So we can skip the counting
+
+.box-inv-6.small.sp-after-half[Any normal distribution in z-scores is the standard normal, so the unit normal table applies]
+
+$$
+z = \frac{M - \mu}{\sigma} = \frac{`r first_M` - `r sim_mu`}{`r sim_sd`} = `r fmt(first_z)`
+$$
+
+.pull-left[
+.box-6.small[Table: the body at z = `r fmt(first_z)` is `r fmt(first_body, 4)`]
+]
+
+.pull-right[
+.box-inv-6.small[Counting gave `r fmt(count_below / 551)`]
+]
+
+.box-inv-6.small[A mean like ours isn't weird. About `r pct(first_body)` of samples fall below it]
+
+???
+
+The two answers agree, as they should. This works because we started from a normal population. The next question is what happens when we don't.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: A lopsided population
+
+.box-inv-8.small.sp-after-half[Now the population is skewed right. We draw samples of 30 and compute each mean]
+
+.box-8.small[What shape will the means make in panel 3?]
+
+.options[
+.option[
+**A** Skewed right, like the population
+]
+.option[
+**B** A bell around the population's mean
+]
+.option[
+**C** Skewed left, the opposite way
+]
+.option[
+**D** Flat
+]
+]
+
+???
+
+About 6 minutes for this slide and the next two. Hands are fine. Neighbor first, then vote.
+
+---
+
+class: title title-8 press-slide
+
+# Predict it: Press +1 twice, then +500
+
+```{r sim-skew-press, results="asis"}
+sim_frame(
+  alt = "Simulator with a right-skewed population with mean 100 and no samples drawn yet. Each sample will have 30 people.",
+  step = 2, n = 30, pop = "rightskew", view = "raw", seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+**Press +1 twice,** slowly. Thirty dots fall into panel 2, collapse to their mean, and one ball drops. **Then press +500.**
+
+Ignore the cutoffs and p for now.
+
+---
+
+class: title title-8
+
+# Skewed population, bell-shaped means
+
+```{r sim-skew, results="asis"}
+sim_frame(
+  alt = "Simulator with 551 samples of 30 from a right-skewed population. Panel 1 has a long right tail. In panel 3 the 551 means form a narrow, symmetric bell around 100.",
+  step = 2, n = 30, pop = "rightskew", view = "raw", draws = 551, seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The answer is B. Students will also notice the bell is much narrower than the population. Hold that thought until Tuesday.
+
+The shape menu isn't on the slide. Students can try Two peaks or Flat on the simulator page, and the means make the same bell. Ignore the cutoffs and p for now.
+
+---
+
+class: title title-8
+
+# The central limit theorem
+
+.box-8.medium.sp-after-half[With large samples, the distribution of sample means is close to normal, whatever the population's shape]
+
+.box-inv-8.small.sp-after-half[If the population is normal, the means are normal at any n]
+
+.box-inv-8.small.sp-after-half[If it isn't, n of about 30 is usually enough]
+
+.box-8.small[So with a large n, the unit normal table works for means from any population]
+
+???
+
+This is the shape half of the theorem. Tuesday adds where the bell sits and how wide it is. n of about 30 is a rule of thumb, and more extreme shapes need more.
+
+---
+
+class: title title-8
+
+# Before Tuesday
+
+.box-inv-8.medium.sp-after-half[Friday, January 22: Lab 3 is Jeopardy. Bring a calculator]
+
+.box-inv-8.medium.sp-after-half[Sunday, January 24 at 6 PM: Mastery and Problem Set for Chapter 6]
+
+.box-8.medium[Finish Chapter 7 for Tuesday]
+
+???
+
+The game covers everything through z-scores and probability, not today's material. The simulator is on the course site under Resources, if students want to press the buttons themselves.
+
+---
+
+class: title title-8
+
+# Session 2: Tuesday, January 26
+
+.box-inv-8.small.sp-after-half[Thursday in one line: means of samples pile up into a distribution of their own]
+
+.box-3.medium.sp-after-half[Standard errors]
+
+.box-5.medium.sp-after-half[Estimating the standard error]
+
+.box-7.medium[Using standard errors]
+
+???
+
+Three blocks today. By the end, students can say how far a sample mean tends to fall from μ, even from a single sample.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# Standard errors
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# So far, each sample had one person
+
+```{r sim-n1, results="asis"}
+sim_frame(
+  alt = "Simulator with 551 samples of one person. In panel 3 the means form a bell around 100, as wide as the population in panel 1.",
+  step = 2, n = 1, view = "raw", draws = 551, seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Thursday's picture again. All three panels share one axis, so look at the width of panel 3 against panel 1. Ignore the cutoffs and p for now.
+
+---
+
+# Now each sample has five people
+
+```{r sim-n5, results="asis"}
+sim_frame(
+  alt = "Simulator with 551 samples of five people. In panel 3 the means form a bell around 100, clearly narrower than the population in panel 1.",
+  step = 2, n = 5, view = "raw", draws = 551, seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same population, same 551 samples, n = 5. Panel 2 shows five dots and a line at their mean. Press +1 a couple of times to show one extreme score getting averaged away. The population in panel 1 hasn't changed. Only the means got less spread out.
+
+Ignore the cutoffs and p for now.
+
+---
+
+# With ten, the means get pointier again
+
+```{r sim-n10, results="asis"}
+sim_frame(
+  alt = "Simulator with 551 samples of ten people. In panel 3 the means form a tall, narrow bell around 100, much narrower than the population in panel 1.",
+  step = 2, n = 10, view = "raw", draws = 551, seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+n = 10. "Pointier" is the word to use, because the whole pile now sits closer to 100. You can also drag the n slider: it clears the samples, so press +500 afterwards. Ignore the cutoffs and p for now.
+
+---
+
+# Our `r N` students do the same thing
+
+```{r pile-plot, fig.width=11, fig.height=3.8, out.width="92%", fig.alt=paste0("Three histograms of sample means from the 619 baseline math scores, each from 5,000 samples, on the same axes. Samples of 1 spread from about 0 to 26, with an SD of ", fmt(pile_sd$sd[1]), ". Samples of 5 are narrower, with an SD of ", fmt(pile_sd$sd[2]), ". Samples of 25 are a tall spike near 11, with an SD of ", fmt(pile_sd$sd[3]), ".")}
+pile_p <- pile %>% mutate(panel = paste("Samples of", n))
+size_order <- paste("Samples of", c(1, 5, 25))
+pile_p$panel <- factor(pile_p$panel, levels = size_order)
+pile_lab <- pile_sd %>% mutate(panel = factor(panel, levels = size_order))
+
+ggplot() +
+  geom_histogram(data = filter(pile_p, n == 1), aes(x = M, y = after_stat(density)),
+                 binwidth = 1, fill = clr_bar, color = "white", boundary = 0.5) +
+  geom_histogram(data = filter(pile_p, n == 5), aes(x = M, y = after_stat(density)),
+                 binwidth = 0.5, fill = clr_bar, color = NA) +
+  geom_histogram(data = filter(pile_p, n == 25), aes(x = M, y = after_stat(density)),
+                 binwidth = 0.25, fill = clr_bar, color = NA) +
+  geom_text(data = pile_lab, aes(x = 27, y = 0.5, label = paste0("SD of the\nmeans: ", fmt(sd))),
+            hjust = 1, vjust = 1, color = clr_median, size = 6, fontface = "bold",
+            family = "Fira Sans Condensed", lineheight = 0.9) +
+  facet_wrap(vars(panel), nrow = 1) +
+  scale_x_continuous(limits = c(0, 27), breaks = seq(0, 25, 5)) +
+  labs(x = "Mean math score of a sample", y = NULL) +
+  theme_slides(18) +
+  theme(axis.text.y = element_blank(), panel.grid.major.y = element_blank())
+```
+
+.box-inv-3.small[The law of large numbers: the bigger the sample, the closer M tends to be to μ]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 5,000 samples of each size, treating the `r N` students as a population.]
+
+???
+
+Real scores, not a smooth curve. These are the same 619 students from Topic 3 and Topic 5, still treated as a population, with μ = `r fmt(mu)` and σ = `r fmt(sigma)`. Samples are drawn with replacement. Each panel has the same axes, so width and height compare directly.
+
+---
+
+# That spread is the standard error
+
+$$
+\sigma_M = \text{the standard deviation of all the sample means}
+$$
+
+.pull-left[
+.box-inv-3.small[Sampling error]
+
+.center.small[The gap for one sample: M − μ]
+]
+
+.pull-right[
+.box-inv-3.small[Standard error]
+
+.center.small[The typical gap, across all samples]
+]
+
+.box-3.small[With n = 1, σ<sub>M</sub> is just σ. As n grows, σ<sub>M</sub> shrinks]
+
+???
+
+The standard error measures the pointiness. It's a parameter, so it gets a Greek letter. With n = 1, the means are the scores themselves, so their SD is σ.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: How fast does it shrink?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Same population, with σ = `r sim_sd`. With samples of 1, σ<sub>M</sub> = `r sim_sd`. Now each sample has 4 people. What's σ<sub>M</sub>?
+]
+
+.options[
+.option[
+**A** `r sim_sd`
+]
+.option[
+**B** `r fmt(sim_sd / 2, 1)`
+]
+.option[
+**C** `r fmt(sim_sd / 4, 2)`
+]
+.option[
+**D** 0
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then press the buttons on the next slide.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 press-slide
+
+# Predict it: Press +1, then +500
+
+```{r sim-n4, results="asis"}
+sim_frame(
+  alt = "Simulator with samples of four people from a normal population with mean 100 and SD 15, and no samples drawn yet.",
+  step = 2, n = 4, view = "raw", seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+**Press +1 once.** Panel 2 now reads σ<sub>M</sub> = 7.50, so read that out. **Then press +500,** and panel 3 fills in at about half the width of the population.
+
+Ignore the cutoffs and p for now.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** `r sim_sd`
+]
+.option.correct[
+**B** `r fmt(sim_sd / 2, 1)`
+]
+.option.wrong[
+**C** `r fmt(sim_sd / 4, 2)`
+]
+.option.wrong[
+**D** 0
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Four times the people gives half the spread, not a quarter of it
+]
+
+.box-8.small[
+Means settle down, but more slowly than you'd hope. The rule is next
+]
+
+---
+
+layout: false
+class: center middle section-title section-title-5 animated fadeIn
+
+# Estimating the standard error
+
+---
+
+layout: true
+class: title title-5
+
+---
+
+# Divide by the square root of n
+
+.pull-left[
+$$
+\sigma_M = \frac{\sigma}{\sqrt{n}}
+$$
+
+.box-inv-5.small[Our `r N` students, n = 25: `r fmt(sigma)` / √25 = `r fmt(se_of(25))`. The 5,000 samples gave `r fmt(sd_25)`]
+
+.box-5.small[To halve the standard error, you need four times the people]
+]
+
+.pull-right[
+```{r se-curve, fig.width=6, fig.height=5, out.width="100%", fig.alt="Curve of the standard error against sample size, for a population SD of 15. It falls steeply from 15 at n equals 1 to 7.5 at n equals 4, then flattens: 3 at n equals 25 and 1.5 at n equals 100."}
+se_points <- tibble(n = c(1, 4, 25, 100), se = sim_sd / sqrt(n), side = c(0, 0, 0, 1), push = c(3, 3, 3, -1))
+
+ggplot(tibble(n = seq(1, 100, 0.25)), aes(x = n, y = sim_sd / sqrt(n))) +
+  geom_line(color = clr_bar, linewidth = 1.4) +
+  geom_point(data = se_points, aes(y = se), color = clr_mean, size = 4) +
+  geom_text(data = se_points, aes(x = n + push, y = se + 1, label = paste0("n = ", n, ": ", fmt(se, 1)), hjust = side),
+            color = clr_mean, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  scale_x_continuous(limits = c(0, 104), breaks = seq(0, 100, 25)) +
+  scale_y_continuous(limits = c(0, 16.5)) +
+  labs(x = "Sample size n", y = "Standard error") +
+  theme_slides()
+```
+]
+
+???
+
+The curve falls fast and then flattens, which is why going from 100 to 200 people buys much less than going from 10 to 20. The check on the left is why we simulated: the formula matches the 5,000 samples.
+
+---
+
+# The whole central limit theorem
+
+.pull-left-3[
+.box-inv-5.medium[Shape]
+
+.center.small[Close to normal as n grows, for any population]
+]
+
+.pull-middle-3[
+.box-inv-5.medium[Center]
+
+.center.small[The mean of all sample means is μ]
+]
+
+.pull-right-3[
+.box-inv-5.medium[Spread]
+
+.center.small[The SD of all sample means is σ / √n]
+]
+
+.box-5.small.sp-after-half[Center and spread hold at any n. Only the shape needs a large n]
+
+.book-tag[In the book: the mean of all sample means is the *expected value of M*, and σ<sub>M</sub> is the *standard error of M*]
+
+???
+
+We saw all three parts in the simulator. Sample means don't lean high or low on average: M is an unbiased estimate of μ. That's why the book calls μ the expected value of M.
+
+---
+
+# But we only ever get one sample
+
+```{r sim-hidden, results="asis"}
+sim_frame(
+  alt = "Simulator with panel 1 greyed out and marked with a question mark, because we don't get to see the population. Panel 2 shows one sample of ten people, and panel 3 holds a single dot.",
+  step = 2, n = 10, view = "raw", draws = 1, hide = 1, seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+This is real research. Panel 1 is greyed out, because nobody gets to see the population, and panel 3 has one dot, not 551. We can't take the SD of one mean. And σ / √n needs σ, which lives in the panel we can't see.
+
+Panel 2 is all we have, and panel 2 does give us an estimate of the spread: σ̂. Ignore everything after σ̂ on that line for now, and the curve and cutoffs in panel 3. The tool still knows σ, but a real researcher wouldn't.
+
+---
+
+# So we estimate σ with our sample
+
+<div class="math-display">\[
+\sigma_M = \frac{\sigma}{\sqrt{n}}
+\qquad \text{becomes} \qquad
+\hat{\sigma}_M = \frac{\hat{\sigma}}{\sqrt{n}}
+\]</div>
+
+.pull-left[
+.box-inv-5.small[Greek: the true standard error. It needs σ]
+]
+
+.pull-right[
+.box-inv-5.small[Hat: our estimate of it, from one sample]
+]
+
+.book-tag[In the book: σ̂ is written s, and σ̂<sub>M</sub> is written s<sub>M</sub>. Chapter 9 introduces s<sub>M</sub>]
+
+???
+
+The hat again: Greek means population, and a hat means estimate. This is the key move in the course. One sample tells us its own mean and, through its spread, how far off that mean probably is.
+
+Topic 8 picks up what changes when σ̂ replaces σ.
+
+---
+
+# From scores to the standard error
+
+```{r steps-table, results="asis"}
+tribble(
+  ~Step, ~`In symbols`,
+  "1. Find each deviation from the mean", "\\(X - M\\)",
+  "2. Square them and add them up", "\\(SS = \\sum (X - M)^2\\)",
+  "3. Divide by n − 1", "\\(\\hat{\\sigma}^2 = SS / (n - 1)\\)",
+  "4. Take the root", "\\(\\hat{\\sigma} = \\sqrt{\\hat{\\sigma}^2}\\)",
+  "5. Divide by the root of n", "\\(\\hat{\\sigma}_M = \\hat{\\sigma} / \\sqrt{n}\\)"
+) %>%
+  kable(format = "html", escape = FALSE, table.attr = 'class="deck-table"')
+```
+
+.box-5.small[Steps 1 to 4 are Topic 3. Step 5 is the only new one]
+
+???
+
+Why n − 1? Topic 3: SS / n tends to run too small, and n − 1 lands on target on average.
+
+---
+
+# The same thing, written other ways
+
+<div class="math-display">\[
+\hat{\sigma}_M = \frac{\hat{\sigma}}{\sqrt{n}} = \frac{\sqrt{\hat{\sigma}^2}}{\sqrt{n}} = \sqrt{\frac{\hat{\sigma}^2}{n}} = \sqrt{\frac{\text{variance}}{n}}
+\]</div>
+
+.box-inv-5.small.sp-after-half[The last form: divide the variance by n, then take the root]
+
+.box-5.small[That form comes back in Topic 9, when we compare two means]
+
+???
+
+Nothing new here, only algebra. Students will see the variance form in the book, and on the formula sheet.
+
+---
+
+# One real sample of 25
+
+```{r sample-table, results="asis"}
+tribble(
+  ~` `, ~Truth, ~`Our one sample`,
+  "Mean", paste0("μ = ", fmt(mu)), paste0("M = ", fmt(M_25)),
+  "Standard deviation", paste0("σ = ", fmt(sigma)), paste0("σ̂ = ", fmt(sd_25_hat)),
+  "Standard error", paste0("σ<sub>M</sub> = ", fmt(se_of(25))), paste0("σ̂<sub>M</sub> = ", fmt(se_25_hat))
+) %>%
+  rename_with(~ paste0("The truth (all ", N, ")"), Truth) %>%
+  kable(format = "html", escape = FALSE, align = "lcc", table.attr = 'class="deck-table"')
+```
+
+.box-5.small[One sample gives an estimate, and a sense of how far off it may be]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). One random sample of 25 from the `r N` baseline scores.]
+
+???
+
+Normally only the right column exists. Here we know the truth, because we're treating the `r N` as a population. M is `r fmt(abs(M_25 - mu))` from μ, which is about what a standard error of `r fmt(se_25_hat)` tells us to expect.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Four real students
+
+.box-inv-8.medium.sp-after-half[Math scores: `r paste(four, collapse = ", ")`]
+
+.box-8.small.sp-after-half[Find M, SS, σ̂ and σ̂<sub>M</sub>]
+
+.box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. These are four real students from the 619. Vote with hands on the final answer. Common slips: dividing SS by n, or forgetting the last square root.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[M = (`r paste(four, collapse = " + ")`) / 4 = **`r four_M`**]
+
+.box-inv-8.small[SS = `r paste0("(", minus(four - four_M), ")²", collapse = " + ")` = **`r four_ss`**]
+]
+
+.pull-right[
+.box-inv-8.small[σ̂ = √(`r four_ss` / 3) = √`r four_var` = **`r fmt(four_sd)`**]
+
+.box-inv-8.small[σ̂<sub>M</sub> = `r fmt(four_sd)` / √4 = **`r fmt(four_se)`**]
+]
+
+.box-8.small[With four people, the mean could easily be off by a point or more]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The true value with n = 4 is `r fmt(sigma)` / 2 = `r fmt(se_of(4))`. These four happen to be less spread out than the population, so the estimate runs low. That's what estimates do: small samples give rough answers about the spread, too.
+
+---
+
+layout: false
+class: center middle section-title section-title-7 animated fadeIn
+
+# Using standard errors
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# A standard error does two jobs
+
+.pull-left[
+.box-7.medium[Job 1: Uncertainty]
+
+.center.small[How far off might this estimate be?]
+]
+
+.pull-right[
+.box-7.medium[Job 2: Surprise]
+
+.center.small[If I'm right about the population, how weird is this mean?]
+]
+
+.box-inv-7.small[The first job leads to confidence intervals. The second leads to hypothesis tests]
+
+???
+
+Confidence intervals are in Topic 8, and hypothesis tests start on Thursday.
+
+---
+
+# Job 1: Where do means land?
+
+```{r job1-plot, fig.width=10, fig.height=3.5, out.width="84%", fig.alt=paste0("Normal curve of sample means for samples of 25 from the 619 math scores, centered at ", fmt(mu), ". The middle 95 percent is shaded, from ", fmt(lo_95), " to ", fmt(hi_95), ".")}
+m_grid <- seq(mu - 3.6 * se_of(25), mu + 3.6 * se_of(25), length.out = 400)
+curve_m <- tibble(M = m_grid, y = dnorm(m_grid, mu, se_of(25)))
+curve_mid <- filter(curve_m, M >= lo_95, M <= hi_95)
+
+ggplot(curve_m, aes(x = M, y = y)) +
+  geom_area(fill = clr_soft) +
+  geom_area(data = curve_mid, fill = clr_bar) +
+  geom_line(color = clr_median, linewidth = 1) +
+  label_text(mu, 0.2, "95% of means", "white") +
+  label_text(lo_95, 0.19, fmt(lo_95), clr_median, hjust = 1.15) +
+  label_text(hi_95, 0.19, fmt(hi_95), clr_median, hjust = -0.15) +
+  scale_x_continuous(breaks = seq(8, 14, 1)) +
+  labs(x = "Mean math score of a sample of 25", y = NULL) +
+  theme_slides() +
+  theme(panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+.box-inv-7.small[μ ± 1.96 σ<sub>M</sub> = `r fmt(mu)` ± 1.96 × `r fmt(se_of(25))`. So 95% of samples land within `r fmt(1.96 * se_of(25))` points of μ]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The 1.96 is from the table in Topic 5: it leaves 2.5% in each tail. This is the question a pollster asks: between which two values do 95% of the means lie? Topic 8 turns it around, starting from M and σ̂<sub>M</sub>, to build a confidence interval.
+
+---
+
+# Polls call this the margin of error
+
+.box-7.medium.sp-after-half[A poll of `r format(poll_n, big.mark = ",")` people: 52% say yes, ± `r round(poll_margin)` points]
+
+.pull-left[
+.box-inv-7.small[The ± is 1.96 standard errors]
+
+.box-inv-7.small[Here, 1.96 × `r fmt(poll_se)` = `r fmt(poll_margin, 1)` points]
+]
+
+.pull-right[
+.box-inv-7.small[Sample size drives it, not population size]
+
+.box-inv-7.small[Four times the people: half the margin]
+]
+
+???
+
+The poll is made up, and it replaces the 2024 election screenshots. A percentage is a mean of 0s and 1s, so everything we've done applies. With a split near 50/50, σ is 0.5, or 50 percentage points, and the standard error is 50 / √1000 = `r fmt(poll_se)`.
+
+The next time a headline says a race has "tightened" by one point, students can say why that may mean nothing.
+
+---
+
+# Job 2: How surprising is this mean?
+
+.box-inv-7.small.sp-after-half[Locate a mean in its own sampling distribution, the way a z-score locates a score]
+
+$$
+z = \frac{X - \mu}{\sigma} \qquad \text{becomes} \qquad z = \frac{M - \mu}{\sigma_M}
+$$
+
+.pull-left[
+.box-inv-7.small[Top: how far M is from μ]
+]
+
+.pull-right[
+.box-inv-7.small[Bottom: how far a mean typically falls]
+]
+
+.box-7.small[With n = 1, the two formulas are the same]
+
+???
+
+This is step 2 of the blueprint. The only change from step 1 is the denominator. The size of the gap only means something relative to the standard error.
+
+---
+
+# In z-scores, every n lands on one curve
+
+```{r sim-z10, results="asis"}
+sim_frame(
+  alt = "Simulator with 551 samples of ten people, shown as z-scores. Panel 3 is a bell shape around 0 that matches the standard normal curve.",
+  step = 2, n = 10, view = "stat", draws = 551, seed = sim_seed, height = 490
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same n = 10 as before, in z units. Dividing by σ<sub>M</sub> undoes the pointiness, so the pile matches the standard normal, whatever n is. Try dragging n and pressing +500. It's the same bell, so one table works for any n.
+
+The cutoffs at ±1.96 are finally starting to make sense, but keep ignoring them and p until Thursday.
+
+---
+
+# Job 2 on real data: was the lottery fair?
+
+.box-inv-7.small.sp-after-half[The lottery picked `r win_n` of the `r N` students at random. So the winners are a random sample of our population]
+
+.pull-left[
+.box-inv-7.small[Baseline: M = `r fmt(win_M, 3)`, μ = `r fmt(mu, 3)`]
+
+.box-inv-7.small[σ<sub>M</sub> = `r fmt(sigma, 3)` / √`r win_n` = `r fmt(win_se, 3)`]
+]
+
+.pull-right[
+.box-7.small[
+z = (`r fmt(win_M, 3)` − `r fmt(mu, 3)`) / `r fmt(win_se, 3)` = **`r minus(fmt(win_z))`**
+]
+
+.box-inv-7.small[`r pct(win_p)` of samples land this far from μ or farther]
+]
+
+.box-7.small[That's not weird at all, which is what a fair lottery should give]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+These are math scores before the program started. The gap of `r fmt(abs(win_M - mu))` points looks like sampling error. A fair lottery doesn't make the groups identical, only randomly different.
+
+For anyone who asks: the lottery ran within strata and drew about half of the population, which makes the true standard error a little smaller. Neither changes the point.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: After the program
+
+```{r groups-plot, fig.width=10, fig.height=2.3, out.width="76%", fig.alt=paste0("Means with bars of one standard error for two groups at endline. Control has a mean of ", fmt(ctrl$M), " with a standard error of ", fmt(ctrl$se), ". Lottery winners have a mean of ", fmt(wins$M), " with a standard error of ", fmt(wins$se), ". The bars are far apart.")}
+group_plot()
+```
+
+.box-8.small[Could a gap like this be plain sampling error?]
+
+.options[
+.option[
+**A** Easily: both could come from one population
+]
+.option[
+**B** Hardly: the gap is many standard errors
+]
+.option[
+**C** No way to say without μ
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes. Hands are fine. Neighbor first, then vote. Ask students to name the numbers they compared.
+
+---
+
+class: title title-8
+
+# The gap dwarfs the sampling error
+
+```{r groups-plot-2, fig.width=10, fig.height=2.3, out.width="76%", fig.alt=paste0("The same plot of means with one standard error bars. The gap between ", fmt(ctrl$M), " for control and ", fmt(wins$M), " for lottery winners is much wider than either bar.")}
+group_plot()
+```
+
+.box-inv-8.small.sp-after-half[The gap is `r fmt(gap)` points. Each mean is typically off by about `r fmt(mean(groups$se))` points]
+
+.box-8.small[The answer is B. Topic 9 turns this into a real test, with a standard error for the gap itself]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+We've reasoned with two separate standard errors, which is a fair first look. The gap has its own standard error, and that's Topic 9.
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.center[**We are moving here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+We can now describe a sample, and say how far its mean tends to fall from the truth. Thursday we use that for a decision: the four steps of a hypothesis test, on this same blueprint.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Read the blueprint: population, one sample, distribution of a statistic]
+
+.box-inv-8.small[Say what a sampling distribution is, and what each dot in it stands for]
+
+.box-inv-8.small[State the central limit theorem: shape, center and spread]
+
+.box-inv-8.small[Compute σ<sub>M</sub> from σ, and σ̂<sub>M</sub> from a sample]
+
+.box-inv-8.small[Use a standard error to find where means land, and a z-score for a mean]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Before Thursday]
+
+Read Chapter 8. Topic 7 is hypothesis testing
+]
+
+.pull-right[
+.box-6.small[This Friday: Lab 4]
+
+Sampling distributions and the four steps. Bring a calculator and a laptop
+]
+
+.box-3.small[Mastery and Problem Set for Chapter 7 are due Sunday, January 31 at 6 PM]
+
+```{css, echo=FALSE}
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide. A slide that
+   waits for a live button press would print empty, so it goes too */
+@media print {
+  .remark-slide-container:has(.poll-answer),
+  .remark-slide-container:has(.press-slide) {
+    display: none !important;
+  }
+}
+```
