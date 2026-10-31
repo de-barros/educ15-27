@@ -696,7 +696,7 @@ Left: Netflix doesn't care which X matters, as long as the guess is good. Right:
 
 ---
 
-# A lottery decided who got it first
+# A lottery decided who got it
 
 .pull-left[
 .box-6.small[Treatment]
@@ -711,7 +711,7 @@ Left: Netflix doesn't care which X matters, as long as the guess is good. Right:
 .pull-right[
 .box-6.small[Control]
 
-.center.small[`r n_control` students got it later]
+.center.small[`r n_control` students were promised it later]
 
 .box-inv-6.medium[`r fmt(end_control)`]
 
@@ -1020,7 +1020,7 @@ tribble(
   "Center", paste(sort(unique(baseline$ms_center1)), collapse = ", "), "Nominal", "Names only",
   "Extra math tuition", paste(tuition_levels[1], "to", str_to_lower(tuition_levels[2])), "Ordinal", "The top group has no upper end",
   "SES index", paste(str_replace(fmt(ses_range[1], 1), "-", "−"), "to", fmt(ses_range[2], 1)), "Interval", "Zero is just the group's average",
-  "Math score", paste(min(math), "to", max(math), "correct"), "Ratio", "It counts correct answers"
+  "Math score", "0 to 35 correct", "Ratio", "It counts correct answers"
 ) %>%
   kable(format = "html", table.attr = 'class="deck-table"')
 ```
