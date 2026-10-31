@@ -417,7 +417,7 @@ class: title title-6
 
 ---
 
-# A 12 means nothing by itself
+# A 19 means nothing by itself
 
 ```{r twelve-plot, fig.width=10, fig.height=4.2, out.width="84%", fig.alt="Bar chart of baseline math scores with the mean and Andy's score of 19 marked by vertical lines."}
 relabel_plot(identity, paste0("Math score at baseline (out of ", max_m, ")"))
@@ -488,7 +488,7 @@ The SD ignores a shift because it's built from distances between scores and the 
 
 # Squaring changes the shape
 
-```{r square-plot, fig.width=11, fig.height=3.9, out.width="88%", fig.alt="Two bar charts. The left one shows math scores, close to symmetric. The right one shows the same scores squared, with a peak at the low end and a long tail to the right."}
+```{r square-plot, fig.width=11, fig.height=3.9, out.width="88%", fig.alt="Two bar charts. The left one shows math scores, close to symmetric. The right one shows the same scores squared, with a peak near 140 and a long tail to the right."}
 bind_rows(
   score_pct %>% transmute(x = score, pct, panel = "Math score", w = 0.85),
   sq_binned %>% transmute(x = bin, pct, panel = "Math score squared", w = 34)
