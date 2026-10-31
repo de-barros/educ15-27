@@ -220,7 +220,7 @@ class: title title-8
 
 ???
 
-Same map. On Tuesday we found a line. Today we ask whether its slope could be a fluke of the sample. It's the last new test of the quarter.
+Same map. On Tuesday we found a line. Today we ask whether its slope could be a fluke of the sample. It's the last new statistic in our blueprint.
 
 ---
 
@@ -333,7 +333,7 @@ tribble(
   ~`Blueprint step`, ~`Panel 1: population`, ~`Panel 2: one sample`, ~`Panel 3: many samples`,
   "2. One mean", "A curve with μ", "n scores, one M", "A pile of M",
   "4. Two means", "Two curves", "Two groups, M₁ − M₂", "A pile of M₁ − M₂",
-  "5. Many means", "Three curves", "Three groups, one F", "A pile of F",
+  "5. Two or more means", "Three curves", "Three groups, one F", "A pile of F",
   "6. A correlation", "A cloud with ρ", "n dots, one r", "A pile of r",
   "<strong>7a. A slope</strong>", "<strong>A line with β</strong>", "<strong>n dots, one b</strong>", "<strong>A pile of b</strong>"
 ) %>%
@@ -394,7 +394,7 @@ tibble(b = draws_8) %>%
 
 The same pile, on our own students. Here we know the answer, because we're treating the `r all$n` as the population, so β = `r fmt(all$b)`. In real research, panel 1 goes dark, and one sample has to tell us how wide the pile is. That's the job of block 2.
 
-Students 25 to 32 aren't a random sample, just neighbors in a file. Their slope is high mostly because their baseline scores sit so close together, which is the next point.
+Students 25 to 32 aren't a random sample, just neighbors in a file. Their slope is high partly because their baseline scores sit so close together, which is the next point.
 
 ---
 
@@ -423,6 +423,8 @@ Two studies draw `r n_study` Mindspark students, again and again. Study A takes 
 **D** We can't tell without β
 ]
 ]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -459,6 +461,8 @@ Across 5,000 samples, b has an SD of `r fmt(sd(draws_any))` in Study A and `r fm
 A line through a narrow band of X is like a seesaw on a short plank. Small bumps tip it a lot
 ]
 
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
 ---
 
 class: title title-8
@@ -491,9 +495,9 @@ ggplot(band_draws, aes(x = b)) +
 
 ???
 
-Topic 11 said a narrow range hides a correlation. Here's the same problem for a slope. Compare with the pile for n = 8 on the slide before: more students narrow the pile too.
+Topic 11 said a narrow range hides a correlation. Here's the same problem for a slope. Compare with the pile for n = 8 a few slides back: more students narrow the pile too.
 
-Both piles sit near the same slope: `r fmt(mean(draws_any))` and `r fmt(mean(draws_band))`. Study B draws from the `r nrow(band)` students between `r band_lo` and `r band_hi`.
+Both piles sit close to the same slope: `r fmt(mean(draws_any))` and `r fmt(mean(draws_band))`. Study B draws from the `r nrow(band)` students between `r band_lo` and `r band_hi`.
 
 Design lesson: if you get to choose your X values, spread them out.
 
@@ -607,7 +611,7 @@ t = \frac{b - \beta}{\hat{\sigma}_b} = \frac{`r fmt(eight$b)` - 0}{`r fmt(eight$
 
 .box-6.small[`r fmt(eight$t)` is beyond ±`r fmt(eight$crit, 3)`, so we reject H₀: t(`r eight$df`) = `r fmt(eight$t)`, `r p_text(eight$p)`]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32. SS<sub>residual</sub> and SS<sub>X</sub> are from Topic 12.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32. SS<sub>residual</sub> is from Topic 12, SS<sub>X</sub> from Topic 11.]
 
 ???
 
@@ -875,7 +879,7 @@ tribble(
 
 Same table as ANOVA, read left to right: SS / df = MS, then the ratio. F looks in one tail only, because squares can't be negative.
 
-The 2024 deck got 12.315, from r² = 0.67 rounded. Exact SS gives `r fmt(eight$f)`. It also left a t criterion on this slide by mistake. An F-test has only the F cutoff.
+The 2024 deck got 12.315, from r rounded to 0.82. Exact SS gives `r fmt(eight$f)`. It also left a t criterion on this slide by mistake. An F-test has only the F cutoff.
 
 ---
 
@@ -921,7 +925,7 @@ r_block(r_summary(fit_base), list("^\\(Intercept\\)" = "a", "^baseline" = "b, σ
 
 ???
 
-This is the one place in the course where students read raw output. They don't write R. Lab 9 gets the same numbers from a spreadsheet's `LINEST`, `SLOPE` and `INTERCEPT`.
+This is the first place students read raw output, and Topic 14 does it again. They don't write R. Lab 9 gets the same numbers from a spreadsheet's `LINEST`, `SLOPE` and `INTERCEPT`.
 
 Read it top to bottom: the call names the outcome first, the Coefficients table has one row per number in the line, and the bottom three lines describe the whole fit.
 
@@ -944,7 +948,7 @@ tribble(
   kable(format = "html", escape = FALSE, align = "llc", table.attr = 'class="deck-table tight"')
 ```
 
-.box-3.small[&lt;2e-16 is a 2 with 16 zeros in front of it. We report it as p < 0.001]
+.box-3.small[&lt;2e-16 is a decimal point, 15 zeros, then a 2. We report it as p < 0.001]
 
 .source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
