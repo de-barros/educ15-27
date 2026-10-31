@@ -957,6 +957,8 @@ With only treat in the model, the gap's standard error is `r fmt(treat$se, 3)`. 
 ]
 ]
 
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
 ???
 
 About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
@@ -1044,6 +1046,8 @@ Researchers can build this in. The lottery here ran within strata of similar stu
 .box-inv-3.small.sp-after-half[Apart from chance, the program is then the only thing that differs between the groups]
 
 .box-3.small[And our test deals with chance: t(`r treat$df`) = `r fmt(treat$t)`. What's left is the program]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
