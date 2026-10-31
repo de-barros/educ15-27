@@ -1,0 +1,1107 @@
+---
+title: "Regression: the line"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css", "css/simulator.css"]
+    seal: false
+    anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+library(knitr)
+source(here::here("R", "slide-things.R"))
+
+# Colors from the slide theme, all readable on white ----
+clr_bar <- "#538ba2"
+clr_soft <- "#c5d9e2"
+clr_mean <- "#a93e31"
+clr_median <- "#244a70"
+clr_mode <- "#8a6100"
+
+theme_slides <- function(base_size = 20) {
+  theme_minimal(base_size = base_size, base_family = "Fira Sans Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_text(face = "bold"),
+          strip.text = element_text(face = "bold", size = rel(1)))
+}
+
+fmt <- function(x, d = 2) str_replace(formatC(x, format = "f", digits = d), "-", "−")
+signed <- function(x, d = 2) paste0(if_else(x > 0, "+", ""), fmt(x, d))
+big <- function(x) format(round(x), big.mark = ",")
+
+label_text <- function(x, y, label, color = clr_median, hjust = 0.5, size = 6.5) {
+  annotate("text", x = x, y = y, label = label, color = color, hjust = hjust, size = size,
+           fontface = "bold", family = "Fira Sans Condensed")
+}
+
+# Mindspark math scores. Everyone at endline also has a baseline score ----
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+both <- inner_join(select(baseline, st_id, X = tot_math),
+                   select(endline, st_id, Y = tot_math),
+                   by = "st_id")
+
+# The line for all students ----
+all_fit <- lm(Y ~ X, data = both)
+all <- list(n = nrow(both), a = coef(all_fit)[[1]], b = coef(all_fit)[[2]], r = cor(both$X, both$Y),
+            mx = mean(both$X), my = mean(both$Y), sx = sd(both$X), sy = sd(both$Y),
+            ss_y = sum((both$Y - mean(both$Y))^2), ss_res = sum(resid(all_fit)^2))
+
+# Students work by hand with the rounded line, so the slides show that arithmetic ----
+line_a <- round(all$a, 2)
+line_b <- round(all$b, 2)
+line_text <- paste0("Ŷ = ", fmt(line_a), " + ", fmt(line_b), "X")
+y_hat <- function(x) line_a + line_b * x
+
+# Everyone who scored 10 at baseline ----
+tens <- filter(both, X == 10)
+
+# Two real residuals: one above the line and one below it ----
+above <- slice(both, 25)
+below <- filter(both, X == 15, Y == 12)
+
+# Two students for the first try-it ----
+try_x <- c(6, 16)
+
+# The hand calculations from Topic 11 ----
+hand <- function(d) {
+  d <- mutate(d, dx = X - mean(X), dy = Y - mean(Y), prod = dx * dy)
+  ss_x <- sum(d$dx^2)
+  ss_y <- sum(d$dy^2)
+  sp <- sum(d$prod)
+  b <- sp / ss_x
+  a <- mean(d$Y) - b * mean(d$X)
+  d <- mutate(d, fit = a + b * X, res = Y - fit)
+  list(d = d, n = nrow(d), mx = mean(d$X), my = mean(d$Y), ss_x = ss_x, ss_y = ss_y, sp = sp,
+       r = sp / sqrt(ss_x * ss_y), b = b, a = a, ss_res = sum(d$res^2),
+       sx = sd(d$X), sy = sd(d$Y))
+}
+eight <- hand(slice(both, 25:32))  # Students 25 to 32, the 2024 hand example
+five <- hand(slice(both, 289:293))  # The five students from Topic 11's try-it
+five_one <- five$d[3, ]
+
+# Lines through the means of the 8 students. Each slope has its own total ----
+total_at <- function(b) eight$ss_y - 2 * b * eight$sp + b^2 * eight$ss_x
+b_steep <- 4
+
+# Top scorers, in SDs ----
+top_cut <- 17
+top <- both %>%
+  mutate(zx = (X - all$mx) / all$sx, zy = (Y - all$my) / all$sy) %>%
+  filter(X >= top_cut)
+top_zx <- mean(top$zx)
+top_zy <- mean(top$zy)
+
+# The simulator's presets. Same seed, so the two slides show the same students' X ----
+sim_n <- 12
+sim_seed <- 2027
+sim_loose <- 0.3
+sim_tight <- 0.9
+# The tool's data have an SD of exactly 15, so this is what its readout shows
+sim_total <- function(r) 15^2 * (sim_n - 1) * (1 - r^2)
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# Regression: the line
+
+.class-info[
+
+**Topic 12 · Tuesday, March 2**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Does one score go with another?]
+
+.box-inv-6.small[Use one score to predict another]
+
+.center[**We are here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Same map. Topic 11 asked whether two scores go together. Today we use one to predict the other. Regression takes three sessions: the line today, whether the slope is real on Thursday, and groups next week.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[A line for prediction]
+
+.box-6.medium.sp-after-half[What the line minimizes]
+
+.box-3.medium.sp-after-half[Finding a and b]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: try, predict, try. The running question is the one from Topic 11: does a student's baseline math score predict their endline score?
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# A line for prediction
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# A line sums up the cloud
+
+```{r line-plot, fig.width=10, fig.height=4.1, out.width="82%", fig.alt=paste0("Scatter plot of ", all$n, " Mindspark students, with baseline math score on the horizontal axis and endline math score on the vertical axis. A straight line rises through the wide cloud of dots, from about 9 at a baseline of 0 to about 28 at a baseline of 26.")}
+ggplot(both, aes(x = X, y = Y)) +
+  geom_point(position = position_jitter(width = 0.25, height = 0.25, seed = 15),
+             color = clr_bar, alpha = 0.5, size = 2.4) +
+  geom_abline(intercept = all$a, slope = all$b, color = clr_median, linewidth = 1.5) +
+  label_text(27, 12, line_text, hjust = 1) +
+  scale_x_continuous(breaks = seq(0, 26, 4)) +
+  scale_y_continuous(breaks = seq(0, 32, 8)) +
+  labs(x = "Math score at baseline", y = "Math score at endline") +
+  theme_slides()
+```
+
+.box-inv-1.small[The line shows the pattern, describes it in two numbers, and lets us predict]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). `r all$n` students. Dots are nudged so equal scores don't hide each other.]
+
+???
+
+Same dots as Topic 11. Topic 11's simulator already drew a line through a cloud, and now we ask what that line is.
+
+Regression finds the straight line that best fits a set of dots. By the end of block 2, "best" will mean something exact.
+
+---
+
+# A line needs two numbers
+
+<div class="math-display">\[
+\hat{Y} = a + bX
+\]</div>
+
+.pull-left-3[
+.box-inv-1.small[Ŷ]
+
+.center[The predicted Y. The hat says it's an estimate]
+]
+
+.pull-middle-3[
+.box-inv-1.small[a, the intercept]
+
+.center[The value of Ŷ when X = 0]
+]
+
+.pull-right-3[
+.box-inv-1.small[b, the slope]
+
+.center[How much Ŷ changes when X goes up by 1]
+]
+
+.box-1.small[Greek means population: β is the slope for everyone, and b is our estimate of it]
+
+.book-tag[In the book: Ŷ = bX + a. It's the same line, in a different order]
+
+???
+
+The rule from Topic 3 still holds. A Latin letter or a hat means an estimate, so never call b "beta".
+
+Topic 7 used β for the chance of a Type 2 error. That's a different β, and the context tells them apart. The population line gets plain numbers, such as Y = 2.00 + 0.50 X in the simulator, because α is taken too.
+
+---
+
+# Our line, read in points
+
+.pull-left[
+```{r anatomy-plot, fig.width=6.4, fig.height=5, out.width="100%", fig.alt=paste0("The same line, with the dots faded. A red dot marks where the line meets a baseline of 0, at ", fmt(line_a), ". A gold step shows that moving 10 points to the right, from a baseline of 10 to 20, raises the line by ", fmt(10 * line_b, 1), " points.")}
+step_lo <- all$a + all$b * 10
+step_hi <- all$a + all$b * 20
+
+ggplot(both, aes(x = X, y = Y)) +
+  geom_point(position = position_jitter(width = 0.25, height = 0.25, seed = 15),
+             color = clr_soft, size = 2) +
+  geom_abline(intercept = all$a, slope = all$b, color = clr_median, linewidth = 1.5) +
+  annotate("segment", x = 10, xend = 20, y = step_lo, yend = step_lo, color = clr_mode, linewidth = 1.5) +
+  annotate("segment", x = 20, xend = 20, y = step_lo, yend = step_hi, color = clr_mode, linewidth = 1.5) +
+  annotate("point", x = 0, y = all$a, color = clr_mean, size = 6) +
+  label_text(0.9, 4.8, paste("a =", fmt(line_a)), clr_mean, hjust = 0) +
+  label_text(15, 14, "10 across", clr_mode) +
+  label_text(20.6, 19.5, paste(fmt(10 * line_b, 1), "up"), clr_mode, hjust = 0) +
+  scale_x_continuous(breaks = seq(0, 26, 5)) +
+  scale_y_continuous(breaks = seq(0, 32, 8)) +
+  labs(x = "Math score at baseline", y = "Math score at endline") +
+  theme_slides()
+```
+]
+
+.pull-right[
+.box-1.small[`r line_text`]
+
+.box-inv-1.small.sp-after-half[**a = `r fmt(line_a)`:** a student with 0 at baseline is predicted to score `r fmt(line_a)` at endline]
+
+.box-inv-1.small.sp-after-half[**b = `r fmt(line_b)`:** one more point at baseline goes with `r fmt(line_b)` more points at endline, on average]
+
+.box-1.small[Say "goes with", not "causes"]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Both numbers are in points. b compares students: among students who are one point apart at baseline, the one ahead tends to be `r fmt(line_b)` points ahead at endline. It doesn't say what would happen to one student who gained a point. We're still in the prediction column.
+
+The numbers on this slide match 2024: 8.87 and 0.76.
+
+---
+
+# It predicts an average, not a student
+
+```{r tens-plot, fig.width=10, fig.height=3.7, out.width="76%", fig.alt=paste0("The scatter plot again, with the ", nrow(tens), " students who scored 10 at baseline in dark blue. Their endline scores run from ", min(tens$Y), " to ", max(tens$Y), ". A red diamond on the line marks the prediction, ", fmt(y_hat(10)), ", in the middle of them.")}
+both %>%
+  mutate(ten = X == 10) %>%
+  arrange(ten) %>%
+  ggplot(aes(x = X, y = Y)) +
+  geom_point(aes(color = ten), position = position_jitter(width = 0.2, height = 0.2, seed = 15), size = 2.2) +
+  geom_abline(intercept = all$a, slope = all$b, color = clr_median, linewidth = 1.2) +
+  annotate("point", x = 10, y = y_hat(10), shape = 18, size = 8, color = clr_mean) +
+  label_text(26.5, 8, paste0("Baseline 10: Ŷ = ", fmt(y_hat(10))), clr_mean, hjust = 1) +
+  label_text(26.5, 3.5, paste0(nrow(tens), " real students: mean ", fmt(mean(tens$Y), 1)), hjust = 1) +
+  scale_color_manual(values = c(`FALSE` = "#d5dbe0", `TRUE` = clr_median), guide = "none") +
+  scale_x_continuous(breaks = seq(0, 26, 4)) +
+  scale_y_continuous(breaks = seq(0, 32, 8)) +
+  labs(x = "Math score at baseline", y = "Math score at endline") +
+  theme_slides()
+```
+
+.box-1.small[`r fmt(line_a)` + `r fmt(line_b)` × 10 = **`r fmt(y_hat(10))`**. Yet these `r nrow(tens)` students ended anywhere from `r min(tens$Y)` to `r max(tens$Y)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The arithmetic uses the rounded line, the way students will do it. Software keeps more decimals and gets `r fmt(all$a + all$b * 10)`.
+
+The prediction is our best guess, and it's close to what these students did on average. Any one student can land far from it, and block 2 is about exactly that gap.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Use the line
+
+.box-8.medium.sp-after-half[`r line_text`]
+
+.box-inv-8.small.sp-after-half[Two students scored `r try_x[1]` and `r try_x[2]` at baseline. Predict each one's endline score]
+
+.box-inv-8.small.sp-after-half[How far apart are the students at baseline? How far apart are the predictions?]
+
+.box-inv-8.small[Work alone, compare with a neighbor, then vote with hands: is the gap bigger, smaller or the same?]
+
+???
+
+About 6 minutes, with calculators.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[X = `r try_x[1]`: `r fmt(line_a)` + `r fmt(line_b)` × `r try_x[1]` = **`r fmt(y_hat(try_x[1]))`**]
+]
+
+.pull-right[
+.box-inv-8.small[X = `r try_x[2]`: `r fmt(line_a)` + `r fmt(line_b)` × `r try_x[2]` = **`r fmt(y_hat(try_x[2]))`**]
+]
+
+.box-8.small.sp-after-half[`r diff(try_x)` points apart at baseline, `r fmt(diff(y_hat(try_x)))` apart in prediction. The gap is `r diff(try_x)` × b]
+
+.box-inv-8.small[The slope is all you need to compare two students. a only sets the height]
+
+???
+
+Remember the smaller gap. It comes back at the end of today as regression to the mean.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# What the line minimizes
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# A residual is how far the line missed
+
+.pull-left[
+```{r residual-plot, fig.width=6.4, fig.height=5, out.width="100%", fig.alt=paste0("The scatter plot with faded dots and the line. One student at a baseline of ", above$X, " and an endline of ", above$Y, " sits above the line, joined to it by a vertical red segment. Another at a baseline of ", below$X, " and an endline of ", below$Y, " sits below the line, joined to it the same way.")}
+pair <- bind_rows(above, below) %>% mutate(fit = y_hat(X))
+
+ggplot(both, aes(x = X, y = Y)) +
+  geom_point(position = position_jitter(width = 0.25, height = 0.25, seed = 15),
+             color = clr_soft, size = 2) +
+  geom_abline(intercept = all$a, slope = all$b, color = clr_median, linewidth = 1.4) +
+  geom_segment(data = pair, aes(x = X, xend = X, y = Y, yend = fit), color = clr_mean, linewidth = 1.6) +
+  geom_point(data = pair, color = clr_mean, size = 5) +
+  scale_x_continuous(breaks = seq(0, 26, 5)) +
+  scale_y_continuous(breaks = seq(0, 32, 8)) +
+  labs(x = "Math score at baseline", y = "Math score at endline") +
+  theme_slides()
+```
+]
+
+.pull-right[
+.box-6.small.sp-after-half[Residual = Y − Ŷ, what happened minus what we predicted]
+
+```{r residual-table, results="asis"}
+pair %>%
+  mutate(miss = Y - fit) %>%
+  transmute(X = as.character(X), Y = as.character(Y), `Ŷ` = fmt(fit), `Y − Ŷ` = signed(miss)) %>%
+  kable(format = "html", align = "c", table.attr = 'class="deck-table"')
+```
+
+.box-inv-6.small[Above the line, it's positive. Below the line, it's negative]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+These are two real students. The first did `r fmt(above$Y - y_hat(above$X))` points better than their baseline predicts. The second did `r fmt(y_hat(below$X) - below$Y)` points worse.
+
+The residual is what the line can't explain. It might be a good day, a strong teacher or a lucky guess, and the data don't say which.
+
+---
+
+# Residuals add to 0, so we square them
+
+```{r residual-hist, fig.width=10, fig.height=3.1, out.width="74%", fig.alt=paste0("Histogram of the residuals for all ", all$n, " students. It's centered on 0 and roughly symmetric, with most residuals between minus 10 and plus 10, and a vertical line at 0.")}
+tibble(res = resid(all_fit)) %>%
+  ggplot(aes(x = res)) +
+  geom_histogram(binwidth = 2, boundary = 0, fill = clr_soft, color = "white") +
+  geom_vline(xintercept = 0, color = clr_median, linewidth = 1.2) +
+  label_text(-19, 66, "Below the line", hjust = 0) +
+  label_text(17, 66, "Above the line", hjust = 1) +
+  scale_x_continuous(breaks = seq(-20, 15, 5), labels = \(x) fmt(x, 0)) +
+  labs(x = "Residual, Y − Ŷ", y = "Students") +
+  theme_slides()
+```
+
+.box-inv-6.small.sp-after-half[All `r all$n` residuals add up to 0, like deviations from a mean]
+
+.box-6.small[So we square them, as in Topic 3: Σ(Y − Ŷ)² = `r big(all$ss_res)`, the SS<sub>residual</sub>]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Deviations from the mean add up to zero, and that's why variance squares them. The same thing happens here, for the same reason. In fact, the mean is the one number that minimizes squared deviations, and the regression line does the same job for a whole line of numbers.
+
+---
+
+# Loose dots leave big squares
+
+```{r sim-loose, results="asis"}
+sim_frame(
+  alt = paste0("Simulator's correlation view with ", sim_n, " draggable points in a loose cloud and a regression line. A vertical residual joins each point to the line, and a pink square shows each squared residual. Many squares are large. The readout shows r of ", fmt(sim_loose), " and a sum of squared residuals of about ", big(sim_total(sim_loose)), "."),
+  tab = "correlation", n = sim_n, r = sim_loose, seed = sim_seed, resid = 1, squares = 1, height = 495
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+
+???
+
+**Point to the readout:** r is `r fmt(sim_loose)`, and the sum of squared residuals is `r big(sim_total(sim_loose))`. Each pink square is one student's squared miss.
+
+**Drag a point with a big square toward the line.** Its square shrinks, and the total falls. Then drag it away and watch the square grow, and the line chase it. A vertical line is a residual, and the springs picture from 2024 fits here: each dot pulls on the line, and far dots pull hardest.
+
+The tool always shows the best line for the dots, so students can't move the line itself. The next slide and the plot after it do that job.
+
+Students can't drag on this screen. Those with a phone or laptop can open the Simulator page on the course site and go to the Correlation tab, where Residuals and Squared residuals are checkboxes.
+
+---
+
+# Tight dots leave small squares
+
+```{r sim-tight, results="asis"}
+sim_frame(
+  alt = paste0("The same simulator view with ", sim_n, " points, now close to the line. The residuals are short and the pink squares are small. The readout shows r of ", fmt(sim_tight), " and a sum of squared residuals of about ", big(sim_total(sim_tight)), "."),
+  tab = "correlation", n = sim_n, r = sim_tight, seed = sim_seed, resid = 1, squares = 1, height = 495
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same 12 baseline scores, with r up from `r fmt(sim_loose)` to `r fmt(sim_tight)`. Flip back and forth between the two slides. The total falls from `r big(sim_total(sim_loose))` to `r big(sim_total(sim_tight))`.
+
+So the squares are a way to see fit. Small squares mean the line fits well, and r is high. That's where r² comes from, later today.
+
+---
+
+# Least squares picks the smallest total
+
+```{r three-lines, fig.width=10.5, fig.height=4, out.width="86%", fig.alt=paste0("Three copies of the same scatter plot of eight students, each with a different line and red squares showing each squared residual. A flat line has large squares and a total of ", fmt(total_at(0), 1), ". A line that is too steep has a total of ", fmt(total_at(b_steep), 1), ". The least squares line has the smallest squares and a total of ", fmt(total_at(eight$b), 1), ".")}
+line_names <- paste0(c("Flat: ", "Too steep: ", "Least squares: "), fmt(total_at(c(0, b_steep, eight$b)), 1))
+squares <- map2_dfr(c(0, b_steep, eight$b), line_names, function(slope, name) {
+  eight$d %>%
+    transmute(X, Y, slope = slope, intercept = eight$my - slope * eight$mx, panel = name) %>%
+    mutate(fit = intercept + slope * X, side = abs(Y - fit),
+           left = if_else(X > eight$mx, X - side, X), right = left + side,
+           low = pmin(Y, fit), high = pmax(Y, fit))
+}) %>%
+  mutate(panel = factor(panel, levels = line_names))
+
+ggplot(squares, aes(x = X, y = Y)) +
+  geom_rect(aes(xmin = left, xmax = right, ymin = low, ymax = high), fill = clr_mean, alpha = 0.22) +
+  geom_abline(data = distinct(squares, panel, slope, intercept), aes(slope = slope, intercept = intercept),
+              color = clr_median, linewidth = 1.3) +
+  geom_point(color = clr_median, size = 2.6) +
+  facet_wrap(vars(panel), nrow = 1) +
+  coord_fixed(xlim = c(3, 18), ylim = c(12, 33), expand = FALSE) +
+  scale_x_continuous(breaks = seq(4, 16, 4)) +
+  scale_y_continuous(breaks = seq(15, 30, 5)) +
+  labs(x = "Baseline X", y = "Endline Y") +
+  theme_slides(17) +
+  theme(panel.border = element_rect(fill = NA, color = "#c9d1d9"), panel.spacing = unit(1, "lines"))
+```
+
+.box-6.small[Regression chooses the a and b that make Σ(Y − Ŷ)² as small as it can be]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32 from Topic 11.]
+
+???
+
+Back to our 8 students, where each square is big enough to see. Two of them share a point, so one square is darker. All three lines go through the two means.
+
+The name is ordinary least squares, or OLS. It's the same regression. No other straight line through these 8 students gets below `r fmt(eight$ss_res, 1)`.
+
+---
+
+# The best slope sits at the bottom
+
+```{r bowl-plot, fig.width=10, fig.height=4, out.width="80%", fig.alt=paste0("A U-shaped curve of the total of squared residuals against the slope of the line. The total is ", fmt(total_at(0), 1), " at a slope of 0, falls to a minimum of ", fmt(eight$ss_res, 1), " at a slope of ", fmt(eight$b), ", and rises to ", fmt(total_at(b_steep), 1), " at a slope of ", b_steep, ".")}
+marks <- tibble(b = c(0, eight$b, b_steep)) %>%
+  mutate(total = total_at(b),
+         name = c("Flat", "Least squares", "Too steep"),
+         lab = paste0(name, ": ", fmt(total, 1)))
+
+tibble(b = seq(-0.75, 5.25, length.out = 200)) %>%
+  mutate(total = total_at(b)) %>%
+  ggplot(aes(x = b, y = total)) +
+  geom_line(color = clr_bar, linewidth = 1.5) +
+  geom_point(data = marks, color = clr_mean, size = 5) +
+  geom_text(data = marks, aes(label = lab), nudge_y = c(26, -26, 26), nudge_x = c(0.35, 0, -0.35),
+            hjust = c(0, 0.5, 1), color = clr_mean, size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  scale_x_continuous(breaks = 0:5) +
+  coord_cartesian(ylim = c(0, 310)) +
+  labs(x = "Slope of the line", y = "Σ(Y − Ŷ)²") +
+  theme_slides()
+```
+
+.box-inv-6.small[Every slope has a total. b = `r fmt(eight$b)` is the only one at the bottom of the curve]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32. Each line goes through the two means.]
+
+???
+
+This is what "the squares shrink as the line fits" looks like. Walk along the curve from the left: the line gets steeper, the total falls, it bottoms out at `r fmt(eight$ss_res, 1)`, and then it rises again. Tilt the line past the best slope, and the squares grow back.
+
+A computer doesn't try slopes one at a time. There's a formula for the bottom of the curve, which we use in block 3.
+
+---
+
+# We measure misses up and down
+
+```{r vertical-plot, fig.width=7.5, fig.height=4.1, out.width="66%", fig.alt="Two copies of the plot of eight students and their line. On the left, labeled this, each dot is joined to the line by a vertical segment. On the right, labeled not this, each dot is joined to the line by a segment at a right angle to the line."}
+gap_names <- c("This: up and down", "Not this: right angles")
+gaps <- bind_rows(
+  eight$d %>% transmute(X, Y, end_x = X, end_y = fit, panel = gap_names[1]),
+  eight$d %>% transmute(X, Y, end_x = (X + eight$b * (Y - eight$a)) / (1 + eight$b^2),
+                        end_y = eight$a + eight$b * end_x, panel = gap_names[2])
+) %>%
+  mutate(panel = factor(panel, levels = gap_names))
+
+ggplot(gaps, aes(x = X, y = Y)) +
+  geom_abline(intercept = eight$a, slope = eight$b, color = clr_median, linewidth = 1.3) +
+  geom_segment(aes(xend = end_x, yend = end_y), color = clr_mean, linewidth = 1.3) +
+  geom_point(color = clr_median, size = 3.2) +
+  facet_wrap(vars(panel), nrow = 1) +
+  coord_fixed(xlim = c(1, 20), ylim = c(13, 33), expand = FALSE) +
+  scale_x_continuous(breaks = seq(4, 16, 4)) +
+  scale_y_continuous(breaks = seq(15, 30, 5)) +
+  labs(x = "Baseline X", y = "Endline Y") +
+  theme_slides(17) +
+  theme(panel.border = element_rect(fill = NA, color = "#c9d1d9"), panel.spacing = unit(1.2, "lines"))
+```
+
+.box-inv-6.small[We're predicting Y, so a miss is a distance in Y]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+The right-hand picture looks natural, and it's a common wrong guess.
+
+This is why it matters which score is X and which is Y. Swap them, and the misses run sideways instead, so you get a different line. With our students, predicting baseline from endline has a slope of `r fmt(coef(lm(X ~ Y, data = both))[[2]])`, not 1 / `r fmt(all$b)`. r is the same in both directions, but regression isn't.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Which line wins?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Line A misses four students by 0, 0, 0 and 8 points. Line B misses them by 2, 2, 2 and 2. Each line misses by 8 points in all. Which one does least squares prefer?
+]
+
+.options[
+.option[
+**A** Line A
+]
+.option[
+**B** Line B
+]
+.option[
+**C** It's a tie
+]
+.option[
+**D** We can't tell without the slope
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** Line A
+]
+.option.correct[
+**B** Line B
+]
+.option.wrong[
+**C** It's a tie
+]
+.option.wrong[
+**D** We can't tell without the slope
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Line A: 0² + 0² + 0² + 8² = 64. Line B: 2² + 2² + 2² + 2² = 16
+]
+
+.box-8.small[
+Squaring punishes one big miss. That's why one outlier can drag the line, as it dragged r in Topic 11
+]
+
+???
+
+Least squares would rather miss everyone a little than one person a lot. This is the price of squaring, and a reason to plot the data first.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# Finding a and b
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# We already have what we need
+
+.box-inv-3.small[From Topic 11, our 8 students: SP = `r fmt(eight$sp, 0)`, SS<sub>X</sub> = `r fmt(eight$ss_x, 0)`, M<sub>X</sub> = `r fmt(eight$mx, 1)`, M<sub>Y</sub> = `r fmt(eight$my, 1)`]
+
+<div class="math-display">\[
+b = \frac{SP}{SS_X} = \frac{`r fmt(eight$sp, 0)`}{`r fmt(eight$ss_x, 0)`} = `r fmt(eight$b)`
+\]</div>
+
+<div class="math-display">\[
+a = M_Y - b M_X = `r fmt(eight$my, 1)` - `r fmt(eight$b)` \times `r fmt(eight$mx, 1)` = `r fmt(eight$a, 3)`
+\]</div>
+
+.box-inv-3.small[SP: how X and Y move together. SS<sub>X</sub>: how X moves alone]
+
+.box-3.small[Their line: Ŷ = `r fmt(eight$a, 3)` + `r fmt(eight$b)`X]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+These formulas give the bottom of the curve we just saw. Students need to use them, not derive them.
+
+The 2024 slides wrote "beta = 2.25" here. It's an estimate, so it's b.
+
+In Lab 9, a spreadsheet's `SLOPE` and `INTERCEPT` do this for all `r all$n` students.
+
+---
+
+# The line runs through the two means
+
+```{r means-plot, fig.width=10, fig.height=4.1, out.width="80%", fig.alt=paste0("The eight students with their line. Dashed lines mark the mean baseline of ", fmt(eight$mx, 1), " and the mean endline of ", fmt(eight$my, 1), ". The regression line passes exactly through the point where the dashed lines cross, shown as a red diamond.")}
+ggplot(eight$d, aes(x = X, y = Y)) +
+  geom_vline(xintercept = eight$mx, linetype = "dashed", color = "#47505a", linewidth = 0.9) +
+  geom_hline(yintercept = eight$my, linetype = "dashed", color = "#47505a", linewidth = 0.9) +
+  geom_abline(intercept = eight$a, slope = eight$b, color = clr_median, linewidth = 1.4) +
+  geom_point(color = clr_bar, size = 4.5) +
+  annotate("point", x = eight$mx, y = eight$my, shape = 18, size = 9, color = clr_mean) +
+  label_text(7.6, 23.6, paste0("Both means: (", fmt(eight$mx, 1), ", ", fmt(eight$my, 1), ")"), clr_mean, hjust = 0) +
+  label_text(13.4, 15.5, paste0("Ŷ = ", fmt(eight$a, 3), " + ", fmt(eight$b), "X"), hjust = 1) +
+  scale_x_continuous(limits = c(7.5, 13.5), breaks = 8:13) +
+  scale_y_continuous(limits = c(14, 31), breaks = seq(15, 30, 5)) +
+  labs(x = "Baseline X", y = "Endline Y") +
+  theme_slides()
+```
+
+.box-inv-3.small[A student at M<sub>X</sub> is predicted to land at M<sub>Y</sub>. That's where a's formula comes from]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+This matches the line from 2024, so students now know where it came from. The same is true for all `r all$n` students: `r fmt(line_a)` + `r fmt(line_b)` × `r fmt(all$mx)` is about `r fmt(all$my)`, the mean of Y.
+
+---
+
+# Don't trust the line past the data
+
+```{r extrapolate-plot, fig.width=10, fig.height=4.1, out.width="80%", fig.alt=paste0("The eight students, whose baseline scores run from ", min(eight$d$X), " to ", max(eight$d$X), ", inside a shaded band. Their line is solid inside the band and dashed outside it. The dashed part reaches a baseline of 0 at a predicted score of ", fmt(eight$a, 3), ", which is below zero and marked with a red dot.")}
+ggplot(eight$d, aes(x = X, y = Y)) +
+  annotate("rect", xmin = min(eight$d$X), xmax = max(eight$d$X), ymin = -Inf, ymax = Inf, fill = clr_soft, alpha = 0.45) +
+  geom_abline(intercept = eight$a, slope = eight$b, color = clr_median, linewidth = 1.2, linetype = "dashed") +
+  annotate("segment", x = min(eight$d$X), xend = max(eight$d$X), y = eight$a + eight$b * min(eight$d$X),
+           yend = eight$a + eight$b * max(eight$d$X), color = clr_median, linewidth = 1.8) +
+  geom_hline(yintercept = 0, color = "#47505a") +
+  geom_point(color = clr_median, size = 4) +
+  annotate("point", x = 0, y = eight$a, color = clr_mean, size = 6) +
+  label_text(0.6, -2.5, paste("a =", fmt(eight$a, 3)), clr_mean, hjust = 0) +
+  label_text(mean(range(eight$d$X)), 3.5, "Scores we saw", hjust = 0.5) +
+  coord_cartesian(xlim = c(0, 15), ylim = c(-4, 34), expand = FALSE, clip = "off") +
+  scale_x_continuous(breaks = seq(0, 14, 2)) +
+  scale_y_continuous(breaks = seq(0, 30, 10), labels = \(x) fmt(x, 0)) +
+  labs(x = "Baseline X", y = "Endline Y") +
+  theme_slides()
+```
+
+.box-inv-3.small[A score below 0 is impossible. Predict only inside the scores you saw]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+A prediction is only worth trusting inside the range of X we observed. These 8 students run from `r min(eight$d$X)` to `r max(eight$d$X)`, so the line says nothing about a score of 0.
+
+With all `r all$n` students, a = `r fmt(line_a)` is safer, but it still leans on few students: only `r sum(both$X == 0)` scored 0 at baseline.
+
+---
+
+# b is r, rescaled into points
+
+<div class="math-display">\[
+b = r \times \frac{\hat{\sigma}_Y}{\hat{\sigma}_X}
+\]</div>
+
+```{r b-from-r, results="asis"}
+tribble(
+  ~Students, ~r, ~`σ̂<sub>Y</sub>`, ~`σ̂<sub>X</sub>`, ~`r × σ̂<sub>Y</sub> / σ̂<sub>X</sub>`,
+  paste("All", all$n), fmt(all$r, 3), fmt(all$sy), fmt(all$sx), paste0("<strong>", fmt(all$r * all$sy / all$sx), "</strong>"),
+  paste("Our", eight$n), fmt(eight$r, 3), fmt(eight$sy), fmt(eight$sx), paste0("<strong>", fmt(eight$r * eight$sy / eight$sx), "</strong>")
+) %>%
+  kable(format = "html", escape = FALSE, align = "lcccc", table.attr = 'class="deck-table"')
+```
+
+.box-3.small[r has no units. b is in points of Y per point of X. They always share a sign]
+
+.book-tag[In the book: σ̂<sub>Y</sub> and σ̂<sub>X</sub> are written s<sub>Y</sub> and s<sub>X</sub>]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+So a slope isn't a new idea. It's the correlation, stretched by how spread out Y is compared with X. If r is 0, b is 0. That's why a test of r and a test of b will agree on Thursday.
+
+The two groups show why b alone can't tell you how strong a relationship is. Our 8 students have b = `r fmt(eight$b)` mostly because their baseline scores are so close together.
+
+---
+
+# Regression to the mean is in the slope
+
+.pull-left[
+```{r rtm-plot, fig.width=6, fig.height=5, out.width="100%", fig.alt=paste0("Scatter plot of all students in standard deviation units, with faded dots. A dashed line has a slope of 1. The solid regression line has a slope of ", fmt(all$r), ", flatter than the dashed line. At 2 SDs on baseline, the dashed line is at 2 and the regression line is at about 1.")}
+both %>%
+  mutate(zx = (X - all$mx) / all$sx, zy = (Y - all$my) / all$sy) %>%
+  ggplot(aes(x = zx, y = zy)) +
+  geom_point(position = position_jitter(width = 0.06, height = 0.04, seed = 15), color = clr_soft, size = 2) +
+  geom_abline(slope = 1, intercept = 0, color = "#47505a", linewidth = 1.1, linetype = "dashed") +
+  geom_abline(slope = all$r, intercept = 0, color = clr_median, linewidth = 1.5) +
+  annotate("point", x = 2, y = 2 * all$r, color = clr_mean, size = 5) +
+  label_text(3.3, -2.1, "Dashed: slope of 1", "#47505a", hjust = 1, size = 6) +
+  label_text(3.3, -2.7, paste("Solid: slope of", fmt(all$r)), hjust = 1, size = 6) +
+  coord_fixed(xlim = c(-3, 3.3), ylim = c(-3, 3.3)) +
+  labs(x = "Baseline, in SDs", y = "Endline, in SDs") +
+  theme_slides(18)
+```
+]
+
+.pull-right[
+.box-3.small.sp-after-half[In SDs, the slope is r, and r is below 1 unless the dots fall on a perfect line]
+
+.box-inv-3.small.sp-after-half[So a student 2 SDs above the mean is predicted only `r fmt(2 * all$r, 1)` SD above it]
+
+.box-inv-3.small[The `r nrow(top)` students with `r top_cut` or more at baseline were `r fmt(top_zx)` SDs above the mean. At endline: `r fmt(top_zy)`]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is the smaller gap from the first try-it. Part of any high score is a good day, and good days don't repeat. So high scorers tend to land closer to the mean the second time, and low scorers do too. No program is needed. That's where the word "regression" comes from: Galton saw it in the heights of parents and children.
+
+It's why you can't judge a program by looking only at the lowest scorers and how far they rise.
+
+The rule is about SDs, not points. Our b of `r fmt(all$b)` happens to be below 1, but the 8 students' b of `r fmt(eight$b)` isn't, because their X barely spreads. In SDs, their slope is `r fmt(eight$r)`.
+
+---
+
+# r² is how much the squares shrink
+
+```{r r2-plot, fig.width=11, fig.height=2.2, out.width="88%", fig.alt=paste0("Two stacked bars, each showing the total SS of Y split in two. For our 8 students, ", fmt(eight$ss_y, 1), " splits into ", fmt(eight$ss_y - eight$ss_res, 1), " predicted from X and ", fmt(eight$ss_res, 1), " left in the residuals. For all ", all$n, " students, ", big(all$ss_y), " splits into ", big(all$ss_y - all$ss_res), " and ", big(all$ss_res), ".")}
+split_names <- c(paste("Our", eight$n, "students"), paste("All", all$n, "students"))
+split <- tibble(
+  group = rep(factor(split_names, levels = rev(split_names)), each = 2),
+  part = factor(rep(c("Predicted", "Residual"), 2), levels = c("Residual", "Predicted")),
+  ss = c(eight$ss_y - eight$ss_res, eight$ss_res, all$ss_y - all$ss_res, all$ss_res),
+  shown = c(fmt(eight$ss_y - eight$ss_res, 1), fmt(eight$ss_res, 1), big(all$ss_y - all$ss_res), big(all$ss_res))
+) %>%
+  group_by(group) %>%
+  mutate(share = ss / sum(ss), middle = if_else(part == "Predicted", share / 2, 1 - share / 2)) %>%
+  ungroup()
+
+ggplot(split, aes(y = group, x = share, fill = part)) +
+  geom_col(width = 0.72) +
+  geom_text(aes(x = middle, label = paste0(part, ": ", shown), color = part), size = 6.3,
+            fontface = "bold", family = "Fira Sans Condensed") +
+  scale_fill_manual(values = c(Predicted = clr_median, Residual = clr_soft), guide = "none") +
+  scale_color_manual(values = c(Predicted = "white", Residual = clr_median), guide = "none") +
+  scale_x_continuous(labels = scales::percent, expand = c(0, 0)) +
+  labs(x = NULL, y = NULL) +
+  theme_slides(18) +
+  theme(panel.grid = element_blank(), plot.margin = margin(4, 26, 4, 4))
+```
+
+<div class="math-display">\[
+r^2 = \frac{SS_Y - SS_{residual}}{SS_Y} = \frac{`r fmt(eight$ss_y, 0)` - `r fmt(eight$ss_res, 1)`}{`r fmt(eight$ss_y, 0)`} = `r fmt(eight$r^2, 3)`
+\]</div>
+
+.box-inv-3.small[A flat line ignores X, and its squares total SS<sub>Y</sub>. For our 8, the best line cuts that by `r fmt(100 * eight$r^2, 1)`%]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This keeps Topic 11's promise. The flat line predicts M<sub>Y</sub> for everyone, so its squares are SS<sub>Y</sub>: that's the "Flat" total on the curve. The regression line's squares are SS<sub>residual</sub>. r² is the share of the squares that goes away when we use X.
+
+With all `r all$n` students, (`r big(all$ss_y)` − `r big(all$ss_res)`) / `r big(all$ss_y)` = `r fmt(all$r^2, 3)`, the same `r fmt(all$r^2, 3)` as Topic 11.
+
+The bars redraw the book's split of SS<sub>Y</sub> into SS<sub>regression</sub> and SS<sub>residual</sub>, with our numbers. Thursday uses this split.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Five students from Topic 11
+
+.pull-left[
+```{r five-table, results="asis"}
+five$d %>%
+  transmute(`Baseline X` = X, `Endline Y` = Y) %>%
+  kable(format = "html", align = "c", table.attr = 'class="deck-table tight"')
+```
+]
+
+.pull-right[
+.box-inv-8.small[M<sub>X</sub> = `r fmt(five$mx, 0)`, M<sub>Y</sub> = `r fmt(five$my, 0)`]
+
+.box-inv-8.small[SP = `r fmt(five$sp, 0)`, SS<sub>X</sub> = `r fmt(five$ss_x, 0)`]
+
+.box-8.small[Find b and a. Then find the residual for the student with X = `r five_one$X` and Y = `r five_one$Y`]
+]
+
+.box-inv-8.small[Work alone, compare with a neighbor, then vote with hands: is the residual positive or negative?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. These are the five from Topic 11, whose r was `r fmt(five$r)`. The numbers on the right are given to save time.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[b = `r fmt(five$sp, 0)` / `r fmt(five$ss_x, 0)` = **`r fmt(five$b, 1)`**]
+
+.box-inv-8.small[a = `r fmt(five$my, 0)` − (`r fmt(five$b, 1)` × `r fmt(five$mx, 0)`) = **`r fmt(five$a, 1)`**]
+]
+
+.pull-right[
+.box-inv-8.small[Ŷ = `r fmt(five$a, 1)` + (`r fmt(five$b, 1)` × `r five_one$X`) = **`r fmt(five_one$fit, 0)`**]
+
+.box-inv-8.small[Y − Ŷ = `r five_one$Y` − `r fmt(five_one$fit, 0)` = **`r signed(five_one$res, 0)`**]
+]
+
+.box-8.small.sp-after-half[r was negative here, so b is too. And X = `r five_one$X` is M<sub>X</sub>, so Ŷ is M<sub>Y</sub>: no multiplying needed]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Common slips: the sign of b, and writing Ŷ − Y for the residual.
+
+---
+
+class: title title-8
+
+# Each b estimates β
+
+```{r three-b, results="asis"}
+tribble(
+  ~Students, ~n, ~r, ~a, ~b,
+  "Five from the try-it", as.character(five$n), fmt(five$r), fmt(five$a), fmt(five$b),
+  "Rows 25 to 32", as.character(eight$n), fmt(eight$r), fmt(eight$a, 3), fmt(eight$b),
+  "Everyone with both scores", as.character(all$n), fmt(all$r), fmt(all$a), fmt(all$b)
+) %>%
+  kable(format = "html", align = "lcccc", table.attr = 'class="deck-table"')
+```
+
+.box-inv-8.small.sp-after-half[Same test, three groups, three slopes. Like M and r, b bounces from sample to sample]
+
+.box-8.small[Thursday's question: could we see a slope like this if β were 0?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is the bridge to Topic 13, and it's the same step we took with r in Topic 11. A slope is a statistic, so it has a sampling distribution. That's step 7 of the blueprint, and the four steps come back with it. Don't test anything today.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Read a and b from a line, in the units of the scores]
+
+.box-inv-8.small[Predict Y from X, and say why that's an average, not a promise]
+
+.box-inv-8.small[Find a residual, and say what least squares minimizes]
+
+.box-inv-8.small[Compute b and a by hand from SP, SS<sub>X</sub> and the means]
+
+.box-inv-8.small[Link b to r, r² to the squares, and r to regression to the mean]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Thursday, March 4: Topic 13]
+
+Regression: is the slope real? Finish the regression part of Chapter 14
+]
+
+.pull-right[
+.box-6.small[Friday, March 5: Lab 9]
+
+Correlation and regression. Bring a calculator and a laptop
+]
+
+.box-3.small[Sunday, March 7, 6 PM: Mastery and Problem Set for Chapter 12 are due. Chapter 14's are due March 14]
+
+```{css, echo=FALSE}
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.source a {
+  color: #244a70;
+  text-decoration: underline;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+```
