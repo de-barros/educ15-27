@@ -255,12 +255,12 @@ Free access now
 .flow-box[
 **Control**, n = `r n_control`
 
-Gets the program later
+Promised the program later
 ]
 ]
 ]
 
-.box-1.small[Luck alone decided who went first. That makes this an experiment]
+.box-1.small[Luck alone decided who got it. That makes this an experiment]
 
 .source[Muralidharan, Singh, and Ganimian (2019).]
 
@@ -300,7 +300,7 @@ Math and Hindi tests
 
 ???
 
-`r n_all - n_end` students didn't take the endline tests. We'll say more about that when we compare groups.
+`r n_all - n_end` students didn't take the endline tests. We'll say more about that in Topic 14.
 
 ---
 
@@ -395,12 +395,14 @@ class: title title-8 poll-answer
 ]
 
 .box-inv-8.small.sp-after-half[
-`r f_top` students scored `r score_top`, about a third of the 35 points
+`r f_top` students scored `r score_top`. That score is about a third of the 35 points
 ]
 
 .box-8.small[
 Nobody can see that in a wall of numbers. A simple table finds it in seconds
 ]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ---
 
@@ -509,7 +511,7 @@ class: title title-8
 
 .box-8.small.sp-after-half[Make a grouped table with intervals of 5, starting at 0. Then check your total]
 
-.box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote on 5–9]
+.box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote: how many fall in 5–9?]
 
 .source[Data: Muralidharan, Singh, and Ganimian (2019). A random draw of 20 students.]
 
@@ -532,6 +534,8 @@ try_table %>%
 .box-inv-8.small.sp-after-half[The total is `r sum(try_table$f)`, one count per student. Nobody got lost]
 
 .box-8.small[Even these 20 peak at `r try_top`, the same interval as all `r n_all`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ---
 
