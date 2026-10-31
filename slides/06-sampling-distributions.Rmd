@@ -273,7 +273,7 @@ This is the blueprint, and it's the frame for the rest of the quarter. Topics 4 
 ```{r sim-empty, results="asis"}
 sim_frame(
   alt = "Simulator with three panels and no samples drawn yet. Panel 1 is a normal population with mean 100 and SD 15. Panels 2 and 3 are empty and share the same axis.",
-  step = 2, n = 1, view = "raw", seed = sim_seed, height = 490
+  step = 2, n = 1, view = "raw", seed = sim_seed, curve = 0, height = 490
 )
 ```
 
@@ -854,6 +854,8 @@ ggplot(tibble(n = seq(1, 100, 0.25)), aes(x = n, y = sim_sd / sqrt(n))) +
 ```
 ]
 
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
 ???
 
 The curve falls fast and then flattens, which is why going from 100 to 200 people buys much less than going from 10 to 20. The check on the left is why we simulated: the formula matches the 5,000 samples.
@@ -1198,7 +1200,7 @@ z = (`r fmt(win_M, 3)` − `r fmt(mu, 3)`) / `r fmt(win_se, 3)` = **`r minus(fmt
 
 These are math scores before the program started. The gap of `r fmt(abs(win_M - mu))` points looks like sampling error. A fair lottery doesn't make the groups identical, only randomly different.
 
-For anyone who asks: the lottery ran within strata and drew about half of the population, which makes the true standard error a little smaller. Neither changes the point.
+For anyone who asks: the lottery ran within strata and drew about half of the population, which makes the true standard error about 30% smaller. Neither changes the point.
 
 ---
 

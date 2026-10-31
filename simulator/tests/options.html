@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Simulator option tests</title>
+<style>
+  body { font: 16px system-ui, sans-serif; margin: 24px; }
+  iframe { width: 1180px; height: 545px; border: 0; }
+  .pass { color: #1a7a3a; } .fail { color: #b02a2a; }
+</style>
+</head>
+<body>
+<!-- Checks the URL options that need the page itself, which tests.js can't reach:
+     curve=0, show=groups,rho and the correlation readout in print screenshots.
+     Open it through a local server. -->
+<h1>Simulator option tests</h1>
+<p id="summary">running</p>
+<pre id="log"></pre>
+<iframe id="sim" title="Simulator under test"></iframe>
+<script>
+(async function () {
+  const frame = document.getElementById("sim"), lines = [];
+  let pass = 0, fail = 0;
+  const ok = (name, cond) => { if (cond) pass++; else { fail++; lines.push("FAIL " + name); } };
+
+  async function open(query) {
+    frame.src = "../index.html?" + query;
+    await new Promise(r => { frame.onload = r; });
+    await new Promise(r => setTimeout(r, 600));
+    return frame.contentWindow;
+  }
+  const shown = (win, id) => win.getComputedStyle(win.document.getElementById(id)).display !== "none";
+  const panel3 = win => win.document.getElementById("c-dist").toDataURL();
+
+  const preset = "ui=slide&step=2&n=1&view=raw&draws=1&seed=1365";
+
+  let win = await open(preset);
+  ok("the curve is on by default", win.SimBlueprint.state.curve === true);
+  const withCurve = panel3(win);
+  ok("slide mode hides the group boxes", !shown(win, "group-fields"));
+  ok("slide mode hides rho", !shown(win, "rho-field"));
+
+  win = await open(preset + "&curve=0");
+  ok("curve=0 turns it off", win.SimBlueprint.state.curve === false);
+  ok("curve=0 changes panel 3", panel3(win) !== withCurve);
+  const readout = win.document.getElementById("cap-sample").textContent;
+
+  win = await open(preset);
+  ok("curve=0 leaves the sample alone", win.document.getElementById("cap-sample").textContent === readout);
+  ok("the same preset gives the same picture", panel3(win) === withCurve);
+
+  win = await open("ui=slide&step=3p&n=10&show=rho");
+  ok("show=rho keeps rho in slide mode", shown(win, "rho-field"));
+
+  win = await open("ui=slide&step=4&n=10&show=groups");
+  ok("show=groups keeps the group boxes in slide mode", shown(win, "group-fields"));
+
+  win = await open("ui=slide&tab=correlation&n=12&r=0.6&seed=2027&print=1");
+  const shownOnly = Array.from(win.document.querySelectorAll("#view-correlation .controls > *"))
+    .filter(el => win.getComputedStyle(el).display !== "none").map(el => el.id);
+  ok("print shows only the correlation readout", shownOnly.length === 1 && shownOnly[0] === "r-readout");
+
+  win = await open("ui=slide&step=2&n=10&seed=1365&print=1");
+  ok("print still hides the blueprint controls", !shown(win, "readout") ||
+     win.getComputedStyle(win.document.querySelector("#view-blueprint .controls")).display === "none");
+
+  const summary = document.getElementById("summary");
+  summary.textContent = pass + " passed, " + fail + " failed";
+  summary.className = fail ? "fail" : "pass";
+  document.getElementById("log").textContent = lines.join("\n");
+  window.TEST_RESULT = { pass: pass, fail: fail, lines: lines };
+})();
+</script>
+</body>
+</html>

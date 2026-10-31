@@ -7,7 +7,7 @@
   var MAX_KEPT = 5000;
 
   var state = {
-    c: null, dist: null, crit: null, rng: null, seed: 2027, hide: false,
+    c: null, dist: null, crit: null, rng: null, seed: 2027, hide: false, curve: true,
     samples: [], stats: [], raws: [], sumStat: 0, N: 0, selected: -1,
     range: null, dots: [], sumM: 0, sumM2: 0, sumSSn: 0, sumVarHat: 0, sumSdHat: 0, nEst: 0,
     beyondZ: 0, anim: 0
@@ -709,7 +709,7 @@
     }
 
     // The curve and the cutoffs sit on top of the dots
-    if (fn) D.curve(ctx, fn, x, base, height * 0.9, peak, pad, f.w - pad, { color: C.text, width: 1.8, dash: [6, 4] });
+    if (fn && state.curve) D.curve(ctx, fn, x, base, height * 0.9, peak, pad, f.w - pad, { color: C.text, width: 1.8, dash: [6, 4] });
     ctx.strokeStyle = C.crit;
     ctx.lineWidth = 1.5;
     [cutLo, cutHi].forEach(function (v) {

@@ -310,6 +310,7 @@
       if (c.tails !== "two") q.set("tails", c.tails);
       if (c.view !== "stat") q.set("view", c.view);
       if (B.state.hide) q.set("hide", "1");
+      if (!B.state.curve) q.set("curve", "0");
       if (B.state.N) q.set("draws", B.state.N);
     }
     if (tab === "power") {
@@ -362,6 +363,11 @@
       document.body.classList.add("ui-slide");
       releaseFocus();
     }
+    // A slide can ask to keep controls that slide mode hides, with show=groups,rho
+    (params.get("show") || "").split(",").forEach(function (name) {
+      var field = { groups: "group-fields", rho: "rho-field" }[name];
+      if (field) $(field).classList.remove("slide-hide");
+    });
     if (root.parent !== root) document.body.classList.add("embedded");
     if (params.get("theme") === "light") root.SimDraw.useLight();
     if (params.get("print") === "1") document.body.classList.add("ui-print");
@@ -375,6 +381,7 @@
 
     var step = params.get("step") || "2", meta = E.STEPS[step] || E.STEPS["2"];
     B.state.hide = params.get("hide") === "1";
+    B.state.curve = params.get("curve") !== "0";
     B.configure({
       step: step, n: num("n", meta.n), d: tab === "blueprint" ? num("d", 0) : 0, pop: params.get("pop") || "normal",
       mu0: num("mu", 100), sigma: num("sd", 15) > 0 ? num("sd", 15) : 15, a0: num("a", 0),

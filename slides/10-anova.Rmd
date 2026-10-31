@@ -549,7 +549,7 @@ sim_frame(
 
 One group's mean moves up to 115. Only one group differs, and that's enough for H₁. The share beyond the cutoff is now power.
 
-Try other means live in the group boxes, or use the sample size slider.
+Use the sample size slider here. To try other means, open the full simulator, because the group boxes hide on a slide.
 
 ---
 
