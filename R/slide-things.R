@@ -19,6 +19,14 @@ sim_query <- function(...) {
   paste(names(args), vapply(args, as.character, character(1)), sep = "=", collapse = "&")
 }
 
+# Run Chrome with its own temp folder, so its leftovers don't pile up in Temp
+with_chrome_temp <- function(code) {
+  temp <- tempfile("chrome")
+  dir.create(temp)
+  on.exit(unlink(temp, recursive = TRUE))
+  withr::with_envvar(c(TEMP = temp, TMP = temp), code)
+}
+
 # Screenshot the simulator in its light theme, for the printed PDF. The file name
 # comes from the preset, so a preset is only captured once.
 sim_snapshot <- function(query) {
@@ -30,11 +38,11 @@ sim_snapshot <- function(query) {
       "file:///", here::here("simulator", "index.html"),
       "?", query, "&theme=light&print=1"
     )
-    pagedown::chrome_print(
+    with_chrome_temp(pagedown::chrome_print(
       url, output = out, format = "png", wait = 2, timeout = 60, verbose = 0,
       extra_args = c("--window-size=1180,600", "--hide-scrollbars",
                      "--allow-file-access-from-files", "--disable-gpu")
-    )
+    ))
   }
   file.path("img", "sim", file)
 }

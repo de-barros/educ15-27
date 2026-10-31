@@ -76,9 +76,17 @@ xaringan_to_pdf <- function(slide_path) {
   xfun::write_utf8(gsub('&lt;iframe class="sim-live".*?&lt;/iframe&gt;', "", html, perl = TRUE), print_path)
   on.exit(unlink(print_path))
 
+  # Chrome gets its own temp folder, so its leftovers don't pile up in Temp
+  chrome_temp <- tempfile("chrome")
+  dir.create(chrome_temp)
+  on.exit(unlink(chrome_temp, recursive = TRUE), add = TRUE)
+
   for (attempt in 1:2) {
     done <- withr::with_dir(getwd(), tryCatch({
-      pagedown::chrome_print(print_path, output = pdf_path, timeout = 300)
+      withr::with_envvar(
+        c(TEMP = chrome_temp, TMP = chrome_temp),
+        pagedown::chrome_print(print_path, output = pdf_path, timeout = 300)
+      )
       TRUE
     }, error = function(e) {
       if (attempt == 2) stop(e)
