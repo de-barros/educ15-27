@@ -819,7 +819,7 @@ ggplot(curve_dec, aes(x = x, y = y)) +
 
 Two things moved, and both worked against rejecting. Maintaining H₀ doesn't mean H₀ is true. It means this sample isn't surprising enough.
 
-The first number in brackets is always df. With σ known, p would be `r fmt(ex_p_z)`.
+The first number in brackets is always df. With σ known, p would be `r fmt(ex_p_z, 3)`.
 
 ---
 
@@ -864,7 +864,7 @@ class: title title-8
 
 ???
 
-Keep these `r few$n` students in mind. They come back twice on Tuesday.
+Keep these `r few$n` students in mind. They come back on Tuesday.
 
 ---
 
@@ -943,7 +943,7 @@ ggplot(d_curves, aes(x = x, y = y, linetype = pop)) +
 
 ???
 
-A review from Topic 7. d is a z-score for a difference: the gap, in standard deviations. Greek letters all the way through, so d is a population quantity. In the simulator, a slider sets it.
+A review from Topic 7. d is a z-score for a difference: the gap, in standard deviations. Population values all the way through, so d is a population quantity. In the simulator, a slider sets it.
 
 Here again, how do we know that σ? We usually don't.
 
@@ -1442,7 +1442,7 @@ class: title title-8
 
 ???
 
-These are the `r few$n` students once more. From here on, every test in the course comes with an effect size and an interval.
+These are the `r few$n` students once more. From here on, every t-test in the course comes with an effect size and an interval.
 
 ---
 
@@ -1465,7 +1465,7 @@ tribble(
 
 ???
 
-Each step is the same fraction: an observed gap over the gap we'd expect from sampling error. Panel 1 went dark at step 3a, and it stays dark from here on.
+Each step is the same fraction: an observed gap over the gap we'd expect from sampling error. Panel 1 went dark at step 3a. It goes dark whenever we do real research, because we can't see the population.
 
 ---
 
