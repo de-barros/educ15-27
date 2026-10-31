@@ -1,0 +1,1289 @@
+---
+title: "Regression: is the slope real?"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css", "css/simulator.css"]
+    seal: false
+    anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+library(knitr)
+source(here::here("R", "slide-things.R"))
+
+# Colors from the slide theme, all readable on white ----
+clr_bar <- "#538ba2"
+clr_soft <- "#c5d9e2"
+clr_mean <- "#a93e31"
+clr_median <- "#244a70"
+clr_mode <- "#8a6100"
+
+theme_slides <- function(base_size = 20) {
+  theme_minimal(base_size = base_size, base_family = "Fira Sans Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_text(face = "bold"),
+          strip.text = element_text(face = "bold", size = rel(1)))
+}
+
+fmt <- function(x, d = 2) str_replace(formatC(if_else(round(x, d) == 0, 0, x), format = "f", digits = d), "-", "−")
+big <- function(x) format(round(x), big.mark = ",")
+pct <- function(x, d = 0) paste0(fmt(100 * x, d), "%")
+p_text <- function(p) if (p < 0.001) "p < 0.001" else paste("p =", fmt(p, 3))
+
+label_text <- function(x, y, label, color = clr_median, hjust = 0.5, size = 6.5) {
+  annotate("text", x = x, y = y, label = label, color = color, hjust = hjust, size = size,
+           fontface = "bold", family = "Fira Sans Condensed")
+}
+
+# Everything a test of a slope needs, from the students' two scores ----
+fit_line <- function(d) {
+  dx <- d$X - mean(d$X)
+  dy <- d$Y - mean(d$Y)
+  n <- nrow(d)
+  ss_x <- sum(dx^2)
+  ss_y <- sum(dy^2)
+  sp <- sum(dx * dy)
+  b <- sp / ss_x
+  a <- mean(d$Y) - b * mean(d$X)
+  ss_res <- sum((d$Y - a - b * d$X)^2)
+  ss_reg <- ss_y - ss_res
+  df <- n - 2
+  ms_res <- ss_res / df
+  se <- sqrt(ms_res / ss_x)
+  t_stat <- b / se
+  crit <- qt(0.975, df)
+  r <- sp / sqrt(ss_x * ss_y)
+  list(n = n, ss_x = ss_x, ss_y = ss_y, sp = sp, a = a, b = b, r = r, r2 = r^2,
+       ss_res = ss_res, ss_reg = ss_reg, df = df, ms_res = ms_res, se = se, t = t_stat,
+       crit = crit, p = 2 * pt(-abs(t_stat), df), ci = b + c(-1, 1) * crit * se,
+       se_r = sqrt((1 - r^2) / df), f = ss_reg / ms_res, crit_f = qf(0.95, 1, df))
+}
+
+# Mindspark math scores. Everyone at endline also has a baseline score ----
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+both <- inner_join(select(baseline, st_id, X = tot_math, grade = st_grade1, ses_index),
+                   select(endline, st_id, Y = tot_math),
+                   by = "st_id")
+
+all <- fit_line(both)
+eight <- fit_line(slice(both, 25:32))  # Students 25 to 32, the 2024 hand example
+five <- fit_line(slice(both, 289:293))  # The five students from Topics 11 and 12
+fifth <- fit_line(filter(both, grade == 5))  # The nine fifth graders from Topic 11
+
+# Treat the students as a population, and draw many samples ----
+slope_of <- function(pool, n) {
+  i <- sample(nrow(pool), n, replace = TRUE)
+  cov(pool$X[i], pool$Y[i]) / var(pool$X[i])
+}
+
+set.seed(15)
+draws_8 <- replicate(20000, slope_of(both, 8))
+draws_range <- quantile(draws_8, c(0.025, 0.975), names = FALSE)
+draws_high <- mean(draws_8 >= eight$b)
+
+set.seed(15)
+lines_8 <- map_dfr(1:30, function(k) {
+  d <- slice_sample(both, n = 8, replace = TRUE)
+  fit <- coef(lm(Y ~ X, data = d))
+  tibble(k = k, x0 = min(d$X), x1 = max(d$X), y0 = fit[[1]] + fit[[2]] * x0, y1 = fit[[1]] + fit[[2]] * x1)
+})
+
+# The poll: 30 students from anywhere, or only from the middle of the baseline scores ----
+band_lo <- 8
+band_hi <- 14
+band <- filter(both, between(X, band_lo, band_hi))
+n_study <- 30
+set.seed(15)
+draws_any <- replicate(5000, slope_of(both, n_study))
+draws_band <- replicate(5000, slope_of(band, n_study))
+
+# The simulator's population line ----
+sim_a <- 2
+sim_b <- 0.5
+sim_n <- 8
+sim_seed <- 15
+
+# R's output, as students will see it ----
+mindspark <- transmute(both, endline = Y, baseline = X, ses_index)
+fit_base <- lm(endline ~ baseline, data = mindspark)
+fit_ses <- lm(endline ~ ses_index, data = mindspark)
+ses <- summary(fit_ses)
+ses_ctab <- coef(ses)
+ses_f <- ses$fstatistic[["value"]]
+
+# These characters would otherwise be read as HTML or markdown
+safe_text <- function(x) {
+  x %>%
+    str_replace_all("&", "&amp;") %>%
+    str_replace_all("<", "&lt;") %>%
+    str_replace_all(">", "&gt;") %>%
+    str_replace_all("\\*", "&#42;") %>%
+    str_replace_all("_", "&#95;") %>%
+    str_replace_all("-", "&#45;")
+}
+
+# Each line is its own div on one long line, so remark can't read "---" as a new slide
+r_block <- function(lines, notes = NULL, width = 58) {
+  shown <- str_pad(lines, width, "right")
+  shown <- safe_text(shown)
+  for (pattern in names(notes)) {
+    i <- str_which(lines, pattern)[1]
+    shown[i] <- paste0(shown[i], '<span class="r-note">← ', notes[[pattern]], "</span>")
+  }
+  shown[str_trim(lines) == ""] <- "&nbsp;"
+  cat('<div class="r-output">', paste0("<div>", shown, "</div>", collapse = ""), "</div>\n", sep = "")
+}
+
+r_summary <- function(fit) {
+  old <- options(width = 80)
+  on.exit(options(old))
+  lines <- str_replace_all(capture.output(print(summary(fit))), "\t", "  ")
+  lines[seq(min(which(lines != "")), max(which(lines != "")))]
+}
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# Regression: is the slope real?
+
+.class-info[
+
+**Topic 13 · Thursday, March 4**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Does one score go with another?]
+
+.box-inv-6.small[Use one score to predict another]
+
+.box-inv-6.small[Is the slope real?]
+
+.center[**We are here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Same map. On Tuesday we found a line. Today we ask whether its slope could be a fluke of the sample. It's the last new test of the quarter.
+
+---
+
+class: title title-8
+
+# Same four steps, one new statistic
+
+.box-inv-8.small.sp-after-half[Step 1: State a hypothesis about the slope in the population]
+
+.box-inv-8.small.sp-after-half[Step 2: Set the criteria: how far from 0 must our slope be to count as unexpected?]
+
+.box-8.small.sp-after-half[Step 3: Observe a sample and find b. How unexpected is it, if the true line is flat?]
+
+.box-inv-8.small[Step 4: Reject or maintain H₀]
+
+???
+
+The same four steps as z, t and F. Step 3 gets a new standard error, and that's most of what's new today.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[A slope bounces]
+
+.box-6.medium.sp-after-half[Testing the slope]
+
+.box-3.medium.sp-after-half[F, r² and R's output]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: predict, try, play. The running question is still whether baseline math predicts endline math.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# A slope bounces
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Eight students at a time, the line swings
+
+```{r swing-plot, fig.width=10, fig.height=4.1, out.width="82%", fig.alt=paste0("The scatter plot of ", all$n, " students in pale dots, with baseline math on the horizontal axis and endline math on the vertical axis. A thick dark line shows their slope of ", fmt(all$b), ". Thirty thin lines, one from each random sample of 8 students, cross it at many angles. Some are nearly flat, and others are much steeper.")}
+ggplot(both, aes(x = X, y = Y)) +
+  geom_point(position = position_jitter(width = 0.25, height = 0.25, seed = 15), color = "#dde3e8", size = 2) +
+  geom_segment(data = lines_8, aes(x = x0, xend = x1, y = y0, yend = y1, group = k), inherit.aes = FALSE,
+               color = clr_bar, linewidth = 0.8) +
+  geom_abline(intercept = all$a, slope = all$b, color = clr_median, linewidth = 2) +
+  label_text(26.5, 3.5, paste0("Thick line: all ", all$n, " students, b = ", fmt(all$b)), hjust = 1) +
+  label_text(26.5, 0, "Thin lines: 30 samples of 8", clr_bar, hjust = 1) +
+  scale_x_continuous(breaks = seq(0, 26, 4)) +
+  scale_y_continuous(breaks = seq(0, 32, 8)) +
+  coord_cartesian(ylim = c(-1, 34)) +
+  labs(x = "Math score at baseline", y = "Math score at endline") +
+  theme_slides()
+```
+
+.box-inv-1.small[Treat our `r all$n` students as a population. Each sample of 8 gets its own line]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Samples drawn by computer, with replacement. Dots are nudged.]
+
+???
+
+Tuesday ended with three slopes: `r fmt(five$b)`, `r fmt(eight$b)` and `r fmt(all$b)`. Same test, same schools. Here's why. Every thin line is a line we might have reported, if a different 8 students had landed in our sample.
+
+Each thin line only runs across its own sample's baseline scores. The short ones are samples with little spread in X, and they swing the most. Hold that thought for the poll.
+
+---
+
+# β is the slope for everyone
+
+```{r greek-table, results="asis"}
+tribble(
+  ~` `, ~`Our estimate`, ~`In the population`,
+  "Mean", "M", "μ",
+  "Correlation", "r", "ρ",
+  "<strong>Slope</strong>", "<strong>b</strong>", "<strong>β</strong>"
+) %>%
+  kable(format = "html", escape = FALSE, align = "lcc", table.attr = 'class="deck-table"')
+```
+
+.box-1.small.sp-after-half[`r fmt(eight$b)` and `r fmt(all$b)` are values of b. Never call an estimate beta]
+
+.box-inv-1.small[A population line uses plain numbers, such as Y = `r fmt(sim_a)` + `r fmt(sim_b)`X, so β = `r fmt(sim_b)` here]
+
+.book-tag[Careful: in Topic 7, β was the Type 2 error rate. Here it's a slope. Same letter, different job]
+
+???
+
+The rule from Topic 3 again. Greek means population. The 2024 slides wrote "beta = 2.25", which was a slip: 2.25 is an estimate.
+
+We don't write α for the population's intercept, because α already has a job as well.
+
+---
+
+# Same frame, new statistic
+
+```{r frame-table, results="asis"}
+tribble(
+  ~`Blueprint step`, ~`Panel 1: population`, ~`Panel 2: one sample`, ~`Panel 3: many samples`,
+  "2. One mean", "A curve with μ", "n scores, one M", "A pile of M",
+  "4. Two means", "Two curves", "Two groups, M₁ − M₂", "A pile of M₁ − M₂",
+  "5. Many means", "Three curves", "Three groups, one F", "A pile of F",
+  "6. A correlation", "A cloud with ρ", "n dots, one r", "A pile of r",
+  "<strong>7a. A slope</strong>", "<strong>A line with β</strong>", "<strong>n dots, one b</strong>", "<strong>A pile of b</strong>"
+) %>%
+  kable(format = "html", escape = FALSE, table.attr = 'class="deck-table tight"')
+```
+
+.box-1.small[The three panels never change. Only the statistic does]
+
+???
+
+This is the blueprint from Topic 6, and it's the last new row. Panel 1 is what we can't see. Panel 2 is the one sample we get. Panel 3 is every sample we could have got.
+
+---
+
+# Step 7a: Every sample draws its own line
+
+```{r sim-b-pile, results="asis"}
+sim_frame(
+  alt = paste0("Simulator at step 7a with 551 samples of ", sim_n, " pairs. Panel 1 shows a cloud around the population line Y = ", fmt(sim_a), " + ", fmt(sim_b), " X. Panel 2 shows one sample's ", sim_n, " dots and its own line. Panel 3 shows the values of b piled up around ", fmt(sim_b), ", from below 0 to above 1."),
+  step = 7, n = sim_n, d = sim_b, a = sim_a, view = "raw", draws = 551, seed = sim_seed, height = 495
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+
+???
+
+**Press +1 a few times.** A sample of `r sim_n` falls from panel 1 to panel 2, gets its own line, and one b drops into panel 3. Then press +50.
+
+Same story as M and r. The pile is centered on the true slope, `r fmt(sim_b)`. The population line is Y = `r fmt(sim_a)` + `r fmt(sim_b)`X. It's in plain numbers, not in points on our test.
+
+Panel 3's axis fits itself to each preset, so read its numbers before comparing two views.
+
+---
+
+# Our 8 students' b came from the far tail
+
+```{r pile-plot, fig.width=10, fig.height=3.8, out.width="82%", fig.alt=paste0("Histogram of b across 20,000 samples of 8 students, drawn from all ", all$n, ". It's centered on ", fmt(all$b), ", the slope of all students, and most values fall between ", fmt(draws_range[1]), " and ", fmt(draws_range[2]), ". A red line at ", fmt(eight$b), ", the slope of our 8 students, sits far out in the right tail.")}
+tibble(b = draws_8) %>%
+  ggplot(aes(x = b)) +
+  geom_histogram(binwidth = 0.1, boundary = 0, fill = clr_soft, color = "white") +
+  geom_vline(xintercept = all$b, color = clr_median, linewidth = 1.4) +
+  annotate("segment", x = eight$b, xend = eight$b, y = 0, yend = 900, color = clr_mean, linewidth = 1.4) +
+  label_text(all$b + 0.08, 2050, paste("All", all$n, "students:", fmt(all$b)), hjust = 0) +
+  label_text(eight$b + 0.06, 900, paste("Our 8:", fmt(eight$b)), clr_mean, hjust = 0) +
+  coord_cartesian(xlim = c(-2, 3.5), ylim = c(0, 2200)) +
+  scale_x_continuous(breaks = -2:3, labels = \(x) fmt(x, 0)) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(x = "b, the slope in one sample of 8", y = "Samples") +
+  theme_slides()
+```
+
+.box-inv-1.small[The middle 95% runs from `r fmt(draws_range[1])` to `r fmt(draws_range[2])`, and only `r pct(draws_high, 1)` of samples reach `r fmt(eight$b)`. The SD of this pile is the standard error of b]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 20,000 samples of 8, drawn with replacement.]
+
+???
+
+The same pile, on our own students. Here we know the answer, because we're treating the `r all$n` as the population, so β = `r fmt(all$b)`. In real research, panel 1 goes dark, and one sample has to tell us how wide the pile is. That's the job of block 2.
+
+Students 25 to 32 aren't a random sample, just neighbors in a file. Their slope is high mostly because their baseline scores sit so close together, which is the next point.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Which slope bounces more?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Two studies draw `r n_study` Mindspark students, again and again. Study A takes any baseline score. Study B takes only baseline scores from `r band_lo` to `r band_hi`. Whose b bounces more from sample to sample?
+]
+
+.options[
+.option[
+**A** Study A
+]
+.option[
+**B** Study B
+]
+.option[
+**C** About the same
+]
+.option[
+**D** We can't tell without β
+]
+]
+
+???
+
+About 6 minutes for this slide and the next two. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** Study A
+]
+.option.correct[
+**B** Study B
+]
+.option.wrong[
+**C** About the same
+]
+.option.wrong[
+**D** We can't tell without β
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Across 5,000 samples, b has an SD of `r fmt(sd(draws_any))` in Study A and `r fmt(sd(draws_band))` in Study B
+]
+
+.box-8.small[
+A line through a narrow band of X is like a seesaw on a short plank. Small bumps tip it a lot
+]
+
+---
+
+class: title title-8
+
+# Predict it: Narrow X, wobbly slope
+
+```{r band-plot, fig.width=11, fig.height=3.9, out.width="90%", fig.alt=paste0("Two histograms of b across 5,000 samples of ", n_study, " students, on the same axis. With any baseline score, b stays in a narrow pile around ", fmt(mean(draws_any), 1), ", with an SD of ", fmt(sd(draws_any)), ". With baseline scores from ", band_lo, " to ", band_hi, ", the pile is more than twice as wide, with an SD of ", fmt(sd(draws_band)), ".")}
+band_names <- c("Study A: any baseline score", paste0("Study B: baseline ", band_lo, " to ", band_hi))
+band_draws <- bind_rows(tibble(b = draws_any, study = band_names[1]),
+                        tibble(b = draws_band, study = band_names[2])) %>%
+  mutate(study = factor(study, levels = band_names))
+band_sd <- band_draws %>%
+  group_by(study) %>%
+  summarize(s = sd(b))
+
+ggplot(band_draws, aes(x = b)) +
+  geom_histogram(binwidth = 0.1, boundary = 0, fill = clr_bar, color = "white") +
+  geom_text(data = band_sd, aes(x = 2.4, y = 880, label = paste("SD of b:", fmt(s))), hjust = 1, color = clr_median,
+            size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  facet_wrap(vars(study), nrow = 1) +
+  coord_cartesian(xlim = c(-1, 2.5), ylim = c(0, 1000)) +
+  scale_x_continuous(breaks = -1:2, labels = \(x) fmt(x, 0)) +
+  labs(x = paste("b, the slope in one sample of", n_study), y = "Samples") +
+  theme_slides(18)
+```
+
+.box-inv-8.small[Same number of students. The only change is how far apart they are on X]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 5,000 samples of each, drawn with replacement.]
+
+???
+
+Topic 11 said a narrow range hides a correlation. Here's the same problem for a slope. Compare with the pile for n = 8 on the slide before: more students narrow the pile too.
+
+Both piles sit near the same slope: `r fmt(mean(draws_any))` and `r fmt(mean(draws_band))`. Study B draws from the `r nrow(band)` students between `r band_lo` and `r band_hi`.
+
+Design lesson: if you get to choose your X values, spread them out.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Testing the slope
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Steps 1 and 2: H₀ says the line is flat
+
+```{r steps-12, results="asis"}
+tribble(
+  ~Step, ~`In words`, ~`Our 8 students`,
+  "1. State H₀", "Baseline predicts nothing about endline, in the population", "H₀: β = 0<br>H₁: β ≠ 0",
+  "2. Set the criteria", "Two tails, α = 0.05, and a t curve", paste0("df = n − 2 = ", eight$df, "<br>t(", eight$df, ") beyond ±", fmt(eight$crit, 3))
+) %>%
+  kable(format = "html", escape = FALSE, table.attr = 'class="deck-table"')
+```
+
+.box-6.small[We found b = `r fmt(eight$b)`. Would a slope that steep be surprising, if the true line were flat?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+Back to our 8 students from Tuesday. Two tails is our default. Why n − 2? The line spends two degrees of freedom, one on a and one on b. Topic 11 got the same df from the two means.
+
+H₀ doesn't have to be 0. It's almost always 0, because "no relationship" is the question people ask.
+
+---
+
+# Under H₀, sample lines still tilt
+
+```{r sim-b-null, results="asis"}
+sim_frame(
+  alt = paste0("Simulator at step 7a with 551 samples of ", sim_n, " pairs from a population with a flat line, Y = ", fmt(sim_a), " + ", fmt(0), " X. Panel 2 shows one sample whose own line tilts anyway. Panel 3 shows t values stacked along a t curve with ", sim_n - 2, " degrees of freedom, with cutoffs near plus and minus ", fmt(eight$crit), "."),
+  step = 7, n = sim_n, d = 0, a = sim_a, view = "stat", draws = 551, seed = sim_seed, height = 495
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Here β = 0, the world H₀ describes. The population line is flat, yet panel 2's line still tilts. Panel 3 turns each b into a t. About 5% of them land beyond the cutoffs, which are the ±`r fmt(eight$crit, 3)` from step 2.
+
+**Press +1 a few times** and watch a dot land past a cutoff now and then. Each one is a Type 1 error.
+
+---
+
+# Three things narrow the pile
+
+<div class="math-display">\[
+\hat{\sigma}_b = \sqrt{\frac{MS_{residual}}{SS_X}}
+\qquad \text{where} \qquad
+MS_{residual} = \frac{SS_{residual}}{n - 2}
+\]</div>
+
+.pull-left-3[
+.box-inv-6.small[Tight dots: small MS<sub>residual</sub>]
+]
+
+.pull-middle-3[
+.box-inv-6.small[Wide X: big SS<sub>X</sub>]
+]
+
+.pull-right-3[
+.box-inv-6.small[More students: big SS<sub>X</sub>]
+]
+
+.box-6.small[It has the shape of σ̂<sub>M</sub> = σ̂ / √n: the scatter, over how much information we have]
+
+.book-tag[In the book: √MS<sub>residual</sub> is the standard error of estimate. Software calls σ̂<sub>b</sub> the "Std. Error"]
+
+???
+
+MS residual is the average squared miss from Tuesday, with n − 2 on the bottom. It's our estimate of the variance around the line.
+
+Students don't need to derive this. They should be able to say why each of the three things helps. The first was the loose and tight dots on Tuesday, and the second was the poll.
+
+---
+
+# Step 3: The same fraction again
+
+<div class="math-display">\[
+MS_{residual} = \frac{`r fmt(eight$ss_res, 1)`}{`r eight$df`} = `r fmt(eight$ms_res)`
+\qquad\qquad
+\hat{\sigma}_b = \sqrt{\frac{`r fmt(eight$ms_res)`}{`r fmt(eight$ss_x, 0)`}} = `r fmt(eight$se, 3)`
+\]</div>
+
+<div class="math-display">\[
+t = \frac{b - \beta}{\hat{\sigma}_b} = \frac{`r fmt(eight$b)` - 0}{`r fmt(eight$se, 3)`} = `r fmt(eight$t)`
+\]</div>
+
+.pull-left[
+.box-inv-6.small[Top: how far b is from H₀'s β of 0]
+]
+
+.pull-right[
+.box-inv-6.small[Bottom: how far a b typically falls]
+]
+
+.box-6.small[`r fmt(eight$t)` is beyond ±`r fmt(eight$crit, 3)`, so we reject H₀: t(`r eight$df`) = `r fmt(eight$t)`, `r p_text(eight$p)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32. SS<sub>residual</sub> and SS<sub>X</sub> are from Topic 12.]
+
+???
+
+SS residual = `r fmt(eight$ss_res, 1)` is the "Least squares" total from Tuesday's curve. SS<sub>X</sub> = `r fmt(eight$ss_x, 0)` is from Topic 11.
+
+Decision wording as in Topic 7: this slope would be surprising if the true line were flat, so we reject H₀.
+
+---
+
+# It's Topic 11's t, to the last decimal
+
+```{r two-routes, results="asis"}
+tribble(
+  ~`Our 8 students`, ~`Bottom of the fraction`, ~t,
+  "Topic 11: test r", paste0("σ̂<sub>r</sub> = √((1 − r²) / (n − 2)) = ", fmt(eight$se_r, 3)), paste0(fmt(eight$r, 3), " / ", fmt(eight$se_r, 3), " = <strong>", fmt(eight$t), "</strong>"),
+  "Today: test b", paste0("σ̂<sub>b</sub> = √(MS<sub>residual</sub> / SS<sub>X</sub>) = ", fmt(eight$se, 3)), paste0(fmt(eight$b), " / ", fmt(eight$se, 3), " = <strong>", fmt(eight$t), "</strong>")
+) %>%
+  kable(format = "html", escape = FALSE, table.attr = 'class="deck-table"')
+```
+
+.box-inv-6.small.sp-after-half[b is r, rescaled into points. The same rescaling turns σ̂<sub>r</sub> into σ̂<sub>b</sub>, so the fraction doesn't change]
+
+.box-6.small[H₀: ρ = 0 and H₀: β = 0 are one question. If r is 0, b is 0]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+Topic 12 showed b = r × σ̂<sub>Y</sub> / σ̂<sub>X</sub>. Multiply the top and bottom of Topic 11's fraction by that same ratio, and you get today's fraction. In numbers, `r fmt(eight$se_r, 3)` × `r fmt(sqrt(eight$ss_y / eight$ss_x), 3)` = `r fmt(eight$se, 3)`.
+
+The 2024 deck got 3.51 from r rounded to 0.82, and said the two routes differ by rounding. With three decimals in r, they agree.
+
+---
+
+# Eight students or `r all$n`: reject H₀
+
+```{r four-steps-table, results="asis"}
+tribble(
+  ~Step, ~`Our 8 students`, ~`All 539 students`,
+  "1. State H₀", "β = 0", "β = 0",
+  "2. Set the criteria", paste0("t(", eight$df, ") beyond ±", fmt(eight$crit, 3)), paste0("t(", all$df, ") beyond ±", fmt(all$crit, 3)),
+  "3. Find the spread", paste0("σ̂<sub>b</sub> = √(", fmt(eight$ms_res), " / ", fmt(eight$ss_x, 0), ") = ", fmt(eight$se, 3)), paste0("σ̂<sub>b</sub> = √(", fmt(all$ms_res), " / ", big(all$ss_x), ") = ", fmt(all$se, 3)),
+  "3. Compute t", paste0("b = ", fmt(eight$b), ", t = ", fmt(eight$t)), paste0("b = ", fmt(all$b), ", t = ", fmt(all$t)),
+  "4. Decide", paste0("Reject H₀: ", fmt(eight$t), " > ", fmt(eight$crit, 3)), paste0("Reject H₀: ", fmt(all$t), " > ", fmt(all$crit, 3))
+) %>%
+  rename_with(~ str_replace(.x, "539", as.character(all$n))) %>%
+  kable(format = "html", escape = FALSE, table.attr = 'class="deck-table tight"')
+```
+
+.box-inv-6.small.sp-after-half[Eight students: b = `r fmt(eight$b)`, t(`r eight$df`) = `r fmt(eight$t)`, `r p_text(eight$p)`, r² = `r fmt(eight$r2, 3)`]
+
+.box-6.small[All `r all$n`: Ŷ = `r fmt(all$a)` + `r fmt(all$b)`X, t(`r all$df`) = `r fmt(all$t)`, `r p_text(all$p)`, r² = `r fmt(all$r2, 3)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The right-hand column is the real test. With `r all$n` students, σ̂<sub>b</sub> is about a tenth of what it was with 8, so t is much larger even though b is smaller.
+
+Our line matches 2024: `r fmt(all$a)` and `r fmt(all$b)`. The numbers on the bottom of step 3 come from SS residual = `r big(all$ss_res)` and df = `r all$df`.
+
+---
+
+# An interval for β, the Topic 8 way
+
+```{r interval-plot, fig.width=11, fig.height=2.5, out.width="90%", fig.alt=paste0("Two horizontal 95 percent intervals for the slope, with a dashed vertical line at 0. For our 8 students, the interval runs from ", fmt(eight$ci[1]), " to ", fmt(eight$ci[2]), " around ", fmt(eight$b), ". For all ", all$n, " students, it runs from ", fmt(all$ci[1]), " to ", fmt(all$ci[2]), " around ", fmt(all$b), ". Neither interval reaches 0.")}
+ints <- tibble(group = factor(c(paste("All", all$n, "students"), "Our 8 students"),
+                              levels = c(paste("All", all$n, "students"), "Our 8 students")),
+               b = c(all$b, eight$b), lo = c(all$ci[1], eight$ci[1]), hi = c(all$ci[2], eight$ci[2]))
+
+ggplot(ints, aes(y = group, x = b)) +
+  geom_vline(xintercept = 0, color = clr_mean, linewidth = 1.2, linetype = "dashed") +
+  geom_segment(aes(x = lo, xend = hi, yend = group), color = clr_median, linewidth = 2.2) +
+  geom_point(color = clr_median, size = 6) +
+  geom_text(aes(x = hi + 0.08, label = paste0("[", fmt(lo), ", ", fmt(hi), "]")), hjust = 0, color = clr_median,
+            size = 6.5, fontface = "bold", family = "Fira Sans Condensed") +
+  label_text(0.03, 2.48, "H₀: β = 0", clr_mean, hjust = 0) +
+  scale_x_continuous(breaks = 0:4, labels = \(x) fmt(x, 0)) +
+  coord_cartesian(xlim = c(-0.3, 4.9), ylim = c(0.6, 2.6)) +
+  labs(x = "Slope", y = NULL) +
+  theme_slides()
+```
+
+.pull-left[
+.box-inv-6.small[8 students: `r fmt(eight$b)` ± `r fmt(eight$crit, 3)` × `r fmt(eight$se, 3)`]
+]
+
+.pull-right[
+.box-inv-6.small[All `r all$n`: `r fmt(all$b)` ± `r fmt(all$crit, 3)` × `r fmt(all$se, 3)`]
+]
+
+.box-6.small[Neither interval holds 0, so both tests reject. It's the rule from Topic 8]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Same recipe as Topic 8: the t cutoff from step 2, times the standard error. Students could do this on a calculator. The interval says something a t alone doesn't: with all `r all$n`, a point at baseline goes with about `r fmt(all$ci[1])` to `r fmt(all$ci[2])` points at endline.
+
+The 95% is about the method, as in Topic 8, not about this one interval. The test also assumes the line is straight and the misses are independent, which is another reason to plot first.
+
+---
+
+# Real, big and causal are three questions
+
+```{r three-questions, results="asis"}
+tribble(
+  ~Question, ~`What answers it`, ~`All 539 students`,
+  "Is the slope real?", "The test: t and p", paste0("Yes: t(", all$df, ") = ", fmt(all$t), ", ", p_text(all$p)),
+  "How big is it?", "b in points, and r²", paste0(fmt(all$b), " points per point, r² = ", fmt(all$r2, 3)),
+  "Did X cause Y?", "The design, not the test", "We can't say: no lottery set baseline scores"
+) %>%
+  rename_with(~ str_replace(.x, "539", as.character(all$n))) %>%
+  kable(format = "html", align = "lll", table.attr = 'class="deck-table"')
+```
+
+.box-6.small[Rejecting H₀ says the line isn't flat, not that it's steep. With enough students, a tiny slope passes too]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+"Is the slope real?" has a modest answer. It says we don't think the true line is flat. Nobody doubted that baseline and endline math scores go together, so H₀ was a low bar here.
+
+The same point came up with effect sizes in Topic 8 and with correlation in Topic 11. Topic 14 uses a slope that a lottery set, where the third question gets a better answer.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Nine fifth graders' slope
+
+.pull-left[
+.box-inv-8.small[n = `r fifth$n`]
+
+.box-inv-8.small[b = `r fmt(fifth$b, 3)`]
+
+.box-inv-8.small[SS<sub>X</sub> = `r fmt(fifth$ss_x, 0)`]
+
+.box-inv-8.small[SS<sub>residual</sub> = `r fmt(fifth$ss_res, 1)`]
+]
+
+.pull-right[
+.box-8.small.sp-after-half[Test H₀: β = 0 with α = 0.05 and two tails. The cutoff is t(`r fifth$df`) = ±`r fmt(fifth$crit, 3)`]
+
+.box-inv-8.small[Find MS<sub>residual</sub>, then σ̂<sub>b</sub>, then t. Then decide]
+]
+
+.box-inv-8.small[First, predict: Topic 11 tested these students' r. What will t be today? Then work alone, compare with a neighbor, and vote with hands: reject or maintain?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Some students will remember that Topic 11's answer was t = `r fmt(fifth$t)`. That's the point. Common slip: using n − 1 for MS residual, or forgetting the square root.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left-3[
+.box-inv-8.small[MS<sub>residual</sub> = `r fmt(fifth$ss_res, 1)` / `r fifth$df` = **`r fmt(fifth$ms_res)`**]
+]
+
+.pull-middle-3[
+.box-inv-8.small[σ̂<sub>b</sub> = √(`r fmt(fifth$ms_res)` / `r fmt(fifth$ss_x, 0)`) = **`r fmt(fifth$se, 3)`**]
+]
+
+.pull-right-3[
+.box-inv-8.small[t = `r fmt(fifth$b, 3)` / `r fmt(fifth$se, 3)` = **`r fmt(fifth$t)`**]
+]
+
+.box-8.small.sp-after-half[`r fmt(fifth$t)` is inside ±`r fmt(fifth$crit, 3)`, so we **maintain H₀**: t(`r fifth$df`) = `r fmt(fifth$t)`, `r p_text(fifth$p)`]
+
+.box-inv-8.small.sp-after-half[It's the same t as Topic 11, so it's the same decision]
+
+.box-inv-8.small[Maintaining H₀ doesn't mean the true line is flat. It means `r fifth$n` students can't tell]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+These nine are a real group, not a random sample of fifth graders, so read this as practice with the steps.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# F, r² and R's output
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# ANOVA's split works for a line
+
+.pull-left[
+.tree-top.box-3.small[SS<sub>Y</sub> = `r fmt(eight$ss_y, 1)`]
+
+<div class="tree-arrows" aria-hidden="true"><span>↙</span><span>↘</span></div>
+
+.tree-row[
+.box-inv-3.small[SS<sub>regression</sub><br>r²SS<sub>Y</sub> = `r fmt(eight$ss_reg, 1)`]
+
+.box-inv-3.small[SS<sub>residual</sub><br>(1 − r²)SS<sub>Y</sub> = `r fmt(eight$ss_res, 1)`]
+]
+]
+
+.pull-right[
+.tree-top.box-3.small[df<sub>Y</sub> = n − 1 = `r eight$n - 1`]
+
+<div class="tree-arrows" aria-hidden="true"><span>↙</span><span>↘</span></div>
+
+.tree-row[
+.box-inv-3.small[df<sub>regression</sub><br>1]
+
+.box-inv-3.small[df<sub>residual</sub><br>n − 2 = `r eight$df`]
+]
+]
+
+.box-3.small[Regression plays the part of between. Residual plays the part of within]
+
+.source[After Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*, 10e. Data: Muralidharan et al. (2019).]
+
+???
+
+Tuesday's bars split SS<sub>Y</sub> this way, with the same numbers. This is the "analysis of regression". What X predicts goes on top of F, and what's left over goes on the bottom. A line has one slope, so regression gets 1 df.
+
+r² is the only link between the two pieces: `r fmt(eight$r2, 3)` × `r fmt(eight$ss_y, 1)` = `r fmt(eight$ss_reg, 1)`.
+
+---
+
+# F agrees: `r fmt(eight$f)` is beyond `r fmt(eight$crit_f)`
+
+```{r source-table, results="asis"}
+tribble(
+  ~Source, ~SS, ~df, ~MS, ~F,
+  "Regression", fmt(eight$ss_reg), "1", fmt(eight$ss_reg), paste0("<strong>", fmt(eight$f), "</strong>"),
+  "Residual", fmt(eight$ss_res), as.character(eight$df), fmt(eight$ms_res), " ",
+  "Total", fmt(eight$ss_y), as.character(eight$n - 1), " ", " "
+) %>%
+  kable(format = "html", escape = FALSE, align = "lcccc", table.attr = 'class="deck-table tight"')
+```
+
+.pull-left[
+.box-inv-3.small[H₀: β = 0. One cutoff: F(1, `r eight$df`) = `r fmt(eight$crit_f)`]
+]
+
+.pull-right[
+.box-inv-3.small[F = `r fmt(eight$ss_reg)` / `r fmt(eight$ms_res)` = `r fmt(eight$f)`]
+]
+
+.box-3.small[`r fmt(eight$f)` is beyond `r fmt(eight$crit_f)`, so we reject H₀: F(1, `r eight$df`) = `r fmt(eight$f)`, `r p_text(eight$p)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+Same table as ANOVA, read left to right: SS / df = MS, then the ratio. F looks in one tail only, because squares can't be negative.
+
+The 2024 deck got 12.315, from r² = 0.67 rounded. Exact SS gives `r fmt(eight$f)`. It also left a t criterion on this slide by mistake. An F-test has only the F cutoff.
+
+---
+
+# One test, three ways
+
+```{r one-test, results="asis"}
+tribble(
+  ~` `, ~Formula, ~`Our 8`, ~`All 539`,
+  "Test r", "t = r / σ̂<sub>r</sub>", paste0("t(", eight$df, ") = ", fmt(eight$t)), paste0("t(", all$df, ") = ", fmt(all$t)),
+  "Test b", "t = b / σ̂<sub>b</sub>", paste0("t(", eight$df, ") = ", fmt(eight$t)), paste0("t(", all$df, ") = ", fmt(all$t)),
+  "Test with F", "F = MS<sub>regression</sub> / MS<sub>residual</sub>", paste0("F(1, ", eight$df, ") = ", fmt(eight$f)), paste0("F(1, ", all$df, ") = ", fmt(all$f, 1)),
+  "Effect size", "r² = SS<sub>regression</sub> / SS<sub>Y</sub>", fmt(eight$r2, 3), fmt(all$r2, 3)
+) %>%
+  rename_with(~ str_replace(.x, "539", as.character(all$n))) %>%
+  kable(format = "html", escape = FALSE, align = "llcc", table.attr = 'class="deck-table tight"')
+```
+
+.box-inv-3.small.sp-after-half[F = t²: `r fmt(eight$t)`² = `r fmt(eight$t^2)`, and the cutoffs match too: `r fmt(eight$crit, 3)`² = `r fmt(eight$crit_f)`]
+
+.box-3.small[With one predictor, these are the same test, so they always agree]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Topic 10 showed F = t² for two groups. It's the same fact, and the same reason: squaring folds t's two tails into F's one.
+
+`r fmt(all$t)`² = `r fmt(all$t^2, 1)`, which is the `r fmt(all$f, 1)` in the last column.
+
+When Topic 14 adds a second predictor, each slope gets its own t, and F tests them all together. Then they're no longer the same number.
+
+---
+
+# R prints all of it at once
+
+```{r r-output, results="asis"}
+r_block(r_summary(fit_base), list("^\\(Intercept\\)" = "a", "^baseline" = "b, σ̂<sub>b</sub>, t, p",
+                                  "^Residual standard error" = "√MS<sub>residual</sub>, df",
+                                  "^Multiple R-squared" = "r²", "^F-statistic" = "F = t²"), width = 66)
+```
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`. You read this. You won't need to write it.]
+
+???
+
+This is the one place in the course where students read raw output. They don't write R. Lab 9 gets the same numbers from a spreadsheet's `LINEST`, `SLOPE` and `INTERCEPT`.
+
+Read it top to bottom: the call names the outcome first, the Coefficients table has one row per number in the line, and the bottom three lines describe the whole fit.
+
+---
+
+# Every number, in our words
+
+```{r output-table, results="asis"}
+tribble(
+  ~`R prints`, ~`We say`, ~Here,
+  "Estimate, both rows", "a and b", paste(fmt(all$a), "and", fmt(all$b)),
+  "Std. Error", "σ̂<sub>b</sub>", fmt(all$se, 3),
+  "t value", "t = b / σ̂<sub>b</sub>", fmt(all$t),
+  "Pr(&gt;|t|)", "p, with two tails", "Below 0.001",
+  "Residual standard error", "√MS<sub>residual</sub>, the typical miss", paste(fmt(sqrt(all$ms_res)), "points"),
+  "degrees of freedom", "n − 2", as.character(all$df),
+  "Multiple R-squared", "r²", fmt(all$r2, 3),
+  "F-statistic", "F = t²", fmt(all$f, 1)
+) %>%
+  kable(format = "html", escape = FALSE, align = "llc", table.attr = 'class="deck-table tight"')
+```
+
+.box-3.small[&lt;2e-16 is a 2 with 16 zeros in front of it. We report it as p < 0.001]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+What to ignore for now: the Residuals line at the top, Adjusted R-squared, and the intercept's t and p, which test whether the line crosses 0 at X = 0. Nobody asked that.
+
+The stars are a code for p. Scientific notation gets students stuck, so walk through it: 2e-16 means 2 × 10⁻¹⁶.
+
+---
+
+# A paper shows the same numbers
+
+.pull-left[
+```{r paper-table, results="asis"}
+tribble(
+  ~` `, ~`Endline math`,
+  "Baseline math", paste0(fmt(all$b), "&#42;&#42;&#42;<br>(", fmt(all$se), ")"),
+  "Constant", paste0(fmt(all$a), "&#42;&#42;&#42;<br>(", fmt(summary(fit_base)$coefficients[1, 2]), ")"),
+  "Observations", as.character(all$n),
+  "R²", fmt(all$r2)
+) %>%
+  kable(format = "html", escape = FALSE, align = "lc", table.attr = 'class="deck-table tight"')
+```
+
+.table-note[Standard errors in parentheses. Three stars: p < 0.001]
+]
+
+.pull-right[
+.box-inv-3.small.sp-after-half[Each column is one regression, and it names the outcome]
+
+.box-inv-3.small.sp-after-half[The number in parentheses is usually σ̂<sub>b</sub>. Find t yourself: `r fmt(all$b)` / `r fmt(all$se)`]
+
+.box-inv-3.small[Stars stand in for p. The constant is a]
+]
+
+.source[Table made for this slide. Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Students will meet this format in EDUC 157 and 159, and in any education journal. Always read the table's note. Some journals put t or a p-value in the parentheses.
+
+Dividing the two rounded numbers gives about `r fmt(round(all$b, 2) / round(all$se, 2), 1)`, close to the `r fmt(all$t)` that R shows. Rounded tables lose a little.
+
+---
+
+layout: false
+class: title title-8
+
+# Play it: Read the output
+
+```{r play-output, results="asis"}
+ses_out <- r_summary(fit_ses)
+keep <- str_detect(ses_out, "^lm\\(|Estimate|^\\(Intercept\\)|^ses_index|^Residual standard|^Multiple|^F-statistic")
+r_block(ses_out[keep], width = 66)
+```
+
+.clues[
+.clue[
+**100** The predicted endline score at an SES index of 0
+]
+.clue[
+**200** This, divided by `r fmt(ses_ctab[2, 2], 3)`, gives `r fmt(ses_ctab[2, 3], 3)`
+]
+.clue[
+**300** The share of endline variability that goes with SES
+]
+.clue[
+**400** Real? Big? Answer both with numbers from here
+]
+]
+
+.box-8.small[Answer with a neighbor, as a question. Nothing is scored]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). The SES index is a score for each family.]
+
+???
+
+About 6 minutes. Read one clue at a time, in order. Take answers by hands or by calling out. Each student has a new predictor here, so it's the same output with new numbers.
+
+---
+
+class: title title-8
+
+# Play it: Answers
+
+.clues[
+.clue[
+**100: What is `r fmt(ses_ctab[1, 1])`?**<br>It's a, the intercept
+]
+.clue[
+**200: What is b = `r fmt(ses_ctab[2, 1], 3)`?**<br>Estimate / Std. Error = t
+]
+.clue[
+**300: What is `r pct(ses$r.squared, 1)`?**<br>Multiple R-squared is `r fmt(ses$r.squared, 3)`
+]
+.clue[
+**400: What is real, but small?**<br>t(`r ses$df[2]`) = `r fmt(ses_ctab[2, 3], 3)`, p < 0.001, r² = `r fmt(ses$r.squared, 3)`
+]
+]
+
+.box-8.small.sp-after-half[`r fmt(ses_ctab[2, 3], 3)`² = `r fmt(ses_f)`, the F-statistic. One predictor, one test]
+
+.box-inv-8.small[Baseline math has r² = `r fmt(all$r2, 3)`. SES has `r fmt(ses$r.squared, 3)`. Both slopes are real, and they aren't equally useful]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+class: title title-8
+
+# The blueprint so far
+
+```{r blueprint-table, results="asis"}
+tribble(
+  ~`Blueprint step`, ~Statistic, ~`Bottom of the fraction`, ~df,
+  "1. One score", "z", "σ", "None",
+  "2. One mean, σ known", "z", "σ<sub>M</sub>", "None",
+  "3a. One mean, σ unknown", "t", "σ̂<sub>M</sub>", "n − 1",
+  "3b. Mean gain", "t", "σ̂<sub>M</sub> of the gains", "n − 1",
+  "4. Two means", "t", "σ̂<sub>M₁−M₂</sub>", "n₁ + n₂ − 2",
+  "5. Two or more means", "F", "MS<sub>within</sub>", "k − 1 and N − k",
+  "6. A correlation", "t", "σ̂<sub>r</sub>", "n − 2",
+  "<strong>7a. A slope</strong>", "<strong>t</strong>", "<strong>σ̂<sub>b</sub></strong>", "<strong>n − 2</strong>",
+  "7b. A slope for a yes/no X: next", "t", "Topic 14", " "
+) %>%
+  kable(format = "html", escape = FALSE, align = "lccc", table.attr = 'class="deck-table tight small-table"')
+```
+
+.box-8.small[Same idea every time: what we saw, over what chance alone would give]
+
+???
+
+Step 7b is the last one. When X is 0 or 1, the slope is the gap between two groups. That's where Topic 14 starts, and it takes us back to step 4.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Explain the sampling distribution of b, and what narrows it]
+
+.box-inv-8.small[Test H₀: β = 0 with σ̂<sub>b</sub>, t and n − 2 degrees of freedom]
+
+.box-inv-8.small[Split SS and df, and run the same test with F]
+
+.box-inv-8.small[Say why the tests of r, b and F agree, and why F = t²]
+
+.box-inv-8.small[Read a, b, σ̂<sub>b</sub>, t, p, r² and F from R's output or a table in a paper]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Friday, March 5: Lab 9]
+
+Correlation and regression. Bring a calculator and a laptop
+]
+
+.pull-right[
+.box-6.small[Sunday, March 7, 6 PM]
+
+Mastery and Problem Set for Chapter 12 are due. Chapter 14's are due March 14
+]
+
+.box-3.small[For Tuesday, March 9: finish the regression part of Chapter 14. Topic 14 is Regression: groups and interactions]
+
+```{css, echo=FALSE}
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.source a {
+  color: #244a70;
+  text-decoration: underline;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table.small-table {
+  font-size: 0.66em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The split of SS and df, after the book's figure */
+.tree-top {
+  width: 62%;
+  margin: 0 auto;
+}
+
+.tree-arrows {
+  display: flex;
+  justify-content: space-around;
+  width: 70%;
+  margin: 0 auto;
+  font-size: 1.1em;
+  line-height: 1.1;
+  color: #47505a;
+}
+
+.tree-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5em;
+}
+
+/* R's output, with a note beside the lines that matter */
+.r-output {
+  margin: 0.2em 0 0.4em 0;
+  padding: 0.4em 0.6em;
+  border: 1px solid #c9d1d9;
+  background-color: #f6f7f8;
+  font-family: 'Source Code Pro', 'Lucida Console', Monaco, monospace;
+  font-size: 0.48em;
+  line-height: 1.3;
+}
+
+.r-output div {
+  white-space: pre;
+}
+
+.r-note {
+  margin-left: 0.6em;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 1.1em;
+  line-height: 1;
+  font-weight: bold;
+  color: #a93e31;
+}
+
+.r-note sub {
+  line-height: 0;
+}
+
+.table-note {
+  font-size: 0.6em;
+  color: #47505a;
+}
+
+/* Jeopardy clues */
+.clues {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin: 0.3em 0 0.6em 0;
+  font-size: 0.65em;
+}
+
+.clue {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.clue p {
+  margin: 0;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+```
