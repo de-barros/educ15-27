@@ -1,0 +1,1689 @@
+---
+title: "t-tests for two samples and for gains"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css", "css/simulator.css"]
+    seal: false
+    anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+library(knitr)
+source(here::here("R", "slide-things.R"))
+
+# Colors from the slide theme, all readable on white ----
+clr_bar <- "#538ba2"
+clr_soft <- "#c5d9e2"
+clr_mean <- "#a93e31"
+clr_median <- "#244a70"
+clr_mode <- "#8a6100"
+
+theme_slides <- function(base_size = 20) {
+  theme_minimal(base_size = base_size, base_family = "Fira Sans Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_text(face = "bold"),
+          strip.text = element_text(face = "bold", size = rel(1)))
+}
+
+fmt <- function(x, d = 2) formatC(x, format = "f", digits = d)
+minus <- function(x) str_replace(as.character(x), "-", "−")
+
+label_text <- function(x, y, label, color = clr_median, hjust = 0.5, size = 6.5) {
+  annotate("text", x = x, y = y, label = label, color = color, hjust = hjust, size = size,
+           fontface = "bold", family = "Fira Sans Condensed")
+}
+
+# A two-sample t-test with a pooled variance, written out step by step ----
+two_test <- function(a, b) {
+  n1 <- length(a); n2 <- length(b)
+  M1 <- mean(a); M2 <- mean(b)
+  SS1 <- sum((a - M1)^2); SS2 <- sum((b - M2)^2)
+  df <- n1 + n2 - 2
+  pooled <- (SS1 + SS2) / df
+  se <- sqrt(pooled / n1 + pooled / n2)
+  gap <- M1 - M2
+  crit <- qt(0.975, df)
+  list(n1 = n1, n2 = n2, M1 = M1, M2 = M2, SS1 = SS1, SS2 = SS2,
+       var1 = SS1 / (n1 - 1), var2 = SS2 / (n2 - 1), df = df, pooled = pooled,
+       sd = sqrt(pooled), se = se, gap = gap, t = gap / se, crit = crit,
+       p = 2 * pt(-abs(gap / se), df), g = gap / sqrt(pooled),
+       lo = gap - crit * se, hi = gap + crit * se)
+}
+
+# A one-sample t-test against zero. On gains, that's the paired t-test ----
+one_test <- function(x) {
+  n <- length(x)
+  M <- mean(x)
+  SS <- sum((x - M)^2)
+  df <- n - 1
+  sd_hat <- sqrt(SS / df)
+  se <- sd_hat / sqrt(n)
+  crit <- qt(0.975, df)
+  list(n = n, M = M, SS = SS, df = df, var = SS / df, sd = sd_hat, se = se, t = M / se, crit = crit,
+       p = 2 * pt(-abs(M / se), df), g = M / sd_hat, lo = M - crit * se, hi = M + crit * se)
+}
+
+# Mindspark math scores. Everyone at endline also has a baseline score ----
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+wide <- inner_join(select(baseline, st_id, treat, before = tot_math, before_irt = m_theta_eap),
+                   select(endline, st_id, after = tot_math, after_irt = m_theta_eap, center = ms_center1, grade = st_grade1),
+                   by = "st_id") %>%
+  mutate(gain = after - before, gain_irt = after_irt - before_irt)
+treated <- filter(wide, treat == 1)
+control <- filter(wide, treat == 0)
+
+# Session 1: the endline gap, then two small groups for students to try ----
+end <- two_test(treated$after, control$after)
+small <- two_test(treated$after[which(treated$grade == 5)], control$after[which(control$grade == 5)])
+center <- two_test(treated$after[treated$center == "Govindpuri"], control$after[control$center == "Govindpuri"])
+
+# Numbers for the simulator's two groups, close to Mindspark's. Each group has 10 ----
+sim_sd <- 5.8
+sim_control <- 16
+sim_n <- 10
+sim_d <- 0.46
+sim_treat <- sim_control + sim_d * sim_sd
+se_one <- sim_sd / sqrt(sim_n)
+se_gap <- sqrt(2) * se_one
+sim_big <- 200
+se_gap_big <- sim_sd * sqrt(2 / sim_big)
+crit_big <- qt(0.975, 2 * sim_big - 2)
+
+# Session 2: gains ----
+gain_t <- one_test(treated$gain)
+gain_c <- one_test(control$gain)
+gain_gap <- two_test(treated$gain, control$gain)
+base_gap <- mean(treated$before) - mean(control$before)
+credit <- gain_t$M / end$gap
+credit_gain <- gain_t$M / gain_gap$gap
+
+# Five treatment students for the try-it ----
+five <- slice_head(treated, n = 5)
+five_test <- one_test(five$gain)
+
+# The same 266 students, wrongly treated as two separate groups ----
+wrong <- two_test(treated$after, treated$before)
+r_all <- cor(wide$before, wide$after)
+r_treat <- cor(treated$before, treated$after)
+
+# The simulator's before and after scores, close to Mindspark's. With ρ = 0.5, the SD of
+# gains equals σ ----
+sim_before <- 11
+sim_sd_pair <- 5
+gain_sd <- function(rho, s = sim_sd_pair) s * sqrt(2 * (1 - rho))
+
+# Students' lines for the plot in block 5 ----
+set.seed(9)
+some <- slice_sample(treated, n = 40) %>%
+  select(st_id, before, after) %>%
+  pivot_longer(c(before, after), names_to = "when", values_to = "score") %>%
+  mutate(when = factor(when, levels = c("before", "after"), labels = c("Baseline", "Endline")))
+
+# Scaled scores, for the notes on the changed test ----
+irt_t <- mean(treated$gain_irt, na.rm = TRUE)
+irt_c <- mean(control$gain_irt, na.rm = TRUE)
+irt_gap <- mean(treated$after_irt, na.rm = TRUE) - mean(control$after_irt, na.rm = TRUE)
+irt_sd <- sd(baseline$m_theta_eap, na.rm = TRUE)
+
+# Curves ----
+t_grid <- seq(-6.5, 6.5, length.out = 801)
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# t-tests for two samples and for gains
+
+.class-info[
+
+**Topic 9 · Tuesday, February 16 and Thursday, February 18**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+
+.box-inv-3.small[Did the program cause the gap?]
+
+.center[**We are here**]
+]
+
+???
+
+Same map. So far, one mean at a time. Now two groups, and that's where explanation starts: a lottery lets us read a gap between groups as the program's effect. Two sessions, six blocks.
+
+---
+
+class: title title-8
+
+# The four steps stay, for a gap
+
+.box-inv-8.small.sp-after-half[Step 1: State a hypothesis about the difference between two populations]
+
+.box-inv-8.small.sp-after-half[Step 2: Set the criteria: what's unexpected among differences?]
+
+.box-8.small.sp-after-half[Step 3: Observe a sample from each population, and compute their difference]
+
+.box-inv-8.small[Step 4: Reject or maintain H₀]
+
+???
+
+The same four steps from Topics 7 and 8. Every step now talks about a difference, not one mean.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[From one mean to two]
+
+.box-6.medium.sp-after-half[The two-sample t]
+
+.box-3.medium.sp-after-half[Mindspark's test]
+
+.box-inv-8.small[On Thursday: what if the same people take the test twice?]
+
+???
+
+Three blocks today, three on Thursday.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# From one mean to two
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Lottery winners scored higher
+
+```{r endline-plot, fig.width=10, fig.height=3.7, out.width="80%", fig.alt=paste0("Two overlapping smooth curves of endline math scores. The control group's mean is ", fmt(end$M2), " and the Mindspark group's mean is ", fmt(end$M1), ". The curves overlap heavily, and the Mindspark curve sits a little to the right.")}
+endline_groups <- wide %>%
+  mutate(group = if_else(treat == 1, "Mindspark", "Control"))
+
+ggplot(endline_groups, aes(x = after, linetype = group, fill = group, color = group)) +
+  geom_density(adjust = 1.3, alpha = 0.25, linewidth = 1.1) +
+  geom_vline(xintercept = c(end$M2, end$M1), color = c(clr_median, clr_mean), linewidth = 1.1) +
+  label_text(end$M2 - 0.4, 0.083, paste("Control:", fmt(end$M2)), clr_median, hjust = 1) +
+  label_text(end$M1 + 0.4, 0.083, paste("Mindspark:", fmt(end$M1)), clr_mean, hjust = 0) +
+  scale_fill_manual(values = c(Control = clr_median, Mindspark = clr_mean), guide = "none") +
+  scale_color_manual(values = c(Control = clr_median, Mindspark = clr_mean), guide = "none") +
+  scale_linetype_manual(values = c(Control = "dashed", Mindspark = "solid"), guide = "none") +
+  scale_x_continuous(breaks = seq(0, 35, 5)) +
+  scale_y_continuous(limits = c(0, 0.088)) +
+  labs(x = "Math score at endline", y = NULL) +
+  theme_slides() +
+  theme(panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+.box-inv-1.small[The gap is `r fmt(end$M1)` − `r fmt(end$M2)` = **`r fmt(end$gap)` points**. Could that be sampling error?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). `r end$n1` Mindspark students and `r end$n2` control students.]
+
+???
+
+The lottery from Topic 1. In Topic 6, we compared this gap with each group's own standard error, and promised a real test, with a standard error for the gap itself. That's today.
+
+---
+
+# The blueprint gets a new step
+
+```{r blueprint-new, results="asis"}
+tribble(
+  ~`Blueprint step`, ~`Panel 2: one sample gives`, ~`Panel 3: the pile of`,
+  "1. One score", "z", "z-scores",
+  "2. One mean, σ known", "z", "z-scores of means",
+  "3a. One mean, σ unknown", "t", "t-scores of means",
+  "<strong>4. Two means</strong>", "<strong>t for M<sub>1</sub> − M<sub>2</sub></strong>", "<strong>t-scores of differences</strong>"
+) %>%
+  kable(format = "html", escape = FALSE, align = "lcc", table.attr = 'class="deck-table"')
+```
+
+.box-1.small[Same three panels: population, one sample, the statistic across samples]
+
+???
+
+Each step is the same idea. Panel 3 tells us how unexpected panel 2's number is. Today panel 1 has two populations, and panel 2 has one sample from each.
+
+---
+
+# Step 4: two populations, two samples
+
+```{r sim-one-draw, results="asis"}
+sim_frame(
+  alt = "Simulator at step 4 with one sample of ten people drawn from each of two populations. Panel 1 shows two identical normal populations with a mean of 16 and an SD of 5.8. Panel 2 shows the two samples and the difference in their means. Panel 3 holds one dot for that difference.",
+  step = 4, n = sim_n, mu = sim_control, sd = sim_sd, view = "raw", draws = 1, seed = 15, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Step 4 on the blueprint. Here's the world H₀ describes, with numbers close to Mindspark's: both group means are `r sim_control`, and both SDs are `r sim_sd`. The two curves sit on top of each other.
+
+Panel 2 has two samples. Even with identical populations, their means differ. Panel 3 records that one difference.
+
+---
+
+# H₀ now says the gap is zero
+
+<div class="math-display">\[
+H_0\!: \mu_1 - \mu_2 = 0
+\qquad\qquad
+H_1\!: \mu_1 - \mu_2 \neq 0
+\]</div>
+
+.pull-left[
+.box-inv-1.small[H₀: the two populations are the same. Across samples, gaps average zero]
+]
+
+.pull-right[
+.box-inv-1.small[H₁: the two populations differ. Gaps pile up around some other value]
+]
+
+.box-1.small[A gap of `r fmt(end$gap)` under H₀ can only be sampling error. How unusual would that be?]
+
+???
+
+Two tails stay our default, from Topic 8. The population means are still Greek: nobody has seen them.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: How far does a gap fall?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+H₀ is true, with σ = `r sim_sd` and n = `r sim_n` in each group. One group's mean typically falls `r fmt(se_one)` points from its μ. How far does the gap M₁ − M₂ typically fall from 0?
+]
+
+.options[
+.option[
+**A** About `r fmt(se_one / 2, 1)`: half as far
+]
+.option[
+**B** About `r fmt(se_one, 1)`: the same
+]
+.option[
+**C** About `r fmt(se_gap, 1)`: a bit farther
+]
+.option[
+**D** About `r fmt(2 * se_one, 1)` or more: at least twice as far
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** About `r fmt(se_one / 2, 1)`: half as far
+]
+.option.wrong[
+**B** About `r fmt(se_one, 1)`: the same
+]
+.option.correct[
+**C** About `r fmt(se_gap, 1)`: a bit farther
+]
+.option.wrong[
+**D** About `r fmt(2 * se_one, 1)` or more: at least twice as far
+]
+]
+
+.box-inv-8.small.sp-after-half[
+It's `r fmt(se_one)` × √2 = `r fmt(se_gap)`. Both means wobble, so their gap wobbles more than either one
+]
+
+.box-8.small[
+But not twice as much: sometimes the two errors cancel out
+]
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# The gaps pile up around zero
+
+```{r sim-many-null, results="asis"}
+sim_frame(
+  alt = "Simulator at step 4 with 551 pairs of samples of ten and no true difference. Panel 3 shows the differences in means stacked in a bell shape centered on zero, with most between about minus 6 and 6.",
+  step = 4, n = sim_n, mu = sim_control, sd = sim_sd, view = "raw", draws = 551, seed = 15, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same world, 551 draws. The center is zero, because H₀ is true. Point at the spread: about `r fmt(se_gap, 1)` points is a typical miss. That's the standard error of the difference.
+
+Mindspark's gap of `r fmt(end$gap)` wouldn't be strange with groups of 10. But Mindspark's groups aren't that small.
+
+---
+
+# A gap has its own standard error
+
+<div class="math-display">\[
+\sigma_{M_1 - M_2} = \sqrt{\frac{\sigma^2}{n_1} + \frac{\sigma^2}{n_2}}
+\]</div>
+
+.pull-left[
+.box-inv-1.small[Variances add, even when the means subtract. Each sample brings its own error]
+]
+
+.pull-right[
+.box-inv-1.small[Here: √(`r fmt(sim_sd^2, 2)` / `r sim_n` + `r fmt(sim_sd^2, 2)` / `r sim_n`) = `r fmt(se_gap)`. With n = `r sim_big` each, it's `r fmt(se_gap_big)`]
+]
+
+.box-1.small[We're assuming both populations share one σ. Keep that in mind]
+
+???
+
+σ_M from Topic 6 was σ / √n. Square it and it's σ² / n. Here there are two of those, one per sample.
+
+This is why two groups need more people than one. To get the same standard error as one mean with n students, each group needs 2n students. That's four times as many in total, as Topic 7 promised.
+
+---
+
+# When the groups differ, the pile moves
+
+```{r sim-effect, results="asis"}
+sim_frame(
+  alt = paste0("Simulator at step 4 with 551 pairs of samples of ten, with group means of ", fmt(sim_treat, 1), " and ", sim_control, ". The stack of differences in panel 3 is centered at about 2.7, not zero, but it still overlaps zero a lot."),
+  step = 4, n = sim_n, mu = sim_control, sd = sim_sd, d = sim_d, view = "raw", draws = 551, seed = 15, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Group 1's mean is now `r fmt(sim_treat, 1)`, so d is `r sim_d`. The group mean boxes are on the simulator page, and Lab 7 uses them. They're hidden on a slide. H₁ moves the pile away from zero. With groups of 10, it's still wide, so many samples can't tell the two worlds apart.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# The two-sample t
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# In real research, panel 1 goes dark again
+
+```{r sim-hidden, results="asis"}
+sim_frame(
+  alt = "Simulator at step 4 in the t view with panel 1 greyed out and marked with a question mark. Panel 2 shows one sample from each group with a t-score. Panel 3 stacks t-scores along a t curve with 18 degrees of freedom.",
+  step = 4, n = sim_n, mu = sim_control, sd = sim_sd, view = "stat", hide = 1, draws = 551, seed = 15, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Just like Topic 8. We can't see σ, so we estimate it, and z becomes t. With two groups of 10, df is 18: each group gives 9.
+
+---
+
+# The fraction keeps its shape
+
+<div class="math-display">\[
+t = \frac{M - \mu}{\hat{\sigma}_M}
+\qquad \text{becomes} \qquad
+t = \frac{(M_1 - M_2) - (\mu_1 - \mu_2)}{\hat{\sigma}_{M_1 - M_2}}
+\]</div>
+
+.pull-left[
+.box-inv-6.small[Top: the gap we saw, minus the gap H₀ claims. Under H₀, that second part is 0]
+]
+
+.pull-right[
+.box-inv-6.small[Bottom: how far a gap typically falls. We have to estimate it]
+]
+
+.book-tag[In the book: σ̂<sub>M₁−M₂</sub> is written s<sub>M₁−M₂</sub>]
+
+???
+
+Same logic as every test so far: what we saw, over what sampling error alone would give us.
+
+---
+
+# Pool the two estimates of σ²
+
+<div class="math-display">\[
+\hat{\sigma}_p^2 = \frac{SS_1 + SS_2}{df_1 + df_2}
+\]</div>
+
+.pull-left[
+.box-inv-6.small[We assume one σ², so we pool: add up the squared deviations and the df]
+]
+
+.pull-right[
+.box-inv-6.small[A bigger group holds more information, so it counts for more]
+]
+
+.box-6.small[The p is for "pooled". With equal n, it's the plain average of the two variances]
+
+.book-tag[In the book: σ̂²<sub>p</sub> is written s²<sub>p</sub>]
+
+???
+
+Topic 3's σ̂² is SS / df. This is the same recipe with two groups: all the squared deviations, over all the degrees of freedom.
+
+The assumption has a name, homogeneity of variance. The test also needs independent observations, and roughly normal populations unless the samples are large. Software can drop the equal-variance assumption, in a version called Welch's t. With Mindspark, it barely changes t.
+
+---
+
+# Then the bottom of the fraction, and df
+
+<div class="math-display">\[
+\hat{\sigma}_{M_1 - M_2} = \sqrt{\frac{\hat{\sigma}_p^2}{n_1} + \frac{\hat{\sigma}_p^2}{n_2}}
+\qquad\qquad
+df = (n_1 - 1) + (n_2 - 1)
+\]</div>
+
+.pull-left[
+.box-inv-6.small[Same formula as before, with the pooled estimate in place of σ²]
+]
+
+.pull-right[
+.box-inv-6.small[Each sample spends one df on its own mean]
+]
+
+.box-6.small[Three moves: pool the variance, find the standard error, compute t]
+
+???
+
+The most common slip is using n1 + n2 − 1 for df. There are two means, so two df are spent.
+
+---
+
+# Side by side with Topic 8
+
+```{r side-table, results="asis"}
+tribble(
+  ~` `, ~`One sample`, ~`Two samples`,
+  "Estimate", "\\(M\\)", "\\(M_1 - M_2\\)",
+  "Under H₀", "\\(\\mu\\)", "\\(\\mu_1 - \\mu_2 = 0\\)",
+  "Variance", "\\(\\hat{\\sigma}^2 = SS / df\\)", "\\(\\hat{\\sigma}^2_p = (SS_1 + SS_2) / (df_1 + df_2)\\)",
+  "Standard error", "\\(\\hat{\\sigma}_M = \\sqrt{\\hat{\\sigma}^2 / n}\\)", "\\(\\hat{\\sigma}_{M_1 - M_2} = \\sqrt{\\hat{\\sigma}^2_p / n_1 + \\hat{\\sigma}^2_p / n_2}\\)",
+  "df", "\\(n - 1\\)", "\\((n_1 - 1) + (n_2 - 1)\\)"
+) %>%
+  kable(format = "html", escape = FALSE, align = "lcc", table.attr = 'class="deck-table"')
+```
+
+.box-6.small[Every row is the same idea, built for two groups]
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: `r small$n1 + small$n2` fifth graders
+
+.box-inv-8.small.sp-after-half[Mindspark group: n = `r small$n1`, M = `r fmt(small$M1)`, SS = `r fmt(small$SS1)`. Control group: n = `r small$n2`, M = `r fmt(small$M2)`, SS = `r fmt(small$SS2)`]
+
+.box-8.small.sp-after-half[Find the pooled variance σ̂²<sub>p</sub>, then the standard error σ̂<sub>M₁−M₂</sub>]
+
+.box-inv-8.small[Is σ̂²<sub>p</sub> nearer `r fmt(small$var1)` or `r fmt(small$var2)`, the two groups' own estimates? Why? Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+About 6 minutes, with calculators. Vote with hands on the last question. The groups' variances look very different, but 3 students can't tell us much about a population's σ².
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[σ̂²<sub>p</sub> = (`r fmt(small$SS1)` + `r fmt(small$SS2)`) / (`r small$n1 - 1` + `r small$n2 - 1`) = **`r fmt(small$pooled)`**]
+]
+
+.pull-right[
+.box-inv-8.small[σ̂<sub>M₁−M₂</sub> = √(`r fmt(small$pooled)` / `r small$n1` + `r fmt(small$pooled)` / `r small$n2`) = **`r fmt(small$se)`**]
+]
+
+.box-8.small.sp-after-half[It's nearer `r fmt(small$var2)`, the control group's estimate. That group has more students, so it counts for more]
+
+.box-inv-8.small[A plain average would have given `r fmt((small$var1 + small$var2) / 2)`. Pooling doesn't treat 3 students like `r small$n2`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+If someone wants t: (`r fmt(small$M1)` − `r fmt(small$M2)`) / `r fmt(small$se)` = `r fmt(small$t)`. With t(`r small$df`), the cutoff is `r fmt(small$crit, 3)`, so we'd maintain H₀. Nine students can't settle much.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# Mindspark's test
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# Steps 1 and 2: set up the test
+
+.box-3.small.sp-after-half[At endline, do math scores differ across the two groups?]
+
+```{r steps-12, results="asis"}
+tribble(
+  ~Step, ~`In words`, ~`In symbols`,
+  "1. State H₀", "The two population means don't differ", "μ<sub>Mindspark</sub> − μ<sub>control</sub> = 0",
+  "2. Set the criteria", "α = 0.05, two tails, and σ is unknown", paste0("df = (", end$n1, " − 1) + (", end$n2, " − 1) = ", end$df),
+  " ", "Reject H₀ if t is beyond the cutoffs", paste0("t(", end$df, ") beyond ±", fmt(end$crit, 3))
+) %>%
+  kable(format = "html", escape = FALSE, table.attr = 'class="deck-table"')
+```
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The df matter here: `r end$n1` + `r end$n2` − 2 = `r end$df`. With this many people, the cutoff is nearly 1.96. The book's table stops short of `r end$df`, so use the next lower df, or the z cutoff.
+
+---
+
+# Step 3: three moves
+
+```{r step-3, results="asis"}
+tribble(
+  ~` `, ~n, ~M, ~SS,
+  "Mindspark", as.character(end$n1), fmt(end$M1), fmt(end$SS1, 1),
+  "Control", as.character(end$n2), fmt(end$M2), fmt(end$SS2, 1)
+) %>%
+  kable(format = "html", align = "lccc", table.attr = 'class="deck-table tight"')
+```
+
+.box-inv-3.small[Pool: σ̂²<sub>p</sub> = (`r fmt(end$SS1, 1)` + `r fmt(end$SS2, 1)`) / `r end$df` = **`r fmt(end$pooled)`**]
+
+.box-inv-3.small[Standard error: σ̂<sub>M₁−M₂</sub> = √(`r fmt(end$pooled)` / `r end$n1` + `r fmt(end$pooled)` / `r end$n2`) = **`r fmt(end$se)`**]
+
+.box-3.small[Compute t: (`r fmt(end$M1)` − `r fmt(end$M2)`) / `r fmt(end$se)` = **`r fmt(end$t)`**]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+In 2024's deck, df appeared as 573 on two slides. It's `r end$df`. Sums of squares like these come from a spreadsheet, with the computational formula from Topic 3. Lab 7 does this on the full data.
+
+---
+
+# Step 4: our t is far past the cutoff
+
+```{r decision-plot, fig.width=11, fig.height=3.7, out.width="92%", fig.alt=paste0("A t curve with ", end$df, " degrees of freedom, with small shaded tails beyond plus and minus ", fmt(end$crit, 3), ". A vertical line marks our t of ", fmt(end$t), ", far to the right of the cutoff, where the curve has almost no height.")}
+curve_t <- tibble(x = t_grid, y = dt(t_grid, end$df))
+shade_t <- curve_t %>%
+  filter(abs(x) >= end$crit) %>%
+  mutate(part = x > 0)
+
+ggplot(curve_t, aes(x = x, y = y)) +
+  geom_area(fill = clr_soft) +
+  geom_area(data = shade_t, aes(group = part), fill = clr_bar) +
+  geom_line(color = clr_median, linewidth = 1) +
+  annotate("segment", x = end$t, xend = end$t, y = 0, yend = 0.24, color = clr_mean, linewidth = 1.4) +
+  label_text(end$t, 0.27, paste("Our t =", fmt(end$t)), clr_mean) +
+  label_text(-end$crit - 0.3, 0.07, paste0("−", fmt(end$crit, 3)), hjust = 1) +
+  label_text(end$crit + 0.3, 0.07, fmt(end$crit, 3), hjust = 0) +
+  scale_x_continuous(breaks = seq(-6, 6, 2), labels = minus) +
+  labs(x = paste0("t(", end$df, ")"), y = NULL) +
+  theme_slides() +
+  theme(panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+.box-3.small[`r fmt(end$t)` is beyond `r fmt(end$crit, 3)`, so we reject H₀. p is below 0.001]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+If the two populations were the same, a gap this large would almost never happen. So we reject H₀. That doesn't say how big the effect is, so that comes next.
+
+---
+
+# How big is the gap? g = `r fmt(end$g)`
+
+<div class="math-display">\[
+d = \frac{\mu_1 - \mu_2}{\sigma}
+\qquad \text{is estimated by} \qquad
+g = \frac{M_1 - M_2}{\hat{\sigma}_p}
+\]</div>
+
+.box-inv-3.small.sp-after-half[σ̂<sub>p</sub> = √`r fmt(end$pooled)` = `r fmt(end$sd)`, so g = `r fmt(end$gap)` / `r fmt(end$sd)` = **`r fmt(end$g)`**]
+
+.box-3.small[The groups sit about half an SD apart. Remember Topic 7: that's large for education]
+
+.book-tag[In the book: g is called the estimated Cohen's d]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Same as Topic 8: g is in people's SDs, not in standard errors, so n isn't in the formula. Use the pooled SD, not the standard error of the gap.
+
+Topic 7's table from Kraft put typical effects near 0.15 SD. Please keep ignoring the book's Table 8.2 here.
+
+---
+
+# The interval for a gap
+
+```{r ci-plot, fig.width=10, fig.height=2.7, out.width="84%", fig.alt=paste0("A number line of possible values of the population gap, with a point at ", fmt(end$gap), " and a bar from ", fmt(end$lo), " to ", fmt(end$hi), ". A dashed line marks zero, the H0 value, well to the left of the bar.")}
+ggplot() +
+  geom_vline(xintercept = 0, linetype = "dashed", color = clr_mean, linewidth = 1.2) +
+  annotate("segment", x = end$lo, xend = end$hi, y = 0, yend = 0, linewidth = 1.3, color = clr_median) +
+  annotate("segment", x = c(end$lo, end$hi), xend = c(end$lo, end$hi), y = -0.14, yend = 0.14,
+           linewidth = 1.3, color = clr_median) +
+  annotate("point", x = end$gap, y = 0, size = 6, color = clr_median) +
+  label_text(end$gap, 0.38, paste("Gap =", fmt(end$gap))) +
+  label_text(end$lo, -0.36, fmt(end$lo)) +
+  label_text(end$hi, -0.36, fmt(end$hi)) +
+  label_text(0.15, 0.38, "H₀: 0", clr_mean, hjust = 0) +
+  scale_x_continuous(limits = c(-1, 5), breaks = -1:5, labels = minus) +
+  scale_y_continuous(limits = c(-0.6, 0.6)) +
+  labs(x = "Plausible values of μ₁ − μ₂", y = NULL) +
+  theme_slides() +
+  theme(panel.grid = element_blank(), axis.text.y = element_blank())
+```
+
+.box-inv-3.small.sp-after-half[Estimate ± margin of error: `r fmt(end$gap)` ± `r fmt(end$crit, 3)` × `r fmt(end$se, 3)` = [`r fmt(end$lo)`, `r fmt(end$hi)`]]
+
+.box-3.small[The interval leaves out 0, so it agrees with the test: reject H₀]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Same move as Topic 8: estimate plus or minus a cutoff times a standard error. In H₀'s world, the gap is 0, and 0 isn't inside.
+
+Starting from unrounded numbers, the interval is `r fmt(end$lo, 3)` to `r fmt(end$hi, 3)`. By hand with `r fmt(end$gap)` and `r fmt(end$se)`, it comes out at `r fmt(round(end$gap, 2) - round(end$crit, 3) * round(end$se, 2))` to `r fmt(round(end$gap, 2) + round(end$crit, 3) * round(end$se, 2))`.
+
+---
+
+# How we report it
+
+.box-3.medium.sp-after-half[In words]
+
+.box-inv-3.small.sp-after-half[At endline, Mindspark students scored `r fmt(end$gap)` points higher in math than control students. The difference is statistically significant at the 0.05 level, t(`r end$df`) = `r fmt(end$t)`, g = `r fmt(end$g)`, with a 95% confidence interval of [`r fmt(end$lo)`, `r fmt(end$hi)`]]
+
+.box-3.small[The test, the effect size and the interval: all three, as in Topic 8]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Because a lottery split the groups, this gap can be read as the program's effect, for these students. We'll come back to why on Thursday.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: One Mindspark center
+
+.box-inv-8.small.sp-after-half[Students at the Govindpuri center. Mindspark: n = `r center$n1`, M = `r fmt(center$M1)`, SS = `r fmt(center$SS1, 1)`. Control: n = `r center$n2`, M = `r fmt(center$M2)`, SS = `r fmt(center$SS2, 1)`]
+
+.box-8.small.sp-after-half[H₀: μ₁ − μ₂ = 0. α = 0.05, two tails. The cutoff is t(`r center$df`) = ±`r fmt(center$crit, 3)`]
+
+.box-inv-8.small[Find t and g, then decide. Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+About 6 minutes, with calculators. Vote with hands on the decision: reject or maintain. Common slips: using n in place of df when pooling, or using the standard error as the bottom of g.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[σ̂²<sub>p</sub> = (`r fmt(center$SS1, 1)` + `r fmt(center$SS2, 1)`) / `r center$df` = **`r fmt(center$pooled)`**]
+
+.box-inv-8.small[σ̂<sub>M₁−M₂</sub> = √(`r fmt(center$pooled)` / `r center$n1` + `r fmt(center$pooled)` / `r center$n2`) = **`r fmt(center$se)`**]
+]
+
+.pull-right[
+.box-inv-8.small[t = `r fmt(center$gap)` / `r fmt(center$se)` = **`r fmt(center$t)`**. That's inside ±`r fmt(center$crit, 3)`: **maintain H₀**]
+
+.box-inv-8.small[g = `r fmt(center$gap)` / √`r fmt(center$pooled)` = **`r fmt(center$g)`**]
+]
+
+.box-8.small[Nearly the same g as the whole study, `r fmt(end$g)`, and a different decision. With `r center$n1 + center$n2` students, we can't tell]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+The same lesson as Topic 8: significant means hard to explain by sampling error. It doesn't mean big, and "maintain" doesn't mean no effect.
+
+---
+
+class: title title-8
+
+# Before Thursday
+
+.box-inv-8.medium.sp-after-half[Today's formula works when the two groups hold different people]
+
+.box-8.medium.sp-after-half[What if the same people take the test twice?]
+
+.box-inv-8.medium[Finish Chapter 11 for Thursday]
+
+???
+
+Everyone at endline also took the baseline test. So far, we've ignored that.
+
+---
+
+class: title title-8
+
+# Session 2: Thursday, February 18
+
+.box-inv-8.small.sp-after-half[Tuesday in one line: a gap between two groups gets its own standard error, and a pooled σ̂²]
+
+.box-5.medium.sp-after-half[One group, two scores]
+
+.box-7.medium.sp-after-half[Why measure twice?]
+
+.box-4.medium[Who gets the credit?]
+
+???
+
+Three blocks today. There's no new formula, and the last block is the point of the whole topic.
+
+---
+
+layout: false
+class: center middle section-title section-title-5 animated fadeIn
+
+# One group, two scores
+
+---
+
+layout: true
+class: title title-5
+
+---
+
+# Some studies test people twice
+
+.pull-left[
+.box-5.medium[Two samples]
+
+.box-inv-5.small[Different people in each group]
+
+.box-inv-5.small[One score per person]
+
+.box-inv-5.small[Compare two groups: Tuesday]
+]
+
+.pull-right[
+.box-5.medium[Paired scores]
+
+.box-inv-5.small[The same people, before and after]
+
+.box-inv-5.small[Two scores per person]
+
+.box-inv-5.small[Compare each person with themselves: today]
+]
+
+.book-tag[In the book: independent measures and repeated measures]
+
+???
+
+The book's Chapter 11 also covers matched pairs: different people, paired up on something like a baseline score. They work the same way, with one number per pair.
+
+---
+
+# Two scores become one: the gain
+
+```{r gains-table, results="asis"}
+five %>%
+  transmute(Student = paste("Student", row_number()),
+            `Before (baseline)` = before, `After (endline)` = after, `Gain = after − before` = gain) %>%
+  kable(format = "html", align = "lccc", table.attr = 'class="deck-table tight"')
+```
+
+.box-5.small[Now each student has one number. We've seen what to do with one column of numbers]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Five Mindspark students, math.]
+
+???
+
+These are the first five students in the file who were in the Mindspark group. Their gains are positive, but gains can be negative.
+
+---
+
+# A paired test is a one-sample t on gains
+
+<div class="math-display">\[
+t = \frac{M - \mu}{\hat{\sigma}_M}
+\qquad \text{where} \qquad
+\hat{\sigma}_M = \frac{\hat{\sigma}}{\sqrt{n}}
+\]</div>
+
+.pull-left[
+.box-inv-5.small[There's no new formula. This is Topic 8's, and now X is a person's gain]
+]
+
+.pull-right[
+.box-inv-5.small[M is the mean gain, and n is the number of people. H₀ says μ = 0, so df = n − 1]
+]
+
+.box-5.small[H₀: on average, nothing changes between before and after]
+
+.book-tag[In the book: a gain is D, and our M and σ̂<sub>M</sub> are M<sub>D</sub> and s<sub>M<sub>D</sub></sub>]
+
+???
+
+Here's the good news of the day. Whatever you can do with a one-sample t, you can do with gains: g, intervals, one tail or two. n counts people, not scores. A common slip is using 2n.
+
+---
+
+# All `r gain_t$n` Mindspark students
+
+```{r paired-table, results="asis"}
+tribble(
+  ~Step, ~`Mindspark students' gains`,
+  "1. State H₀", "μ = 0: no change on average",
+  "2. Set the criteria", paste0("α = 0.05, two tails. t(", gain_t$df, ") beyond ±", fmt(gain_t$crit, 3)),
+  "3. Compute t", paste0("M = ", fmt(gain_t$M), ", σ̂ = ", fmt(gain_t$sd), ", σ̂<sub>M</sub> = ", fmt(gain_t$sd), " / √", gain_t$n, " = ", fmt(gain_t$se, 3), "<br>t = ", fmt(gain_t$M), " / ", fmt(gain_t$se, 3), " = <strong>", fmt(gain_t$t), "</strong>"),
+  "4. Decide", paste0("Reject H₀: ", fmt(gain_t$t), " is far beyond ", fmt(gain_t$crit, 3))
+) %>%
+  kable(format = "html", escape = FALSE, table.attr = 'class="deck-table"')
+```
+
+.box-5.small[Mean gain: `r fmt(gain_t$M)` points. g = `r fmt(gain_t$g)`, and the 95% interval is [`r fmt(gain_t$lo)`, `r fmt(gain_t$hi)`]]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+That's an enormous t. Hold on to it. Is `r fmt(gain_t$M)` points what Mindspark did? We come back to that in the last block.
+
+---
+
+# Step 3b: each person gets a line
+
+```{r sim-paired, results="asis"}
+sim_frame(
+  alt = "Simulator at step 3b with one sample of ten people. Panel 1 shows before and after distributions. Panel 2 links each person's before and after scores with a line and reports the mean gain and a t-score. Panel 3 holds one dot at that t.",
+  step = "3p", n = sim_n, mu = sim_before, sd = sim_sd_pair, rho = 0.5, d = 1.56, draws = 1, seed = 15, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Step 3b on the blueprint, between one mean and two means, because that's what it is: one mean, of gains. The settings are close to Mindspark's: before scores around `r sim_before`, an SD of `r sim_sd_pair`, and ρ = 0.5.
+
+Press +50. The pile in panel 3 is t-scores of mean gains.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Five students' gains
+
+.box-inv-8.small.sp-after-half[Gains: `r paste(five$gain, collapse = ", ")`. So M = `r fmt(five_test$M, 1)` and SS = `r fmt(five_test$SS, 1)`]
+
+.box-8.small.sp-after-half[H₀: μ = 0. α = 0.05, two tails. The cutoff is t(`r five_test$df`) = ±`r fmt(five_test$crit, 3)`]
+
+.box-inv-8.small[Find σ̂, σ̂<sub>M</sub> and t, then decide. Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Same five students as before. Vote with hands on the decision. Students should notice that this is exactly Topic 8's calculation.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[σ̂ = √(`r fmt(five_test$SS, 1)` / `r five_test$df`) = **`r fmt(five_test$sd)`**]
+
+.box-inv-8.small[σ̂<sub>M</sub> = `r fmt(five_test$sd)` / √`r five_test$n` = **`r fmt(five_test$se)`**]
+]
+
+.pull-right[
+.box-inv-8.small[t = `r fmt(five_test$M, 1)` / `r fmt(five_test$se)` = **`r fmt(five_test$t)`**]
+
+.box-inv-8.small[`r fmt(five_test$t)` is beyond `r fmt(five_test$crit, 3)`: **reject H₀**]
+]
+
+.box-8.small[We report: t(`r five_test$df`) = `r fmt(five_test$t)`, p = `r fmt(five_test$p, 3)`. Even five students can show a change, if they all move the same way]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The last line leads to the next block. Why can so few students show a change? Because each one is compared with themselves.
+
+---
+
+layout: false
+class: center middle section-title section-title-7 animated fadeIn
+
+# Why measure twice?
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# Strong students stay fairly strong
+
+```{r lines-plot, fig.width=9, fig.height=3.9, out.width="70%", fig.alt="Forty thin lines, one per student, running from a baseline score on the left to an endline score on the right. Nearly all rise. Students who start higher mostly end higher, but the lines don't all run parallel."}
+ggplot(some, aes(x = when, y = score, group = st_id)) +
+  geom_line(color = clr_bar, alpha = 0.7, linewidth = 0.8) +
+  geom_point(color = clr_median, size = 1.8) +
+  scale_x_discrete(expand = expansion(mult = 0.12)) +
+  labs(x = NULL, y = "Math score") +
+  theme_slides()
+```
+
+.box-inv-7.small[A gain takes each student's own starting level out of the picture]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 40 random Mindspark students.]
+
+???
+
+Across all `r nrow(wide)` students, the correlation between baseline and endline is r = `r fmt(r_all)`. We'll meet r properly in Topic 11. For now, it says how tightly the two scores move together. The population version is ρ.
+
+---
+
+# Same students, two ways to test
+
+```{r wrong-table, results="asis"}
+tribble(
+  ~` `, ~`Standard error`, ~t,
+  "Pretending they're two separate groups", fmt(wrong$se, 3), paste0("t(", wrong$df, ") = ", fmt(wrong$t)),
+  "Using each student's gain", fmt(gain_t$se, 3), paste0("t(", gain_t$df, ") = ", fmt(gain_t$t))
+) %>%
+  kable(format = "html", align = "lcc", table.attr = 'class="deck-table"')
+```
+
+.box-inv-7.small.sp-after-half[Same `r gain_t$n` students, same mean gain of `r fmt(gain_t$M)`. Pairing cuts the standard error by `r round(100 * (1 - gain_t$se / wrong$se))`%]
+
+.box-7.small[The first row is wrong here: the two columns of scores aren't independent]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Both tests agree here, because the change is so large. With a smaller change, the wrong test could easily miss it. Pairing means fewer students are needed to detect the same change, which is a real saving for a study.
+
+---
+
+# ρ sets the spread of the gains
+
+```{r rho-table, results="asis"}
+rhos <- c(0, 0.5, 0.9)
+tibble(`How tightly before and after move together` = c("Not at all", "Moderately", "Very tightly"),
+       `ρ` = fmt(rhos, 1),
+       `SD of gains` = fmt(gain_sd(rhos))) %>%
+  kable(format = "html", align = "lcc", table.attr = 'class="deck-table"')
+```
+
+.box-inv-7.small.sp-after-half[Each score here has σ = `r sim_sd_pair`. The more tightly they move, the steadier the gains]
+
+.box-7.small[A smaller SD of gains means a smaller σ̂<sub>M</sub>, and so a bigger t]
+
+???
+
+If someone wants the formula, the SD of gains is σ√(2(1 − ρ)). It isn't needed for this course, because we compute the gains and take their SD directly.
+
+With ρ = 0.5, the SD of gains equals σ. Mindspark's r is about that: gains have σ̂ = `r fmt(gain_t$sd)` for the treatment group.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: Tighten the scores
+
+.box-inv-8.small.sp-after-half[Keep the mean gain the same. Raise ρ from 0.5 to 0.9, so before and after move together much more tightly]
+
+.box-8.small[What happens to the pile of t-scores in panel 3?]
+
+.options[
+.option[
+**A** It moves away from 0
+]
+.option[
+**B** It moves toward 0
+]
+.option[
+**C** It stays where it is
+]
+.option[
+**D** It depends on the mean before
+]
+]
+
+???
+
+About 6 minutes for this slide and the next two. Hands are fine. Neighbor first, then vote.
+
+---
+
+class: title title-8
+
+# Predict it: With ρ = 0.5
+
+```{r sim-rho-low, results="asis"}
+sim_frame(
+  alt = "Simulator at step 3b with 551 samples of ten people, a correlation of 0.5 and a mean gain of 2.5. The pile of t-scores in panel 3 sits a little to the right of zero, with many below the upper cutoff.",
+  step = "3p", n = sim_n, mu = sim_before, sd = sim_sd_pair, rho = 0.5, d = 0.5, draws = 551, seed = 15, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+This is the starting point: a mean gain of 2.5, with ρ = 0.5. Read off the share beyond the cutoffs. Then go to the next slide for ρ = 0.9.
+
+---
+
+class: title title-8
+
+# Predict it: With ρ = 0.9, a bigger t
+
+```{r sim-rho-high, results="asis"}
+sim_frame(
+  alt = "Simulator at step 3b with 551 samples of ten people, a correlation of 0.9 and a mean gain of 2.5. The pile of t-scores in panel 3 sits well to the right of zero, with most beyond the upper cutoff.",
+  step = "3p", n = sim_n, mu = sim_before, sd = sim_sd_pair, rho = 0.9, d = round(2.5 / gain_sd(0.9), 3), draws = 551, seed = 15, height = 505
+)
+```
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The answer is A. Same mean gain, but the bottom of the fraction shrank: σ<sub>M</sub> of the gains fell from `r fmt(gain_sd(0.5) / sqrt(sim_n))` to `r fmt(gain_sd(0.9) / sqrt(sim_n))`. These are two presets, because the ρ slider is hidden on a slide. It's on the simulator page.
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# Pairing has a price
+
+.pull-left[
+.box-7.medium[What we gain]
+
+.box-inv-7.small[Each person is their own comparison]
+
+.box-inv-7.small[A smaller standard error]
+
+.box-inv-7.small[Fewer people for the same power]
+]
+
+.pull-right[
+.box-7.medium[What we risk]
+
+.box-inv-7.small[Time passes between the two scores]
+
+.box-inv-7.small[Anything that changed gets mixed into the gain]
+
+.box-inv-7.small[The test can't say what caused it]
+]
+
+???
+
+The test can tell us that scores changed. It can't tell us why. The book calls these time-related factors and order effects, and it covers counterbalancing, which swaps the order of conditions. A pretest and posttest can't be swapped.
+
+---
+
+layout: false
+class: center middle section-title section-title-4 animated fadeIn
+
+# Who gets the credit?
+
+---
+
+layout: true
+class: title title-4
+
+---
+
+# Did Mindspark add `r fmt(gain_t$M)` points?
+
+.box-4.medium.sp-after-half[Students gained `r fmt(gain_t$M)` points, t(`r gain_t$df`) = `r fmt(gain_t$t)`]
+
+.box-inv-4.small.sp-after-half[The test is right: their scores really rose. Sampling error can't explain that]
+
+.box-inv-4.small.sp-after-half[Imagine a press release: "Students gain nearly 8 points with Mindspark!"]
+
+.box-4.small[What else was going on for these students during those months?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is what a study without a control group would report. Ask students to name what else changed. Take a few answers before the next slide.
+
+---
+
+# Mindspark wasn't all that happened
+
+.pull-left[
+.box-inv-4.small.sp-after-half[School went on for 4.5 months]
+
+.box-inv-4.small[Children got older]
+]
+
+.pull-right[
+.box-inv-4.small.sp-after-half[They had seen a math test like this one before]
+
+.box-inv-4.small[The endline test wasn't the same test]
+]
+
+.box-4.small[A paired test can't separate any of this from the program]
+
+???
+
+The last one is specific to our data. The endline tests were different from the baseline test, out of 34 or 35 by grade band, so a raw gain can't be read as pure learning.
+
+The scaled scores in the data hint at how much that matters. In baseline SDs, control students gained `r fmt(irt_c / irt_sd)`, against about `r fmt(gain_c$M / sd(baseline$tot_math))` in raw points. If those scales are linked across rounds, which the codebook doesn't say, the new test accounts for a good part of the raw gain.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Students with no program
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Control students lost the lottery, and had no Mindspark during those 4.5 months. On average, how much did their math scores rise?
+]
+
+.options[
+.option[
+**A** About 0 points
+]
+.option[
+**B** About 2 points
+]
+.option[
+**C** About 5 points
+]
+.option[
+**D** About 8 points, like the Mindspark group
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** About 0 points
+]
+.option.wrong[
+**B** About 2 points
+]
+.option.correct[
+**C** About 5 points
+]
+.option.wrong[
+**D** About 8 points, like the Mindspark group
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Control students gained `r fmt(gain_c$M)` points, t(`r gain_c$df`) = `r fmt(gain_c$t)`
+]
+
+.box-8.small[
+A paired test finds a huge "effect" with no program at all
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+layout: true
+class: title title-4
+
+---
+
+# Both groups rose, one rose more
+
+```{r both-lines, fig.width=10, fig.height=4.2, out.width="84%", fig.alt=paste0("Two lines from baseline to endline. The control group rises from ", fmt(mean(control$before)), " to ", fmt(end$M2), ", a gain of ", fmt(gain_c$M), ". The Mindspark group rises from ", fmt(mean(treated$before)), " to ", fmt(end$M1), ", a gain of ", fmt(gain_t$M), ". A bracket at endline marks the gap of ", fmt(end$gap), ".")}
+means <- wide %>%
+  mutate(group = if_else(treat == 1, "Mindspark", "Control")) %>%
+  group_by(group) %>%
+  summarize(Baseline = mean(before), Endline = mean(after)) %>%
+  pivot_longer(-group, names_to = "when", values_to = "score") %>%
+  mutate(x = if_else(when == "Baseline", 0, 1))
+
+ggplot(means, aes(x = x, y = score, color = group, linetype = group)) +
+  geom_line(linewidth = 1.5) +
+  geom_point(size = 4) +
+  annotate("segment", x = 1.05, xend = 1.05, y = end$M2, yend = end$M1, color = "#47505a", linewidth = 1.1,
+           arrow = arrow(length = unit(0.12, "in"), ends = "both", type = "closed")) +
+  label_text(1.08, (end$M1 + end$M2) / 2, paste("Endline gap:", fmt(end$gap)), "#47505a", hjust = 0) +
+  label_text(0.43, 17.3, paste("Mindspark gained", fmt(gain_t$M)), clr_mean, hjust = 1) +
+  label_text(0.56, 12.6, paste("Control gained", fmt(gain_c$M)), clr_median, hjust = 0) +
+  label_text(-0.04, 12.2, fmt(mean(control$before)), clr_median, hjust = 1, size = 5.5) +
+  label_text(-0.04, 10, fmt(mean(treated$before)), clr_mean, hjust = 1, size = 5.5) +
+  scale_color_manual(values = c(Control = clr_median, Mindspark = clr_mean), guide = "none") +
+  scale_linetype_manual(values = c(Control = "dashed", Mindspark = "solid"), guide = "none") +
+  scale_x_continuous(breaks = c(0, 1), labels = c("Baseline", "Endline"), limits = c(-0.2, 1.5)) +
+  scale_y_continuous(limits = c(9, 20), breaks = seq(10, 20, 2)) +
+  labs(x = NULL, y = "Mean math score") +
+  theme_slides()
+```
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). The `r nrow(wide)` students with both scores.]
+
+???
+
+This is the picture to remember. The control line is what would have happened anyway. Both lines rise. The program's contribution is how far the Mindspark line ends above the control line.
+
+---
+
+# A paired test alone over-credits
+
+```{r credit-table, results="asis"}
+tribble(
+  ~`What we'd conclude`, ~`Points`, ~`Where it comes from`,
+  "Paired test, Mindspark students alone", fmt(gain_t$M), paste0("Gain: t(", gain_t$df, ") = ", fmt(gain_t$t)),
+  "Paired test, control students alone", fmt(gain_c$M), paste0("Gain: t(", gain_c$df, ") = ", fmt(gain_c$t)),
+  "Two-sample test at endline", paste0("<strong>", fmt(end$gap), "</strong>"), paste0("Gap: t(", end$df, ") = ", fmt(end$t))
+) %>%
+  kable(format = "html", escape = FALSE, align = "lcc", table.attr = 'class="deck-table tight"')
+```
+
+.box-4.small.sp-after-half[`r fmt(gain_t$M)` / `r fmt(end$gap)` = **`r fmt(credit, 1)`**: nearly three times the program's effect]
+
+.box-inv-4.small[The paired test isn't wrong. It asks if scores changed, not why]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Be careful with the words. Every number here is right. The mistake is reading a gain as an effect.
+
+---
+
+# Why isn't it `r fmt(gain_t$M)` − `r fmt(gain_c$M)` = `r fmt(end$gap)`?
+
+.box-inv-4.small.sp-after-half[Subtracting gains gives `r fmt(gain_gap$gap)`, a two-sample t on gains: t(`r gain_gap$df`) = `r fmt(gain_gap$t)`]
+
+.box-inv-4.small.sp-after-half[It differs from `r fmt(end$gap)` by `r fmt(abs(base_gap))`: the gap at baseline, which favored the control group by chance]
+
+.box-4.small.sp-after-half[Both are fair estimates, because both compare with the control group]
+
+.box-inv-4.small[The endline gap ignores baseline. Gains use it, so their standard error is smaller: `r fmt(gain_gap$se)`, not `r fmt(end$se)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+A student will do this subtraction, so get ahead of it. By hand, the rounded numbers give `r fmt(round(gain_t$M, 2) - round(gain_c$M, 2))`. Unrounded, it's `r fmt(gain_gap$gap)`. A fair lottery doesn't make groups identical, as we saw in Topic 6. Among these `r nrow(wide)` students, the baseline gap of `r fmt(abs(base_gap))` points isn't significant.
+
+The two estimates, `r fmt(end$gap)` and `r fmt(gain_gap$gap)`, give the same story, and this is the same two-sample test from Tuesday, with gains as the scores. Regression later in the course gives a third way to use baseline.
+
+---
+
+# This is why control groups exist
+
+.box-4.medium.sp-after-half[What would have happened without the program?]
+
+.box-inv-4.small.sp-after-half[We can't watch the same students both with and without Mindspark]
+
+.box-inv-4.small.sp-after-half[The lottery gave us the next best thing: similar students, who lived through the same months]
+
+.box-4.small[The control group's rise is what would have happened anyway. Whatever goes beyond it is the program]
+
+???
+
+This is the idea behind the whole study. The word for that missing world is the counterfactual. School, growing up and the new test all hit both groups. The only thing the lottery let differ was the program.
+
+---
+
+layout: false
+class: title title-8
+
+# Play it: Name that test
+
+.box-inv-8.small.sp-after-half[**1** One-sample t  ·  **2** Paired t  ·  **3** Two-sample t. Hold up your fingers]
+
+.box-8.small[**A** 40 students take a reading test in September and again in June]
+
+.box-8.small[**B** Tutored students and untutored students each take one final exam]
+
+.box-8.small[**C** 25 teachers' scores are compared with a national mean of 100]
+
+.box-8.small[**D** Each child is matched with a similar child, and one of each pair gets the program]
+
+???
+
+A quick game with hands, about 3 minutes. Read each clue, count to three, and look around the room. Scan the room for clue D. Ask: what could explain the gain in clue A?
+
+---
+
+class: title title-8
+
+# Play it: Answers
+
+```{r name-table, results="asis"}
+tribble(
+  ~Clue, ~Test, ~`The giveaway`,
+  "A", "Paired t", "Same students, two scores. But no control group",
+  "B", "Two-sample t", "Different students, one score each",
+  "C", "One-sample t", "One mean against a known value",
+  "D", "Paired t", "Each pair gives one difference"
+) %>%
+  kable(format = "html", table.attr = 'class="deck-table"')
+```
+
+.box-8.small[Ask two things: How many scores per person? Is there a comparison group?]
+
+---
+
+class: title title-8
+
+# The blueprint so far
+
+```{r blueprint-table, results="asis"}
+tribble(
+  ~`Blueprint step`, ~Statistic, ~`Bottom of the fraction`, ~df,
+  "1. One score", "z", "σ", "None",
+  "2. One mean, σ known", "z", "σ<sub>M</sub>", "None",
+  "3a. One mean, σ unknown", "t", "σ̂<sub>M</sub>", "n − 1",
+  "3b. Mean gain", "t", "σ̂<sub>M</sub> of the gains", "n − 1",
+  "4. Two means", "t", "σ̂<sub>M₁−M₂</sub>", "n₁ + n₂ − 2",
+  "5. Three or more means: next", "F", "Topic 10", " "
+) %>%
+  kable(format = "html", escape = FALSE, align = "lccc", table.attr = 'class="deck-table tight"')
+```
+
+.box-8.small[Same fraction every time: what we saw, over what sampling error alone would give]
+
+???
+
+Next week, step 5 goes past two groups, and the fraction becomes a ratio of variances.
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Did scores change?]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+
+.box-inv-3.small[Did the program cause it?]
+
+.center[**Needs a comparison**]
+]
+
+???
+
+A paired test can tell us that scores rose. Only a comparison group, here one made by a lottery, lets us say why.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Run a two-sample t-test: pool, find the standard error, compute t]
+
+.box-inv-8.small[Report it with Hedges' g and a confidence interval]
+
+.box-inv-8.small[Turn before and after scores into gains, and run a paired t-test]
+
+.box-inv-8.small[Say why pairing shrinks the standard error]
+
+.box-inv-8.small[Explain why a gain isn't an effect, and what a control group adds]
+
+???
+
+Lab 7 tomorrow does both tests on the full data, in a spreadsheet.
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Friday, February 19: Lab 7]
+
+Two samples and gains. Bring a calculator and a laptop
+]
+
+.pull-right[
+.box-6.small[Sunday, February 21, 6 PM]
+
+Mastery and Problem Set for Chapter 10 are due. Chapter 11's, on gains, are due February 28
+]
+
+.box-3.small[For Tuesday, February 23: read Chapter 12. Topic 10 is ANOVA]
+
+```{css, echo=FALSE}
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide. A slide that
+   waits for a live button press would print empty, so it goes too */
+@media print {
+  .remark-slide-container:has(.poll-answer),
+  .remark-slide-container:has(.press-slide) {
+    display: none !important;
+  }
+}
+```
