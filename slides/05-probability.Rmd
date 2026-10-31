@@ -141,7 +141,7 @@ sat_n <- 2004965
 sat_1200_n <- 149767 + 357574
 sat_z <- round((1200 - sat_mu) / sat_sd, 2)
 sat_tail <- tail_p(sat_z)
-sat_95 <- sat_mu + 1.645 * sat_sd
+sat_95 <- sat_mu + 1.65 * sat_sd
 
 # Play it: the 90th percentile of the Mindspark curve ----
 ms_90 <- mu + 1.28 * sigma
@@ -444,6 +444,8 @@ class: title title-8
 ]
 
 .box-8.small[A score of 20 or more is rare here. That's the sense of "weird" we'll use all quarter]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -761,6 +763,8 @@ sim_frame(
 )
 ```
 
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
 ???
 
 This is step 1 of the blueprint from Topic 4, read a new way. Click +1 a few times, then +50 and +500. Each dot is one person drawn at random, and panel 3 shows the share of draws in each place. That's probability as a long-run share, and the shares settle on the areas. Ignore the H₀ label for now. Tool after Kristoffer Magnusson's rpsychologist.com.
@@ -820,7 +824,7 @@ class: title title-8 poll-answer
 ]
 ]
 
-```{r halfway-plot, fig.width=10, fig.height=2.6, out.width="72%", fig.alt="A normal curve from z equals 1 to z equals 2, split at 1.5. The first half of that stretch holds about 9 percent of the area and the second half about 4 percent, because the curve keeps falling."}
+```{r halfway-plot, fig.width=10, fig.height=2.6, out.width="72%", fig.alt="A normal curve with the area from z equals 1 to 1.5 shaded, about 9 percent, and the whole tail beyond 1.5 shaded, about 7 percent, because the curve keeps falling."}
 bell(18) +
   add_area(shade(1, 1.5)) +
   add_area(shade(1.5, Inf), clr_mode) +
@@ -967,7 +971,7 @@ bell(18) +
 
 # The table also runs backwards
 
-```{r backwards-plot, fig.width=11, fig.height=3.3, out.width="90%", fig.alt="Two normal curves. On the left the top 5 percent is shaded beyond z equals 1.645. On the right the two outer tails are shaded beyond z equals minus 1.96 and 1.96, leaving the middle 95 percent."}
+```{r backwards-plot, fig.width=11, fig.height=3.3, out.width="90%", fig.alt="Two normal curves. On the left the top 5 percent is shaded beyond z equals 1.65. On the right the two outer tails are shaded beyond z equals minus 1.96 and 1.96, leaving the middle 95 percent."}
 backwards <- bind_rows(
   shade(1.645, Inf, panel = "Top 5%", grp = "a"),
   shade(-Inf, -1.96, panel = "Middle 95%", grp = "b"),
@@ -980,7 +984,7 @@ bell(18) +
   add_line() +
   scale_x_continuous(breaks = c(-3, -1.96, 0, 1.645, 1.96, 3), labels = function(b) ifelse(abs(b) == 3, minus(b), "")) +
   geom_text(data = tibble(panel = factor(c("Top 5%", "Middle 95%", "Middle 95%"), levels = levels(backwards$panel)),
-                          z = c(2.4, -2.55, 2.55), label = c("1.645", "−1.96", "1.96")),
+                          z = c(2.4, -2.55, 2.55), label = c("1.65", "−1.96", "1.96")),
             aes(x = z, y = 0.1, label = label), color = clr_median, size = 6, fontface = "bold",
             family = "Fira Sans Condensed") +
   facet_wrap(vars(panel), nrow = 1) +
@@ -988,7 +992,7 @@ bell(18) +
 ```
 
 .pull-left[
-.box-inv-5.small[Find 0.0500 in the Tail column. It falls between z = 1.64 and 1.65]
+.box-inv-5.small[Find 0.0500 in the Tail column. It falls between z = 1.64 and 1.65, and we use 1.65]
 ]
 
 .pull-right[
@@ -1119,6 +1123,8 @@ bell(16) +
 
 .box-inv-7.small[Convert to z and one table serves them all. But the population must be normal, or the table's areas are wrong]
 
+.source[Mindspark: Muralidharan, Singh, and Ganimian (2019). SAT: College Board, 2025 SAT Suite Annual Report.]
+
 ???
 
 For a heavily skewed population the table gives wrong answers, because its areas belong to the normal shape. Always ask whether normal is reasonable.
@@ -1218,9 +1224,9 @@ Percentile rank describes a person's place in the group. It isn't the percent th
 .pull-left[
 .box-7.small[To be in the top 5%, what score did you need?]
 
-.box-inv-7.small[The 95th percentile has a tail of 0.05, so z = 1.645]
+.box-inv-7.small[The 95th percentile has a tail of 0.05, so z = 1.65]
 
-.box-inv-7.small[X = μ + zσ = `r sat_mu` + 1.645 × `r sat_sd`]
+.box-inv-7.small[X = μ + zσ = `r sat_mu` + 1.65 × `r sat_sd`]
 
 .box-7.small[X = `r round(sat_95)`, or about 1420 on the SAT's scale]
 ]
@@ -1334,7 +1340,7 @@ class: title title-8 poll-answer
 
 .box-inv-8.small.sp-after-half[X = `r fmt(mu)` + 1.28 × `r fmt(sigma)` = `r fmt(ms_90, 1)`. The real 90th percentile of our `r N` students is `r ms_real_90`]
 
-.box-8.small[A takes the wrong sign. B and C use 0.90 as if it were a z-score, and 0.90 is a share]
+.box-8.small[A takes the wrong sign. B skips σ, C uses 0.90 as if it were a z-score, and 0.90 is a share]
 
 .source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
