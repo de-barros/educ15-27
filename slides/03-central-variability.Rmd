@@ -261,6 +261,8 @@ ggplot(score_pct, aes(x = score, y = pct)) +
   theme_slides()
 ```
 
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
 ---
 
 layout: false
@@ -423,7 +425,7 @@ In our data: `r max(math)` − `r min(math)` = `r max(math) - min(math)` points
 ]
 
 .box-inv-6.small[
-It's easy to find, but only two students set it
+It's easy to find, but only two scores set it
 ]
 
 ???
@@ -434,7 +436,7 @@ The book also defines the range with real limits for continuous variables. That 
 
 # The interquartile range: the middle 50%
 
-```{r iqr-plot, fig.width=10, fig.height=4.3, out.width="86%", fig.alt="Bar chart of baseline math scores. Bars from 9 to 14, the middle half of students, are dark, and the rest are pale. Vertical lines mark the first quartile at 9 and the third quartile at 14."}
+```{r iqr-plot, fig.width=10, fig.height=4.3, out.width="86%", fig.alt="Bar chart of baseline math scores. Bars from 9 to 14, the middle of the scores, are dark, and the rest are pale. Vertical lines mark the first quartile at 9 and the third quartile at 14."}
 score_pct %>%
   mutate(middle = score >= score_q[1] & score <= score_q[2]) %>%
   ggplot(aes(x = score, y = pct, fill = middle)) +
@@ -452,6 +454,8 @@ score_pct %>%
 ```
 
 .box-inv-6.small[IQR = `r score_q[2]` − `r score_q[1]` = `r diff(score_q)` points. One extreme student can't move it]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ---
 
@@ -560,6 +564,8 @@ ggplot(score_pct, aes(x = score, y = pct)) +
 
 .box-inv-3.small[A small sample rarely catches the extreme scores, so it tends to look less spread out than its population]
 
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
 ---
 
 layout: false
@@ -615,6 +621,8 @@ ggplot(est, aes(x = value)) +
 ```
 
 .box-inv-8.small[SS / n tends to be too small, though `r round(100 * share_over)`% of samples still overshoot. Dividing by n − 1 lands on target on average]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Samples drawn from those scores.]
 
 ---
 
