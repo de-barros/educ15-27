@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>Central tendency and variability</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas de Barros" />
+    <meta name="date" content="2026-10-31" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <!-- MathJax measures fonts through remark's scaling, so in a small window or an
+         embedded frame it shrinks math to half size. Fix the size instead. -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+    <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
+    <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: center middle main-title section-title-4
+
+# Central tendency and variability
+
+.class-info[
+
+**Topic 3 · Tuesday, January 12**
+
+.light[EDUC 15: Statistics for Education Research&lt;br&gt;
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+
+.center[**We are here**]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Same map as last week. Today we summarize a whole distribution in two numbers: where it sits and how spread out it is.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[What's typical?]
+
+.box-6.medium.sp-after-half[Shape and spread]
+
+.box-3.medium.sp-after-half[The standard deviation]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: predict, try, predict.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# What's typical?
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# What value best describes this group?
+
+&lt;img src="03-central-variability_files/figure-html/typical-plot-1.png" alt="Bar chart of baseline math scores for 619 Mindspark students. Scores run from 0 to 26 out of 35. The bars rise to a peak of about 12 percent of students at a score of 12, with most students between 7 and 16." width="86%" style="display: block; margin: auto;" /&gt;
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 619 students in Delhi.]
+
+???
+
+Ask: which single number would you report? 12, because it's the tallest bar? Why not 11? Or 11.5?
+
+---
+
+# Three ways to name a "typical" value
+
+.pull-left-3[
+.box-inv-1.medium[Mode]
+
+The most frequent value
+
+Find the value that occurs most often
+]
+
+.pull-middle-3[
+.box-inv-1.medium[Median]
+
+The midpoint of a distribution
+
+Rank the scores and take the middle one. With an even number, average the middle two
+]
+
+.pull-right-3[
+.box-inv-1.medium[Mean]
+
+The average, or the balance point
+
+Add up all the scores, then divide by how many there are
+]
+
+---
+
+# The mean: one idea, two symbols
+
+$$
+\mu = \frac{\sum X}{N} \qquad\qquad M = \frac{\sum X}{n}
+$$
+
+.pull-left[
+.box-inv-1.small[Population]
+
+**μ** is the mean of everyone we care about. There are **N** of them
+]
+
+.pull-right[
+.box-inv-1.small[Sample]
+
+**M** is the mean of the **n** people we observed. It estimates μ
+]
+
+.box-1.small[Greek means population. A Latin letter or a hat means an estimate]
+
+???
+
+This rule comes back all quarter. Students should be able to label any symbol as a parameter or an estimate.
+
+---
+
+# Here, all three land close together
+
+&lt;img src="03-central-variability_files/figure-html/three-values-1.png" alt="The same bar chart of baseline math scores, with three vertical lines close together near the middle: median at 11, mean at 11.12 and mode at 12." width="86%" style="display: block; margin: auto;" /&gt;
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: One perfect score
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Five students scored 8, 12, 12, 13, 13. Their mean is 11.6 and their median is 12. Suppose one 13 becomes a perfect 35. What happens?
+]
+
+.options[
+.option[
+**A** Only the mean changes
+]
+.option[
+**B** Only the median changes
+]
+.option[
+**C** Both change
+]
+.option[
+**D** Neither changes
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.correct[
+**A** Only the mean changes
+]
+.option.wrong[
+**B** Only the median changes
+]
+.option.wrong[
+**C** Both change
+]
+.option.wrong[
+**D** Neither changes
+]
+]
+
+.box-inv-8.small.sp-after-half[
+The mean goes from 11.6 to 16.0. The median stays at 12
+]
+
+.box-8.small[
+The mean uses every score's value. The median only uses their order
+]
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Shape and spread
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Skew is named after the tail
+
+&lt;img src="03-central-variability_files/figure-html/skew-plot-1.png" alt="Three curves side by side. The left curve has its peak on the right and a long tail to the left, labeled skewed left. The middle curve is symmetric. The right curve has its peak on the left and a long tail to the right, labeled skewed right." width="88%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[Our math scores are almost symmetric, so all three agreed]
+
+---
+
+# In a skewed distribution, they pull apart
+
+&lt;img src="03-central-variability_files/figure-html/skew-order-1.png" alt="Two skewed curves. In the right-skewed curve, the mode is at the peak, the median is to its right, and the mean is farther right, toward the tail. In the left-skewed curve the order is reversed: the mean is farthest left, toward the tail, then the median, then the mode at the peak." width="92%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[The mean gets pulled toward the tail. That's the perfect score you just saw]
+
+---
+
+class: title title-6 long-title
+
+# So which one should you report?
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Measure &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Works well for &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Can mislead with &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mean &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Interval or ratio scales, when you know every score &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Extreme scores, skewed distributions, open-ended categories &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Median &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Extreme scores, skewed distributions, open-ended categories, ordinal scales &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Nominal scales &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mode &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Nominal scales, discrete variables, describing shape &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Interval or ratio data, unless it comes with the mean or median &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+# The range: how far the scores stretch
+
+.box-6.medium.sp-after-half[Range = highest score − lowest score]
+
+.box-inv-6.small.sp-after-half[
+In our data: 26 − 0 = 26 points
+]
+
+.box-inv-6.small[
+It's easy to find, but only two scores set it
+]
+
+???
+
+The book also defines the range with real limits for continuous variables. That detail isn't worth class time.
+
+---
+
+# The interquartile range: the middle 50%
+
+&lt;img src="03-central-variability_files/figure-html/iqr-plot-1.png" alt="Bar chart of baseline math scores. Bars from 9 to 14, the middle of the scores, are dark, and the rest are pale. Vertical lines mark the first quartile at 9 and the third quartile at 14." width="86%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[IQR = 14 − 9 = 5 points. One extreme student can't move it]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Five real students
+
+.box-inv-8.medium.sp-after-half[Scores: 8, 13, 12, 12, 16]
+
+.box-8.small.sp-after-half[Find the mean, the median and the range]
+
+.box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote]
+
+???
+
+About 6 minutes, with calculators. Students who finish early can write down why the mean and median differ.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left-3[
+.box-inv-8.medium[Mean]
+
+.center[(8 + 13 + 12 + 12 + 16) / 5 = **12.2**]
+]
+
+.pull-middle-3[
+.box-inv-8.medium[Median]
+
+.center[In order: 8, 12, 12, 13, 16. The middle one is **12**]
+]
+
+.pull-right-3[
+.box-inv-8.medium[Range]
+
+.center[16 − 8 = **8**]
+]
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# The standard deviation
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# How far is a typical score from μ?
+
+.box-inv-3.small[Say these five students are everyone we care about, so μ = 12.2]
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Score X &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Deviation X − μ &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Squared deviation &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −4.2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 17.64 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.64 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.04 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.04 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 16 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14.44 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small[Add up the last column to get the sum of squares: SS = 32.8]
+
+???
+
+Why square? Deviations from the mean always add up to zero, so their plain average tells us nothing.
+
+---
+
+# Four steps to the standard deviation
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; In symbols &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Our five students &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. Find each deviation &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(X - \mu\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The table we just built &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. Square them and add them up &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(SS = \sum (X - \mu)^2\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; SS = 32.8 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3. Average them: the variance &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\sigma^2 = SS / N\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 32.8 / 5 = 6.56 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Take the root: the SD &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; \(\sigma = \sqrt{\sigma^2}\) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; √6.56 = 2.56 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small[Variance is the average squared distance. The SD puts it back in points]
+
+---
+
+# We rarely see the whole population
+
+&lt;img src="03-central-variability_files/figure-html/spread-plot-1.png" alt="Bar chart of all 619 baseline math scores, spanning 0 to 26, with five dark diamonds below it showing one random sample of five students. The five diamonds cover a narrower span than the full set of scores." width="86%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small[A small sample rarely catches the extreme scores, so it tends to look less spread out than its population]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+layout: false
+class: title title-8 long-title
+
+# Predict it: Treat the 619 students as a population
+
+.box-inv-8.small.sp-after-half[Their variance is σ² = 15.22. Draw 5,000 samples of 5. In each one, compute SS / n]
+
+.box-8.small.sp-after-half[Across all 5,000 samples, what does SS / n average out to?]
+
+.options[
+.option[
+**A** Less than 15.22
+]
+.option[
+**B** About 15.22
+]
+.option[
+**C** More than 15.22
+]
+]
+
+???
+
+About 6 minutes. Hands are fine here. Ask students to say why before showing the next slide.
+
+---
+
+class: title title-8
+
+# Predict it: SS / n falls short on average
+
+&lt;img src="03-central-variability_files/figure-html/bias-plot-1.png" alt="Two histograms of an estimate of the variance across 5,000 samples of 5 students, with a vertical line at the true value of 15.22. Dividing by n has an average of about 12, well below the true value. Dividing by n minus 1 has an average of about 15, close to the true value." width="92%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-8.small[SS / n tends to be too small, though 28% of samples still overshoot. Dividing by n − 1 lands on target on average]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Samples drawn from those scores.]
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# Our estimate of the population variance
+
+$$
+\hat{\sigma}^2 = \frac{SS}{n - 1} \qquad\qquad \hat{\sigma} = \sqrt{\hat{\sigma}^2}
+$$
+
+.pull-left[
+.box-inv-3.small[
+The hat says this is an estimate. n − 1 is called the *degrees of freedom*
+]
+]
+
+.pull-right[
+.box-inv-3.small[
+SS / n is still the sample's own variance. It just isn't our best guess about the population
+]
+]
+
+.book-tag[In the book: σ̂² is written s², and σ̂ is written s]
+
+???
+
+The variance estimate is unbiased. Its square root runs a little low: here it averages 3.61 against a true SD of 3.90. That's worth saying only if someone asks.
+
+---
+
+# Our five students, now as a sample
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Population &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Sample &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; How many &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; N &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n = 5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mean &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; μ &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; M = 12.2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Variance &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ² = SS / N &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂² = 32.8 / 4 = 8.20 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Standard deviation &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂ = 2.86 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small[With all 619 students, n − 1 hardly matters: σ̂ = 3.90, against 3.90 when dividing by n]
+
+---
+
+layout: false
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Find and choose among the mean, median and mode]
+
+.box-inv-8.small[Say how skew pulls the mean toward the tail]
+
+.box-inv-8.small[Compute SS, the variance and the SD by hand]
+
+.box-inv-8.small[Label a symbol as a parameter or an estimate, and say why we divide by n − 1]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Before Thursday]
+
+Read Chapter 5
+]
+
+.pull-right[
+.box-6.small[This Friday: Lab 2]
+
+Bring a calculator and a laptop. It includes a 15-minute individual check
+]
+
+.box-3.small[Mastery and Problem Set for Chapter 5 are due Sunday at 6 PM]
+
+---
+
+class: title title-3
+
+# Bonus: A faster way to compute SS
+
+.small[Start from the definition, multiply out the square, and use μ = ΣX / N:]
+
+$$
+SS = \sum (X - \mu)^2 = \sum X^2 - 2\mu \sum X + N\mu^2
+$$
+
+$$
+SS = \sum X^2 - \frac{(\sum X)^2}{N}
+$$
+
+.box-inv-3.small[This needs no deviations, so it's quicker with a calculator]
+
+&lt;style type="text/css"&gt;
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "navigation": {
+    "scroll": true
+  },
+  "incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

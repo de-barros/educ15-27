@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>Regression: the line</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas de Barros" />
+    <meta name="date" content="2026-10-31" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <!-- MathJax measures fonts through remark's scaling, so in a small window or an
+         embedded frame it shrinks math to half size. Fix the size instead. -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+    <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
+    <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/simulator.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: center middle main-title section-title-4
+
+# Regression: the line
+
+.class-info[
+
+**Topic 12 · Tuesday, March 2**
+
+.light[EDUC 15: Statistics for Education Research&lt;br&gt;
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Does one score go with another?]
+
+.box-inv-6.small[Use one score to predict another]
+
+.center[**We are here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Same map. Topic 11 asked whether two scores go together. Today we use one to predict the other. Regression takes three sessions: the line today, whether the slope is real on Thursday, and groups next week.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[A line for prediction]
+
+.box-6.medium.sp-after-half[What the line minimizes]
+
+.box-3.medium.sp-after-half[Finding a and b]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: try, predict, try. The running question is the one from Topic 11: does a student's baseline math score predict their endline score?
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# A line for prediction
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# A line sums up the cloud
+
+&lt;img src="12-regression-line_files/figure-html/line-plot-1.png" alt="Scatter plot of 539 Mindspark students, with baseline math score on the horizontal axis and endline math score on the vertical axis. A straight line rises through the wide cloud of dots, from about 9 at a baseline of 0 to about 29 at a baseline of 26." width="82%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[The line shows the pattern, describes it in two numbers, and lets us predict]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 539 students. Dots are nudged so equal scores don't hide each other.]
+
+???
+
+Same dots as Topic 11. Topic 11's simulator already drew a line through a cloud, and now we ask what that line is.
+
+Regression finds the straight line that best fits a set of dots. By the end of block 2, "best" will mean something exact.
+
+---
+
+# A line needs two numbers
+
+&lt;div class="math-display"&gt;\[
+\hat{Y} = a + bX
+\]&lt;/div&gt;
+
+.pull-left-3[
+.box-inv-1.small[Ŷ]
+
+.center[The predicted Y. The hat says it's an estimate]
+]
+
+.pull-middle-3[
+.box-inv-1.small[a, the intercept]
+
+.center[The value of Ŷ when X = 0]
+]
+
+.pull-right-3[
+.box-inv-1.small[b, the slope]
+
+.center[How much Ŷ changes when X goes up by 1]
+]
+
+.box-1.small[Greek means population: β is the slope for everyone, and b is our estimate of it]
+
+.book-tag[In the book: Ŷ = bX + a. It's the same line, in a different order]
+
+???
+
+The rule from Topic 3 still holds. A Latin letter or a hat means an estimate, so never call b "beta".
+
+Topic 7 used β for the chance of a Type 2 error. That's a different β, and the context tells them apart. The population line gets plain numbers, such as Y = 2.00 + 0.50 X in the simulator, because α is taken too.
+
+---
+
+# Our line, read in points
+
+.pull-left[
+&lt;img src="12-regression-line_files/figure-html/anatomy-plot-1.png" alt="The same line, with the dots faded. A red dot marks where the line meets a baseline of 0, at 8.87. A gold step shows that moving 10 points to the right, from a baseline of 10 to 20, raises the line by 7.6 points." width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+.box-1.small[Ŷ = 8.87 + 0.76X]
+
+.box-inv-1.small.sp-after-half[**a = 8.87:** a student with 0 at baseline is predicted to score 8.87 at endline]
+
+.box-inv-1.small.sp-after-half[**b = 0.76:** one more point at baseline goes with 0.76 more points at endline, on average]
+
+.box-1.small[Say "goes with", not "causes"]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Both numbers are in points. b compares students: among students who are one point apart at baseline, the one ahead tends to be 0.76 points ahead at endline. It doesn't say what would happen to one student who gained a point. We're still in the prediction column.
+
+The numbers on this slide match 2024: 8.87 and 0.76.
+
+---
+
+# It predicts an average, not a student
+
+&lt;img src="12-regression-line_files/figure-html/tens-plot-1.png" alt="The scatter plot again, with the 59 students who scored 10 at baseline in dark blue. Their endline scores run from 7 to 32. A red diamond on the line marks the prediction, 16.47, in the middle of them." width="76%" style="display: block; margin: auto;" /&gt;
+
+.box-1.small[8.87 + 0.76 × 10 = **16.47**. Yet these 59 students ended anywhere from 7 to 32]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The arithmetic uses the rounded line, the way students will do it. Software keeps more decimals and gets 16.51.
+
+The prediction is our best guess, and it's close to what these students did on average. Any one student can land far from it, and block 2 is about exactly that gap.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Use the line
+
+.box-8.medium.sp-after-half[Ŷ = 8.87 + 0.76X]
+
+.box-inv-8.small.sp-after-half[Two students scored 6 and 16 at baseline. Predict each one's endline score]
+
+.box-inv-8.small.sp-after-half[How far apart are the students at baseline? How far apart are the predictions?]
+
+.box-inv-8.small[Work alone, compare with a neighbor, then vote with hands: is the gap bigger, smaller or the same?]
+
+???
+
+About 6 minutes, with calculators.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[X = 6: 8.87 + 0.76 × 6 = **13.43**]
+]
+
+.pull-right[
+.box-inv-8.small[X = 16: 8.87 + 0.76 × 16 = **21.03**]
+]
+
+.box-8.small.sp-after-half[10 points apart at baseline, 7.60 apart in prediction. The gap is 10 × b]
+
+.box-inv-8.small[The slope is all you need to compare two students. a only sets the height]
+
+???
+
+Remember the smaller gap. It comes back at the end of today as regression to the mean.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# What the line minimizes
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# A residual is how far the line missed
+
+.pull-left[
+&lt;img src="12-regression-line_files/figure-html/residual-plot-1.png" alt="The scatter plot with faded dots and the line. One student at a baseline of 13 and an endline of 30 sits above the line, joined to it by a vertical red segment. Another at a baseline of 15 and an endline of 12 sits below the line, joined to it the same way." width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+.box-6.small.sp-after-half[Residual = Y − Ŷ, what happened minus what we predicted]
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; X &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Y &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Ŷ &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Y − Ŷ &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 30 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 18.75 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; +11.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 20.27 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −8.27 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-6.small[Above the line, it's positive. Below the line, it's negative]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+These are two real students. The first did 11.25 points better than their baseline predicts. The second did 8.27 points worse.
+
+The residual is what the line can't explain. It might be a good day, a strong teacher or a lucky guess, and the data don't say which.
+
+---
+
+# Residuals add to 0, so we square them
+
+&lt;img src="12-regression-line_files/figure-html/residual-hist-1.png" alt="Histogram of the residuals for all 539 students. It's centered on 0 and roughly symmetric, with most residuals between minus 10 and plus 10, and a vertical line at 0." width="74%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small.sp-after-half[All 539 residuals add up to 0, like deviations from a mean]
+
+.box-6.small[So we square them, as in Topic 3: Σ(Y − Ŷ)² = 14,314, the SS&lt;sub&gt;residual&lt;/sub&gt;]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Deviations from the mean add up to zero, and that's why variance squares them. The same thing happens here, for the same reason. In fact, the mean is the one number that minimizes squared deviations, and the regression line does the same job for a whole line of numbers.
+
+---
+
+# Loose dots leave big squares
+
+&lt;div class="sim-slide" style="height: 495px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=correlation&amp;n=12&amp;r=0.3&amp;seed=2027&amp;resid=1&amp;squares=1" title="Simulator's correlation view with 12 draggable points in a loose cloud and a regression line. A vertical residual joins each point to the line, and a pink square shows each squared residual. Many squares are large. The readout shows r of 0.30 and a sum of squared residuals of about 2,252." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/26428cf84b17.png" alt="Simulator's correlation view with 12 draggable points in a loose cloud and a regression line. A vertical residual joins each point to the line, and a pink square shows each squared residual. Many squares are large. The readout shows r of 0.30 and a sum of squared residuals of about 2,252."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+
+???
+
+**Point to the readout:** r is 0.30, and the sum of squared residuals is 2,252. Each pink square is one student's squared miss.
+
+**Drag a point with a big square toward the line.** Its square shrinks, and the total falls. Then drag it away and watch the square grow, and the line chase it. A vertical line is a residual, and the springs picture from 2024 fits here: each dot pulls on the line, and far dots pull hardest.
+
+The tool always shows the best line for the dots, so students can't move the line itself. The next slide and the plot after it do that job.
+
+Students can't drag on this screen. Those with a phone or laptop can open the Simulator page on the course site and go to the Correlation tab, where Residuals and Squared residuals are checkboxes.
+
+---
+
+# Tight dots leave small squares
+
+&lt;div class="sim-slide" style="height: 495px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=correlation&amp;n=12&amp;r=0.9&amp;seed=2027&amp;resid=1&amp;squares=1" title="The same simulator view with 12 points, now close to the line. The residuals are short and the pink squares are small. The readout shows r of 0.90 and a sum of squared residuals of about 470." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/b9d8bc4802df.png" alt="The same simulator view with 12 points, now close to the line. The residuals are short and the pink squares are small. The readout shows r of 0.90 and a sum of squared residuals of about 470."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same 12 baseline scores, with r up from 0.30 to 0.90. Flip back and forth between the two slides. The total falls from 2,252 to 470.
+
+So the squares are a way to see fit. Small squares mean the line fits well, and r is high. That's where r² comes from, later today.
+
+---
+
+# Least squares picks the smallest total
+
+&lt;img src="12-regression-line_files/figure-html/three-lines-1.png" alt="Three copies of the same scatter plot of eight students, each with a different line and red squares showing each squared residual. A flat line has large squares and a total of 180.0. A line that is too steep has a total of 132.0. The least squares line has the smallest squares and a total of 58.5." width="86%" style="display: block; margin: auto;" /&gt;
+
+.box-6.small[Regression chooses the a and b that make Σ(Y − Ŷ)² as small as it can be]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32 from Topic 11.]
+
+???
+
+Back to our 8 students, where each square is big enough to see. Two of them share a point, so one square is darker. All three lines go through the two means.
+
+The name is ordinary least squares, or OLS. It's the same regression. No other straight line through these 8 students gets below 58.5.
+
+---
+
+# The best slope sits at the bottom
+
+&lt;img src="12-regression-line_files/figure-html/bowl-plot-1.png" alt="A U-shaped curve of the total of squared residuals against the slope of the line. The total is 180.0 at a slope of 0, falls to a minimum of 58.5 at a slope of 2.25, and rises to 132.0 at a slope of 4." width="80%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[Every slope has a total. b = 2.25 is the only one at the bottom of the curve]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32. Each line goes through the two means.]
+
+???
+
+This is what "the squares shrink as the line fits" looks like. Walk along the curve from the left: the line gets steeper, the total falls, it bottoms out at 58.5, and then it rises again. Tilt the line past the best slope, and the squares grow back.
+
+A computer doesn't try slopes one at a time. There's a formula for the bottom of the curve, which we use in block 3.
+
+---
+
+# We measure misses up and down
+
+&lt;img src="12-regression-line_files/figure-html/vertical-plot-1.png" alt="Two copies of the plot of eight students and their line. On the left, labeled this, each dot is joined to the line by a vertical segment. On the right, labeled not this, each dot is joined to the line by a segment at a right angle to the line." width="66%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[We're predicting Y, so a miss is a distance in Y]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+The right-hand picture looks natural, and it's a common wrong guess.
+
+This is why it matters which score is X and which is Y. Swap them, and the misses run sideways instead, so you get a different line. With our students, predicting baseline from endline has a slope of 0.33, not 1 / 0.76. r is the same in both directions, but regression isn't.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Which line wins?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Line A misses four students by 0, 0, 0 and 8 points. Line B misses them by 2, 2, 2 and 2. Each line misses by 8 points in all. Which one does least squares prefer?
+]
+
+.options[
+.option[
+**A** Line A
+]
+.option[
+**B** Line B
+]
+.option[
+**C** It's a tie
+]
+.option[
+**D** We can't tell without the slope
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** Line A
+]
+.option.correct[
+**B** Line B
+]
+.option.wrong[
+**C** It's a tie
+]
+.option.wrong[
+**D** We can't tell without the slope
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Line A: 0² + 0² + 0² + 8² = 64. Line B: 2² + 2² + 2² + 2² = 16
+]
+
+.box-8.small[
+Squaring punishes one big miss. That's why one outlier can drag the line, as it dragged r in Topic 11
+]
+
+???
+
+Least squares would rather miss everyone a little than one person a lot. This is the price of squaring, and a reason to plot the data first.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# Finding a and b
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# We already have what we need
+
+.box-inv-3.small[From Topic 11, our 8 students: SP = 54, SS&lt;sub&gt;X&lt;/sub&gt; = 24, M&lt;sub&gt;X&lt;/sub&gt; = 10.5, M&lt;sub&gt;Y&lt;/sub&gt; = 22.5]
+
+&lt;div class="math-display"&gt;\[
+b = \frac{SP}{SS_X} = \frac{54}{24} = 2.25
+\]&lt;/div&gt;
+
+&lt;div class="math-display"&gt;\[
+a = M_Y - b M_X = 22.5 - 2.25 \times 10.5 = −1.125
+\]&lt;/div&gt;
+
+.box-inv-3.small[SP: how X and Y move together. SS&lt;sub&gt;X&lt;/sub&gt;: how X moves alone]
+
+.box-3.small[Their line: Ŷ = −1.125 + 2.25X]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+These formulas give the bottom of the curve we just saw. Students need to use them, not derive them.
+
+The 2024 slides wrote "beta = 2.25" here. It's an estimate, so it's b.
+
+In Lab 9, a spreadsheet's `SLOPE` and `INTERCEPT` do this for all 539 students.
+
+---
+
+# The line runs through the two means
+
+&lt;img src="12-regression-line_files/figure-html/means-plot-1.png" alt="The eight students with their line. Dashed lines mark the mean baseline of 10.5 and the mean endline of 22.5. The regression line passes exactly through the point where the dashed lines cross, shown as a red diamond." width="80%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small[A student at M&lt;sub&gt;X&lt;/sub&gt; is predicted to land at M&lt;sub&gt;Y&lt;/sub&gt;. That's where a's formula comes from]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+This matches the line from 2024, so students now know where it came from. The same is true for all 539 students: 8.87 + 0.76 × 11.06 is about 17.32, the mean of Y.
+
+---
+
+# Don't trust the line past the data
+
+&lt;img src="12-regression-line_files/figure-html/extrapolate-plot-1.png" alt="The eight students, whose baseline scores run from 8 to 13, inside a shaded band. Their line is solid inside the band and dashed outside it. The dashed part reaches a baseline of 0 at a predicted score of −1.125, which is below zero and marked with a red dot." width="80%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small[A score below 0 is impossible. Predict only inside the scores you saw]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+A prediction is only worth trusting inside the range of X we observed. These 8 students run from 8 to 13, so the line says nothing about a score of 0.
+
+With all 539 students, a = 8.87 is safer, but it still leans on few students: only 2 scored 0 at baseline.
+
+---
+
+# b is r, rescaled into points
+
+&lt;div class="math-display"&gt;\[
+b = r \times \frac{\hat{\sigma}_Y}{\hat{\sigma}_X}
+\]&lt;/div&gt;
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Students &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; r &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; σ̂&lt;sub&gt;Y&lt;/sub&gt; &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; σ̂&lt;sub&gt;X&lt;/sub&gt; &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; r × σ̂&lt;sub&gt;Y&lt;/sub&gt; / σ̂&lt;sub&gt;X&lt;/sub&gt; &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; All 539 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.502 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.97 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.92 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;0.76&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Our 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.822 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.07 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.85 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;2.25&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small[r has no units. b is in points of Y per point of X. They always share a sign]
+
+.book-tag[In the book: σ̂&lt;sub&gt;Y&lt;/sub&gt; and σ̂&lt;sub&gt;X&lt;/sub&gt; are written s&lt;sub&gt;Y&lt;/sub&gt; and s&lt;sub&gt;X&lt;/sub&gt;]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+So a slope isn't a new idea. It's the correlation, stretched by how spread out Y is compared with X. If r is 0, b is 0. That's why a test of r and a test of b will agree on Thursday.
+
+The two groups show why b alone can't tell you how strong a relationship is. Our 8 students have b = 2.25 partly because their baseline scores are so close together.
+
+---
+
+# Regression to the mean is in the slope
+
+.pull-left[
+&lt;img src="12-regression-line_files/figure-html/rtm-plot-1.png" alt="Scatter plot of all students in standard deviation units, with faded dots. A dashed line has a slope of 1. The solid regression line has a slope of 0.50, flatter than the dashed line. At 2 SDs on baseline, the dashed line is at 2 and the regression line is at about 1." width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+.box-3.small.sp-after-half[In SDs, the slope is r, and r is below 1 unless the dots fall on a perfect line]
+
+.box-inv-3.small.sp-after-half[So a student 2 SDs above the mean is predicted only 1.0 SD above it]
+
+.box-inv-3.small[The 42 students with 17 or more at baseline were 1.96 SDs above the mean. At endline: 0.98]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is the smaller gap from the first try-it. Part of any high score is a good day, and good days don't repeat. So high scorers tend to land closer to the mean the second time, and low scorers do too. No program is needed. That's where the word "regression" comes from: Galton saw it in the heights of parents and children.
+
+It's why you can't judge a program by looking only at the lowest scorers and how far they rise.
+
+The rule is about SDs, not points. Our b of 0.76 happens to be below 1, but the 8 students' b of 2.25 isn't, because their X barely spreads. In SDs, their slope is 0.82.
+
+---
+
+# r² is how much the squares shrink
+
+&lt;img src="12-regression-line_files/figure-html/r2-plot-1.png" alt="Two stacked bars, each showing the total SS of Y split in two. For our 8 students, 180.0 splits into 121.5 predicted from X and 58.5 left in the residuals. For all 539 students, 19,143 splits into 4,829 and 14,314." width="88%" style="display: block; margin: auto;" /&gt;
+
+&lt;div class="math-display"&gt;\[
+r^2 = \frac{SS_Y - SS_{residual}}{SS_Y} = \frac{180 - 58.5}{180} = 0.675
+\]&lt;/div&gt;
+
+.box-inv-3.small[A flat line ignores X, and its squares total SS&lt;sub&gt;Y&lt;/sub&gt;. For our 8, the best line cuts that by 67.5%]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This keeps Topic 11's promise. The flat line predicts M&lt;sub&gt;Y&lt;/sub&gt; for everyone, so its squares are SS&lt;sub&gt;Y&lt;/sub&gt;: that's the "Flat" total on the curve. The regression line's squares are SS&lt;sub&gt;residual&lt;/sub&gt;. r² is the share of the squares that goes away when we use X.
+
+With all 539 students, (19,143 − 14,314) / 19,143 = 0.252, the same 0.252 as Topic 11.
+
+The bars redraw the book's split of SS&lt;sub&gt;Y&lt;/sub&gt; into SS&lt;sub&gt;regression&lt;/sub&gt; and SS&lt;sub&gt;residual&lt;/sub&gt;, with our numbers. Thursday uses this split.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Five students from Topic 11
+
+.pull-left[
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Baseline X &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Endline Y &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 21 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 22 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+.box-inv-8.small[M&lt;sub&gt;X&lt;/sub&gt; = 11, M&lt;sub&gt;Y&lt;/sub&gt; = 19]
+
+.box-inv-8.small[SP = −15, SS&lt;sub&gt;X&lt;/sub&gt; = 6]
+
+.box-8.small[Find b and a. Then find the residual for the student with X = 11 and Y = 24]
+]
+
+.box-inv-8.small[Work alone, compare with a neighbor, then vote with hands: is the residual positive or negative?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. These are the five from Topic 11, whose r was −0.65. The numbers on the right are given to save time.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[b = −15 / 6 = **−2.5**]
+
+.box-inv-8.small[a = 19 − (−2.5 × 11) = **46.5**]
+]
+
+.pull-right[
+.box-inv-8.small[Ŷ = 46.5 + (−2.5 × 11) = **19**]
+
+.box-inv-8.small[Y − Ŷ = 24 − 19 = **+5**]
+]
+
+.box-8.small.sp-after-half[r was negative here, so b is too. And X = 11 is M&lt;sub&gt;X&lt;/sub&gt;, so Ŷ is M&lt;sub&gt;Y&lt;/sub&gt;: no multiplying needed]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Common slips: the sign of b, and writing Ŷ − Y for the residual.
+
+---
+
+class: title title-8
+
+# Each b estimates β
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Students &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; n &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; r &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; a &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; b &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Five from the try-it &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.65 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 46.50 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −2.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Students 25 to 32 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.82 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −1.125 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Everyone with both scores &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 539 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.50 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8.87 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.76 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-8.small.sp-after-half[Same test, three groups, three slopes. Like M and r, b bounces from sample to sample]
+
+.box-8.small[Thursday's question: could we see a slope like this if β were 0?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is the bridge to Topic 13, and it's the same step we took with r in Topic 11. A slope is a statistic, so it has a sampling distribution. That's step 7a of the blueprint, and the four steps come back with it. Don't test anything today.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Read a and b from a line, in the units of the scores]
+
+.box-inv-8.small[Predict Y from X, and say why that's an average, not a promise]
+
+.box-inv-8.small[Find a residual, and say what least squares minimizes]
+
+.box-inv-8.small[Compute b and a by hand from SP, SS&lt;sub&gt;X&lt;/sub&gt; and the means]
+
+.box-inv-8.small[Link b to r, r² to the squares, and r to regression to the mean]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Thursday, March 4: Topic 13]
+
+Regression: is the slope real? Finish the regression part of Chapter 14
+]
+
+.pull-right[
+.box-6.small[Friday, March 5: Lab 9]
+
+Correlation and regression. Bring a calculator and a laptop
+]
+
+.box-3.small[Sunday, March 7, 6 PM: Mastery and Problem Set for Chapter 12 are due. Chapter 14's are due March 14]
+
+&lt;style type="text/css"&gt;
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.source a {
+  color: #244a70;
+  text-decoration: underline;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "navigation": {
+    "scroll": true
+  },
+  "incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

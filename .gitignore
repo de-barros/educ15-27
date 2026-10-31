@@ -9,11 +9,7 @@
 
 _targets.yaml
 
-# Slide sources are tracked. Rendered output is rebuilt by {targets}.
-slides/*.pdf
-slides/*.html
-slides/canvas/
-slides/libs/
+# Slide sources and rendered decks are tracked
 slides/**/*_cache/*
 
 # Original PowerPoints stay out of git: they can hold images nobody has checked
@@ -23,6 +19,7 @@ slides/old-pptx/
 **/*_files/*
 **/*_cache/*
 !README_files/*
+!slides/*_files/*
 
 /.luarc.json
 

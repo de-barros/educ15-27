@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>Hypothesis testing</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas de Barros" />
+    <meta name="date" content="2026-10-31" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <!-- MathJax measures fonts through remark's scaling, so in a small window or an
+         embedded frame it shrinks math to half size. Fix the size instead. -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+    <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
+    <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/simulator.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: center middle main-title section-title-4
+
+# Hypothesis testing
+
+.class-info[
+
+**Topic 7 · Thursday, January 28, and Tuesday, February 2**
+
+.light[EDUC 15: Statistics for Education Research&lt;br&gt;
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[From a sample to a population]
+
+.center[**We are here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+We've moved. Until now we described what we saw. From today we use one sample to say something about a population we can't see.
+
+This topic takes two sessions, so six blocks in all.
+
+---
+
+class: title title-8
+
+# The question we keep asking
+
+.box-8.medium.sp-after-half[If what I think about the population is true, how weird is my sample?]
+
+.box-inv-8.small.sp-after-half[Topic 6 gave us the tool: z = (M − μ) / σ&lt;sub&gt;M&lt;/sub&gt; says how far a mean is from μ]
+
+.box-inv-8.small[Today's new question: how weird must it be before I change my mind?]
+
+???
+
+A z-score for a mean measures weirdness. A hypothesis test adds a rule, written down in advance, for what to do with that number.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[Two steps before any data]
+
+.box-6.medium.sp-after-half[Observe and decide]
+
+.box-3.medium.sp-after-half[When the decision is wrong]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: predict, try, play.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# Two steps before any data
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# The four steps of a hypothesis test
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th&gt; Step &lt;/th&gt;
+   &lt;th&gt; What we do &lt;/th&gt;
+   &lt;th&gt; On the blueprint &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td&gt; 1. State a null hypothesis, H&lt;sub&gt;0&lt;/sub&gt; &lt;/td&gt;
+   &lt;td&gt; Say what we assume about the population &lt;/td&gt;
+   &lt;td&gt; Panel 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt; 2. Set criteria &lt;/td&gt;
+   &lt;td&gt; Say what would be too unexpected if H&lt;sub&gt;0&lt;/sub&gt; is true &lt;/td&gt;
+   &lt;td&gt; Panel 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt; 3. Observe a sample &lt;/td&gt;
+   &lt;td&gt; Ask how unexpected this one sample is &lt;/td&gt;
+   &lt;td&gt; Panel 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt; 4. Reject or maintain H&lt;sub&gt;0&lt;/sub&gt; &lt;/td&gt;
+   &lt;td&gt; Decide what to believe about the population &lt;/td&gt;
+   &lt;td&gt; Back to panel 1 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-1.small[These same four steps return in every test this quarter: z, t, F and regression]
+
+???
+
+This is the thread of the course. If students remember one slide from this deck, it should be this one. The order on the blueprint is 1, 3, 2: we decide what's weird before we look at our sample.
+
+---
+
+# Step 1: State a null hypothesis
+
+.box-inv-1.small.sp-after-half[The null hypothesis, H&lt;sub&gt;0&lt;/sub&gt;, says that in the population there's no change, no difference or no relationship, or it names a specific value]
+
+.box-1.small.sp-after-half[Our example: a reading test has μ = 100 and σ = 15. A school tries a new program with 10 students]
+
+.pull-left[
+.box-inv-1.medium[H&lt;sub&gt;0&lt;/sub&gt;: μ = 100]
+
+.center[The program changes nothing]
+]
+
+.pull-right[
+.box-inv-1.medium[H&lt;sub&gt;1&lt;/sub&gt;: μ ≠ 100]
+
+.center[The program changes the mean]
+]
+
+.book-tag[H&lt;sub&gt;1&lt;/sub&gt; is the alternative hypothesis. It's everything H&lt;sub&gt;0&lt;/sub&gt; rules out]
+
+???
+
+These are always statements about the population, so they use Greek letters. Nobody writes H&lt;sub&gt;0&lt;/sub&gt;: M = 100, because we can see M.
+
+The numbers match the simulator's defaults on purpose.
+
+---
+
+# The truth stays hidden
+
+&lt;img src="07-hypothesis-testing_files/figure-html/pop-unknown-1.png" alt="Two normal curves of test scores with the same spread. The shaded curve, centered at 100, is what the null hypothesis says. A dashed curve centered at 113.4, labeled maybe, is one other possible population." width="86%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[Maybe the program really moved μ to 113.4. We can't see it]
+
+???
+
+H&lt;sub&gt;0&lt;/sub&gt; might be true or false. All we'll ever get is a sample. So the logic runs the other way: assume H&lt;sub&gt;0&lt;/sub&gt;, then see whether the sample fits. We come back to the dashed curve on Tuesday.
+
+---
+
+# Step 2: Say what's too unexpected
+
+&lt;img src="07-hypothesis-testing_files/figure-html/alpha-plot-1.png" alt="The standard normal curve of z-scores for sample means if the null hypothesis is true. The tail below z of minus 1.96 and the tail above z of 1.96 are shaded red. Each tail holds 2.5 percent of means." width="84%" style="display: block; margin: auto;" /&gt;
+
+.pull-left[
+.box-inv-1.small[The **alpha level**, α, is our cutoff. The usual choice is α = 0.05]
+]
+
+.pull-right[
+.box-inv-1.small[The **critical region** holds the 5% of means least likely if H&lt;sub&gt;0&lt;/sub&gt; is true]
+]
+
+???
+
+Alpha is also called the level of significance. ±1.96 comes from the table in Topic 5: 2.5% in each tail. We pick alpha before seeing any data.
+
+Now students can finally stop ignoring the red lines in the simulator.
+
+---
+
+class: title title-1 press-slide
+
+# Step 2 on the blueprint: press +500
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=2&amp;n=10&amp;view=stat&amp;d=0&amp;seed=64" title="Simulator with no samples drawn yet. The population has mean 100 and SD 15, H0 is true, and panel 3 shows the z curve with cutoffs at minus 1.96 and 1.96." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/1448ced3b61d.png" alt="Simulator with no samples drawn yet. The population has mean 100 and SD 15, H0 is true, and panel 3 shows the z curve with cutoffs at minus 1.96 and 1.96."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+These are the cutoffs from last class. There's no true effect here, so H&lt;sub&gt;0&lt;/sub&gt; is true. **Press +500.** Read "Beyond the cutoffs". It should say about 5%. Press +500 again if you like.
+
+---
+
+# About 5% land beyond the cutoffs
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=2&amp;n=10&amp;view=stat&amp;d=0&amp;draws=500&amp;seed=64" title="Simulator with 500 samples of 10 and no true effect. Panel 3 stacks the z-scores into a bell around 0. About 5 percent of the dots are red, beyond the cutoffs at minus 1.96 and 1.96." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/ec3260531394.png" alt="Simulator with 500 samples of 10 and no true effect. Panel 3 stacks the z-scores into a bell around 0. About 5 percent of the dots are red, beyond the cutoffs at minus 1.96 and 1.96."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The red dots are real samples from a population where H&lt;sub&gt;0&lt;/sub&gt; is true. They still land in the critical region. Hold on to that for block 3.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Ten times the sample
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+H&lt;sub&gt;0&lt;/sub&gt; is still true. With n = 10, about 5% of z-scores landed beyond ±1.96. Now each sample has 100 people. What share lands beyond ±1.96?
+]
+
+.options[
+.option[
+**A** Far less than 5%: bigger samples are more accurate
+]
+.option[
+**B** About 5%
+]
+.option[
+**C** Far more than 5%
+]
+.option[
+**D** It depends on the value of μ
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** Far less than 5%: bigger samples are more accurate
+]
+.option.correct[
+**B** About 5%
+]
+.option.wrong[
+**C** Far more than 5%
+]
+.option.wrong[
+**D** It depends on the value of μ
+]
+]
+
+.box-inv-8.small.sp-after-half[
+A bigger n does make means land closer to μ. But z divides by σ&lt;sub&gt;M&lt;/sub&gt;, which shrinks by just as much
+]
+
+.box-8.small[
+So z-scores keep the same curve, and α stays what we set it to
+]
+
+---
+
+class: title title-8
+
+# Predict it: Still about 5% at n = 100
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=2&amp;n=100&amp;view=stat&amp;d=0&amp;draws=500&amp;seed=64" title="Simulator with 500 samples of 100 and no true effect. Panel 3 is again a bell around 0, with about 5 percent of dots beyond the cutoffs at minus 1.96 and 1.96." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/d534b6863d54.png" alt="Simulator with 500 samples of 100 and no true effect. Panel 3 is again a bell around 0, with about 5 percent of dots beyond the cutoffs at minus 1.96 and 1.96."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Press +500 once or twice more, so the students see the share settle.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Observe and decide
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Step 3: Observe one sample
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=2&amp;n=10&amp;view=stat&amp;d=0&amp;draws=1&amp;seed=24308" title="Simulator with one sample of 10 from a population with mean 100. Panel 2 shows M = 105.5 and z = 1.16. In panel 3 that one z-score sits between the cutoffs." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/91d57a1f5e2d.png" alt="Simulator with one sample of 10 from a population with mean 100. Panel 2 shows M = 105.5 and z = 1.16. In panel 3 that one z-score sits between the cutoffs."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+This is the only sample a real researcher would see. Read panel 2 aloud: M = 105.5, z = 1.16, p = 0.246. The pink line in panel 3 shows where it falls. We work out the z and the p by hand next.
+
+---
+
+# Step 3: How far, in standard errors?
+
+.box-inv-6.small[First, the standard error]
+
+$$
+\sigma_M = \frac{\sigma}{\sqrt{n}} = \frac{15}{\sqrt{10}} = 4.74
+$$
+
+.box-inv-6.small[Then the test statistic: our mean sits 1.16 standard errors above what H&lt;sub&gt;0&lt;/sub&gt; says]
+
+$$
+z = \frac{M - \mu}{\sigma_M} = \frac{105.5 - 100}{4.74} = 1.16
+$$
+
+???
+
+The z-score is our *test statistic*: one number that says how far the sample is from H&lt;sub&gt;0&lt;/sub&gt;. Later tests swap in t and F, but they do the same job.
+
+---
+
+# Step 3: The p-value is an area
+
+&lt;img src="07-hypothesis-testing_files/figure-html/p-plot-1.png" alt="Standard normal curve. The area above z of 1.16 and the mirror area below minus 1.16 are shaded blue, 12.3% in each tail. Dashed lines mark the cutoffs at plus and minus 1.96, farther out than the shaded edges." width="86%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[The **p-value** is the probability of a mean at least this extreme, if H&lt;sub&gt;0&lt;/sub&gt; is true]
+
+???
+
+Both tails count, because H&lt;sub&gt;1&lt;/sub&gt; says μ ≠ 100: a surprise in either direction counts. From the table, the tail beyond 1.16 is 0.1231. Double it to get 0.246.
+
+So if H&lt;sub&gt;0&lt;/sub&gt; is true, 24.6% of samples of 10 land this far out or farther. That's not weird. The simulator gives p as a number, but it doesn't shade this area, which is why this one is a plot.
+
+---
+
+# Step 4: p is above α, so we maintain H&lt;sub&gt;0&lt;/sub&gt;
+
+&lt;div class="step-row"&gt;&lt;div class="box-1 step-card"&gt;&lt;b&gt;1. State a hypothesis&lt;/b&gt;&lt;br&gt;H&lt;sub&gt;0&lt;/sub&gt;: μ = 100&lt;/div&gt;&lt;div class="box-6 step-card"&gt;&lt;b&gt;2. Set criteria&lt;/b&gt;&lt;br&gt;α = 0.05&lt;/div&gt;&lt;div class="box-3 step-card"&gt;&lt;b&gt;3. Observe&lt;/b&gt;&lt;br&gt;−1.96 &amp;lt; z &amp;lt; 1.96&lt;br&gt;p = 0.246 &amp;gt; 0.05&lt;/div&gt;&lt;div class="box-8 step-card"&gt;&lt;b&gt;4. Decide&lt;/b&gt;&lt;br&gt;Here, maintain H&lt;sub&gt;0&lt;/sub&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;img src="07-hypothesis-testing_files/figure-html/decide-a-1.png" alt="Standard normal curve with both critical regions shaded red and labeled reject H0, and the middle labeled maintain H0. A line marks our z of 1.16, inside the maintain region." width="84%" style="display: block; margin: auto;" /&gt;
+
+???
+
+This is the summary box for the whole test. Two checks, same answer: z is not in the critical region, and p is bigger than alpha.
+
+The simulator stops at p. It doesn't write the decision, so that's our job.
+
+---
+
+# Maintaining H&lt;sub&gt;0&lt;/sub&gt; doesn't prove it
+
+.box-6.medium.sp-after-half[We looked for evidence against H&lt;sub&gt;0&lt;/sub&gt; and didn't find enough]
+
+.pull-left[
+.box-inv-6.small[A sample with M = 105.5 fits μ = 100]
+]
+
+.pull-right[
+.box-inv-6.small[It also fits μ = 104, or μ = 108]
+]
+
+.box-6.small[So we say "maintain H&lt;sub&gt;0&lt;/sub&gt;", and never "H&lt;sub&gt;0&lt;/sub&gt; is true"]
+
+.book-tag[In the book: "fail to reject H&lt;sub&gt;0&lt;/sub&gt;", which means the same]
+
+???
+
+Think of a court. "Not guilty" doesn't mean "innocent". It means the evidence fell short.
+
+---
+
+# What the p-value doesn't tell you
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th&gt; A common reading &lt;/th&gt;
+   &lt;th&gt; Why it's wrong &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td&gt; "There's a 24.6% chance that H&lt;sub&gt;0&lt;/sub&gt; is true" &lt;/td&gt;
+   &lt;td&gt; p assumes H&lt;sub&gt;0&lt;/sub&gt; is true, so it can't be the chance that it is &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt; "A small p means a big effect" &lt;/td&gt;
+   &lt;td&gt; p also depends on n. We show this on Tuesday &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt; "p &gt; 0.05 means there's no effect" &lt;/td&gt;
+   &lt;td&gt; The sample may just be too small to show it &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-6.small[p answers one question: if H&lt;sub&gt;0&lt;/sub&gt; is true, how unusual is a sample like mine?]
+
+???
+
+The first one is the most common mistake, among researchers too.
+
+---
+
+# The four steps, ready to use
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th&gt; Step &lt;/th&gt;
+   &lt;th&gt; In practice &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td&gt; 1. State H&lt;sub&gt;0&lt;/sub&gt; &lt;/td&gt;
+   &lt;td&gt; H&lt;sub&gt;0&lt;/sub&gt;: μ = some value, in the population &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt; 2. Set criteria &lt;/td&gt;
+   &lt;td&gt; Pick α. Find the critical values, such as z = ±1.96 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt; 3. Observe a sample &lt;/td&gt;
+   &lt;td&gt; Compute the test statistic: z = (M − μ) / σ&lt;sub&gt;M&lt;/sub&gt;. Find p &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td&gt; 4. Reject or maintain H&lt;sub&gt;0&lt;/sub&gt; &lt;/td&gt;
+   &lt;td&gt; Reject if z is in the critical region, which is the same as p &amp;lt; α &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-6.small[z and p always agree on the decision. Use whichever is quicker]
+
+???
+
+If z is past ±1.96, then p must be below 0.05, because that's how ±1.96 was chosen. This is the version to use on Friday's lab.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: The ninth graders
+
+.box-inv-8.small.sp-after-half[Treat all 619 Mindspark students as a population: at baseline, μ = 11.12 and σ = 3.90 in math]
+
+.box-inv-8.small.sp-after-half[The 84 ninth graders have M = 12.39. If they were a random draw from the 619, would that mean be too unexpected?]
+
+.box-8.small.sp-after-half[Run all four steps, with α = 0.05]
+
+.box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote: reject or maintain?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators and the table. Hands for the vote.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+&lt;div class="step-row"&gt;&lt;div class="box-1 step-card"&gt;&lt;b&gt;1. State a hypothesis&lt;/b&gt;&lt;br&gt;H&lt;sub&gt;0&lt;/sub&gt;: μ = 11.12&lt;/div&gt;&lt;div class="box-6 step-card"&gt;&lt;b&gt;2. Set criteria&lt;/b&gt;&lt;br&gt;α = 0.05, so z = ±1.96&lt;/div&gt;&lt;div class="box-3 step-card"&gt;&lt;b&gt;3. Observe&lt;/b&gt;&lt;br&gt;z = 2.99&lt;br&gt;p = 0.003 &amp;lt; 0.05&lt;/div&gt;&lt;div class="box-8 step-card"&gt;&lt;b&gt;4. Decide&lt;/b&gt;&lt;br&gt;Here, reject H&lt;sub&gt;0&lt;/sub&gt;&lt;/div&gt;&lt;/div&gt;
+
+.box-inv-8.small.sp-after-half[
+σ&lt;sub&gt;M&lt;/sub&gt; = 3.90 / √84 = 0.43, so z = (12.39 − 11.12) / 0.43 ≈ 2.99
+]
+
+.box-8.small[They don't look like a random draw from the 619. The test can't say why]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+They're in a higher grade, so a gap isn't a shock. Rejecting H&lt;sub&gt;0&lt;/sub&gt; tells us the gap is too big for sampling error alone. It says nothing about the cause.
+
+By hand, rounded inputs give about 2.95. Anything near 3 gives the same decision.
+
+For anyone who asks: the ninth graders are part of the 619, which makes the true standard error a little smaller. That doesn't change the point.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# When the decision is wrong
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# Same population, a different sample
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=2&amp;n=10&amp;view=stat&amp;d=0&amp;draws=1&amp;seed=4069" title="Simulator with a different sample of 10 from the same population with mean 100. Panel 2 shows M = 113.5 and z = 2.85. In panel 3 that z-score sits beyond the upper cutoff." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/c573a1b678d4.png" alt="Simulator with a different sample of 10 from the same population with mean 100. Panel 2 shows M = 113.5 and z = 2.85. In panel 3 that z-score sits beyond the upper cutoff."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same settings, just a different draw. M = 113.5, z = 2.85, p = 0.004. Ask what they'd conclude if this were their one sample.
+
+---
+
+# This sample says reject H&lt;sub&gt;0&lt;/sub&gt;
+
+&lt;div class="step-row"&gt;&lt;div class="box-1 step-card"&gt;&lt;b&gt;1. State a hypothesis&lt;/b&gt;&lt;br&gt;H&lt;sub&gt;0&lt;/sub&gt;: μ = 100&lt;/div&gt;&lt;div class="box-6 step-card"&gt;&lt;b&gt;2. Set criteria&lt;/b&gt;&lt;br&gt;α = 0.05&lt;/div&gt;&lt;div class="box-3 step-card"&gt;&lt;b&gt;3. Observe&lt;/b&gt;&lt;br&gt;z &amp;gt; 1.96&lt;br&gt;p = 0.004 &amp;lt; 0.05&lt;/div&gt;&lt;div class="box-8 step-card"&gt;&lt;b&gt;4. Decide&lt;/b&gt;&lt;br&gt;Here, reject H&lt;sub&gt;0&lt;/sub&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;img src="07-hypothesis-testing_files/figure-html/decide-b-1.png" alt="Standard normal curve with both critical regions shaded red and labeled reject H0. A line marks our z of 2.85, inside the upper critical region." width="72%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small[We'd write: the mean differs from 100, and it's **statistically significant** at the 5% level (p &lt; .05)]
+
+???
+
+"Statistically significant" is a technical phrase. It means only that p fell below alpha. It doesn't mean large or important: that's Tuesday.
+
+---
+
+# But we know H&lt;sub&gt;0&lt;/sub&gt; was true here
+
+.box-3.medium.sp-after-half[The simulator set μ = 100, and we still rejected H&lt;sub&gt;0&lt;/sub&gt;]
+
+.box-inv-3.small.sp-after-half[We would have falsely concluded that μ ≠ 100]
+
+.box-inv-3.small.sp-after-half[Nothing went wrong with the sample or the math. This was an unlucky draw]
+
+.box-3.small[In real research, nobody tells you afterward]
+
+???
+
+This is what a simulator gives us that real data can't: we know the truth, so we can see when a test gets it wrong.
+
+---
+
+# Two ways to be wrong
+
+&lt;table class="deck-table error-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Our decision &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; If H&lt;sub&gt;0&lt;/sub&gt; is true &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; If H&lt;sub&gt;0&lt;/sub&gt; is false &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Reject H&lt;sub&gt;0&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;b&gt;Type 1 error&lt;/b&gt;: a false alarm &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Correct &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Maintain H&lt;sub&gt;0&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Correct &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;b&gt;Type 2 error&lt;/b&gt;: a miss &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.pull-left[
+.box-inv-3.small[**Type 1 error:** rejecting H&lt;sub&gt;0&lt;/sub&gt; when it's true]
+]
+
+.pull-right[
+.box-inv-3.small[**Type 2 error:** failing to reject H&lt;sub&gt;0&lt;/sub&gt; when it's false]
+]
+
+.book-tag[In the book and the simulator: Type I and Type II]
+
+???
+
+We get to pick a row. We never get to see the column. Our last sample was the top-left cell, and the first one was the bottom-left cell.
+
+The simulator has no live version of this table, so we build it by hand.
+
+---
+
+# Every red dot is a false alarm
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=2&amp;n=10&amp;view=stat&amp;d=0&amp;draws=500&amp;seed=64" title="Simulator with 500 samples of 10 and no true effect. Each red dot beyond the cutoffs at minus 1.96 and 1.96 is a sample that would lead us to reject a true null hypothesis. About 5 percent of dots are red." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/ec3260531394.png" alt="Simulator with 500 samples of 10 and no true effect. Each red dot beyond the cutoffs at minus 1.96 and 1.96 is a sample that would lead us to reject a true null hypothesis. About 5 percent of dots are red."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+So this is what alpha means. By setting α = 0.05, we accept that 5% of the time when H&lt;sub&gt;0&lt;/sub&gt; is true, we'll make a Type 1 error. The chance of a Type 1 error is alpha. We chose it.
+
+---
+
+# α = 0.05 is a convention, not a law
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; α &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Critical z &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Type 1 errors, if H&lt;sub&gt;0&lt;/sub&gt; is true &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 0.10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ±1.64 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; About 1 sample in 10 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 0.05 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ±1.96 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; About 1 sample in 20 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 0.01 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ±2.58 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; About 1 sample in 100 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small.sp-after-half[Researchers mostly use 0.05, sometimes 0.01 or 0.10]
+
+.box-inv-3.small[p = 0.099 and p = 0.101 are nearly the same evidence, even if α = 0.10 splits them. Report the p-value, not just the verdict]
+
+???
+
+"Significant" and "not significant" sound like opposites. The evidence behind them can be almost the same. There's nothing special about any of these numbers.
+
+---
+
+layout: false
+class: title title-8
+
+# Play it: Name that error
+
+.pull-left-3[
+.box-inv-8.medium[100]
+
+.center[H&lt;sub&gt;0&lt;/sub&gt; is true, and you reject it]
+]
+
+.pull-middle-3[
+.box-inv-8.medium[200]
+
+.center[A program really works, but your small study maintains H&lt;sub&gt;0&lt;/sub&gt;]
+]
+
+.pull-right-3[
+.box-inv-8.medium[300]
+
+.center[Lowering α from 0.05 to 0.01 makes this error rarer, and this other one more likely]
+]
+
+.box-8.small.sp-after-half[Answer with a neighbor, as a question. Nothing is scored]
+
+???
+
+About 6 minutes. Read one clue at a time, in order. Take answers by hands or by calling out.
+
+---
+
+class: title title-8
+
+# Play it: Answers
+
+.pull-left-3[
+.box-inv-8.medium[100]
+
+.center[**What is a Type 1 error?**]
+
+.center[A false alarm]
+]
+
+.pull-middle-3[
+.box-inv-8.medium[200]
+
+.center[**What is a Type 2 error?**]
+
+.center[A miss]
+]
+
+.pull-right-3[
+.box-inv-8.medium[300]
+
+.center[**What are Type 1, then Type 2?**]
+
+.center[A stricter α means fewer alarms, and more misses]
+]
+
+???
+
+The 300 clue leads into Tuesday. We can't shrink both errors just by moving alpha. Power is about how else to reduce the misses.
+
+---
+
+class: title title-8
+
+# Before Tuesday
+
+.pull-left[
+.box-1.small[This Friday: Lab 4]
+
+Sampling distributions and the four steps. Bring a calculator and a laptop
+]
+
+.pull-right[
+.box-6.small[Over the weekend]
+
+Finish Chapter 8. Tuesday we ask: what if H&lt;sub&gt;0&lt;/sub&gt; is false?
+]
+
+.box-3.small[Mastery and Problem Set for Chapter 7 are due Sunday, January 31 at 6 PM]
+
+---
+
+name: session-2
+class: title title-8
+
+# Session 2: Tuesday, February 2
+
+.box-inv-8.small.sp-after-half[Thursday in one line: four steps, and two ways to get the decision wrong]
+
+.box-5.medium.sp-after-half[What if H&lt;sub&gt;0&lt;/sub&gt; is false?]
+
+.box-7.medium.sp-after-half[Power]
+
+.box-4.medium.sp-after-half[Planning a study, reading a result]
+
+???
+
+Three blocks of about 20 minutes, each ending with something to do: predict, predict, try.
+
+---
+
+layout: false
+class: center middle section-title section-title-5 animated fadeIn
+
+# What if H&lt;sub&gt;0&lt;/sub&gt; is false?
+
+---
+
+layout: true
+class: title title-5
+
+---
+
+# So far H&lt;sub&gt;0&lt;/sub&gt; was true. What if it isn't?
+
+&lt;img src="07-hypothesis-testing_files/figure-html/pop-gap-1.png" alt="Two normal curves of test scores with the same spread, centered at 100 and at 113.4. An arrow between the two centers reads 13.4 points, or 0.89 SD." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-5.small[Suppose the program really works, and the true mean is 113.4]
+
+???
+
+The dashed curve from Thursday. On Thursday we lived in the world where H&lt;sub&gt;0&lt;/sub&gt; is true. Now let's see what the test does when it's false.
+
+---
+
+# Effect size: how big is the gap, in SDs?
+
+$$
+\text{Cohen's } d = \frac{\mu_1 - \mu_0}{\sigma} = \frac{113.4 - 100}{15} = 0.89
+$$
+
+.pull-left[
+.box-inv-5.small[It has no units, so we can compare tests on different scales]
+]
+
+.pull-right[
+.box-inv-5.small[n isn't in the formula. It's about the size of the effect, not the sample]
+]
+
+.box-5.small[d is about the population, so we can only estimate it. Its estimate, Hedges' g, comes in Topic 8]
+
+.book-tag[In the book: g is called "estimated d"]
+
+???
+
+Cohen's d is a z-score for the effect: how far the true mean moved, in standard deviations. μ₀ is the value under H&lt;sub&gt;0&lt;/sub&gt;, and μ₁ is the true value in the world where the program works.
+
+---
+
+# Two worlds: where sample means land
+
+&lt;img src="07-hypothesis-testing_files/figure-html/worlds-plain-1.png" alt="Two bell curves of sample means with n of 10. The H0 world is centered at 100 and the H1 world at 113.4. Dashed lines mark the critical values at 90.7 and 109.3, worked out under H0." width="86%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-5.small[Critical values come from the H&lt;sub&gt;0&lt;/sub&gt; world. Any mean past them gets "reject"]
+
+???
+
+Each curve is the sampling distribution of M, with n = 10. Both have σ&lt;sub&gt;M&lt;/sub&gt; = 4.74. The critical values are 1.96 standard errors from 100: 90.7 and 109.3.
+
+A test doesn't know which world it's in. It just checks where M landed.
+
+---
+
+# Each kind of outcome is an area
+
+&lt;img src="07-hypothesis-testing_files/figure-html/worlds-shaded-1.png" alt="The same two curves. Under the H0 curve, the tails past the critical values are red and labeled alpha, the Type 1 error rate. Under the H1 curve, the part left of 109.3 is gold and labeled beta, the Type 2 error rate. The part right of 109.3 is blue and labeled power, one minus beta." width="86%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-5.small[**Power** is the chance of rejecting H&lt;sub&gt;0&lt;/sub&gt; when it's false. It's the opposite of a miss]
+
+.book-tag[Careful: β here is a probability. In regression, it will be a population slope]
+
+???
+
+Red is alpha, in the H&lt;sub&gt;0&lt;/sub&gt; world. Gold and blue split the H&lt;sub&gt;1&lt;/sub&gt; world at the critical value: gold is a miss, blue is a catch. They add up to 1, so power is 1 − β.
+
+There's a sliver of the H&lt;sub&gt;1&lt;/sub&gt; curve below 90.7 too, which also counts as power. It's too thin to see.
+
+Don't give the percentages yet: the next slide asks for them.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: How often do we catch it?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+The program works: μ = 113.4, so d = 0.89. We test it with n = 10 and α = 0.05, two-tailed. In what share of samples do we reject H&lt;sub&gt;0&lt;/sub&gt;?
+]
+
+.options[
+.option[
+**A** About 5%
+]
+.option[
+**B** About 50%
+]
+.option[
+**C** About 80%
+]
+.option[
+**D** About 100%
+]
+]
+
+???
+
+About 6 minutes. Students can reason from the last picture: how much of the H&lt;sub&gt;1&lt;/sub&gt; curve sits right of the critical value? Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** About 5%
+]
+.option.wrong[
+**B** About 50%
+]
+.option.correct[
+**C** About 80%
+]
+.option.wrong[
+**D** About 100%
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Power is 80%. So β is 20%: one real effect in five gets missed
+]
+
+.box-8.small[
+A is α: that's how often we reject when H&lt;sub&gt;0&lt;/sub&gt; is true
+]
+
+---
+
+class: title title-8
+
+# Predict it: About 80% get rejected
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=2&amp;n=10&amp;view=raw&amp;d=0.893&amp;draws=500&amp;seed=2" title="Simulator with 500 samples of 10 from a population with mean 113.4. In panel 3 the sample means pile up around 113, and about 80 percent of them are red, beyond the upper cutoff at 109.3." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/f79be62fd28d.png" alt="Simulator with 500 samples of 10 from a population with mean 113.4. In panel 3 the sample means pile up around 113, and about 80 percent of them are red, beyond the upper cutoff at 109.3."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Now H&lt;sub&gt;0&lt;/sub&gt; is false, and the population in panel 1 has mean 113.4. The dashed curve is still the H&lt;sub&gt;0&lt;/sub&gt; world, and this pile is the H&lt;sub&gt;1&lt;/sub&gt; world. Every red dot is a correct rejection, and every white dot is a Type 2 error. The readout gives the true power. Press +500 again to see the share settle.
+
+The link uses d = 0.893 so that the mean shows as 113.4. At d = 0.89 it would show 113.3.
+
+---
+
+layout: false
+class: center middle section-title section-title-7 animated fadeIn
+
+# Power
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# Power: catching a real effect
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=power&amp;d=0.89&amp;n=10" title="Simulator's Power tab with d of 0.89 and n of 10. Two curves, H0 and H1, with the critical values marked. The readout gives a Type I error rate of 5 percent, a Type II error rate of 20 percent and power of 80 percent." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/903524e21102.png" alt="Simulator's Power tab with d of 0.89 and n of 10. Two curves, H0 and H1, with the critical values marked. The readout gives a Type I error rate of 5 percent, a Type II error rate of 20 percent and power of 80 percent."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+This is the same picture as our two worlds, in SD units. If H&lt;sub&gt;1&lt;/sub&gt; is true, with this alpha, 80% of samples correctly reject H&lt;sub&gt;0&lt;/sub&gt;.
+
+Power of 0.80 is the usual target, in the same way α = 0.05 is: a convention. Drag d to 0 and power disappears from the readout, because H&lt;sub&gt;0&lt;/sub&gt; is then true.
+
+---
+
+# 1,000 samples fill in the table
+
+&lt;table class="deck-table error-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Our decision &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; H&lt;sub&gt;0&lt;/sub&gt; is true (μ = 100) &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; H&lt;sub&gt;0&lt;/sub&gt; is false (μ = 113.4) &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Reject H&lt;sub&gt;0&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;b&gt;29&lt;/b&gt; Type 1 errors &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;b&gt;412&lt;/b&gt; correct &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Maintain H&lt;sub&gt;0&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;b&gt;471&lt;/b&gt; correct &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;b&gt;88&lt;/b&gt; Type 2 errors &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.pull-left[
+.box-inv-7.small[First column: 29 of 500 is 5.8%. That estimates α = 5%]
+]
+
+.pull-right[
+.box-inv-7.small[Second column: 412 of 500 is 82.4%. That estimates power = 80%]
+]
+
+.source[Simulated in R: 500 samples of 10 from each population.]
+
+???
+
+Each column is one world, and each adds up to 500. Rates are read down a column, never across. The deck computes this table, because the simulator has no live version of it.
+
+---
+
+# Four ways to raise power
+
+.pull-left[
+.box-inv-7.small.sp-after-half[**1. Loosen α:** from 5% to 10%]
+
+.box-inv-7.small[**2. Use one tail:** a directional test]
+]
+
+.pull-right[
+.box-inv-7.small.sp-after-half[**3. Raise n:** more people per sample]
+
+.box-inv-7.small[**4. Find a larger effect:** a larger d]
+]
+
+.box-7.small[We start from d = 0.89, n = 10 and α = 5%, two-tailed, with power of 80%]
+
+???
+
+We'll change one thing at a time, and use the Power tab for each. Ask students to guess which moves the blue area the most.
+
+---
+
+# Way 1: Looser α lifts power to 88%
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=power&amp;d=0.89&amp;n=10&amp;alpha=0.1" title="Power tab with alpha of 10 percent. The critical values move toward the center, so more of the H1 curve is past them. Power reads 88%." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/8cf1adf380b3.png" alt="Power tab with alpha of 10 percent. The critical values move toward the center, so more of the H1 curve is past them. Power reads 88%."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The critical value drops from 1.96 to 1.65, so more of H&lt;sub&gt;1&lt;/sub&gt; is past it. The tool shows 1.64, because the exact value is 1.645. The cost shows in red: Type 1 errors double. Move the Alpha slider live from 0.05 to 0.10.
+
+---
+
+# A directional test puts all of α in one tail
+
+&lt;img src="07-hypothesis-testing_files/figure-html/tails-plot-1.png" alt="Two normal curves. The left curve, two-tailed, has 2.5 percent shaded in each tail beyond minus and plus 1.96. The right curve, one-tailed, has 5 percent shaded in the upper tail only, beyond 1.64." width="90%" style="display: block; margin: auto;" /&gt;
+
+.pull-left[
+.box-inv-7.small[H&lt;sub&gt;0&lt;/sub&gt;: μ ≤ 100 and H&lt;sub&gt;1&lt;/sub&gt;: μ &gt; 100. α stays at 5%, so the cutoff moves in]
+]
+
+.pull-right[
+.box-inv-7.small[Choose the direction before seeing the data. An effect the other way can't be found]
+]
+
+???
+
+The total risk of a Type 1 error stays at 5%. All of it now sits where we expect the effect, so the critical value falls from 1.96 to 1.65, as in the book's table. The simulator shows 1.64, because the exact value is 1.645.
+
+Choosing a direction after looking at the data would double the real alpha.
+
+---
+
+# Way 2: One tail lifts power to 88%
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=power&amp;d=0.89&amp;n=10&amp;tails=one" title="Power tab with a one-tailed test. There's one critical value, at z of 1.64, and one red tail. Power reads 88%." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/c89e0152fe3e.png" alt="Power tab with a one-tailed test. There's one critical value, at z of 1.64, and one red tail. Power reads 88%."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same power as way 1, and that's not a coincidence. Both put the upper cutoff at 1.65. The difference: here the total Type 1 risk stays at 5%. The cost is that an effect in the other direction can't be found at all.
+
+---
+
+# Way 3: Larger n lifts power to 93%
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=power&amp;d=0.89&amp;n=15" title="Power tab with n of 15. Both curves are narrower, so they overlap less. Power reads 93%." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/9b6c4e23792b.png" alt="Power tab with n of 15. Both curves are narrower, so they overlap less. Power reads 93%."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Remember Topic 6: a larger n makes the sampling distribution pointier. Both curves narrow and pull apart. Going from 10 to 15 raises power to 93%, with α still at 5%. The cost is real: more participants, more money.
+
+---
+
+# Way 4: Larger d lifts power to 92%
+
+&lt;div class="sim-slide" style="height: 492px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=power&amp;d=1.07&amp;n=10" title="Power tab with d of 1.07. The H1 curve moves right, farther past the critical value. Power reads 92%." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/e4b13f7ff2ea.png" alt="Power tab with d of 1.07. The H1 curve moves right, farther past the critical value. Power reads 92%."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+A bigger difference is easier to catch. The H&lt;sub&gt;1&lt;/sub&gt; curve shifts right. We can't simply choose this one, but we can run a stronger version of a program, or use a test that's closer to what the program teaches.
+
+---
+
+# The four ways, side by side
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Change &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Power &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; What it costs &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Start: d = 0.89, n = 10, α = 5%, two-tailed &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 80% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. Loosen α to 10% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 88% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Twice the Type 1 errors &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. One-tailed test &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 88% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Blind to an effect in the other direction &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3. n = 15 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 93% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; More students, more money &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. d = 1.07 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 92% &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Needs a stronger program or a better-matched test &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-7.small[Only ways 3 and 4 raise power without touching what we count as evidence]
+
+???
+
+Numbers are computed from the normal curve with pnorm and qnorm, and they match the Power tab.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: Rescue a weak study
+
+.box-inv-8.small.sp-after-half[A real but small effect: d = 0.20. With n = 10 and α = 5%, power is only 10%]
+
+.box-8.small.sp-after-half[Which rescue helps more?]
+
+.options[
+.option[
+**A** Loosen α to 10%
+]
+.option[
+**B** Raise n from 10 to 40
+]
+.option[
+**C** They help about the same
+]
+]
+
+.box-inv-8.small[Then the Power tab decides]
+
+???
+
+About 6 minutes. Ask a neighbor, then hands. On the next slide, move one slider at a time.
+
+---
+
+class: title title-8
+
+# Predict it: Move the sliders
+
+&lt;div class="sim-slide" style="height: 415px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=power&amp;d=0.2&amp;n=10" title="Power tab with d of 0.2 and n of 10. The two curves overlap almost completely. Power reads 10%." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/17cb02f0a476.png" alt="Power tab with d of 0.2 and n of 10. The two curves overlap almost completely. Power reads 10%."&gt;
+&lt;/div&gt;
+
+.box-8.small[α = 10% gives 17%. n = 40 gives 24%. Both are far from 80%]
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The answer is B. Alpha can only shuffle the cutoff. Sample size pulls the curves apart. But even at n = 40, this study misses most of the time, which is the point of the next block.
+
+---
+
+layout: false
+class: center middle section-title section-title-4 animated fadeIn
+
+# Planning a study, reading a result
+
+---
+
+layout: true
+class: title title-4
+
+---
+
+# Two questions before any data
+
+.box-inv-4.small.sp-after-half[The book finds the power of one test. Researchers usually fix power at 80% and turn the question around]
+
+.pull-left[
+.box-4.small[I know my n]
+
+How small an effect can I detect with 80% power? This is the **minimal detectable effect**
+]
+
+.pull-right[
+.box-4.small[I know my effect]
+
+How many people do I need for 80% power? This is the **required sample size**
+]
+
+???
+
+Both answers rest on one fact, which is on the next slide. Funders ask these questions, and every grant proposal answers them.
+
+---
+
+# Where 2.80 comes from
+
+&lt;img src="07-hypothesis-testing_files/figure-html/why-280-1.png" alt="Two bell curves of sample means, centered at 100 and at 113.3. A line marks the critical value at 109.3. A bracket shows 1.96 standard errors from the H0 mean to the critical value, and 0.84 standard errors from the critical value to the H1 mean, for 2.80 in all." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-4.small[For 80% power, μ must sit 1.96 + 0.84 = 2.80 standard errors from 100]
+
+???
+
+1.96 gets us from the H&lt;sub&gt;0&lt;/sub&gt; mean to the critical value. Then 80% of the H&lt;sub&gt;1&lt;/sub&gt; curve must lie past that value, and z = 0.84 is the 80th percentile of a normal curve. Add them up. This is why 2.80 shows up in power calculations everywhere.
+
+---
+
+# Two formulas, one idea
+
+.pull-left[
+.box-4.small[Minimal detectable effect]
+
+&lt;div class="math-display"&gt;\[
+d = \frac{1.96 + 0.84}{\sqrt{n}}
+\]&lt;/div&gt;
+
+.center[With n = 10: 2.80 / √10 = **0.89**]
+]
+
+.pull-right[
+.box-4.small[Required sample size]
+
+&lt;div class="math-display"&gt;\[
+n = \left(\frac{1.96 + 0.84}{d}\right)^2
+\]&lt;/div&gt;
+
+.center[With d = 0.89: (2.80 / 0.89)² = **9.9**, so 10]
+]
+
+.box-inv-4.small[That's why n = 10 had 80% power for d = 0.89. These use d in SD units, so σ = 1]
+
+???
+
+In points rather than SDs, multiply the left formula by σ: 2.80 × 15 / √10 = 13.3 points, so a true mean of about 113.3. Always round a sample size up.
+
+These are for one mean against a known μ, as in this topic. Comparing two groups takes about four times as many people in total. We'll meet that case in Topic 9.
+
+---
+
+# In education, an effect of 0.5 SD is rare
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Which studies &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Mean &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Median &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 90th percentile &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; All &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.16 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.47 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Math tests &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.07 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.37 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 100 students or fewer &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.30 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.24 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.77 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; More than 2,000 students &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.05 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.03 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.17 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-4.small.sp-after-half[Effects from randomized trials of education programs, in SD units. Bigger studies find smaller effects]
+
+.box-4.small[Mindspark's endline gap, 2.69 points, is about 0.46 SD: very large here]
+
+.book-tag[Please ignore the book's Table 8.2, where 0.2 is "small" and 0.8 is "large"]
+
+.source[Effects: Kraft (2020), *Educational Researcher*, 49(4). Mindspark: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Kraft collected 1,942 effects from 747 randomized trials, with standardized achievement tests. Cohen's labels would call most real education programs tiny. By Kraft's numbers, 0.10 is about typical, and it gets even smaller at scale.
+
+Mindspark's number here is the plain endline gap divided by the pooled SD of raw scores. The published estimates use scaled scores and adjust for baseline, so they differ. And note it's an estimate, so in our notation it's a g.
+
+Our running d of 0.89 would sit far above the 90th percentile of this table. It keeps the pictures readable, but it isn't realistic.
+
+---
+
+# Statistical significance isn't importance
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Sample size &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Effect &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; z &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; p &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Decision &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 100 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; d = 0.05 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.50 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.617 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Maintain H&lt;sub&gt;0&lt;/sub&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 1,000 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; d = 0.05 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.58 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.114 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Maintain H&lt;sub&gt;0&lt;/sub&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 10,000 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; d = 0.05 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.00 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &amp;lt; 0.001 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Reject H&lt;sub&gt;0&lt;/sub&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-4.small.sp-after-half[Same tiny effect, opposite verdicts. With a large n, the sampling distribution gets so narrow that even small effects are significant]
+
+.box-4.small[Significance says an effect is detectable. Its size says if it matters]
+
+???
+
+Each row assumes the sample shows exactly d = 0.05, so z = d × √n. The verdict changed. The effect didn't.
+
+The opposite also happens: a large effect in a small study can be "not significant". So when you read a result, ask two questions. Is it significant? And how big is it, compared with what's realistic?
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Plan two studies
+
+.box-inv-8.small.sp-after-half[Use power of 80% and α = 0.05, two-tailed. The multiplier is 2.80]
+
+.pull-left[
+.box-8.small[Study A]
+
+You can test 25 students. What's the smallest effect you can detect? Is it realistic, by Kraft's table?
+]
+
+.pull-right[
+.box-8.small[Study B]
+
+You expect Kraft's median effect, d = 0.10. How many students do you need?
+]
+
+.box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote]
+
+.source[Effects: Kraft (2020), *Educational Researcher*, 49(4).]
+
+???
+
+About 6 minutes, with calculators.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-8.small[Study A]
+
+2.80 / √25 = **0.56** SD
+
+That's above the 90th percentile of all studies in Kraft's table. This study would miss most real programs
+]
+
+.pull-right[
+.box-8.small[Study B]
+
+(2.80 / 0.10)² = **784** students
+
+Realistic effects need big samples
+]
+
+.box-inv-8.small[Small studies mostly find nothing, and when they do find something, it tends to be overstated]
+
+.source[Effects: Kraft (2020), *Educational Researcher*, 49(4).]
+
+???
+
+Using the unrounded multiplier in Study B gives 785, so either is fine.
+
+The last line is one reason the table's row for small studies has such a large mean: small studies only reach significance when their estimate lands far out, and journals favor those.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Run the four steps: state H&lt;sub&gt;0&lt;/sub&gt;, set criteria, observe a sample, reject or maintain]
+
+.box-inv-8.small[Say what a p-value is, and what it isn't]
+
+.box-inv-8.small[Tell a Type 1 error from a Type 2 error, and locate α, β and power on two curves]
+
+.box-inv-8.small[Compute Cohen's d, and name four ways to raise power]
+
+.box-inv-8.small[Find a minimal detectable effect and a required sample size]
+
+.box-inv-8.small[Explain why statistical significance isn't importance]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Before Thursday]
+
+Read Chapter 9 on the t-test, for when σ is unknown
+]
+
+.pull-right[
+.box-6.small[This Friday: Lab 5]
+
+Jeopardy, as midterm review. Bring a calculator
+]
+
+.box-3.small[Mastery and Problem Set for Chapters 8 and 9 are due Sunday, February 7 at 6 PM. The midterm is Thursday, February 11]
+
+&lt;style type="text/css"&gt;
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.5em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+  text-align: left;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+table.error-table td {
+  padding: 0.6em;
+}
+
+/* Subscripts shouldn't push a title or a line of text out of place */
+.remark-slide-content sub {
+  line-height: 0;
+}
+
+.remark-slide-content h1 sub {
+  font-size: 0.6em;
+}
+
+/* The summary of the four steps, one box per step */
+.step-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4em;
+  margin-bottom: 0.4em;
+}
+
+.step-card {
+  font-size: 0.62em;
+  line-height: 1.25;
+  padding: 0.4em 0.3em;
+  margin: 0;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.9em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide. A slide that
+   waits for a live button press would print empty, so it goes too */
+@media print {
+  .remark-slide-container:has(.poll-answer),
+  .remark-slide-container:has(.press-slide) {
+    display: none !important;
+  }
+}
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "navigation": {
+    "scroll": true
+  },
+  "incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

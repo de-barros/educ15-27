@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>Regression: is the slope real?</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas de Barros" />
+    <meta name="date" content="2026-10-31" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <!-- MathJax measures fonts through remark's scaling, so in a small window or an
+         embedded frame it shrinks math to half size. Fix the size instead. -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+    <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
+    <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/simulator.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: center middle main-title section-title-4
+
+# Regression: is the slope real?
+
+.class-info[
+
+**Topic 13 · Thursday, March 4**
+
+.light[EDUC 15: Statistics for Education Research&lt;br&gt;
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Does one score go with another?]
+
+.box-inv-6.small[Use one score to predict another]
+
+.box-inv-6.small[Is the slope real?]
+
+.center[**We are here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Same map. On Tuesday we found a line. Today we ask whether its slope could be a fluke of the sample. It's the last new statistic in our blueprint.
+
+---
+
+class: title title-8
+
+# Same four steps, one new statistic
+
+.box-inv-8.small.sp-after-half[Step 1: State a hypothesis about the slope in the population]
+
+.box-inv-8.small.sp-after-half[Step 2: Set the criteria: how far from 0 must our slope be to count as unexpected?]
+
+.box-8.small.sp-after-half[Step 3: Observe a sample and find b. How unexpected is it, if the true line is flat?]
+
+.box-inv-8.small[Step 4: Reject or maintain H₀]
+
+???
+
+The same four steps as z, t and F. Step 3 gets a new standard error, and that's most of what's new today.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[A slope bounces]
+
+.box-6.medium.sp-after-half[Testing the slope]
+
+.box-3.medium.sp-after-half[F, r² and R's output]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: predict, try, play. The running question is still whether baseline math predicts endline math.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# A slope bounces
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Eight students at a time, the line swings
+
+&lt;img src="13-regression-inference_files/figure-html/swing-plot-1.png" alt="The scatter plot of 539 students in pale dots, with baseline math on the horizontal axis and endline math on the vertical axis. A thick dark line shows their slope of 0.76. Thirty thin lines, one from each random sample of 8 students, cross it at many angles. Some are nearly flat, and others are much steeper." width="82%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[Treat our 539 students as a population. Each sample of 8 gets its own line]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Samples drawn by computer, with replacement. Dots are nudged.]
+
+???
+
+Tuesday ended with three slopes: −2.50, 2.25 and 0.76. Same test, same schools. Here's why. Every thin line is a line we might have reported, if a different 8 students had landed in our sample.
+
+Each thin line only runs across its own sample's baseline scores. The short ones are samples with little spread in X, and they swing the most. Hold that thought for the poll.
+
+---
+
+# β is the slope for everyone
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Our estimate &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; In the population &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mean &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; M &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; μ &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Correlation &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; r &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ρ &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;Slope&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;b&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;β&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-1.small.sp-after-half[2.25 and 0.76 are values of b. Never call an estimate beta]
+
+.box-inv-1.small[A population line uses plain numbers, such as Y = 2.00 + 0.50X, so β = 0.50 here]
+
+.book-tag[Careful: in Topic 7, β was the Type 2 error rate. Here it's a slope. Same letter, different job]
+
+???
+
+The rule from Topic 3 again. Greek means population. The 2024 slides wrote "beta = 2.25", which was a slip: 2.25 is an estimate.
+
+We don't write α for the population's intercept, because α already has a job as well.
+
+---
+
+# Same frame, new statistic
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Blueprint step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Panel 1: population &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Panel 2: one sample &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Panel 3: many samples &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. One mean &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A curve with μ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; n scores, one M &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A pile of M &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Two means &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Two curves &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Two groups, M₁ − M₂ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A pile of M₁ − M₂ &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 5. Two or more means &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Three curves &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Three groups, one F &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A pile of F &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 6. A correlation &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A cloud with ρ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; n dots, one r &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; A pile of r &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;7a. A slope&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;A line with β&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;n dots, one b&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;A pile of b&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-1.small[The three panels never change. Only the statistic does]
+
+???
+
+This is the blueprint from Topic 6, and it's the last new row. Panel 1 is what we can't see. Panel 2 is the one sample we get. Panel 3 is every sample we could have got.
+
+---
+
+# Step 7a: Every sample draws its own line
+
+&lt;div class="sim-slide" style="height: 495px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=7&amp;n=8&amp;d=0.5&amp;a=2&amp;view=raw&amp;draws=551&amp;seed=15" title="Simulator at step 7a with 551 samples of 8 pairs. Panel 1 shows a cloud around the population line Y = 2.00 + 0.50 X. Panel 2 shows one sample's 8 dots and its own line. Panel 3 shows the values of b piled up around 0.50, from below 0 to above 1." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/43f91e7ef29a.png" alt="Simulator at step 7a with 551 samples of 8 pairs. Panel 1 shows a cloud around the population line Y = 2.00 + 0.50 X. Panel 2 shows one sample's 8 dots and its own line. Panel 3 shows the values of b piled up around 0.50, from below 0 to above 1."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+
+???
+
+**Press +1 a few times.** A sample of 8 falls from panel 1 to panel 2, gets its own line, and one b drops into panel 3. Then press +50.
+
+Same story as M and r. The pile is centered on the true slope, 0.50. The population line is Y = 2.00 + 0.50X. It's in plain numbers, not in points on our test.
+
+Panel 3's axis fits itself to each preset, so read its numbers before comparing two views.
+
+---
+
+# Our 8 students' b came from the far tail
+
+&lt;img src="13-regression-inference_files/figure-html/pile-plot-1.png" alt="Histogram of b across 20,000 samples of 8 students, drawn from all 539. It's centered on 0.76, the slope of all students, and most values fall between −0.48 and 1.87. A red line at 2.25, the slope of our 8 students, sits far out in the right tail." width="82%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[The middle 95% runs from −0.48 to 1.87, and only 0.9% of samples reach 2.25. The SD of this pile is the standard error of b]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 20,000 samples of 8, drawn with replacement.]
+
+???
+
+The same pile, on our own students. Here we know the answer, because we're treating the 539 as the population, so β = 0.76. In real research, panel 1 goes dark, and one sample has to tell us how wide the pile is. That's the job of block 2.
+
+Students 25 to 32 aren't a random sample, just neighbors in a file. Their slope is high partly because their baseline scores sit so close together, which is the next point.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Which slope bounces more?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Two studies draw 30 Mindspark students, again and again. Study A takes any baseline score. Study B takes only baseline scores from 8 to 14. Whose b bounces more from sample to sample?
+]
+
+.options[
+.option[
+**A** Study A
+]
+.option[
+**B** Study B
+]
+.option[
+**C** About the same
+]
+.option[
+**D** We can't tell without β
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes for this slide and the next two. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** Study A
+]
+.option.correct[
+**B** Study B
+]
+.option.wrong[
+**C** About the same
+]
+.option.wrong[
+**D** We can't tell without β
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Across 5,000 samples, b has an SD of 0.24 in Study A and 0.53 in Study B
+]
+
+.box-8.small[
+A line through a narrow band of X is like a seesaw on a short plank. Small bumps tip it a lot
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+class: title title-8
+
+# Predict it: Narrow X, wobbly slope
+
+&lt;img src="13-regression-inference_files/figure-html/band-plot-1.png" alt="Two histograms of b across 5,000 samples of 30 students, on the same axis. With any baseline score, b stays in a narrow pile around 0.8, with an SD of 0.24. With baseline scores from 8 to 14, the pile is more than twice as wide, with an SD of 0.53." width="90%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-8.small[Same number of students. The only change is how far apart they are on X]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 5,000 samples of each, drawn with replacement.]
+
+???
+
+Topic 11 said a narrow range hides a correlation. Here's the same problem for a slope. Compare with the pile for n = 8 a few slides back: more students narrow the pile too.
+
+Both piles sit close to the same slope: 0.77 and 0.66. Study B draws from the 353 students between 8 and 14.
+
+Design lesson: if you get to choose your X values, spread them out.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Testing the slope
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Steps 1 and 2: H₀ says the line is flat
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; In words &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Our 8 students &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. State H₀ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Baseline predicts nothing about endline, in the population &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; H₀: β = 0&lt;br&gt;H₁: β ≠ 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. Set the criteria &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Two tails, α = 0.05, and a t curve &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; df = n − 2 = 6&lt;br&gt;t(6) beyond ±2.447 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-6.small[We found b = 2.25. Would a slope that steep be surprising, if the true line were flat?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+Back to our 8 students from Tuesday. Two tails is our default. Why n − 2? The line spends two degrees of freedom, one on a and one on b. Topic 11 got the same df from the two means.
+
+H₀ doesn't have to be 0. It's almost always 0, because "no relationship" is the question people ask.
+
+---
+
+# Under H₀, sample lines still tilt
+
+&lt;div class="sim-slide" style="height: 495px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=7&amp;n=8&amp;d=0&amp;a=2&amp;view=stat&amp;draws=551&amp;seed=15" title="Simulator at step 7a with 551 samples of 8 pairs from a population with a flat line, Y = 2.00 + 0.00 X. Panel 2 shows one sample whose own line tilts anyway. Panel 3 shows t values stacked along a t curve with 6 degrees of freedom, with cutoffs near plus and minus 2.45." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/e63e750a72f6.png" alt="Simulator at step 7a with 551 samples of 8 pairs from a population with a flat line, Y = 2.00 + 0.00 X. Panel 2 shows one sample whose own line tilts anyway. Panel 3 shows t values stacked along a t curve with 6 degrees of freedom, with cutoffs near plus and minus 2.45."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Here β = 0, the world H₀ describes. The population line is flat, yet panel 2's line still tilts. Panel 3 turns each b into a t. About 5% of them land beyond the cutoffs, which are the ±2.447 from step 2.
+
+**Press +1 a few times** and watch a dot land past a cutoff now and then. Each one is a Type 1 error.
+
+---
+
+# Three things narrow the pile
+
+&lt;div class="math-display"&gt;\[
+\hat{\sigma}_b = \sqrt{\frac{MS_{residual}}{SS_X}}
+\qquad \text{where} \qquad
+MS_{residual} = \frac{SS_{residual}}{n - 2}
+\]&lt;/div&gt;
+
+.pull-left-3[
+.box-inv-6.small[Tight dots: small MS&lt;sub&gt;residual&lt;/sub&gt;]
+]
+
+.pull-middle-3[
+.box-inv-6.small[Wide X: big SS&lt;sub&gt;X&lt;/sub&gt;]
+]
+
+.pull-right-3[
+.box-inv-6.small[More students: big SS&lt;sub&gt;X&lt;/sub&gt;]
+]
+
+.box-6.small[It has the shape of σ̂&lt;sub&gt;M&lt;/sub&gt; = σ̂ / √n: the scatter, over how much information we have]
+
+.book-tag[In the book: √MS&lt;sub&gt;residual&lt;/sub&gt; is the standard error of estimate. Software calls σ̂&lt;sub&gt;b&lt;/sub&gt; the "Std. Error"]
+
+???
+
+MS residual is the average squared miss from Tuesday, with n − 2 on the bottom. It's our estimate of the variance around the line.
+
+Students don't need to derive this. They should be able to say why each of the three things helps. The first was the loose and tight dots on Tuesday, and the second was the poll.
+
+---
+
+# Step 3: The same fraction again
+
+&lt;div class="math-display"&gt;\[
+MS_{residual} = \frac{58.5}{6} = 9.75
+\qquad\qquad
+\hat{\sigma}_b = \sqrt{\frac{9.75}{24}} = 0.637
+\]&lt;/div&gt;
+
+&lt;div class="math-display"&gt;\[
+t = \frac{b - \beta}{\hat{\sigma}_b} = \frac{2.25 - 0}{0.637} = 3.53
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-6.small[Top: how far b is from H₀'s β of 0]
+]
+
+.pull-right[
+.box-inv-6.small[Bottom: how far a b typically falls]
+]
+
+.box-6.small[3.53 is beyond ±2.447, so we reject H₀: t(6) = 3.53, p = 0.012]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32. SS&lt;sub&gt;residual&lt;/sub&gt; is from Topic 12, SS&lt;sub&gt;X&lt;/sub&gt; from Topic 11.]
+
+???
+
+SS residual = 58.5 is the "Least squares" total from Tuesday's curve. SS&lt;sub&gt;X&lt;/sub&gt; = 24 is from Topic 11.
+
+Decision wording as in Topic 7: this slope would be surprising if the true line were flat, so we reject H₀.
+
+---
+
+# It's Topic 11's t, to the last decimal
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Our 8 students &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Bottom of the fraction &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; t &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Topic 11: test r &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; σ̂&lt;sub&gt;r&lt;/sub&gt; = √((1 − r²) / (n − 2)) = 0.233 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.822 / 0.233 = &lt;strong&gt;3.53&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Today: test b &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; σ̂&lt;sub&gt;b&lt;/sub&gt; = √(MS&lt;sub&gt;residual&lt;/sub&gt; / SS&lt;sub&gt;X&lt;/sub&gt;) = 0.637 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2.25 / 0.637 = &lt;strong&gt;3.53&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-6.small.sp-after-half[b is r, rescaled into points. The same rescaling turns σ̂&lt;sub&gt;r&lt;/sub&gt; into σ̂&lt;sub&gt;b&lt;/sub&gt;, so the fraction doesn't change]
+
+.box-6.small[H₀: ρ = 0 and H₀: β = 0 are one question. If r is 0, b is 0]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+Topic 12 showed b = r × σ̂&lt;sub&gt;Y&lt;/sub&gt; / σ̂&lt;sub&gt;X&lt;/sub&gt;. Multiply the top and bottom of Topic 11's fraction by that same ratio, and you get today's fraction. In numbers, 0.233 × 2.739 = 0.637.
+
+The 2024 deck got 3.51 from r rounded to 0.82, and said the two routes differ by rounding. With three decimals in r, they agree.
+
+---
+
+# Eight students or 539: reject H₀
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Our 8 students &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; All 539 students &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. State H₀ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; β = 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; β = 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. Set the criteria &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t(6) beyond ±2.447 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t(537) beyond ±1.964 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3. Find the spread &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; σ̂&lt;sub&gt;b&lt;/sub&gt; = √(9.75 / 24) = 0.637 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; σ̂&lt;sub&gt;b&lt;/sub&gt; = √(26.66 / 8,269) = 0.057 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3. Compute t &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; b = 2.25, t = 3.53 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; b = 0.76, t = 13.46 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Decide &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Reject H₀: 3.53 &gt; 2.447 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Reject H₀: 13.46 &gt; 1.964 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-6.small.sp-after-half[Eight students: b = 2.25, t(6) = 3.53, p = 0.012, r² = 0.675]
+
+.box-6.small[All 539: Ŷ = 8.87 + 0.76X, t(537) = 13.46, p &lt; 0.001, r² = 0.252]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The right-hand column is the real test. With 539 students, σ̂&lt;sub&gt;b&lt;/sub&gt; is about a tenth of what it was with 8, so t is much larger even though b is smaller.
+
+Our line matches 2024: 8.87 and 0.76. The numbers on the bottom of step 3 come from SS residual = 14,314 and df = 537.
+
+---
+
+# An interval for β, the Topic 8 way
+
+&lt;img src="13-regression-inference_files/figure-html/interval-plot-1.png" alt="Two horizontal 95 percent intervals for the slope, with a dashed vertical line at 0. For our 8 students, the interval runs from 0.69 to 3.81 around 2.25. For all 539 students, it runs from 0.65 to 0.88 around 0.76. Neither interval reaches 0." width="90%" style="display: block; margin: auto;" /&gt;
+
+.pull-left[
+.box-inv-6.small[8 students: 2.25 ± 2.447 × 0.637]
+]
+
+.pull-right[
+.box-inv-6.small[All 539: 0.76 ± 1.964 × 0.057]
+]
+
+.box-6.small[Neither interval holds 0, so both tests reject. It's the rule from Topic 8]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Same recipe as Topic 8: the t cutoff from step 2, times the standard error. Students could do this on a calculator. The interval says something a t alone doesn't: with all 539, a point at baseline goes with about 0.65 to 0.88 points at endline.
+
+The 95% is about the method, as in Topic 8, not about this one interval. The test also assumes the line is straight and the misses are independent, which is another reason to plot first.
+
+---
+
+# Real, big and causal are three questions
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Question &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; What answers it &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; All 539 students &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Is the slope real? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The test: t and p &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Yes: t(537) = 13.46, p &amp;lt; 0.001 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; How big is it? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; b in points, and r² &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.76 points per point, r² = 0.252 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Did X cause Y? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The design, not the test &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; We can't say: no lottery set baseline scores &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-6.small[Rejecting H₀ says the line isn't flat, not that it's steep. With enough students, a tiny slope passes too]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+"Is the slope real?" has a modest answer. It says we don't think the true line is flat. Nobody doubted that baseline and endline math scores go together, so H₀ was a low bar here.
+
+The same point came up with effect sizes in Topic 8 and with correlation in Topic 11. Topic 14 uses a slope that a lottery set, where the third question gets a better answer.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Nine fifth graders' slope
+
+.pull-left[
+.box-inv-8.small[n = 9]
+
+.box-inv-8.small[b = 0.489]
+
+.box-inv-8.small[SS&lt;sub&gt;X&lt;/sub&gt; = 412]
+
+.box-inv-8.small[SS&lt;sub&gt;residual&lt;/sub&gt; = 191.2]
+]
+
+.pull-right[
+.box-8.small.sp-after-half[Test H₀: β = 0 with α = 0.05 and two tails. The cutoff is t(7) = ±2.365]
+
+.box-inv-8.small[Find MS&lt;sub&gt;residual&lt;/sub&gt;, then σ̂&lt;sub&gt;b&lt;/sub&gt;, then t. Then decide]
+]
+
+.box-inv-8.small[First, predict: Topic 11 tested these students' r. What will t be today? Then work alone, compare with a neighbor, and vote with hands: reject or maintain?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Some students will remember that Topic 11's answer was t = 1.90. That's the point. Common slip: using n − 1 for MS residual, or forgetting the square root.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left-3[
+.box-inv-8.small[MS&lt;sub&gt;residual&lt;/sub&gt; = 191.2 / 7 = **27.31**]
+]
+
+.pull-middle-3[
+.box-inv-8.small[σ̂&lt;sub&gt;b&lt;/sub&gt; = √(27.31 / 412) = **0.257**]
+]
+
+.pull-right-3[
+.box-inv-8.small[t = 0.489 / 0.257 = **1.90**]
+]
+
+.box-8.small.sp-after-half[1.90 is inside ±2.365, so we **maintain H₀**: t(7) = 1.90, p = 0.099]
+
+.box-inv-8.small.sp-after-half[It's the same t as Topic 11, so it's the same decision]
+
+.box-inv-8.small[Maintaining H₀ doesn't mean the true line is flat. It means 9 students can't tell]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+These nine are a real group, not a random sample of fifth graders, so read this as practice with the steps.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# F, r² and R's output
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# ANOVA's split works for a line
+
+.pull-left[
+.tree-top.box-3.small[SS&lt;sub&gt;Y&lt;/sub&gt; = 180.0]
+
+&lt;div class="tree-arrows" aria-hidden="true"&gt;&lt;span&gt;↙&lt;/span&gt;&lt;span&gt;↘&lt;/span&gt;&lt;/div&gt;
+
+.tree-row[
+.box-inv-3.small[SS&lt;sub&gt;regression&lt;/sub&gt;&lt;br&gt;r²SS&lt;sub&gt;Y&lt;/sub&gt; = 121.5]
+
+.box-inv-3.small[SS&lt;sub&gt;residual&lt;/sub&gt;&lt;br&gt;(1 − r²)SS&lt;sub&gt;Y&lt;/sub&gt; = 58.5]
+]
+]
+
+.pull-right[
+.tree-top.box-3.small[df&lt;sub&gt;Y&lt;/sub&gt; = n − 1 = 7]
+
+&lt;div class="tree-arrows" aria-hidden="true"&gt;&lt;span&gt;↙&lt;/span&gt;&lt;span&gt;↘&lt;/span&gt;&lt;/div&gt;
+
+.tree-row[
+.box-inv-3.small[df&lt;sub&gt;regression&lt;/sub&gt;&lt;br&gt;1]
+
+.box-inv-3.small[df&lt;sub&gt;residual&lt;/sub&gt;&lt;br&gt;n − 2 = 6]
+]
+]
+
+.box-3.small[Regression plays the part of between. Residual plays the part of within]
+
+.source[After Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*, 10e. Data: Muralidharan et al. (2019).]
+
+???
+
+Tuesday's bars split SS&lt;sub&gt;Y&lt;/sub&gt; this way, with the same numbers. This is the "analysis of regression". What X predicts goes on top of F, and what's left over goes on the bottom. A line has one slope, so regression gets 1 df.
+
+r² is the only link between the two pieces: 0.675 × 180.0 = 121.5.
+
+---
+
+# F agrees: 12.46 is beyond 5.99
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Source &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; SS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; MS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; F &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Regression &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 121.50 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 121.50 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;12.46&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Residual &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 58.50 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9.75 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 180.00 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.pull-left[
+.box-inv-3.small[H₀: β = 0. One cutoff: F(1, 6) = 5.99]
+]
+
+.pull-right[
+.box-inv-3.small[F = 121.50 / 9.75 = 12.46]
+]
+
+.box-3.small[12.46 is beyond 5.99, so we reject H₀: F(1, 6) = 12.46, p = 0.012]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+Same table as ANOVA, read left to right: SS / df = MS, then the ratio. F looks in one tail only, because squares can't be negative.
+
+The 2024 deck got 12.315, from r rounded to 0.82. Exact SS gives 12.46. It also left a t criterion on this slide by mistake. An F-test has only the F cutoff.
+
+---
+
+# One test, three ways
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Formula &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Our 8 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; All 539 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Test r &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t = r / σ̂&lt;sub&gt;r&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t(6) = 3.53 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t(537) = 13.46 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Test b &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t = b / σ̂&lt;sub&gt;b&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t(6) = 3.53 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t(537) = 13.46 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Test with F &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; F = MS&lt;sub&gt;regression&lt;/sub&gt; / MS&lt;sub&gt;residual&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; F(1, 6) = 12.46 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; F(1, 537) = 181.2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Effect size &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; r² = SS&lt;sub&gt;regression&lt;/sub&gt; / SS&lt;sub&gt;Y&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.675 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.252 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-3.small.sp-after-half[F = t²: 3.53² = 12.46, and the cutoffs match too: 2.447² = 5.99]
+
+.box-3.small[With one predictor, these are the same test, so they always agree]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Topic 10 showed F = t² for two groups. It's the same fact, and the same reason: squaring folds t's two tails into F's one.
+
+13.46² = 181.2, which is the 181.2 in the last column.
+
+When Topic 14 adds a second predictor, each slope gets its own t, and F tests them all together. Then they're no longer the same number.
+
+---
+
+# R prints all of it at once
+
+&lt;div class="r-output"&gt;&lt;div&gt;Call:                                                             &lt;/div&gt;&lt;div&gt;lm(formula = endline ~ baseline, data = mindspark)                &lt;/div&gt;&lt;div&gt;&amp;nbsp;&lt;/div&gt;&lt;div&gt;Residuals:                                                        &lt;/div&gt;&lt;div&gt;     Min       1Q   Median       3Q      Max                      &lt;/div&gt;&lt;div&gt;&amp;#45;18.0384  &amp;#45;3.5099  &amp;#45;0.1523   3.8722  15.4901                      &lt;/div&gt;&lt;div&gt;&amp;nbsp;&lt;/div&gt;&lt;div&gt;Coefficients:                                                     &lt;/div&gt;&lt;div&gt;            Estimate Std. Error t value Pr(&amp;gt;|t|)                  &lt;/div&gt;&lt;div&gt;(Intercept)  8.86764    0.66623   13.31   &amp;lt;2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;              &lt;span class="r-note"&gt;← a&lt;/span&gt;&lt;/div&gt;&lt;div&gt;baseline     0.76423    0.05678   13.46   &amp;lt;2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;              &lt;span class="r-note"&gt;← b, σ̂&lt;sub&gt;b&lt;/sub&gt;, t, p&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&amp;#45;&amp;#45;&amp;#45;                                                               &lt;/div&gt;&lt;div&gt;Signif. codes:  0 '&amp;#42;&amp;#42;&amp;#42;' 0.001 '&amp;#42;&amp;#42;' 0.01 '&amp;#42;' 0.05 '.' 0.1 ' ' 1    &lt;/div&gt;&lt;div&gt;&amp;nbsp;&lt;/div&gt;&lt;div&gt;Residual standard error: 5.163 on 537 degrees of freedom          &lt;span class="r-note"&gt;← √MS&lt;sub&gt;residual&lt;/sub&gt;, df&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Multiple R&amp;#45;squared:  0.2523,  Adjusted R&amp;#45;squared:  0.2509         &lt;span class="r-note"&gt;← r²&lt;/span&gt;&lt;/div&gt;&lt;div&gt;F&amp;#45;statistic: 181.2 on 1 and 537 DF,  p&amp;#45;value: &amp;lt; 2.2e&amp;#45;16           &lt;span class="r-note"&gt;← F = t²&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`. You read this. You won't need to write it.]
+
+???
+
+This is the first place students read raw output, and Topic 14 does it again. They don't write R. Lab 9 gets the same numbers from a spreadsheet's `LINEST`, `SLOPE` and `INTERCEPT`.
+
+Read it top to bottom: the call names the outcome first, the Coefficients table has one row per number in the line, and the bottom three lines describe the whole fit.
+
+---
+
+# Every number, in our words
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; R prints &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; We say &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Here &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Estimate, both rows &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; a and b &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8.87 and 0.76 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Std. Error &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; σ̂&lt;sub&gt;b&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.057 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; t value &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t = b / σ̂&lt;sub&gt;b&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 13.46 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Pr(&amp;gt;|t|) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; p, with two tails &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Below 0.001 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Residual standard error &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; √MS&lt;sub&gt;residual&lt;/sub&gt;, the typical miss &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.16 points &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; degrees of freedom &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; n − 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 537 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Multiple R-squared &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; r² &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.252 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; F-statistic &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; F = t² &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 181.2 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small[&amp;lt;2e-16 is a decimal point, 15 zeros, then a 2. We report it as p &lt; 0.001]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+What to ignore for now: the Residuals line at the top, Adjusted R-squared, and the intercept's t and p, which test whether the line crosses 0 at X = 0. Nobody asked that.
+
+The stars are a code for p. Scientific notation gets students stuck, so walk through it: 2e-16 means 2 × 10⁻¹⁶.
+
+---
+
+# A paper shows the same numbers
+
+.pull-left[
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Endline math &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Baseline math &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.76&amp;#42;&amp;#42;&amp;#42;&lt;br&gt;(0.06) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Constant &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8.87&amp;#42;&amp;#42;&amp;#42;&lt;br&gt;(0.67) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Observations &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 539 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; R² &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.25 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.table-note[Standard errors in parentheses. Three stars: p &lt; 0.001]
+]
+
+.pull-right[
+.box-inv-3.small.sp-after-half[Each column is one regression, and it names the outcome]
+
+.box-inv-3.small.sp-after-half[The number in parentheses is usually σ̂&lt;sub&gt;b&lt;/sub&gt;. Find t yourself: 0.76 / 0.06]
+
+.box-inv-3.small[Stars stand in for p. The constant is a]
+]
+
+.source[Table made for this slide. Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Students will meet this format in EDUC 157 and 159, and in any education journal. Always read the table's note. Some journals put t or a p-value in the parentheses.
+
+Dividing the two rounded numbers gives about 12.7, close to the 13.46 that R shows. Rounded tables lose a little.
+
+---
+
+layout: false
+class: title title-8
+
+# Play it: Read the output
+
+&lt;div class="r-output"&gt;&lt;div&gt;lm(formula = endline ~ ses&amp;#95;index, data = mindspark)               &lt;/div&gt;&lt;div&gt;            Estimate Std. Error t value Pr(&amp;gt;|t|)                  &lt;/div&gt;&lt;div&gt;(Intercept)  17.3651     0.2531  68.605  &amp;lt; 2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;              &lt;/div&gt;&lt;div&gt;ses&amp;#95;index     0.6557     0.1534   4.275 2.26e&amp;#45;05 &amp;#42;&amp;#42;&amp;#42;              &lt;/div&gt;&lt;div&gt;Residual standard error: 5.872 on 537 degrees of freedom          &lt;/div&gt;&lt;div&gt;Multiple R&amp;#45;squared:  0.03292,  Adjusted R&amp;#45;squared:  0.03112       &lt;/div&gt;&lt;div&gt;F&amp;#45;statistic: 18.28 on 1 and 537 DF,  p&amp;#45;value: 2.259e&amp;#45;05           &lt;/div&gt;&lt;/div&gt;
+
+.clues[
+.clue[
+**100** The predicted endline score at an SES index of 0
+]
+.clue[
+**200** This, divided by 0.153, gives 4.275
+]
+.clue[
+**300** The share of endline variability that goes with SES
+]
+.clue[
+**400** Real? Big? Answer both with numbers from here
+]
+]
+
+.box-8.small[Answer with a neighbor, as a question. Nothing is scored]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). The SES index is a score for each family.]
+
+???
+
+About 6 minutes. Read one clue at a time, in order. Take answers by hands or by calling out. Each student has a new predictor here, so it's the same output with new numbers.
+
+---
+
+class: title title-8
+
+# Play it: Answers
+
+.clues[
+.clue[
+**100: What is 17.37?**&lt;br&gt;It's a, the intercept
+]
+.clue[
+**200: What is b = 0.656?**&lt;br&gt;Estimate / Std. Error = t
+]
+.clue[
+**300: What is 3.3%?**&lt;br&gt;Multiple R-squared is 0.033
+]
+.clue[
+**400: What is real, but small?**&lt;br&gt;t(537) = 4.275, p &lt; 0.001, r² = 0.033
+]
+]
+
+.box-8.small.sp-after-half[4.275² = 18.28, the F-statistic. One predictor, one test]
+
+.box-inv-8.small[Baseline math has r² = 0.252. SES has 0.033. Both slopes are real, and they aren't equally useful]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+class: title title-8
+
+# The blueprint so far
+
+&lt;table class="deck-table tight small-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Blueprint step &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Statistic &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Bottom of the fraction &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. One score &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; None &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. One mean, σ known &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; None &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3a. One mean, σ unknown &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3b. Mean gain &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M&lt;/sub&gt; of the gains &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Two means &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n₁ + n₂ − 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 5. Two or more means &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; F &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; MS&lt;sub&gt;within&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; k − 1 and N − k &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 6. A correlation &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;r&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;7a. A slope&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;t&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;σ̂&lt;sub&gt;b&lt;/sub&gt;&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;n − 2&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 7b. A slope for a yes/no X: next &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Topic 14 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-8.small[Same idea every time: what we saw, over what chance alone would give]
+
+???
+
+Step 7b is the last one. When X is 0 or 1, the slope is the gap between two groups. Topic 14 picks that up, and it takes us back to step 4.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Explain the sampling distribution of b, and what narrows it]
+
+.box-inv-8.small[Test H₀: β = 0 with σ̂&lt;sub&gt;b&lt;/sub&gt;, t and n − 2 degrees of freedom]
+
+.box-inv-8.small[Split SS and df, and run the same test with F]
+
+.box-inv-8.small[Say why the tests of r, b and F agree, and why F = t²]
+
+.box-inv-8.small[Read a, b, σ̂&lt;sub&gt;b&lt;/sub&gt;, t, p, r² and F from R's output or a table in a paper]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Friday, March 5: Lab 9]
+
+Correlation and regression. Bring a calculator and a laptop
+]
+
+.pull-right[
+.box-6.small[Sunday, March 7, 6 PM]
+
+Mastery and Problem Set for Chapter 12 are due. Chapter 14's are due March 14
+]
+
+.box-3.small[For Tuesday, March 9: finish the regression part of Chapter 14. Topic 14 is Regression: groups and interactions]
+
+&lt;style type="text/css"&gt;
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.source a {
+  color: #244a70;
+  text-decoration: underline;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table.small-table {
+  font-size: 0.66em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The split of SS and df, after the book's figure */
+.tree-top {
+  width: 62%;
+  margin: 0 auto;
+}
+
+.tree-arrows {
+  display: flex;
+  justify-content: space-around;
+  width: 70%;
+  margin: 0 auto;
+  font-size: 1.1em;
+  line-height: 1.1;
+  color: #47505a;
+}
+
+.tree-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5em;
+}
+
+/* R's output, with a note beside the lines that matter */
+.r-output {
+  margin: 0.2em 0 0.4em 0;
+  padding: 0.4em 0.6em;
+  border: 1px solid #c9d1d9;
+  background-color: #f6f7f8;
+  font-family: 'Source Code Pro', 'Lucida Console', Monaco, monospace;
+  font-size: 0.48em;
+  line-height: 1.3;
+}
+
+.r-output div {
+  white-space: pre;
+}
+
+.r-note {
+  margin-left: 0.6em;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 1.1em;
+  line-height: 1;
+  font-weight: bold;
+  color: #a93e31;
+}
+
+.r-note sub {
+  line-height: 0;
+}
+
+.table-note {
+  font-size: 0.6em;
+  color: #47505a;
+}
+
+/* Jeopardy clues */
+.clues {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin: 0.3em 0 0.6em 0;
+  font-size: 0.65em;
+}
+
+.clue {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.clue p {
+  margin: 0;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "navigation": {
+    "scroll": true
+  },
+  "incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

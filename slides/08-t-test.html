@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>Introduction to the t-test</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas de Barros" />
+    <meta name="date" content="2026-10-31" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <!-- MathJax measures fonts through remark's scaling, so in a small window or an
+         embedded frame it shrinks math to half size. Fix the size instead. -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+    <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
+    <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/simulator.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: center middle main-title section-title-4
+
+# Introduction to the&lt;br&gt;t-test
+
+.class-info[
+
+**Topic 8 · Thursday, February 4 and Tuesday, February 9**
+
+.light[EDUC 15: Statistics for Education Research&lt;br&gt;
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.center[**We are here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Same map. We can test a hypothesis, but so far only when someone hands us the population's SD. This topic removes that crutch. Two sessions, six blocks.
+
+---
+
+class: title title-8
+
+# The four steps stay. Step 3 changes
+
+.box-inv-8.small.sp-after-half[Step 1: State a hypothesis about the population: H₀]
+
+.box-inv-8.small.sp-after-half[Step 2: Set the criteria: choose α and find the critical region]
+
+.box-8.small.sp-after-half[Step 3: Observe a sample and compute a test statistic]
+
+.box-inv-8.small[Step 4: Reject or maintain H₀]
+
+???
+
+Same four steps as Topic 7. By the end of Thursday, step 3 works without knowing σ, and step 2 has a new table.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[One tail or two?]
+
+.box-6.medium.sp-after-half[When we don't know σ]
+
+.box-3.medium.sp-after-half[The t-test]
+
+.box-inv-8.small[On Tuesday: how big is the effect, and how sure are we?]
+
+???
+
+Three blocks today, three on Tuesday. The first is a short review of something from Topic 7 that comes up again in every test.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# One tail or two?
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# A directional hypothesis picks a side
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Non-directional H₀ &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Directional H₀ &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; In symbols &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; μ = 100 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; μ ≤ 100 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Laptops in class &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Laptops don't affect learning &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Laptops don't improve learning &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Cat videos &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Cat videos don't change your happiness &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Cat videos don't make you happier &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-1.small[A directional test says which way the mean should move, not only that it moves]
+
+???
+
+Ask students to state the H₁ for each one. For μ = 100, H₁ is μ ≠ 100. For μ ≤ 100, H₁ is μ &gt; 100. For the laptops, H₁ is that laptops affect learning, or that they improve it.
+
+---
+
+# Same α, one tail: the cutoff moves in
+
+&lt;img src="08-t-test_files/figure-html/one-tail-plot-1.png" alt="Two normal curves of z-scores. In the left curve, for a two-tailed test, 2.5 percent is shaded in each tail, beyond minus 1.96 and 1.96. In the right curve, for a one-tailed test, all 5 percent is shaded in the right tail, beyond 1.65." width="92%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[With α = 0.05 in one tail, the critical z is 1.65, not 1.96. Type I errors stay at 5%]
+
+???
+
+The total of 5% hasn't changed. It's only moved. The exact one-tailed value is 1.645, and the book's table rounds it to 1.65.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: One tail, and a real effect
+
+.box-inv-8.small.sp-after-half[H₀ says μ = 100, with σ = 15 and n = 10. In truth, μ = 113.4, so d = 0.89. A two-tailed test has 80% power]
+
+.box-8.small[We switch to a one-tailed test on the right, and keep α = 0.05. What happens to power?]
+
+.options[
+.option[
+**A** It goes up
+]
+.option[
+**B** It goes down
+]
+.option[
+**C** It stays the same
+]
+.option[
+**D** We can't say without the data
+]
+]
+
+???
+
+About 6 minutes for this slide and the next two. Hands are fine. Neighbor first, then vote. Power is the share of samples that correctly reject H₀.
+
+---
+
+class: title title-8 press-slide
+
+# Predict it: Switch to one tail
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=power&amp;n=10&amp;d=0.89&amp;tails=two" title="Simulator's power view for a two-tailed test with d of 0.89 and n of 10. Two normal curves, H0 and H1, with critical values on both sides. Power reads 80 percent." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/c40b7faa8bb6.png" alt="Simulator's power view for a two-tailed test with d of 0.89 and n of 10. Two normal curves, H0 and H1, with critical values on both sides. Power reads 80 percent."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+**Change the Test menu to one-tailed.** The critical value moves left, the blue area grows, and power goes up.
+
+---
+
+class: title title-8
+
+# One tail adds power on that side
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=power&amp;n=10&amp;d=0.89&amp;tails=one" title="Simulator's power view for a one-tailed test with d of 0.89 and n of 10. There's one critical value, closer to H0 than before. Power reads 88 percent." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/55be7972f62a.png" alt="Simulator's power view for a one-tailed test with d of 0.89 and n of 10. There's one critical value, closer to H0 than before. Power reads 88 percent."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The answer is A. Power goes from 80% to 88%. The simulator reads 1.64 as the critical z, because the exact value is 1.645. The book rounds up to 1.65.
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# So why not always use one tail?
+
+.box-inv-1.small.sp-after-half[A one-tailed test is blind on the other side. If the program hurts students, it can't say so]
+
+.box-inv-1.small.sp-after-half[You must pick the side before you see the data. Picking it afterward is really a test at α = 0.10]
+
+.box-1.small[Two tails is our default from now on, unless a problem says otherwise]
+
+???
+
+The second point is the one to land. If you look first and then put all of α on the side the data went, you've quietly doubled your Type I error rate.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# When we don't know σ
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# So far, z has needed σ
+
+&lt;div class="math-display"&gt;\[
+z = \frac{M - \mu}{\sigma_M}
+\qquad \text{where} \qquad
+\sigma_M = \frac{\sigma}{\sqrt{n}}
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-6.small[Top: how far M is from the mean under H₀]
+]
+
+.pull-right[
+.box-inv-6.small[Bottom: how far a mean typically falls]
+]
+
+.box-6.small[All quarter, someone has told us σ = 15. Who told us?]
+
+???
+
+The standard error's second job from Topic 6: how surprising is this mean, if H₀ is true? In real research nobody hands us σ.
+
+---
+
+# Here's one sample of 10, with σ known
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=2&amp;n=10&amp;view=stat&amp;draws=1&amp;seed=258921" title="Simulator at step 2 with one sample of ten people drawn. Panel 1 shows the normal population with mean 100 and SD 15. Panel 2 shows the sample, with a mean of 105.5 and a z of 1.17. Panel 3 holds one dot at that z, inside the cutoffs." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/749a7017c6ca.png" alt="Simulator at step 2 with one sample of ten people drawn. Panel 1 shows the normal population with mean 100 and SD 15. Panel 2 shows the sample, with a mean of 105.5 and a z of 1.17. Panel 3 holds one dot at that z, inside the cutoffs."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+This is step 2 of the blueprint. M is 105.5, z is 1.17, and p is 0.24. About a quarter of samples land this far out, or farther, so it isn't surprising. All of this used σ = 15, from panel 1.
+
+---
+
+# In real research, panel 1 goes dark
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=3&amp;n=10&amp;draws=1&amp;hide=1&amp;seed=258921" title="Simulator at step 3a with the same sample of ten people. Panel 1 is greyed out and marked with a question mark. Panel 2 shows the same mean of 105.5, with an estimated SD of 11.5 and a t of 1.52. Panel 3 holds one dot at that t." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/dd2f70ae8f95.png" alt="Simulator at step 3a with the same sample of ten people. Panel 1 is greyed out and marked with a question mark. Panel 2 shows the same mean of 105.5, with an estimated SD of 11.5 and a t of 1.52. Panel 3 holds one dot at that t."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same seed, same ten people, same M. This is step 3a. Panel 1 is greyed out, because we can't see the population. It's the picture version of the hat: we've lost σ, so we estimate it from panel 2.
+
+Here σ̂ is 11.55, lower than the true 15. So the standard error shrinks, and the score rises from 1.17 to 1.52. Nothing about the sample changed. Only what we know changed.
+
+---
+
+# So σ̂ takes the place of σ
+
+&lt;div class="math-display"&gt;\[
+z = \frac{M - \mu}{\sigma_M}
+\qquad \text{becomes} \qquad
+t = \frac{M - \mu}{\hat{\sigma}_M}
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-6.small[Only the bottom changes: σ̂&lt;sub&gt;M&lt;/sub&gt; = σ̂ / √n. The hat says it's an estimate]
+]
+
+.pull-right[
+.box-inv-6.small[The new name warns us: this score behaves a little differently]
+]
+
+.book-tag[In the book: σ̂ is written s, and σ̂&lt;sub&gt;M&lt;/sub&gt; is written s&lt;sub&gt;M&lt;/sub&gt;]
+
+???
+
+Greek means population. A Latin letter or a hat means an estimate. μ here is still the value H₀ claims. We haven't seen it either, but we've said what it would be.
+
+---
+
+# Dividing by n − 1 fixes the variance
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Samples of 5 from our 619 students &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Average across samples &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; The sample's own variance, SS / n &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12.13 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Our estimate, σ̂² = SS / (n − 1) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 15.17 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; The truth, σ² &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 15.22 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-6.small.sp-after-half[SS / n tends to underestimate σ². Dividing by n − 1 gives an unbiased estimate of the variance]
+
+.box-6.small[Then σ̂ is its square root. From here on, n − 1 is the degrees of freedom: df]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 100,000 samples.]
+
+???
+
+A reminder from Topic 3. "Tends to", not "always": some samples overshoot. And it's the variance estimate that's unbiased. Taking the square root makes σ̂ run a little low: here it averages 3.64 against a true σ of 3.90. Say that only if someone asks.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Does swapping in σ̂ matter?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Treat our 619 students as a population. Draw samples of 5, and use σ̂ in place of σ. With the true σ, 5% of samples land beyond ±1.96. With σ̂?
+]
+
+.options[
+.option[
+**A** Much less than 5%
+]
+.option[
+**B** About 5%, the same
+]
+.option[
+**C** More than 5%
+]
+.option[
+**D** It depends on μ
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** Much less than 5%
+]
+.option.wrong[
+**B** About 5%, the same
+]
+.option.correct[
+**C** More than 5%
+]
+.option.wrong[
+**D** It depends on μ
+]
+]
+
+.box-inv-8.small.sp-after-half[
+With samples of 5, it's 12%, more than twice the 5% we signed up for
+]
+
+.box-8.small[
+If we kept using ±1.96, we'd make far too many Type I errors
+]
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Small samples bring too many surprises
+
+&lt;img src="08-t-test_files/figure-html/beyond-plot-1.png" alt="Bar chart of the share of samples beyond plus or minus 1.96, for samples of 5, 25 and 100, with a dashed line at 5 percent. With the true sigma, every bar is at about 5 percent. With sigma hat, the share is 11.8% at n of 5, 6.1% at n of 25 and 5.3% at n of 100." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[As n grows, σ̂ gets closer to σ, and the problem fades]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 100,000 samples of each size.]
+
+???
+
+Same scores, same samples, same cutoff. The only difference is what's in the bottom of the fraction. The dashed line is the 5% we promised.
+
+---
+
+# Why? σ̂ bounces, and often lands low
+
+&lt;img src="08-t-test_files/figure-html/sd-hat-plot-1.png" alt="Histogram of sigma hat across samples of 5 math scores, spread widely from about 1 to 7, with a dashed line at the true sigma of 3.90. About 60% of the samples fall below the line." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[60% of samples give a σ̂ below σ. Then the bottom shrinks and the score grows]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+With z, the bottom is a fixed number. With t, the bottom changes from sample to sample. That extra wobble is what pushes more scores out into the tails.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# The t-test
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# With n = 5, the pile has fatter tails
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=3&amp;n=5&amp;draws=5000&amp;hide=1&amp;seed=258921" title="Simulator at step 3a with 5,000 samples of five people and panel 1 greyed out. Panel 3 shows the t-scores stacked along a dashed t curve with 4 degrees of freedom, with cutoffs at minus 2.78 and 2.78." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/10970ec2d6c7.png" alt="Simulator at step 3a with 5,000 samples of five people and panel 1 greyed out. Panel 3 shows the t-scores stacked along a dashed t curve with 4 degrees of freedom, with cutoffs at minus 2.78 and 2.78."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Panel 3 no longer uses the normal curve. It's a t curve with n − 1 = 4 degrees of freedom. The cutoffs moved out from ±1.96 to ±2.78, so about 5% of samples land beyond them again. The readout also shows how many land beyond ±1.96: far more than 5%.
+
+Drag n up, press +500, and watch the cutoffs come back toward 1.96.
+
+---
+
+# Fewer degrees of freedom, fatter tails
+
+&lt;img src="08-t-test_files/figure-html/t-curves-1.png" alt="Four panels, each comparing a t curve with the normal curve, for 2, 4, 9 and 29 degrees of freedom. The t curve is lower in the middle and higher in the tails than the normal curve. The gap shrinks as degrees of freedom rise. The two-tailed 5 percent cutoffs are 4.30, 2.78, 2.26 and 2.05." width="94%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small[A family of curves, one for each df. Near df = 30, it's hard to tell from z]
+
+???
+
+Why df and not n? It's n − 1, the number we divided by to get σ̂. The more df, the better σ̂ is, and the closer t gets to z. These curves replace the rpsychologist screenshots from 2024.
+
+---
+
+# Each df has its own cutoff
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Two tails, α = 0.05 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; One tail, α = 0.05 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Two tails, α = 0.01 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.776 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.132 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.604 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.262 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.833 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.250 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.145 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.761 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.977 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;24&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;2.064&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;1.711&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;2.797&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 60 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.000 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.671 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.660 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 120 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.980 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.658 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.617 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Very large (z) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.960 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.645 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.576 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small[In practice, people use t at any n. With large samples it barely differs from z]
+
+.book-tag[The full t table is in the book's appendix, and comes with the exams]
+
+???
+
+Show how to read it: pick the column from the tails and α, and the row from df. If the book's table skips your df, use the next lower df, which is the cautious choice.
+
+The test also assumes independent observations and a roughly normal population. With larger samples, normality matters less, thanks to the central limit theorem.
+
+---
+
+# One example, with and without σ
+
+.box-inv-3.small[n = 25, M = 106, SS = 6,144. H₀: μ = 100. α = 0.05, two tails]
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; If we know σ = 15 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; If we don't &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. State H₀ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; μ = 100 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; μ = 100 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. Set the criteria &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; z beyond ±1.96 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t(24) beyond ±2.064 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3. Find the spread &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; σ&lt;sub&gt;M&lt;/sub&gt; = 15 / √25 = 3.00 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; σ̂ = √(6,144 / 24) = 16&lt;br&gt;σ̂&lt;sub&gt;M&lt;/sub&gt; = 16 / √25 = 3.20 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3. Compute the score &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; z = 6 / 3 = 2.00 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t = 6 / 3.2 = 1.875 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Decide &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Reject H₀: 2.00 &gt; 1.96 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Maintain H₀: 1.875 &lt; 2.064 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+???
+
+Andy's example from 2024. Go down one column, then the other. The steps are the same, and only the numbers in steps 2 and 3 change.
+
+---
+
+# Same sample, different decisions
+
+&lt;img src="08-t-test_files/figure-html/decision-plot-1.png" alt="Two curves with shaded tails. On the left, the normal curve has cutoffs at plus or minus 1.96, and our z of 2.00 lands in the shaded tail. On the right, a t curve with 24 degrees of freedom has cutoffs at plus or minus 2.064, and our t of 1.875 lands just short of the shaded tail." width="92%" style="display: block; margin: auto;" /&gt;
+
+.pull-left[
+.box-inv-3.small[The score fell: σ̂ = 16 is above 15]
+]
+
+.pull-right[
+.box-inv-3.small[The cutoff rose: 2.064 is above 1.96]
+]
+
+.box-3.small[We report: t(24) = 1.88, p = 0.07. We maintain H₀]
+
+???
+
+Two things moved, and both worked against rejecting. Maintaining H₀ doesn't mean H₀ is true. It means this sample isn't surprising enough.
+
+The first number in brackets is always df. With σ known, p would be 0.046.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: A real group of students
+
+.box-inv-8.small.sp-after-half[24 Mindspark students take 2 to 3 hours a week of extra math lessons, called tuition in India. At baseline: M = 12.21, SS = 282.0]
+
+.box-8.small.sp-after-half[Test H₀: μ = 11.12, the mean of all 619 students. Use α = 0.05 and two tails. The cutoff is t(23) = ±2.069]
+
+.box-inv-8.small[Find σ̂, σ̂&lt;sub&gt;M&lt;/sub&gt; and t, then decide. Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Vote with hands on the decision: reject or maintain. Common slips: dividing SS by n, or using n in place of n − 1 for df.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[σ̂ = √(282.0 / 23) = **3.50**]
+
+.box-inv-8.small[σ̂&lt;sub&gt;M&lt;/sub&gt; = 3.50 / √24 = **0.715**]
+]
+
+.pull-right[
+.box-inv-8.small[t = (12.21 − 11.12) / 0.715 = **1.52**]
+
+.box-inv-8.small[1.52 is inside ±2.069: **maintain H₀**]
+]
+
+.box-8.small[We report: t(23) = 1.52, p = 0.14. These 24 students aren't surprisingly far from 11.12]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Keep these 24 students in mind. They come back on Tuesday.
+
+---
+
+class: title title-8
+
+# Before Tuesday
+
+.box-inv-8.medium.sp-after-half[Friday, February 5: Lab 5 is Jeopardy, our midterm review. Bring a calculator]
+
+.box-inv-8.medium.sp-after-half[Sunday, February 7 at 6 PM: Mastery and Problem Set for Chapters 8 and 9]
+
+.box-8.medium[Finish Chapter 9 for Tuesday]
+
+???
+
+Chapter 9's homework is due before we cover effect size and confidence intervals in class, so students should read those sections first. Nothing is due in midterm week.
+
+---
+
+name: session-2
+class: title title-8
+
+# Session 2: Tuesday, February 9
+
+.box-inv-8.small.sp-after-half[Thursday in one line: when we estimate σ, z becomes t, and cutoffs depend on df]
+
+.box-5.medium.sp-after-half[How big is the effect?]
+
+.box-7.medium.sp-after-half[Confidence intervals]
+
+.box-4.medium[Intervals and tests]
+
+???
+
+Three blocks today, and then what to expect on Thursday. A test gives a yes or no. Today we ask for more than that.
+
+---
+
+layout: false
+class: center middle section-title section-title-5 animated fadeIn
+
+# How big is the effect?
+
+---
+
+layout: true
+class: title title-5
+
+---
+
+# d says how far apart, in SDs
+
+&lt;img src="08-t-test_files/figure-html/d-plot-1.png" alt="Two normal curves with the same spread. One is centered at 100, the mean under H0, and the other at 113.4, the true mean. An arrow between their centers is labeled d equals 0.89." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-5.small[Cohen's d = (true μ − H₀ μ) / σ = (113.4 − 100) / 15 = 0.89. It's a parameter: it doesn't depend on n]
+
+???
+
+A review from Topic 7. d is a z-score for a difference: the gap, in standard deviations. Population values all the way through, so d is a population quantity. In the simulator, a slider sets it.
+
+Here again, how do we know that σ? We usually don't.
+
+---
+
+# Hedges' g is the estimate of d
+
+&lt;div class="math-display"&gt;\[
+d = \frac{\mu_{\text{true}} - \mu}{\sigma}
+\qquad \text{is estimated by} \qquad
+g = \frac{M - \mu}{\hat{\sigma}}
+\]&lt;/div&gt;
+
+.box-inv-5.small.sp-after-half[In our example: g = (106 − 100) / 16 = **0.375**, so the mean sits about four tenths of an SD above H₀]
+
+.box-5.small[Cohen's rough guide: 0.2 is small, 0.5 is medium, and 0.8 is large]
+
+.book-tag[In the book: g is called the estimated Cohen's d. The book also covers r² here: skip it for now, we come back to it]
+
+???
+
+Same hat logic: a Latin letter for an estimate. g uses σ̂, not σ̂&lt;sub&gt;M&lt;/sub&gt;. It measures distance in people's SDs, not in standard errors, which is why n isn't in the formula.
+
+Some software applies a small-sample correction and also calls that g. We don't. We return to the variance-explained idea, r², in the ANOVA and regression topics.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Four times the people
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Our example has n = 25, M = 106 and σ̂ = 16, so t = 1.875 and g = 0.375. Now keep M and σ̂, and make n = 100. What happens?
+]
+
+.options[
+.option[
+**A** t and g both go up
+]
+.option[
+**B** t goes up, and g stays the same
+]
+.option[
+**C** g goes up, and t stays the same
+]
+.option[
+**D** Neither changes
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** t and g both go up
+]
+.option.correct[
+**B** t goes up, and g stays the same
+]
+.option.wrong[
+**C** g goes up, and t stays the same
+]
+.option.wrong[
+**D** Neither changes
+]
+]
+
+.box-inv-8.small.sp-after-half[
+σ̂&lt;sub&gt;M&lt;/sub&gt; falls from 3.2 to 1.6, so t doubles to 3.75. Now we reject H₀. But g is still 0.375
+]
+
+.box-8.small[
+The effect is the same size. We just have a sharper view of it
+]
+
+---
+
+layout: true
+class: title title-5
+
+---
+
+# Similar effect, different decision
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Group &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; n &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; M &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; g &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; t &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; p &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Decision &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2 to 3 hours of tuition &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12.21 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.31 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.52 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.142 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Maintain H₀ &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; More than 4 hours &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 81 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12.46 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.35 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.003 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Reject H₀ &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-5.small.sp-after-half[Both groups sit about a third of an SD above 11.12. Only the larger group is significant]
+
+.box-5.small.sp-after-half[Significant means "hard to explain by sampling error". It doesn't mean big]
+
+.box-inv-5.small[These families chose tuition, so neither test shows that tuition works]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). H₀: μ = 11.12, α = 0.05, two tails.]
+
+???
+
+The first row is Thursday's try-it. The two values of g are close, and the decisions differ, because one group has more than three times the people.
+
+The last box matters. Stronger students may be the ones whose families pay for tuition. That's the difference between prediction and explanation, and it's why the lottery matters in Mindspark.
+
+---
+
+layout: false
+class: center middle section-title section-title-7 animated fadeIn
+
+# Confidence intervals
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# You already know the margin of error
+
+.box-7.medium.sp-after-half[A poll: 52% say yes, ± 3 points]
+
+.box-inv-7.small.sp-after-half[Election polls report one, and charts draw it as a band around the line]
+
+.box-inv-7.small.sp-after-half[It's about two standard errors: how far off this estimate might be]
+
+.box-7.small[That's the standard error's first job from Topic 6. Now, for a mean]
+
+???
+
+The poll is the made-up one from Topic 6. This replaces 2024's election screenshots. Topic 6 started from μ and asked where means land. Now we don't know μ, so we start from what we have, M, and go out from there.
+
+---
+
+# An interval: estimate ± margin of error
+
+&lt;div class="math-display"&gt;\[
+M \pm z \, \sigma_M
+\qquad \text{or} \qquad
+M \pm t \, \hat{\sigma}_M
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-7.small[σ known: z = 1.96 for a 95% interval]
+]
+
+.pull-right[
+.box-inv-7.small[σ unknown: t from the table, n − 1 df]
+]
+
+.box-7.small[Use the two-tailed 5% cutoff. Margin of error = cutoff × standard error]
+
+.book-tag[In the book: the second one is M ± t s&lt;sub&gt;M&lt;/sub&gt;]
+
+???
+
+Same ingredients as the test: M, a cutoff and a standard error. They're only arranged differently. The test centers on H₀'s μ. The interval centers on M.
+
+---
+
+# Our example: from 99.40 to 112.60
+
+&lt;img src="08-t-test_files/figure-html/ci-plot-1.png" alt="A number line of possible values of the population mean, with a point at the sample mean of 106 and a bar running from 99.40 to 112.60." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-7.small.sp-after-half[106 ± 2.064 × 3.2 = 106 ± 6.60]
+
+.box-7.small[We're 95% confident that μ is between 99.40 and 112.60]
+
+???
+
+Thursday's example: n = 25, σ̂ = 16, df = 24. Every value in that range is a value of μ that this sample can't rule out.
+
+---
+
+layout: false
+class: title title-8 press-slide
+
+# Each sample gets its own interval
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=intervals&amp;n=25&amp;level=0.95&amp;known=0&amp;draws=1&amp;seed=5" title="Simulator's confidence interval view with one interval drawn from a sample of 25, around a vertical line at the true mean of 100." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/f0bbc3d7b46a.png" alt="Simulator's confidence interval view with one interval drawn from a sample of 25, around a vertical line at the true mean of 100."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+**Press +1 a few times, then +50.** Each row is one sample, with its own M, its own σ̂ and so its own width. The vertical line is μ. It doesn't move. Intervals that miss it turn red, with a square marker.
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# About 95% of the intervals catch μ
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=intervals&amp;n=25&amp;level=0.95&amp;known=0&amp;draws=500&amp;seed=5" title="Simulator's confidence interval view with 500 intervals drawn from samples of 25, with the latest 60 shown. Nearly all of them cross the vertical line at the true mean of 100, and a few miss it and carry a square marker." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/1471ebda189e.png" alt="Simulator's confidence interval view with 500 intervals drawn from samples of 25, with the latest 60 shown. Nearly all of them cross the vertical line at the true mean of 100, and a few miss it and carry a square marker."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Read "Contain μ" in the panel. Widths differ here, because each interval uses its own σ̂. Set Population SD to Known and they'd all have the same width.
+
+---
+
+# What the 95% describes
+
+.box-7.small.sp-after-half[The method: across many samples, about 95% of the intervals contain μ]
+
+.box-inv-7.small.sp-after-half[μ stays put. It's the interval that moves from sample to sample]
+
+.box-inv-7.small.sp-after-half[Our one interval either holds μ or it doesn't. We can't tell which]
+
+.box-inv-7.small[On real scores: 94.9% of 5,000 intervals from samples of 25 contain our 619 students' μ = 11.12]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The precise wording is about repeated sampling, so "we're 95% confident" is shorthand for that. The last box uses samples with replacement from the 619 scores. They aren't normal, and the method still works.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: Ask for more confidence
+
+.box-inv-8.small.sp-after-half[We have a 95% interval from 99.40 to 112.60. We want 99% instead, with the same sample]
+
+.box-8.small[What happens to the interval?]
+
+.options[
+.option[
+**A** It gets narrower
+]
+.option[
+**B** It gets wider
+]
+.option[
+**C** It stays the same
+]
+.option[
+**D** It shifts to the right
+]
+]
+
+???
+
+About 6 minutes for this slide and the next two. Hands are fine. Neighbor first, then vote. Ask for a reason: what would you do to be more sure of catching something?
+
+---
+
+class: title title-8 press-slide
+
+# Predict it: Change the confidence level
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=intervals&amp;n=25&amp;level=0.95&amp;known=0&amp;draws=60&amp;seed=5" title="Simulator's confidence interval view with 60 intervals from samples of 25 at a 95 percent level, ready for the level to be changed." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/58f9a5f429fc.png" alt="Simulator's confidence interval view with 60 intervals from samples of 25 at a 95 percent level, ready for the level to be changed."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+**Change Confidence level to 99%, then press +50.** The intervals get wider, and the readout's margin of error grows. Then try dragging n up and pressing +50: they narrow.
+
+---
+
+class: title title-8
+
+# Predict it: More confidence costs width
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Confidence &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; n &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Cutoff t &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Margin of error &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Interval &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 90% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 25 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.711 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.47 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; [100.53, 111.47] &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 95% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 25 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.064 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6.60 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; [99.40, 112.60] &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 99% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 25 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.797 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8.95 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; [97.05, 114.95] &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 95% &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 100 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.984 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.17 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; [102.83, 109.17] &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-8.small.sp-after-half[The answer is B. To be more sure of catching μ, cast a wider net]
+
+.box-8.small[More people buy the width back: the last row is 95% with n = 100, same M and σ̂]
+
+???
+
+The center stays at M. Only the margin changes. Compare the second and last rows: four times the people, about half the margin. It isn't exactly half, because the cutoff also falls a little.
+
+---
+
+layout: false
+class: center middle section-title section-title-4 animated fadeIn
+
+# Intervals and tests
+
+---
+
+layout: true
+class: title title-4
+
+---
+
+# An interval can run the test for you
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; If we know σ = 15 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; If we don't &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. State H₀ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; μ = 100 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; μ = 100 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. Set the criteria &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 95% interval, z = 1.96 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 95% interval, t(24) = 2.064 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3. Build the interval &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 106 ± 1.96 × 3.00&lt;br&gt;[100.12, 111.88] &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 106 ± 2.064 × 3.20&lt;br&gt;[99.40, 112.60] &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Decide &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Reject H₀: 100 isn't inside &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Maintain H₀: 100 is inside &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-4.small[A 95% interval that leaves out the H₀ mean means rejecting H₀ at α = 0.05, two tails]
+
+???
+
+Same example, same decisions as Thursday. It has to work out this way: M is more than a margin away from μ exactly when the score is beyond the cutoff.
+
+The level has to match: a 95% interval goes with a two-tailed test at α = 0.05, and a 99% interval with α = 0.01.
+
+---
+
+# Only one interval leaves out 100
+
+&lt;img src="08-t-test_files/figure-html/two-ci-plot-1.png" alt="Two horizontal confidence intervals around a mean of 106, with a dashed vertical line at the H0 mean of 100. With sigma known, the interval runs from 100.12 to 111.88 and stops just right of the line. With sigma unknown, it runs from 99.40 to 112.60 and crosses the line." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-4.small[The t interval is wider, for two reasons: a bigger σ̂ and a bigger cutoff]
+
+???
+
+The left end of the first interval only just clears 100. That's why z was only just past 1.96.
+
+---
+
+# With a real effect, intervals miss H₀
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=intervals&amp;n=25&amp;level=0.95&amp;known=0&amp;d=0.4&amp;draws=500&amp;seed=5" title="Simulator's confidence interval view with 500 intervals from samples of 25 and a true effect d of 0.4. A solid line marks the true mean of 106, and a dashed line marks the H0 mean of 100. Many intervals stop short of the dashed line, which means rejecting H0." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/04f11d470926.png" alt="Simulator's confidence interval view with 500 intervals from samples of 25 and a true effect d of 0.4. A solid line marks the true mean of 106, and a dashed line marks the H0 mean of 100. Many intervals stop short of the dashed line, which means rejecting H0."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Here the true effect is d = 0.4, so the true mean really is 106, our example's M. The solid line is the truth, and the dashed line is what H₀ claims.
+
+"Exclude the H₀ mean: reject H₀" is the share of samples that reject. That's power. Our example's sample is one of the many whose interval still holds 100, so maintaining H₀ there was a Type II error in this world. Drag n up to watch the share climb.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: The 24 students again
+
+.box-inv-8.small.sp-after-half[n = 24, M = 12.21, σ̂ = 3.50, σ̂&lt;sub&gt;M&lt;/sub&gt; = 0.715, H₀: μ = 11.12, cutoff t(23) = 2.069]
+
+.box-8.small.sp-after-half[Find g, then a 95% confidence interval]
+
+.box-inv-8.small[Does the interval hold 11.12? Does that match Thursday's decision? Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. The numbers are Thursday's. Vote with hands on the last question.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[g = (12.21 − 11.12) / 3.50 = **0.31**]
+]
+
+.pull-right[
+.box-inv-8.small[12.21 ± 2.069 × 0.715 = **[10.73, 13.69]**]
+]
+
+.box-8.small.sp-after-half[The interval holds 11.12, so we maintain H₀, the same decision as Thursday]
+
+.box-inv-8.small[The interval also says what the test didn't: μ could be a bit below 11.12, or as much as 2.6 points above it]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+A wide interval is a useful warning. With only 24 students, "maintain" says we can't tell, not that there's no gap.
+
+---
+
+class: title title-8
+
+# One sample, three answers
+
+.pull-left-3[
+.box-1.medium[The t-test]
+
+.center.small[Is this mean surprising under H₀?]
+
+.center[t(23) = 1.52]
+]
+
+.pull-middle-3[
+.box-6.medium[Effect size]
+
+.center.small[How big is the gap, in SDs?]
+
+.center[g = 0.31]
+]
+
+.pull-right-3[
+.box-3.medium[The interval]
+
+.center.small[Which values of μ fit the data?]
+
+.center[[10.73, 13.69]]
+]
+
+.box-inv-8.small[Report all three. Each one says something the others don't]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+These are the 24 students once more. From here on, every t-test in the course comes with an effect size and an interval.
+
+---
+
+class: title title-8
+
+# The blueprint so far
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Blueprint step &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Statistic &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Bottom of the fraction &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; In the book &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. One score &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. One mean, σ known &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3a. One mean, σ unknown &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; s&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Two means: next &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Topic 9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-8.small[Same three panels: population, one sample, the statistic across samples]
+
+???
+
+Each step is the same fraction: an observed gap over the gap we'd expect from sampling error. Panel 1 went dark at step 3a. It goes dark whenever we do real research, because we can't see the population.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Choose one tail or two, and say what each costs]
+
+.box-inv-8.small[Say why σ̂ gives us t, not z, and why df matters]
+
+.box-inv-8.small[Run a one-sample t-test by hand, from n, M and SS]
+
+.box-inv-8.small[Compute Hedges' g, and tell significance from size]
+
+.box-inv-8.small[Build a confidence interval, and use it to test H₀]
+
+---
+
+class: title title-8
+
+# Thursday's midterm: what to expect
+
+.box-8.medium.sp-after-half[February 11, in class, 80 minutes]
+
+.box-inv-8.small.sp-after-half[It covers Chapters 1 to 9, which are Topics 1 to 8]
+
+.box-inv-8.small.sp-after-half[It's free response: show your work and explain your thinking]
+
+.box-inv-8.small.sp-after-half[z and t tables and a formula sheet come with it, in both sets of symbols]
+
+.box-inv-8.small[Bring a calculator. No other devices]
+
+???
+
+General format only. No exam content in this deck, since it's public.
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Thursday, February 11]
+
+The midterm, in class. Nothing is due this week
+]
+
+.pull-right[
+.box-6.small[Friday, February 12: Lab 6]
+
+One-sample t-tests and confidence intervals. Bring a calculator and a laptop
+]
+
+.box-3.small[For Tuesday, February 16: read Chapters 10 and 11. Topic 9 is t-tests for two samples]
+
+&lt;style type="text/css"&gt;
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide. A slide that
+   waits for a live button press would print empty, so it goes too */
+@media print {
+  .remark-slide-container:has(.poll-answer),
+  .remark-slide-container:has(.press-slide) {
+    display: none !important;
+  }
+}
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "navigation": {
+    "scroll": true
+  },
+  "incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

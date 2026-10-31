@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>t-tests for two samples and for gains</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas de Barros" />
+    <meta name="date" content="2026-10-31" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <!-- MathJax measures fonts through remark's scaling, so in a small window or an
+         embedded frame it shrinks math to half size. Fix the size instead. -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+    <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
+    <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/simulator.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: center middle main-title section-title-4
+
+# t-tests for two samples and for gains
+
+.class-info[
+
+**Topic 9 · Tuesday, February 16 and Thursday, February 18**
+
+.light[EDUC 15: Statistics for Education Research&lt;br&gt;
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+
+.box-inv-3.small[Did the program cause the gap?]
+
+.center[**We are here**]
+]
+
+???
+
+Same map. So far, one mean at a time. Now two groups, and that's where explanation starts: a lottery lets us read a gap between groups as the program's effect. Two sessions, six blocks.
+
+---
+
+class: title title-8
+
+# The four steps stay, for a gap
+
+.box-inv-8.small.sp-after-half[Step 1: State a hypothesis about the difference between two populations]
+
+.box-inv-8.small.sp-after-half[Step 2: Set the criteria: what's unexpected among differences?]
+
+.box-8.small.sp-after-half[Step 3: Observe a sample from each population, and compute their difference]
+
+.box-inv-8.small[Step 4: Reject or maintain H₀]
+
+???
+
+The same four steps from Topics 7 and 8. Every step now talks about a difference, not one mean.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[From one mean to two]
+
+.box-6.medium.sp-after-half[The two-sample t]
+
+.box-3.medium.sp-after-half[Mindspark's test]
+
+.box-inv-8.small[On Thursday: what if the same people take the test twice?]
+
+???
+
+Three blocks today, three on Thursday.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# From one mean to two
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Lottery winners scored higher
+
+&lt;img src="09-two-samples-gains_files/figure-html/endline-plot-1.png" alt="Two overlapping smooth curves of endline math scores. The control group's mean is 15.99 and the Mindspark group's mean is 18.68. The curves overlap heavily, and the Mindspark curve sits a little to the right." width="80%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[The gap is 18.68 − 15.99 = **2.69 points**. Could that be sampling error?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 266 Mindspark students and 273 control students.]
+
+???
+
+The lottery from Topic 1. In Topic 6, we compared this gap with each group's own standard error, and promised a real test, with a standard error for the gap itself. That's today.
+
+---
+
+# The blueprint gets a new step
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Blueprint step &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Panel 2: one sample gives &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Panel 3: the pile of &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. One score &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z-scores &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. One mean, σ known &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z-scores of means &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3a. One mean, σ unknown &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t-scores of means &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;4. Two means&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;t for M&lt;sub&gt;1&lt;/sub&gt; − M&lt;sub&gt;2&lt;/sub&gt;&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;t-scores of differences&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-1.small[Same three panels: population, one sample, the statistic across samples]
+
+???
+
+Each step is the same idea. Panel 3 tells us how unexpected panel 2's number is. Today panel 1 has two populations, and panel 2 has one sample from each.
+
+---
+
+# Step 4: two populations, two samples
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=4&amp;n=10&amp;mu=16&amp;sd=5.8&amp;view=raw&amp;draws=1&amp;seed=15" title="Simulator at step 4 with one sample of ten people drawn from each of two populations. Panel 1 shows two identical normal populations with a mean of 16 and an SD of 5.8. Panel 2 shows the two samples and the difference in their means. Panel 3 holds one dot for that difference." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/b5df6cdc6ed8.png" alt="Simulator at step 4 with one sample of ten people drawn from each of two populations. Panel 1 shows two identical normal populations with a mean of 16 and an SD of 5.8. Panel 2 shows the two samples and the difference in their means. Panel 3 holds one dot for that difference."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Step 4 on the blueprint. Here's the world H₀ describes, with numbers close to Mindspark's: both group means are 16, and both SDs are 5.8. The two curves sit on top of each other.
+
+Panel 2 has two samples. Even with identical populations, their means differ. Panel 3 records that one difference.
+
+---
+
+# H₀ now says the gap is zero
+
+&lt;div class="math-display"&gt;\[
+H_0\!: \mu_1 - \mu_2 = 0
+\qquad\qquad
+H_1\!: \mu_1 - \mu_2 \neq 0
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-1.small[H₀: the two population means are the same. Across samples, gaps average zero]
+]
+
+.pull-right[
+.box-inv-1.small[H₁: the two populations differ. Gaps pile up around some other value]
+]
+
+.box-1.small[A gap of 2.69 under H₀ can only be sampling error. How unusual would that be?]
+
+???
+
+Two tails stay our default, from Topic 8. The population means are still Greek: nobody has seen them.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: How far does a gap fall?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+H₀ is true, with σ = 5.8 and n = 10 in each group. One group's mean typically falls 1.83 points from its μ. How far does the gap M₁ − M₂ typically fall from 0?
+]
+
+.options[
+.option[
+**A** About 0.9: half as far
+]
+.option[
+**B** About 1.8: the same
+]
+.option[
+**C** About 2.6: a bit farther
+]
+.option[
+**D** About 3.7 or more: at least twice as far
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** About 0.9: half as far
+]
+.option.wrong[
+**B** About 1.8: the same
+]
+.option.correct[
+**C** About 2.6: a bit farther
+]
+.option.wrong[
+**D** About 3.7 or more: at least twice as far
+]
+]
+
+.box-inv-8.small.sp-after-half[
+It's 1.83 × √2 = 2.59. Both means wobble, so their gap wobbles more than either one
+]
+
+.box-8.small[
+But not twice as much: sometimes the two errors cancel out
+]
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# The gaps pile up around zero
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=4&amp;n=10&amp;mu=16&amp;sd=5.8&amp;view=raw&amp;draws=551&amp;seed=15" title="Simulator at step 4 with 551 pairs of samples of ten and no true difference. Panel 3 shows the differences in means stacked in a bell shape centered on zero, with most between about minus 6 and 6." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/74c5e5346445.png" alt="Simulator at step 4 with 551 pairs of samples of ten and no true difference. Panel 3 shows the differences in means stacked in a bell shape centered on zero, with most between about minus 6 and 6."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same world, 551 draws. The center is zero, because H₀ is true. Point at the spread: about 2.6 points is a typical miss. That's the standard error of the difference.
+
+Mindspark's gap of 2.69 wouldn't be strange with groups of 10. But Mindspark's groups aren't that small.
+
+---
+
+# A gap has its own standard error
+
+&lt;div class="math-display"&gt;\[
+\sigma_{M_1 - M_2} = \sqrt{\frac{\sigma^2}{n_1} + \frac{\sigma^2}{n_2}}
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-1.small[Variances add, even when the means subtract. Each sample brings its own error]
+]
+
+.pull-right[
+.box-inv-1.small[Here: √(33.64 / 10 + 33.64 / 10) = 2.59. With n = 200 each, it's 0.58]
+]
+
+.box-1.small[We're assuming both populations share one σ. Keep that in mind]
+
+???
+
+σ_M from Topic 6 was σ / √n. Square it and it's σ² / n. Here there are two of those, one per sample.
+
+This is why two groups need more people than one. To get the same standard error as one mean with n students, each group needs 2n students. That's four times as many in total, as Topic 7 promised.
+
+---
+
+# When the groups differ, the pile moves
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=4&amp;n=10&amp;mu=16&amp;sd=5.8&amp;d=0.46&amp;view=raw&amp;draws=551&amp;seed=15" title="Simulator at step 4 with 551 pairs of samples of ten, with group means of 18.7 and 16. The stack of differences in panel 3 is centered at about 2.7, not zero, but it still overlaps zero a lot." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/c2bdd0987c83.png" alt="Simulator at step 4 with 551 pairs of samples of ten, with group means of 18.7 and 16. The stack of differences in panel 3 is centered at about 2.7, not zero, but it still overlaps zero a lot."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Group 1's mean is now 18.7, so d is 0.46. The group mean boxes are on the simulator page, and Lab 7 uses them. They're hidden on a slide. H₁ moves the pile away from zero. With groups of 10, it's still wide, so many samples can't tell the two worlds apart.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# The two-sample t
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# In real research, panel 1 goes dark again
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=4&amp;n=10&amp;mu=16&amp;sd=5.8&amp;view=stat&amp;hide=1&amp;draws=551&amp;seed=15" title="Simulator at step 4 in the t view with panel 1 greyed out and marked with a question mark. Panel 2 shows one sample from each group with a t-score. Panel 3 stacks t-scores along a t curve with 18 degrees of freedom." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/c912a50e3d80.png" alt="Simulator at step 4 in the t view with panel 1 greyed out and marked with a question mark. Panel 2 shows one sample from each group with a t-score. Panel 3 stacks t-scores along a t curve with 18 degrees of freedom."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Just like Topic 8. We can't see σ, so we estimate it, and z becomes t. With two groups of 10, df is 18: each group gives 9.
+
+---
+
+# The fraction keeps its shape
+
+&lt;div class="math-display"&gt;\[
+t = \frac{M - \mu}{\hat{\sigma}_M}
+\qquad \text{becomes} \qquad
+t = \frac{(M_1 - M_2) - (\mu_1 - \mu_2)}{\hat{\sigma}_{M_1 - M_2}}
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-6.small[Top: the gap we saw, minus the gap H₀ claims. Under H₀, that second part is 0]
+]
+
+.pull-right[
+.box-inv-6.small[Bottom: how far a gap typically falls. We have to estimate it]
+]
+
+.book-tag[In the book: σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt; is written s&lt;sub&gt;M₁−M₂&lt;/sub&gt;]
+
+???
+
+Same logic as every test so far: what we saw, over what sampling error alone would give us.
+
+---
+
+# Pool the two estimates of σ²
+
+&lt;div class="math-display"&gt;\[
+\hat{\sigma}_p^2 = \frac{SS_1 + SS_2}{df_1 + df_2}
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-6.small[We assume one σ², so we pool: add up the squared deviations and the df]
+]
+
+.pull-right[
+.box-inv-6.small[A bigger group holds more information, so it counts for more]
+]
+
+.box-6.small[The p is for "pooled". With equal n, it's the plain average of the two variances]
+
+.book-tag[In the book: σ̂²&lt;sub&gt;p&lt;/sub&gt; is written s²&lt;sub&gt;p&lt;/sub&gt;]
+
+???
+
+Topic 3's σ̂² is SS / df. This is the same recipe with two groups: all the squared deviations, over all the degrees of freedom.
+
+The assumption has a name, homogeneity of variance. The test also needs independent observations, and roughly normal populations unless the samples are large. Software can drop the equal-variance assumption, in a version called Welch's t. With Mindspark, it barely changes t.
+
+---
+
+# Then the bottom of the fraction, and df
+
+&lt;div class="math-display"&gt;\[
+\hat{\sigma}_{M_1 - M_2} = \sqrt{\frac{\hat{\sigma}_p^2}{n_1} + \frac{\hat{\sigma}_p^2}{n_2}}
+\qquad\qquad
+df = (n_1 - 1) + (n_2 - 1)
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-6.small[Same formula as before, with the pooled estimate in place of σ²]
+]
+
+.pull-right[
+.box-inv-6.small[Each sample spends one df on its own mean]
+]
+
+.box-6.small[Three moves: pool the variance, find the standard error, compute t]
+
+???
+
+The most common slip is using n1 + n2 − 1 for df. There are two means, so two df are spent.
+
+---
+
+# Side by side with Topic 8
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; One sample &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Two samples &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Estimate &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; \(M\) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; \(M_1 - M_2\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Under H₀ &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; \(\mu\) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; \(\mu_1 - \mu_2 = 0\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Variance &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; \(\hat{\sigma}^2 = SS / df\) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; \(\hat{\sigma}^2_p = (SS_1 + SS_2) / (df_1 + df_2)\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Standard error &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; \(\hat{\sigma}_M = \sqrt{\hat{\sigma}^2 / n}\) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; \(\hat{\sigma}_{M_1 - M_2} = \sqrt{\hat{\sigma}^2_p / n_1 + \hat{\sigma}^2_p / n_2}\) &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; df &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; \(n - 1\) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; \((n_1 - 1) + (n_2 - 1)\) &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-6.small[Every row is the same idea, built for two groups]
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: 9 fifth graders
+
+.box-inv-8.small.sp-after-half[Mindspark group: n = 3, M = 20.67, SS = 12.67. Control group: n = 6, M = 16.33, SS = 239.33]
+
+.box-8.small.sp-after-half[Find the pooled variance σ̂²&lt;sub&gt;p&lt;/sub&gt;, then the standard error σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt;]
+
+.box-inv-8.small[Is σ̂²&lt;sub&gt;p&lt;/sub&gt; nearer 6.33 or 47.87, the two groups' own estimates? Why? Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+About 6 minutes, with calculators. Vote with hands on the last question. The groups' variances look very different, but 3 students can't tell us much about a population's σ².
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[σ̂²&lt;sub&gt;p&lt;/sub&gt; = (12.67 + 239.33) / (2 + 5) = **36.00**]
+]
+
+.pull-right[
+.box-inv-8.small[σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt; = √(36.00 / 3 + 36.00 / 6) = **4.24**]
+]
+
+.box-8.small.sp-after-half[It's nearer 47.87, the control group's estimate. That group has more students, so it counts for more]
+
+.box-inv-8.small[A plain average would have given 27.10. Pooling doesn't treat 3 students like 6]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+If someone wants t: (20.67 − 16.33) / 4.24 = 1.02. With t(7), the cutoff is 2.365, so we'd maintain H₀. Nine students can't settle much.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# Mindspark's test
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# Steps 1 and 2: set up the test
+
+.box-3.small.sp-after-half[At endline, do math scores differ across the two groups?]
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; In words &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; In symbols &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. State H₀ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The two population means don't differ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; μ&lt;sub&gt;Mindspark&lt;/sub&gt; − μ&lt;sub&gt;control&lt;/sub&gt; = 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. Set the criteria &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; α = 0.05, two tails, and σ is unknown &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; df = (266 − 1) + (273 − 1) = 537 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Reject H₀ if t is beyond the cutoffs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t(537) beyond ±1.964 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The df matter here: 266 + 273 − 2 = 537. With this many people, the cutoff is nearly 1.96. The book's table stops short of 537, so use the next lower df, or the z cutoff.
+
+---
+
+# Step 3: three moves
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; n &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; M &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; SS &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mindspark &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 266 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 18.68 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9107.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Control &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 273 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 15.99 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9060.0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-3.small[Pool: σ̂²&lt;sub&gt;p&lt;/sub&gt; = (9107.5 + 9060.0) / 537 = **33.83**]
+
+.box-inv-3.small[Standard error: σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt; = √(33.83 / 266 + 33.83 / 273) = **0.50**]
+
+.box-3.small[Compute t: (18.68 − 15.99) / 0.50 = **5.37**]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+In 2024's deck, df appeared as 573 on two slides. It's 537. Sums of squares like these come from a spreadsheet, with the computational formula from Topic 3. Lab 7 does this on the full data.
+
+---
+
+# Step 4: our t is far past the cutoff
+
+&lt;img src="09-two-samples-gains_files/figure-html/decision-plot-1.png" alt="A t curve with 537 degrees of freedom, with small shaded tails beyond plus and minus 1.964. A vertical line marks our t of 5.37, far to the right of the cutoff, where the curve has almost no height." width="92%" style="display: block; margin: auto;" /&gt;
+
+.box-3.small[5.37 is beyond 1.964, so we reject H₀. p is below 0.001]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+If the two populations were the same, a gap this large would almost never happen. So we reject H₀. That doesn't say how big the effect is, so that comes next.
+
+---
+
+# How big is the gap? g = 0.46
+
+&lt;div class="math-display"&gt;\[
+d = \frac{\mu_1 - \mu_2}{\sigma}
+\qquad \text{is estimated by} \qquad
+g = \frac{M_1 - M_2}{\hat{\sigma}_p}
+\]&lt;/div&gt;
+
+.box-inv-3.small.sp-after-half[σ̂&lt;sub&gt;p&lt;/sub&gt; = √33.83 = 5.82, so g = 2.69 / 5.82 = **0.46**]
+
+.box-3.small[The groups sit about half an SD apart. Remember Topic 7: that's large for education]
+
+.book-tag[In the book: g is called the estimated Cohen's d]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Same as Topic 8: g is in people's SDs, not in standard errors, so n isn't in the formula. Use the pooled SD, not the standard error of the gap.
+
+Topic 7's table from Kraft put the median effect at 0.10 SD. Please keep ignoring the book's Table 8.2 here.
+
+---
+
+# The interval for a gap
+
+&lt;img src="09-two-samples-gains_files/figure-html/ci-plot-1.png" alt="A number line of possible values of the population gap, with a point at 2.69 and a bar from 1.71 to 3.68. A dashed line marks zero, the H0 value, well to the left of the bar." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small.sp-after-half[Estimate ± margin of error: 2.69 ± 1.964 × 0.501 = [1.71, 3.68]]
+
+.box-3.small[The interval leaves out 0, so it agrees with the test: reject H₀]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Same move as Topic 8: estimate plus or minus a cutoff times a standard error. In H₀'s world, the gap is 0, and 0 isn't inside.
+
+Starting from unrounded numbers, the interval is 1.707 to 3.676. By hand with 2.69 and 0.50, it comes out at 1.71 to 3.67.
+
+---
+
+# How we report it
+
+.box-3.medium.sp-after-half[In words]
+
+.box-inv-3.small.sp-after-half[At endline, Mindspark students scored 2.69 points higher in math than control students. The difference is statistically significant at the 0.05 level, t(537) = 5.37, g = 0.46, with a 95% confidence interval of [1.71, 3.68]]
+
+.box-3.small[The test, the effect size and the interval: all three, as in Topic 8]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Because a lottery split the groups, this gap can be read as the program's effect, for these students. We'll come back to why on Thursday.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: One Mindspark center
+
+.box-inv-8.small.sp-after-half[Students at the Govindpuri center. Mindspark: n = 34, M = 19.50, SS = 1408.5. Control: n = 35, M = 16.89, SS = 1455.5]
+
+.box-8.small.sp-after-half[H₀: μ₁ − μ₂ = 0. α = 0.05, two tails. The cutoff is t(67) = ±1.996]
+
+.box-inv-8.small[Find t and g, then decide. Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+About 6 minutes, with calculators. Vote with hands on the decision: reject or maintain. Common slips: using n in place of df when pooling, or using the standard error as the bottom of g.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[σ̂²&lt;sub&gt;p&lt;/sub&gt; = (1408.5 + 1455.5) / 67 = **42.75**]
+
+.box-inv-8.small[σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt; = √(42.75 / 34 + 42.75 / 35) = **1.57**]
+]
+
+.pull-right[
+.box-inv-8.small[t = 2.61 / 1.57 = **1.66**. That's inside ±1.996: **maintain H₀**]
+
+.box-inv-8.small[g = 2.61 / √42.75 = **0.40**]
+]
+
+.box-8.small[A similar g to the whole study's 0.46, and a different decision. With 69 students, we can't tell]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+The same lesson as Topic 8: significant means hard to explain by sampling error. It doesn't mean big, and "maintain" doesn't mean no effect.
+
+---
+
+class: title title-8
+
+# Before Thursday
+
+.box-inv-8.medium.sp-after-half[Today's formula works when the two groups hold different people]
+
+.box-8.medium.sp-after-half[What if the same people take the test twice?]
+
+.box-inv-8.medium[Finish Chapter 11 for Thursday]
+
+???
+
+Everyone at endline also took the baseline test. So far, we've ignored that.
+
+---
+
+name: session-2
+class: title title-8
+
+# Session 2: Thursday, February 18
+
+.box-inv-8.small.sp-after-half[Tuesday in one line: a gap between two groups gets its own standard error, and a pooled σ̂²]
+
+.box-5.medium.sp-after-half[One group, two scores]
+
+.box-7.medium.sp-after-half[Why measure twice?]
+
+.box-4.medium[Who gets the credit?]
+
+???
+
+Three blocks today. There's no new formula, and the last block is the point of the whole topic.
+
+---
+
+layout: false
+class: center middle section-title section-title-5 animated fadeIn
+
+# One group, two scores
+
+---
+
+layout: true
+class: title title-5
+
+---
+
+# Some studies test people twice
+
+.pull-left[
+.box-5.medium[Two samples]
+
+.box-inv-5.small[Different people in each group]
+
+.box-inv-5.small[One score per person]
+
+.box-inv-5.small[Compare two groups: Tuesday]
+]
+
+.pull-right[
+.box-5.medium[Paired scores]
+
+.box-inv-5.small[The same people, before and after]
+
+.box-inv-5.small[Two scores per person]
+
+.box-inv-5.small[Compare each person with themselves: today]
+]
+
+.book-tag[In the book: independent measures and repeated measures]
+
+???
+
+The book's Chapter 11 also covers matched pairs: different people, paired up on something like a baseline score. They work the same way, with one number per pair.
+
+---
+
+# Two scores become one: the gain
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Student &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Before (baseline) &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; After (endline) &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Gain = after − before &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Student 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 18 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Student 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 15 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Student 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 16 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Student 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Student 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 20 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-5.small[Now each student has one number. We've seen what to do with one column of numbers]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Five Mindspark students, math.]
+
+???
+
+These are the first five students in the file who were in the Mindspark group. Their gains are positive, but gains can be negative.
+
+---
+
+# A paired test is a one-sample t on gains
+
+&lt;div class="math-display"&gt;\[
+t = \frac{M - \mu}{\hat{\sigma}_M}
+\qquad \text{where} \qquad
+\hat{\sigma}_M = \frac{\hat{\sigma}}{\sqrt{n}}
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-5.small[There's no new formula. This is Topic 8's, and now X is a person's gain]
+]
+
+.pull-right[
+.box-inv-5.small[M is the mean gain, and n is the number of people. H₀ says μ = 0, so df = n − 1]
+]
+
+.box-5.small[H₀: on average, nothing changes between before and after]
+
+.book-tag[In the book: a gain is D, and our M and σ̂&lt;sub&gt;M&lt;/sub&gt; are M&lt;sub&gt;D&lt;/sub&gt; and s&lt;sub&gt;M&lt;sub&gt;D&lt;/sub&gt;&lt;/sub&gt;]
+
+???
+
+Here's the good news of the day. Whatever you can do with a one-sample t, you can do with gains: g, intervals, one tail or two. n counts people, not scores. A common slip is using 2n.
+
+---
+
+# All 266 Mindspark students
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Mindspark students' gains &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. State H₀ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; μ = 0: no change on average &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. Set the criteria &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; α = 0.05, two tails. t(265) beyond ±1.969 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3. Compute t &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; M = 7.82, σ̂ = 4.97, σ̂&lt;sub&gt;M&lt;/sub&gt; = 4.97 / √266 = 0.305&lt;br&gt;t = 7.82 / 0.305 = &lt;strong&gt;25.68&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Decide &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Reject H₀: 25.68 is far beyond 1.969 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-5.small[Mean gain: 7.82 points. g = 1.57, and the 95% interval is [7.22, 8.42]]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+That's an enormous t. Hold on to it. Is 7.82 points what Mindspark did? We come back to that in the last block.
+
+---
+
+# Step 3b: each person gets a line
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=3p&amp;n=10&amp;mu=11&amp;sd=5&amp;rho=0.5&amp;d=1.56&amp;draws=1&amp;seed=15" title="Simulator at step 3b with one sample of ten people. Panel 1 shows before and after distributions. Panel 2 links each person's before and after scores with a line and reports the mean gain and a t-score. Panel 3 holds one dot at that t." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/ba132671df8e.png" alt="Simulator at step 3b with one sample of ten people. Panel 1 shows before and after distributions. Panel 2 links each person's before and after scores with a line and reports the mean gain and a t-score. Panel 3 holds one dot at that t."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Step 3b on the blueprint, between one mean and two means, because that's what it is: one mean, of gains. The settings are close to Mindspark's: before scores around 11, an SD of 5, and ρ = 0.5.
+
+Press +50. The pile in panel 3 is t-scores of mean gains.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Five students' gains
+
+.box-inv-8.small.sp-after-half[Gains: 5, 6, 4, 6, 13. So M = 6.8 and SS = 50.8]
+
+.box-8.small.sp-after-half[H₀: μ = 0. α = 0.05, two tails. The cutoff is t(4) = ±2.776]
+
+.box-inv-8.small[Find σ̂, σ̂&lt;sub&gt;M&lt;/sub&gt; and t, then decide. Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Same five students as before. Vote with hands on the decision. Students should notice that this is exactly Topic 8's calculation.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[σ̂ = √(50.8 / 4) = **3.56**]
+
+.box-inv-8.small[σ̂&lt;sub&gt;M&lt;/sub&gt; = 3.56 / √5 = **1.59**]
+]
+
+.pull-right[
+.box-inv-8.small[t = 6.8 / 1.59 = **4.27**]
+
+.box-inv-8.small[4.27 is beyond 2.776: **reject H₀**]
+]
+
+.box-8.small[We report: t(4) = 4.27, p = 0.013. Even five students can show a change, if they all move the same way]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The last line leads to the next block. Why can so few students show a change? Because each one is compared with themselves.
+
+---
+
+layout: false
+class: center middle section-title section-title-7 animated fadeIn
+
+# Why measure twice?
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# Strong students stay fairly strong
+
+&lt;img src="09-two-samples-gains_files/figure-html/lines-plot-1.png" alt="Forty thin lines, one per student, running from a baseline score on the left to an endline score on the right. Nearly all rise. Students who start higher mostly end higher, but the lines don't all run parallel." width="70%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-7.small[A gain takes each student's own starting level out of the picture]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 40 random Mindspark students.]
+
+???
+
+Across all 539 students, the correlation between baseline and endline is r = 0.50. We'll meet r properly in Topic 11. For now, it says how tightly the two scores move together. The population version is ρ.
+
+---
+
+# Same students, two ways to test
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Standard error &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; t &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Pretending they're two separate groups &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.429 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t(530) = 18.23 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Using each student's gain &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.305 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t(265) = 25.68 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-7.small.sp-after-half[Same 266 students, same mean gain of 7.82. Pairing cuts the standard error by 29%]
+
+.box-7.small[The first row is wrong here: the two columns of scores aren't independent]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Both tests agree here, because the change is so large. With a smaller change, the wrong test could easily miss it. Pairing means fewer students are needed to detect the same change, which is a real saving for a study.
+
+---
+
+# ρ sets the spread of the gains
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; How tightly before and after move together &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ρ &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; SD of gains &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Not at all &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.07 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Moderately &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.00 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Very tightly &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.24 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-7.small.sp-after-half[Each score here has σ = 5. The more tightly they move, the steadier the gains]
+
+.box-7.small[A smaller SD of gains means a smaller σ̂&lt;sub&gt;M&lt;/sub&gt;, and so a bigger t]
+
+???
+
+If someone wants the formula, the SD of gains is σ√(2(1 − ρ)). It isn't needed for this course, because we compute the gains and take their SD directly.
+
+With ρ = 0.5, the SD of gains equals σ. Mindspark's r is about that: gains have σ̂ = 4.97 for the treatment group.
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: Tighten the scores
+
+.box-inv-8.small.sp-after-half[Keep the mean gain the same. Raise ρ from 0.5 to 0.9, so before and after move together much more tightly]
+
+.box-8.small[What happens to the pile of t-scores in panel 3?]
+
+.options[
+.option[
+**A** It moves away from 0
+]
+.option[
+**B** It moves toward 0
+]
+.option[
+**C** It stays where it is
+]
+.option[
+**D** It depends on the mean before
+]
+]
+
+???
+
+About 6 minutes for this slide and the next two. Hands are fine. Neighbor first, then vote.
+
+---
+
+class: title title-8
+
+# Predict it: With ρ = 0.5
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=3p&amp;n=10&amp;mu=11&amp;sd=5&amp;rho=0.5&amp;d=0.5&amp;draws=551&amp;seed=15" title="Simulator at step 3b with 551 samples of ten people, a correlation of 0.5 and a mean gain of 2.5. The pile of t-scores in panel 3 sits a little to the right of zero, with many below the upper cutoff." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/20553eec2194.png" alt="Simulator at step 3b with 551 samples of ten people, a correlation of 0.5 and a mean gain of 2.5. The pile of t-scores in panel 3 sits a little to the right of zero, with many below the upper cutoff."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+This is the starting point: a mean gain of 2.5, with ρ = 0.5. Read off the share beyond the cutoffs. Then go to the next slide for ρ = 0.9.
+
+---
+
+class: title title-8
+
+# Predict it: With ρ = 0.9, a bigger t
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=3p&amp;n=10&amp;mu=11&amp;sd=5&amp;rho=0.9&amp;d=1.118&amp;draws=551&amp;seed=15" title="Simulator at step 3b with 551 samples of ten people, a correlation of 0.9 and a mean gain of 2.5. The pile of t-scores in panel 3 sits well to the right of zero, with most beyond the upper cutoff." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/cac4a480a1cd.png" alt="Simulator at step 3b with 551 samples of ten people, a correlation of 0.9 and a mean gain of 2.5. The pile of t-scores in panel 3 sits well to the right of zero, with most beyond the upper cutoff."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+The answer is A. Same mean gain, but the bottom of the fraction shrank: σ&lt;sub&gt;M&lt;/sub&gt; of the gains fell from 1.58 to 0.71. These are two presets, because the ρ slider is hidden on a slide. It's on the simulator page.
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# Pairing has a price
+
+.pull-left[
+.box-7.medium[What we gain]
+
+.box-inv-7.small[Each person is their own comparison]
+
+.box-inv-7.small[A smaller standard error]
+
+.box-inv-7.small[Fewer people for the same power]
+]
+
+.pull-right[
+.box-7.medium[What we risk]
+
+.box-inv-7.small[Time passes between the two scores]
+
+.box-inv-7.small[Anything that changed gets mixed into the gain]
+
+.box-inv-7.small[The test can't say what caused it]
+]
+
+???
+
+The test can tell us that scores changed. It can't tell us why. The book calls these time-related factors and order effects, and it covers counterbalancing, which swaps the order of conditions. A pretest and posttest can't be swapped.
+
+---
+
+layout: false
+class: center middle section-title section-title-4 animated fadeIn
+
+# Who gets the credit?
+
+---
+
+layout: true
+class: title title-4
+
+---
+
+# Did Mindspark add 7.82 points?
+
+.box-4.medium.sp-after-half[Students gained 7.82 points, t(265) = 25.68]
+
+.box-inv-4.small.sp-after-half[The test is right: their scores really rose. Sampling error can't explain that]
+
+.box-inv-4.small.sp-after-half[Imagine a press release: "Students gain nearly 8 points with Mindspark!"]
+
+.box-4.small[What else was going on for these students during those months?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is what a study without a control group would report. Ask students to name what else changed. Take a few answers before the next slide.
+
+---
+
+# Mindspark wasn't all that happened
+
+.pull-left[
+.box-inv-4.small.sp-after-half[School went on for 4.5 months]
+
+.box-inv-4.small[Children got older]
+]
+
+.pull-right[
+.box-inv-4.small.sp-after-half[They had seen a math test like this one before]
+
+.box-inv-4.small[The endline test wasn't the same test]
+]
+
+.box-4.small[A paired test can't separate any of this from the program]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The last one is specific to our data. The endline tests were different from the baseline test, out of 34 or 35 by grade band, so a raw gain can't be read as pure learning.
+
+The scaled scores in the data hint at how much that matters. In baseline SDs, control students gained 0.35, against about 1.21 in raw points. If those scales are linked across rounds, which the codebook doesn't say, the new test accounts for a good part of the raw gain.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Students with no program
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Control students lost the lottery, and had no Mindspark during those 4.5 months. On average, how much did their math scores rise?
+]
+
+.options[
+.option[
+**A** About 0 points
+]
+.option[
+**B** About 2 points
+]
+.option[
+**C** About 5 points
+]
+.option[
+**D** About 8 points, like the Mindspark group
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** About 0 points
+]
+.option.wrong[
+**B** About 2 points
+]
+.option.correct[
+**C** About 5 points
+]
+.option.wrong[
+**D** About 8 points, like the Mindspark group
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Control students gained 4.74 points, t(272) = 15.48
+]
+
+.box-8.small[
+A paired test finds a huge "effect" with no program at all
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+layout: true
+class: title title-4
+
+---
+
+# Both groups rose, one rose more
+
+&lt;img src="09-two-samples-gains_files/figure-html/both-lines-1.png" alt="Two lines from baseline to endline. The control group rises from 11.26 to 15.99, a gain of 4.74. The Mindspark group rises from 10.86 to 18.68, a gain of 7.82. A bracket at endline marks the gap of 2.69." width="84%" style="display: block; margin: auto;" /&gt;
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). The 539 students with both scores.]
+
+???
+
+This is the picture to remember. The control line is what would have happened anyway. Both lines rise. The program's contribution is how far the Mindspark line ends above the control line.
+
+---
+
+# A paired test alone over-credits
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; What we'd conclude &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Points &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Where it comes from &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Paired test, Mindspark students alone &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.82 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Gain: t(265) = 25.68 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Paired test, control students alone &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.74 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Gain: t(272) = 15.48 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Two-sample test at endline &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;2.69&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Gap: t(537) = 5.37 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-4.small.sp-after-half[7.82 / 2.69 = **2.9**: nearly three times the program's effect]
+
+.box-inv-4.small[The paired test isn't wrong. It asks if scores changed, not why]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Be careful with the words. Every number here is right. The mistake is reading a gain as an effect.
+
+---
+
+# Why doesn't 7.82 − 4.74 give 2.69?
+
+.box-inv-4.small.sp-after-half[Subtracting gains gives 3.09, a two-sample t on gains: t(537) = 7.15]
+
+.box-inv-4.small.sp-after-half[It differs from 2.69 by 0.40: the gap at baseline, which favored the control group by chance]
+
+.box-4.small.sp-after-half[Both are fair estimates, because both compare with the control group]
+
+.box-inv-4.small[The endline gap ignores baseline. Gains use it, so their standard error is smaller: 0.43, not 0.50]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+A student will do this subtraction, so get ahead of it. By hand, the rounded numbers give 3.08. Unrounded, it's 3.09. A fair lottery doesn't make groups identical, as we saw in Topic 6. Among these 539 students, the baseline gap of 0.40 points isn't significant.
+
+The two estimates, 2.69 and 3.09, give the same story, and this is the same two-sample test from Tuesday, with gains as the scores. Regression later in the course gives a third way to use baseline.
+
+---
+
+# This is why control groups exist
+
+.box-4.medium.sp-after-half[What would have happened without the program?]
+
+.box-inv-4.small.sp-after-half[We can't watch the same students both with and without Mindspark]
+
+.box-inv-4.small.sp-after-half[The lottery gave us the next best thing: similar students, who lived through the same months]
+
+.box-4.small[The control group's rise is what would have happened anyway. Whatever goes beyond it is the program]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is the idea behind the whole study. The word for that missing world is the counterfactual. School, growing up and the new test all hit both groups. The only thing the lottery let differ was the program.
+
+---
+
+layout: false
+class: title title-8
+
+# Play it: Name that test
+
+.box-inv-8.small.sp-after-half[**1** One-sample t  ·  **2** Paired t  ·  **3** Two-sample t. Hold up your fingers]
+
+.box-8.small[**A** 40 students take a reading test in September and again in June]
+
+.box-8.small[**B** Tutored students and untutored students each take one final exam]
+
+.box-8.small[**C** 25 teachers' scores are compared with a national mean of 100]
+
+.box-8.small[**D** Each child is matched with a similar child, and one of each pair gets the program]
+
+???
+
+A quick game with hands, about 3 minutes. Read each clue, count to three, and look around the room. Scan the room for clue D. Ask: what could explain the gain in clue A?
+
+---
+
+class: title title-8
+
+# Play it: Answers
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Clue &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Test &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; The giveaway &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; A &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Paired t &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Same students, two scores. But no control group &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; B &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Two-sample t &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Different students, one score each &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; C &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; One-sample t &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; One mean against a known value &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; D &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Paired t &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Each pair gives one difference &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-8.small[Ask two things: How many scores per person? Is there a comparison group?]
+
+---
+
+class: title title-8
+
+# The blueprint so far
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Blueprint step &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Statistic &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Bottom of the fraction &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. One score &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; None &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. One mean, σ known &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; None &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3a. One mean, σ unknown &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3b. Mean gain &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M&lt;/sub&gt; of the gains &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Two means &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n₁ + n₂ − 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 5. Two or more means: next &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; F &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Topic 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-8.small[Same fraction every time: what we saw, over what sampling error alone would give]
+
+???
+
+Next week, step 5 goes past two groups, and the fraction becomes a ratio of variances.
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Did scores change?]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+
+.box-inv-3.small[Did the program cause it?]
+
+.center[**Needs a comparison**]
+]
+
+???
+
+A paired test can tell us that scores rose. Only a comparison group, here one made by a lottery, lets us say why.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Run a two-sample t-test: pool, find the standard error, compute t]
+
+.box-inv-8.small[Report it with Hedges' g and a confidence interval]
+
+.box-inv-8.small[Turn before and after scores into gains, and run a paired t-test]
+
+.box-inv-8.small[Say why pairing shrinks the standard error]
+
+.box-inv-8.small[Explain why a gain isn't an effect, and what a control group adds]
+
+???
+
+Lab 7 tomorrow does both tests on the full data, in a spreadsheet.
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Friday, February 19: Lab 7]
+
+Two samples and gains. Bring a calculator and a laptop
+]
+
+.pull-right[
+.box-6.small[Sunday, February 21, 6 PM]
+
+Mastery and Problem Set for Chapter 10 are due. Chapter 11's, on gains, are due February 28
+]
+
+.box-3.small[For Tuesday, February 23: read Chapter 12. Topic 10 is ANOVA]
+
+&lt;style type="text/css"&gt;
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide. A slide that
+   waits for a live button press would print empty, so it goes too */
+@media print {
+  .remark-slide-container:has(.poll-answer),
+  .remark-slide-container:has(.press-slide) {
+    display: none !important;
+  }
+}
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "navigation": {
+    "scroll": true
+  },
+  "incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

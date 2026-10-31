@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>Regression: groups and interactions</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas de Barros" />
+    <meta name="date" content="2026-10-31" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <!-- MathJax measures fonts through remark's scaling, so in a small window or an
+         embedded frame it shrinks math to half size. Fix the size instead. -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+    <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
+    <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/simulator.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: center middle main-title section-title-4
+
+# Regression: groups and interactions
+
+.class-info[
+
+**Topic 14 · Tuesday, March 9**
+
+.light[EDUC 15: Statistics for Education Research&lt;br&gt;
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Do these groups differ?]
+
+.box-inv-6.small[Does one score go with another?]
+
+.box-inv-6.small[Is the slope real?]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+
+.box-inv-3.small[Did the program cause it?]
+
+.center[**We are here**]
+]
+
+???
+
+Same map, last time. Today the third column finally fills in. This is the last new content of the quarter, and it pulls the course together: ANOVA, the t-test and the Mindspark study all turn out to live inside one regression.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[ANOVA and t-tests are regression]
+
+.box-6.medium.sp-after-half[Interactions]
+
+.box-3.medium.sp-after-half[A sharper test, and the word "caused"]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: try, play, predict. Nothing here adds a new formula to compute by hand. It's about reading output and saying what it means.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# ANOVA and t-tests are regression
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# A center is a name, not a number
+
+.box-inv-1.small[Regression needs numbers, so we turn each center into yes/no columns]
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; A student in &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Govindpuri? &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Tekhand? &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Chhatarpur &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Govindpuri &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tekhand &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;div class="math-display"&gt;\[
+\hat{Y} = a + b_1 \times \text{Govindpuri} + b_2 \times \text{Tekhand}
+\]&lt;/div&gt;
+
+.box-1.small[Three groups need two columns: k − 1, which is ANOVA's df between]
+
+.book-tag[The book stops at one predictor. The handout on this topic's page covers two or more]
+
+???
+
+Thursday ended with "regression plays the part of between, and residual plays the part of within." So can a line do ANOVA's whole job? The one thing in the way is that a center is a name.
+
+Why not a third column for Chhatarpur? It would add nothing: a student with 0 and 0 must be in Chhatarpur. That group with all zeros is the reference group. The word for such a column is a dummy variable, or an indicator.
+
+Each b now has its own column, so each gets a number. b₁ and b₂ are still estimates, of β₁ and β₂.
+
+---
+
+# Each row is a mean or a gap
+
+&lt;div class="r-output"&gt;&lt;div&gt;lm(formula = baseline&amp;#95;math ~ center, data = students)       &lt;/div&gt;&lt;div&gt;                 Estimate Std. Error t value Pr(&amp;gt;|t|)       &lt;/div&gt;&lt;div&gt;(Intercept)      11.67081    0.30638  38.093   &amp;lt;2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;   &lt;span class="r-note"&gt;← a: Chhatarpur's mean&lt;/span&gt;&lt;/div&gt;&lt;div&gt;centerGovindpuri &amp;#45;0.07325    0.52742  &amp;#45;0.139   0.8896       &lt;span class="r-note"&gt;← Govindpuri − Chhatarpur&lt;/span&gt;&lt;/div&gt;&lt;div&gt;centerTekhand    &amp;#45;0.88889    0.36614  &amp;#45;2.428   0.0155 &amp;#42;     &lt;span class="r-note"&gt;← Tekhand − Chhatarpur&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Residual standard error: 3.887 on 616 degrees of freedom    &lt;span class="r-note"&gt;← √MS&lt;sub&gt;within&lt;/sub&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Multiple R&amp;#45;squared:  0.01173, Adjusted R&amp;#45;squared:  0.008524 &lt;/div&gt;&lt;div&gt;F&amp;#45;statistic: 3.657 on 2 and 616 DF,  p&amp;#45;value: 0.02638       &lt;span class="r-note"&gt;← Topic 10's F&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+
+.box-1.small.sp-after-half[Start at a and add each gap: 11.67 − 0.07 = 11.60, and 11.67 − 0.89 = 10.78]
+
+.box-inv-1.small[Those are Topic 10's three means. With yes/no columns, every row is about groups]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). All 619 students at baseline. Output from R, `summary(lm())`.]
+
+???
+
+The last row's t, −2.43, is Topic 10's try-it: Chhatarpur against Tekhand, with the same gap, the same MS within and the same df. Its p of 0.015 is the same too, and it needs the same Bonferroni care.
+
+To compare Govindpuri with Tekhand, change which center is the reference. Nothing else about the model changes.
+
+Each row has a t, and the F at the bottom tests all the b's together. That's the point Thursday's notes made: with more than one predictor, F and t are no longer the same number.
+
+---
+
+# Same split, same F
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; In Topic 10 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; In regression &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; SS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; MS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; F &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Between centers &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Regression &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 110.52 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 55.26 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;3.66&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Within centers &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Residual &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9,309.39 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 616 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 15.11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9,419.91 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 618 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-1.small.sp-after-half[Same numbers, to the last decimal: F(2, 616) = 3.66, p = 0.026]
+
+.box-inv-1.small.sp-after-half[Topic 10's η̂² = 0.012 is R's Multiple R-squared]
+
+.box-1.small[A one-way ANOVA is a regression on yes/no columns]
+
+.book-tag[With more than one predictor, r² is written R²]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Nothing here is rounded or approximate. The group means are Ŷ, so SS residual is every student's distance from their own center's mean, and that's SS within.
+
+ANOVA and regression grew up in different fields, so they use different words. It's one model.
+
+---
+
+# With two groups, one column will do
+
+&lt;img src="14-regression-groups_files/figure-html/treat-plot-1.png" alt="Dots for 539 students' endline math scores in two columns, at X = 0 for control and X = 1 for Mindspark. A red diamond marks each group's mean: 15.99 and 18.68. A straight line joins the two diamonds, and its slope is 2.69." width="80%" style="display: block; margin: auto;" /&gt;
+
+.box-1.small[X can only be 0 or 1, so the line joins two means. Its slope is the gap]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 539 students. Dots are nudged so equal scores don't hide each other.]
+
+???
+
+Same picture as Topic 12, with only two places for X to be. The least squares line must go through both group means, since each mean is what minimizes squares within its own column.
+
+So a is the control group's mean and b is the gap. Nothing else is possible.
+
+---
+
+# The slope is Topic 9's gap
+
+&lt;div class="r-output"&gt;&lt;div&gt;lm(formula = endline&amp;#95;math ~ treat, data = mindspark)            &lt;/div&gt;&lt;div&gt;            Estimate Std. Error t value Pr(&amp;gt;|t|)                &lt;/div&gt;&lt;div&gt;(Intercept)  15.9927     0.3520  45.430  &amp;lt; 2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;            &lt;span class="r-note"&gt;← a: the control mean&lt;/span&gt;&lt;/div&gt;&lt;div&gt;treat         2.6915     0.5011   5.371 1.17e&amp;#45;07 &amp;#42;&amp;#42;&amp;#42;            &lt;span class="r-note"&gt;← b: the gap, and its σ̂&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Residual standard error: 5.816 on 537 degrees of freedom        &lt;span class="r-note"&gt;← √pooled variance&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Multiple R&amp;#45;squared:  0.05098, Adjusted R&amp;#45;squared:  0.04922      &lt;span class="r-note"&gt;← r²&lt;/span&gt;&lt;/div&gt;&lt;div&gt;F&amp;#45;statistic: 28.85 on 1 and 537 DF,  p&amp;#45;value: 1.167e&amp;#45;07         &lt;span class="r-note"&gt;← F = t²&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
+
+.pull-left[
+.box-inv-1.small[Ŷ = 15.99 + 2.69X. At X = 0, Ŷ = 15.99]
+]
+
+.pull-right[
+.box-inv-1.small[At X = 1, Ŷ = 15.99 + 2.69 = 18.68]
+]
+
+.box-1.small[The Std. Error, 0.501, is Topic 9's σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt;. The t, 5.37, is Topic 9's t]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
+
+???
+
+15.99 and 18.68 are the two numbers from the first week of class. In Topic 1 we asked if that gap was real or just luck.
+
+Sign: Topic 9 subtracted control from Mindspark, so its t was positive too. If R ran `t.test()`, it would subtract the other way, and print −5.37. Only the sign changes.
+
+This t is the pooled t, because regression assumes one spread around the line. That's the same assumption.
+
+---
+
+# One gap, four tests, one answer
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Test of the gap &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Where we met it &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Mindspark at endline &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Two-sample t &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Topic 9 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t(537) = 5.37 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; One-way ANOVA &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Topic 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; F(1, 537) = 28.85 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Correlation with a yes/no X &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Topic 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; r = 0.23, t(537) = 5.37 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;Regression slope&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;Today&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;b = 2.69, t(537) = 5.37&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-1.small.sp-after-half[5.37² = 28.85. And r² = 0.051 is the share of variability between the groups]
+
+.box-1.small[The book teaches these one at a time. They're one model: regression]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is the slide to linger on. Students learned these as four tests, and each has its own formula. All of them ask: how much better do we predict Y when we know which group someone is in?
+
+Each still earns its place: the t-test is the simple hand calculation, ANOVA handles many groups at once, r gives a scale-free size, and regression lets us add more predictors, which is the rest of today.
+
+---
+
+# Step 7b: a slope for a yes/no X
+
+&lt;div class="sim-slide" style="height: 495px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=7b&amp;n=20&amp;d=0.46&amp;a=3&amp;view=raw&amp;draws=551&amp;seed=43" title="Simulator at step 7b with 551 samples of 20 people, half at X = 0 and half at X = 1. Panel 1 shows two curves for the two groups, joined by the population line Y = 3.00 + 0.46 X. Panel 2 shows one sample as two columns of dots with a line through the two group means. Panel 3 shows the values of b piled up around 0.46." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/09282f653543.png" alt="Simulator at step 7b with 551 samples of 20 people, half at X = 0 and half at X = 1. Panel 1 shows two curves for the two groups, joined by the population line Y = 3.00 + 0.46 X. Panel 2 shows one sample as two columns of dots with a line through the two group means. Panel 3 shows the values of b piled up around 0.46."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+
+???
+
+The last step on the blueprint, and the same three panels as always. Panel 1 has two groups, so the population line joins two means. Panel 2 is one sample of 20. Panel 3 piles up each sample's b, which is each sample's gap.
+
+**Press +1 a few times** and watch the line swing, as it did on Thursday.
+
+The slope β = 0.46 is about Mindspark's gap in SDs, since the spread around this line is 1. The population line is in plain numbers, not points on our test.
+
+---
+
+# Under H₀, it's step 4's t curve
+
+&lt;div class="sim-slide" style="height: 495px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=7b&amp;n=20&amp;d=0&amp;a=3&amp;view=stat&amp;draws=551&amp;seed=43" title="Simulator at step 7b with 551 samples of 20 people and a flat population line, so the two groups have the same mean. Panel 3 shows t values stacked along a t curve with 18 degrees of freedom, with cutoffs near plus and minus 2.10." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/618bca451906.png" alt="Simulator at step 7b with 551 samples of 20 people and a flat population line, so the two groups have the same mean. Panel 3 shows t values stacked along a t curve with 18 degrees of freedom, with cutoffs near plus and minus 2.10."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Here β = 0, so H₀ is true. Topic 9 did this with step 4: 10 people per group, so t(18). Step 7b has 20 people and df = n − 2 = 18. Same curve, same cutoffs of ±2.101, and the same 5% beyond them.
+
+The blueprint began as a picture of one mean. It ends with a line, and that line is the same test.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: One center's output
+
+&lt;div class="r-output"&gt;&lt;div&gt;lm(formula = endline&amp;#95;math ~ treat, data = chhatarpur)           &lt;/div&gt;&lt;div&gt;            Estimate Std. Error t value Pr(&amp;gt;|t|)                &lt;/div&gt;&lt;div&gt;(Intercept)  18.3514     0.6836   26.85   &amp;lt;2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;            &lt;/div&gt;&lt;div&gt;treat         1.6032     0.9956    1.61     0.11                &lt;/div&gt;&lt;div&gt;Residual standard error: 5.88 on 138 degrees of freedom         &lt;/div&gt;&lt;div&gt;Multiple R&amp;#45;squared:  0.01844, Adjusted R&amp;#45;squared:  0.01133      &lt;/div&gt;&lt;/div&gt;
+
+.box-8.small.sp-after-half[These are Chhatarpur's 140 students, with treat = 0 or 1. Find the control mean, the Mindspark mean and F]
+
+.box-inv-8.small[Then decide with α = 0.05. Work alone, compare with a neighbor, then vote with hands: reject or maintain?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
+
+???
+
+About 6 minutes. No calculator needed except for the squaring. The F-statistic line is hidden on purpose.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left-3[
+.box-inv-8.small[Control mean: a = **18.35**]
+]
+
+.pull-middle-3[
+.box-inv-8.small[Mindspark mean: a + b = **19.95**]
+]
+
+.pull-right-3[
+.box-inv-8.small[F = t² = 1.61² = **2.59**]
+]
+
+.box-8.small.sp-after-half[p = 0.110 is above 0.05, so we **maintain H₀**: t(138) = 1.61]
+
+.box-inv-8.small.sp-after-half[With only 140 students, this gap's standard error is 1.00, not 0.50]
+
+.box-inv-8.small[Maintaining H₀ doesn't mean no effect here. And a gap of 1.60 isn't 2.69. Could the effect depend on who you are?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Common slip: reading the intercept's p, which is about something else.
+
+The gaps by center are 1.60, 2.61 and 3.27. They bounce, as gaps do. Telling a bounce from a real difference is the next block's job.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Interactions
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Does chili cheese cost extra?
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; No cheese &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Cheese &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; No chili &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; $2.00 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; $2.35 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Chili &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; $2.35 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; $2.70 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.pull-left[
+.box-inv-6.small[Chili alone adds $0.35. Cheese alone adds $0.35]
+]
+
+.pull-right[
+.box-inv-6.small[Both together add $0.70: the sum of the two]
+]
+
+.box-6.small[An **interaction** is what a combination adds beyond the sum of its parts. Here, it's $0]
+
+???
+
+A menu, from the 2024 lecture. Take a minute with it: what's the chili effect? The cheese effect? The chili and cheese effect? Do we pay extra for this synergy?
+
+So the whole is exactly the sum of its parts. The effect of chili doesn't depend on whether you ordered cheese.
+
+---
+
+# Parallel lines mean no interaction
+
+&lt;img src="14-regression-groups_files/figure-html/parallel-plot-1.png" alt="Two line charts of price against cheese, with one line for no chili and one for chili. In the left panel, both lines rise by the same amount, so they are parallel: $2.00 to $2.35, and $2.35 to $2.70. In the right panel, a made-up discount sets chili cheese at $2.50, so the chili line rises less and the two lines come together." width="90%" style="display: block; margin: auto;" /&gt;
+
+.box-6.small[On the right, what chili adds depends on whether you have cheese]
+
+.source[The right-hand price of $2.50 is made up.]
+
+???
+
+The left panel is the real menu. Parallel lines mean that the gap between them stays the same all the way across.
+
+The right panel is a made-up combo discount. Now the sum of the parts is $2.70, and the combination costs $2.50, so the interaction is −$0.20. It can go either way: extra or muted.
+
+Lines don't need to cross for there to be an interaction. They only need to not be parallel.
+
+---
+
+# Mindspark's lines aren't quite parallel
+
+&lt;img src="14-regression-groups_files/figure-html/mindspark-lines-1.png" alt="Line chart of mean endline math. Boys rise from 16.02 in control to 19.60 with Mindspark. Girls rise from 15.99 to 18.42. The two lines start at almost the same point, and the boys' line ends a little higher, so they are not quite parallel." width="80%" style="display: block; margin: auto;" /&gt;
+
+.box-6.small[The gap is 3.58 for boys and 2.43 for girls. Is that 1.15-point difference real?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Boys: 65 control, 60 Mindspark. Girls: 208 control, 206 Mindspark.]
+
+???
+
+The old two-factor ANOVA question: does the program's effect vary by gender?
+
+A sample's lines are never perfectly parallel, just as two sample means are never perfectly equal. So we need a test.
+
+---
+
+# An interaction is one more column
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Group &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; treat &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; female &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; treat × female &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; n &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Control boys &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 65 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mindspark boys &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 60 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Control girls &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 208 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mindspark girls &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;1&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 206 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;div class="math-display"&gt;\[
+\hat{Y} = a + b_1 \,\text{treat} + b_2 \,\text{female} + b_3 \,(\text{treat} \times \text{female})
+\]&lt;/div&gt;
+
+.box-6.small[The product is 1 for one group only. So b₃ is the extra for that group]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is the idea of a two-factor design, and it's still just columns. Regression doesn't need a new method for two factors.
+
+Four groups, four numbers: a, b₁, b₂ and b₃. So the model fits all four means exactly. The next slides show how to get them back.
+
+We skip the two-factor partition of SS on purpose. With unequal group sizes it isn't a simple hand calculation, and a table of results tells us all we need.
+
+---
+
+# R writes the product as treat:female
+
+&lt;div class="r-output"&gt;&lt;div&gt;lm(formula = endline&amp;#95;math ~ treat &amp;#42; female, data = mindspark)   &lt;/div&gt;&lt;div&gt;             Estimate Std. Error t value Pr(&amp;gt;|t|)               &lt;/div&gt;&lt;div&gt;(Intercept)  16.01538    0.72150  22.197  &amp;lt; 2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;           &lt;span class="r-note"&gt;← a&lt;/span&gt;&lt;/div&gt;&lt;div&gt;treat         3.58462    1.04139   3.442 0.000622 &amp;#42;&amp;#42;&amp;#42;           &lt;span class="r-note"&gt;← b₁&lt;/span&gt;&lt;/div&gt;&lt;div&gt;female       &amp;#45;0.02981    0.82658  &amp;#45;0.036 0.971247               &lt;span class="r-note"&gt;← b₂&lt;/span&gt;&lt;/div&gt;&lt;div&gt;treat:female &amp;#45;1.15272    1.18803  &amp;#45;0.970 0.332349               &lt;span class="r-note"&gt;← b₃&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Residual standard error: 5.817 on 535 degrees of freedom        &lt;/div&gt;&lt;div&gt;Multiple R&amp;#45;squared:  0.05438, Adjusted R&amp;#45;squared:  0.04908      &lt;/div&gt;&lt;div&gt;F&amp;#45;statistic: 10.26 on 3 and 535 DF,  p&amp;#45;value: 1.419e&amp;#45;06         &lt;/div&gt;&lt;/div&gt;
+
+.box-6.small.sp-after-half[Ŷ = 16.02 + 3.585 treat − 0.03 female − 1.153 treat×female]
+
+.box-inv-6.small[Read the four coefficients as groups. Don't start with the stars]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
+
+???
+
+Point out that the `treat` row's t is 3.44, smaller than the 5.37 from before. That isn't a weaker effect. It's a different question, as the next slide shows.
+
+With a product in the model, the F at the bottom tests all three b's at once. We don't use it here.
+
+---
+
+# Each coefficient compares two groups
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Value &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; What it says &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; a &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 16.02 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The mean of control boys, where every column is 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; b₁: treat &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.585 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Mindspark's effect &lt;strong&gt;for boys&lt;/strong&gt;, where female = 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; b₂: female &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.03 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Girls minus boys &lt;strong&gt;in the control group&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; b₃: treat × female &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −1.153 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; How much smaller the effect is for girls &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-6.small.sp-after-half[Mindspark girls: 16.02 + 3.585 − 0.03 − 1.153 = 18.42. Every column is 1, so add all four]
+
+.box-6.small[With a product in the model, each b holds where the other column is 0]
+
+.book-tag[You'll also read: moderation, or heterogeneous, conditional or differential effects]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The trap is reading 3.585 as "the effect of Mindspark". It's the effect for boys. For girls it's 3.585 − 1.153 = 2.43.
+
+The three t's answer three questions, a little different from a two-factor ANOVA's, whose main effects are averages across groups. The interaction test is the same: −0.97² = 0.94, the F from 2024.
+
+Students don't need the other names on the last line for exams, but they'll see them in papers.
+
+---
+
+# The four steps: is the interaction real?
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; In words &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Our numbers &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. State H₀ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Same effect for girls and boys &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; H₀: β₃ = 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. Set the criteria &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Two tails, α = 0.05 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t(535) beyond ±1.964 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3. Compute t &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Estimate / Std. Error &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; −1.153 / 1.188 = −0.97 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Decide &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Inside the cutoffs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;Maintain H₀&lt;/strong&gt;, p = 0.332 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-6.small.sp-after-half[We can't say the effect differs by gender. We can't say it's the same either: the 95% interval for β₃ is [−3.49, 1.18]]
+
+.box-6.small[b₃'s standard error is 1.19, over twice the 0.50 for the overall gap. Only 125 students are boys, and that limits this test]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The four steps one last time.
+
+df = n − 4, because the model spends one df on each of its four numbers.
+
+A common mistake: "It's significant for one group and not the other, so the effect differs." Test the interaction itself. Here both groups clear the bar on their own: boys alone, t = 3.65; girls alone, t = 4.18.
+
+With no sign of an interaction, we go back to one effect for everyone: 2.69.
+
+---
+
+layout: false
+class: title title-8
+
+# Play it: Mindspark and math tuition
+
+&lt;div class="r-output"&gt;&lt;div&gt;lm(formula = endline&amp;#95;math ~ treat &amp;#42; tuition, data = mindspark)  &lt;/div&gt;&lt;div&gt;              Estimate Std. Error t value Pr(&amp;gt;|t|)              &lt;/div&gt;&lt;div&gt;(Intercept)    15.5057     0.4348  35.658  &amp;lt; 2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;          &lt;/div&gt;&lt;div&gt;treat           2.9576     0.6141   4.816 1.91e&amp;#45;06 &amp;#42;&amp;#42;&amp;#42;          &lt;/div&gt;&lt;div&gt;tuition         1.3773     0.7370   1.869   0.0622 .            &lt;/div&gt;&lt;div&gt;treat:tuition  &amp;#45;0.5034     1.0574  &amp;#45;0.476   0.6342              &lt;/div&gt;&lt;/div&gt;
+
+.clues[
+.clue[
+**100** The control mean without tuition
+]
+.clue[
+**200** What Mindspark adds without tuition
+]
+.clue[
+**300** What Mindspark adds with tuition
+]
+.clue[
+**400** Does the effect depend on tuition? α = 0.05
+]
+]
+
+.box-8.small[tuition = 1 means extra math tuition. Answer with a neighbor, as a question]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
+
+???
+
+About 6 minutes. Read one clue at a time, in order. Take answers by hands or by calling out. Same Jeopardy format as Friday's Lab 10.
+
+---
+
+class: title title-8
+
+# Play it: Answers
+
+.clues[
+.clue[
+**100: What is 15.51?**&lt;br&gt;a: every column is 0
+]
+.clue[
+**200: What is 2.96?**&lt;br&gt;b₁: the effect where tuition = 0
+]
+.clue[
+**300: What is 2.45?**&lt;br&gt;b₁ + b₃: 2.96 − 0.50
+]
+.clue[
+**400: What is maintain H₀?**&lt;br&gt;t(529) = −0.48, p = 0.634
+]
+]
+
+.box-8.small.sp-after-half[The lines are close to parallel. Mindspark helped about as much either way]
+
+.box-inv-8.small[The lottery set Mindspark, but not tuition. So b₂ = 1.38 is a difference, not an effect]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 533 students with a tuition answer.]
+
+???
+
+Mindspark's effect is causal within each group, since the lottery ran for everyone. The tuition gap isn't: families chose tuition. That's a preview of the last block.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# A sharper test, and the word "caused"
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# Spread hides a gap
+
+&lt;img src="14-regression-groups_files/figure-html/spread-plot-1.png" alt="Two panels, each with two rows of dots for a control group and a program group. In both, the group means are 10 and 14, marked with a tick. In the left panel, each group's dots spread widely and the groups overlap heavily. In the right panel, each group's dots sit tight around its mean, so the gap stands out." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small.sp-after-half[Same gap, less spread: a smaller standard error and a bigger t]
+
+.box-3.small[That's more power, so less risk of a Type 2 error. α stays at 0.05]
+
+.source[After a figure in Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*, 10e. Scores made up.]
+
+???
+
+This is Thursday's first way to narrow the pile: tight dots. Students differ for many reasons that have nothing to do with the program, and all of it lands in the residuals and goes to the bottom of the fraction.
+
+We can't change the students. But if we can explain some of those differences with another predictor, they stop counting as misses.
+
+The 2024 slide said this lowers the chance of a Type 1 error. That's set by α. Less spread lowers the Type 2 error rate.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Which one sharpens the test?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+With only treat in the model, the gap's standard error is 0.501. We add one more column. Which makes that standard error smallest?
+]
+
+.options[
+.option[
+**A** Gender
+]
+.option[
+**B** Baseline math
+]
+.option[
+**C** Both about the same
+]
+.option[
+**D** Neither: the lottery already took care of it
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer.
+
+D is tempting and half right. The lottery protects the estimate from bias, so we don't need another predictor to get a fair answer. A predictor can still make that answer more precise.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** Gender
+]
+.option.correct[
+**B** Baseline math
+]
+.option.wrong[
+**C** Both about the same
+]
+.option.wrong[
+**D** Neither: the lottery already took care of it
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Adding baseline: 0.501 falls to 0.427. Adding gender: it stays at 0.501
+]
+
+.box-8.small[
+Baseline goes with endline: r = 0.50. Gender barely does: r = −0.04
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# A good covariate shrinks the misses
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Model &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; b for treat &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Std. Error &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; t &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Typical miss &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; treat alone &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.69 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.501 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.37 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.82 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; treat + gender &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.70 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.501 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.39 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.82 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;treat + baseline&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.00 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.427 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.04 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.94 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Gain as the outcome (Topic 9) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.09 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.432 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.15 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.01 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-3.small.sp-after-half[Baseline takes the typical miss from 5.82 to 4.94 points. Gender leaves it alone]
+
+.box-inv-3.small.sp-after-half[b moves too, because the lottery left the control group 0.40 ahead by chance. Gains assume baseline's slope is 1. Regression estimates it: 0.78]
+
+.box-3.small[A **covariate** is a predictor added to sharpen a test, by explaining Y]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Typical miss is R's Residual standard error.]
+
+???
+
+Topic 9 promised a third way to use baseline, and here it is. The endline gap ignores baseline. Gains subtract all of it. Regression subtracts the share the data support.
+
+Check the arithmetic: 2.69 + 0.78 × 0.40 = 3.00, and 2.69 + 1 × 0.40 = 3.09. The baseline gap isn't significant (p = 0.242), and all three estimates are fair.
+
+Adding gender moves F for treat from 28.85 to 29.00, which is the "very similar" result from 2024.
+
+Researchers can build this in. The lottery here ran within strata of similar students, the same idea as a covariate, but done at the design stage. The data has a `strata` column.
+
+---
+
+# The lottery earns the word "caused"
+
+.box-inv-3.small.sp-after-half[We can't watch the same student both with and without Mindspark]
+
+.box-inv-3.small.sp-after-half[A lottery sorts students by chance. So motivation, family and past scores balance out on average, even the things nobody measured]
+
+.box-inv-3.small.sp-after-half[Apart from chance, the program is then the only thing that differs between the groups]
+
+.box-3.small[And our test deals with chance: t(537) = 5.37. What's left is the program]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Topic 9 said this for one gap. Now it holds for a whole family of models.
+
+Three honest limits, if someone asks. One: the lottery set who was offered a place, so strictly this is the effect of winning a place, not of a set amount of Mindspark. Two: a lottery protects the groups as drawn, and 89.5% of control students and 84.7% of Mindspark students were still there at endline (p = 0.097). A gap in who stayed could bend the comparison. Three: this is one group of students in Delhi. "Caused" means here, not everywhere.
+
+---
+
+# Same math, different sentence
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; X &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; R prints &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Who set X? &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; We may say &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tekhand &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; b = −0.89, t = −2.43 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Not a lottery &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Lower than Chhatarpur &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Baseline &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; b = 0.76, t = 13.46 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Past learning &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Goes with endline &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;treat&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;b = 2.69, t = 5.37&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;A lottery&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;Mindspark raised scores&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-3.small.sp-after-half[R prints all three the same way. It doesn't know how the data were made]
+
+.box-3.small[The test says a gap is real. Only the design says why]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is Thursday's third question: "Did X cause Y?" is answered by the design, not the test. The first row uses all 619 students at baseline. The other two use the 539 at endline.
+
+If there's one slide they carry into EDUC 157 or a news story, it's this one. Ask of any claim: who set X?
+
+---
+
+# Back to January: real, or just luck?
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Question &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; What we found &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Topic &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Is the gap real? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Yes: t(537) = 5.37, p &amp;lt; 0.001 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; How big is it? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2.69 points, g = 0.46, 95% CI [1.71, 3.68] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Isn't it just growth? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Everyone rose: control 4.74, Mindspark 7.82 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Does it depend on gender? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; We can't tell: t(535) = −0.97 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Can we sharpen it? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; With baseline: 3.00 points, t = 7.04 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Did Mindspark cause it? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Yes: a lottery set who got it &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small[That's a full research story: describe, test, size it, rule out rivals, and say why]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+In the first week we put 15.99 and 18.68 on a slide and said "By March, you'll be able to say." It's March.
+
+Have a student tell the story in their own words, in three sentences, to a neighbor.
+
+---
+
+layout: false
+class: title title-8
+
+# The blueprint, finished
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Blueprint step &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Statistic &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Bottom of the fraction &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. One score &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; None &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. One mean, σ known &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; None &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3a. One mean, σ unknown &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3b. Mean gain &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M&lt;/sub&gt; of the gains &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Two means &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n₁ + n₂ − 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 5. Two or more means &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; F &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; MS&lt;sub&gt;within&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; k − 1 and N − k &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 6. A correlation &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;r&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 7a. A slope &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;b&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;7b. A slope for a yes/no X&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;t&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;σ̂&lt;sub&gt;b&lt;/sub&gt;, which is σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt;&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;n − 2&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-8.small[z, t, F, r, b: one idea. What we saw, over what chance alone would give]
+
+???
+
+Same three panels from Topic 6 to today: a population, one sample, and the pile of every sample we could have got. Students who hold onto that picture can rebuild any row of this table.
+
+Step 7b also closes the loop on step 4: same df, since n − 2 is n₁ + n₂ − 2.
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Do these groups differ?]
+
+.box-inv-6.small[Does one score go with another?]
+
+.box-inv-6.small[Is the slope real?]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+
+.box-inv-3.small[Did the program cause it?]
+
+.box-inv-3.small[A lottery lets us answer yes]
+
+.center[**All three, done**]
+]
+
+???
+
+The same map from the first week. Regression can sit in any of the three columns. Which column you're in depends on the question and on the design, not on the math.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Read a regression on yes/no columns as group means and gaps]
+
+.box-inv-8.small[Show that ANOVA and the two-sample t are the same regression model]
+
+.box-inv-8.small[Spot an interaction in a plot, and say what each coefficient means]
+
+.box-inv-8.small[Say why a good covariate sharpens a test, and a weak one doesn't]
+
+.box-inv-8.small[Say why a lottery lets us say "caused", and when we can't]
+
+???
+
+That's the end of new content. Thursday is for review, so ask students to bring questions.
+
+Two-predictor regression isn't in Chapter 14. The handout on this topic's page covers what they need.
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Thursday, March 11: Course review]
+
+Bring your questions
+]
+
+.pull-right[
+.box-6.small[Friday, March 12: Lab 10]
+
+Jeopardy: final review
+]
+
+.box-3.small[Sunday, March 14, 6 PM: Mastery and Problem Set for Chapter 14 are due]
+
+.box-5.small[Finals week, March 13 to 19: the final exam. Date to come]
+
+&lt;style type="text/css"&gt;
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.source a {
+  color: #244a70;
+  text-decoration: underline;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* R's output, with a note beside the lines that matter */
+.r-output {
+  margin: 0.2em 0 0.4em 0;
+  padding: 0.4em 0.6em;
+  border: 1px solid #c9d1d9;
+  background-color: #f6f7f8;
+  font-family: 'Source Code Pro', 'Lucida Console', Monaco, monospace;
+  font-size: 0.54em;
+  line-height: 1.3;
+}
+
+.r-output div {
+  white-space: pre;
+}
+
+.r-note {
+  margin-left: 0.6em;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 1.15em;
+  font-weight: bold;
+  color: #a93e31;
+}
+
+/* Jeopardy clues */
+.clues {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin: 0.3em 0 0.6em 0;
+  font-size: 0.65em;
+}
+
+.clue {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "navigation": {
+    "scroll": true
+  },
+  "incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

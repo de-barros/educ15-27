@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>ANOVA</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas de Barros" />
+    <meta name="date" content="2026-10-31" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <!-- MathJax measures fonts through remark's scaling, so in a small window or an
+         embedded frame it shrinks math to half size. Fix the size instead. -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+    <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
+    <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/simulator.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: center middle main-title section-title-4
+
+# ANOVA
+
+.class-info[
+
+**Topic 10 · Tuesday, February 23**
+
+.light[EDUC 15: Statistics for Education Research&lt;br&gt;
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Do these groups differ in the population?]
+
+.center[**We are here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Same map. Last week, the lottery let us read a gap as an effect. Today's groups are three Mindspark centers, and nobody drew lots for those. So we're back in the middle column: are these populations different? Not: what caused it?
+
+---
+
+class: title title-8
+
+# Same four steps, more means
+
+.box-inv-8.small.sp-after-half[Step 1: State a hypothesis about the means of two or more populations]
+
+.box-inv-8.small.sp-after-half[Step 2: Set the criteria: how large must F be to count as unexpected?]
+
+.box-8.small.sp-after-half[Step 3: Observe a sample from each population. How unexpected is the spread between the group means, given the spread within the groups?]
+
+.box-inv-8.small[Step 4: Reject or maintain H₀]
+
+???
+
+The same four steps as Topics 7, 8 and 9. Step 3 changes the most, and that's today's main idea.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[Why not more t-tests?]
+
+.box-6.medium.sp-after-half[Splitting the variability]
+
+.box-3.medium.sp-after-half[The test, and what comes after]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: predict, try, try.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# Why not more t-tests?
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Three centers, three means
+
+&lt;img src="10-anova_files/figure-html/center-plot-1.png" alt="Three histograms of baseline math scores, one per Mindspark center. All three are bell-shaped, span about the same scores, and overlap almost fully. The means are 11.67 in Chhatarpur, 11.60 in Govindpuri and 10.78 in Tekhand." width="90%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[Did the centers differ before the program, or is this sampling error?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 619 students at baseline.]
+
+???
+
+These are the three after-school centers from Topic 1. Children weren't sorted into them by a lottery, so a gap here would be a difference, not an effect. A real worry too: if centers start out different, that matters for reading anything later.
+
+---
+
+# More tests, more false alarms
+
+&lt;img src="10-anova_files/figure-html/inflation-plot-1.png" alt="A rising curve of points. The x axis is the number of tests, from 1 to 10. The y axis is the chance of at least one false alarm when every null hypothesis is true. It is 5 percent for one test, 14 percent for three and 40 percent for ten. A dashed line stays at 5 percent, the risk we meant to take." width="80%" style="display: block; margin: auto;" /&gt;
+
+&lt;div class="math-display"&gt;\[
+\text{Chance of at least one false alarm} = 1 - (1 - \alpha)^{\text{tests}}
+\]&lt;/div&gt;
+
+.box-1.small[Three centers need 3 t-tests, and five groups need 10]
+
+???
+
+A Type 1 error is a false alarm, from Topic 7. Each t-test at α = 0.05 has a 5% risk of a Type 1 error. Across three tests, the chance that at least one goes off is 1 − 0.95³ = 0.14.
+
+That formula treats the tests as independent. Ours share groups, so it runs a little high: a simulation of three t-tests on three identical groups gives 12%, not 14%. Either way, it's well past 5%.
+
+Number of pairs: k(k − 1) / 2, where k is the number of groups.
+
+---
+
+# One question about all the means
+
+&lt;div class="math-display"&gt;\[
+H_0\!: \mu_1 = \mu_2 = \mu_3
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-1.small[H₀: all population means are equal]
+]
+
+.pull-right[
+.box-inv-1.small[H₁: at least one differs from another]
+]
+
+.box-1.small.sp-after-half[One test, so α stays at 0.05 for the whole question]
+
+.pull-left[
+.box-inv-1.small[**Factor:** the variable that makes the groups. Here, center]
+]
+
+.pull-right[
+.box-inv-1.small[**Levels:** the groups of that factor. Here, 3 centers]
+]
+
+.book-tag[ANOVA stands for analysis of variance]
+
+???
+
+The test covers everything at once. Statisticians call that an omnibus test. H₁ doesn't say that all the means differ: one odd group is enough.
+
+Two or more factors at once is a factorial design. Regression picks that up in Topic 14.
+
+---
+
+# Same gaps, but the spread matters
+
+&lt;img src="10-anova_files/figure-html/spread-plot-1.png" alt="Two panels, each with three rows of dots for three groups. In both, the group means are 8, 12 and 16, marked with a tick. In the left panel, each group's dots sit tight around its mean, so the groups are clearly apart. In the right panel, each group's dots spread widely and the groups overlap heavily." width="86%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[On the left, the gaps stand out. On the right, they could be chance]
+
+.source[After a figure in Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*, 10e. Scores made up.]
+
+???
+
+Red ticks are the group means. This is the idea of the day, and it's the t-test's idea too: a gap only means something next to the spread.
+
+With two groups, t compares one gap with the spread. With three or more means, there's no single gap. So ANOVA measures how spread out the means are, as a variance.
+
+---
+
+# F compares two variances
+
+&lt;div class="math-display"&gt;\[
+F = \frac{\text{variance between the group means}}{\text{variance within the groups}}
+= \frac{MS_{\text{between}}}{MS_{\text{within}}}
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-1.small[**Top:** how far the group means sit apart. It holds any real difference, plus chance]
+]
+
+.pull-right[
+.box-inv-1.small[**Bottom:** how far people sit from their own group's mean. It holds chance only]
+]
+
+.box-1.small[MS means mean square: ANOVA's word for a variance]
+
+???
+
+The bottom is the pooled variance from Topic 9, with three groups. It assumes one σ² across the populations, as the pooled t did.
+
+Why chance only? Everyone in a group is treated the same way, so differences within a group can't come from the factor. Differences between groups could come from the factor, and they also carry chance: even identical populations give different sample means.
+
+---
+
+# Step 5: three populations
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=5&amp;n=10&amp;mu=100&amp;sd=15&amp;draws=1&amp;seed=15" title="Simulator at step 5 with one sample of ten people drawn from each of three identical normal populations with a mean of 100 and an SD of 15. Panel 2 shows the three samples and reports their means, MS between, MS within and F. Panel 3 holds one dot for that F on an F curve with 2 and 27 degrees of freedom." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/782c72018393.png" alt="Simulator at step 5 with one sample of ten people drawn from each of three identical normal populations with a mean of 100 and an SD of 15. Panel 2 shows the three samples and reports their means, MS between, MS within and F. Panel 3 holds one dot for that F on an F curve with 2 and 27 degrees of freedom."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Step 5 on the blueprint. Same three panels. Here all three population means are 100, so H₀ is true, and the three curves sit on top of each other.
+
+Panel 2 has three samples, with MS between, MS within and F written under them. Panel 3 records that one F.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: No real differences
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+All three population means are the same, so H₀ is true. Draw three samples, compute F, and repeat thousands of times. What does F average out to?
+]
+
+.options[
+.option[
+**A** About 0
+]
+.option[
+**B** About 1
+]
+.option[
+**C** About 3
+]
+.option[
+**D** It depends on the size of σ
+]
+]
+
+???
+
+About 6 minutes, with the next two slides. Vote, turn to a neighbor, vote again, then show the answer.
+
+A is the common answer: no differences, so zero. But sample means always differ a little.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** About 0
+]
+.option.correct[
+**B** About 1
+]
+.option.wrong[
+**C** About 3
+]
+.option.wrong[
+**D** It depends on the size of σ
+]
+]
+
+.box-inv-8.small.sp-after-half[
+With no real differences, the top holds only chance, just as the bottom does
+]
+
+.box-8.small[
+So the top and bottom estimate the same thing, and their ratio averages about 1
+]
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Under H₀, F averages about 1
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=5&amp;n=10&amp;mu=100&amp;sd=15&amp;draws=551&amp;seed=15" title="Simulator at step 5 with 551 sets of three samples of ten and no true differences. Panel 3 shows F values stacked along an F curve with 2 and 27 degrees of freedom. Most sit between 0 and 2, and about 5 percent lie beyond the cutoff near 3.35." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/0a53e9eced13.png" alt="Simulator at step 5 with 551 sets of three samples of ten and no true differences. Panel 3 shows F values stacked along an F curve with 2 and 27 degrees of freedom. Most sit between 0 and 2, and about 5 percent lie beyond the cutoff near 3.35."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Same world, 551 draws. Most F values fall between 0 and 2, and they average about 1. F can't go below 0, because variances can't be negative, so it has one long tail to the right. With three groups, the pile is tallest near 0. About 5% of samples land past the cutoff of 3.35. That's α.
+
+---
+
+# When means differ, the pile moves
+
+&lt;div class="sim-slide" style="height: 505px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=5&amp;n=10&amp;mu=100&amp;sd=15&amp;gm=100,100,115&amp;draws=551&amp;seed=15" title="Simulator at step 5 with 551 sets of three samples of ten. The population means are now 100, 100 and 115. Panel 3 shows the F values spread far to the right of the F curve, with many of them beyond the cutoff." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/ad6114572f0e.png" alt="Simulator at step 5 with 551 sets of three samples of ten. The population means are now 100, 100 and 115. Panel 3 shows the F values spread far to the right of the F curve, with many of them beyond the cutoff."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+One group's mean moves up to 115. Only one group differs, and that's enough for H₁. The share beyond the cutoff is now power.
+
+Use the sample size slider here. To try other means, open the full simulator, because the group boxes hide on a slide.
+
+---
+
+# MS between grows when means differ
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Population means &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; MS within averages &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; MS between averages &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; F averages &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 100, 100, 100 (H₀ is true) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 225 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 224 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.08 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 100, 100, 115 (H₁ is true) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 225 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 975 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.70 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-1.small.sp-after-half[Here σ² = 225. MS within estimates σ² in both worlds]
+
+.box-inv-1.small.sp-after-half[MS between estimates σ² only when H₀ is true. If the means differ, it adds their real spread]
+
+.box-1.small[So F near 1 fits H₀, and a large F is evidence against it]
+
+???
+
+Each row is 20,000 sets of three samples of 10, run in R. The true values are 225 for MS within, and 225 and then 975 for MS between. On the simulator's page, these are in the table "Estimates and the truth". That table is hidden on a slide, so it's copied here.
+
+F averages a little above 1 even under H₀: exactly 27 / 25 = 1.08 here. With large samples, it's closer to 1.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Splitting the variability
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# The total splits into two parts
+
+.box-6.medium.tree-top[Total variability]
+
+&lt;div class="tree-arrows" aria-hidden="true"&gt;&lt;span&gt;↙&lt;/span&gt;&lt;span&gt;↘&lt;/span&gt;&lt;/div&gt;
+
+.pull-left[
+.box-inv-6.medium[Between the groups]
+
+.box-inv-6.small[Any real differences, plus chance]
+
+.box-6.small[Goes on top of F]
+]
+
+.pull-right[
+.box-inv-6.medium[Within the groups]
+
+.box-inv-6.small[Chance only]
+
+.box-6.small[Goes on the bottom of F]
+]
+
+.source[After a figure in Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*, 10e.]
+
+???
+
+Every score sits some distance from the overall mean. Part of that distance is its group's distance from the overall mean. The rest is its distance from its own group's mean. Three numbers to find: SS, df and MS. SS and df add up across the split. MS doesn't.
+
+---
+
+# First, each center's own spread
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Center &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; n &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Sum of scores T &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; M &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; SS within the center &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Chhatarpur &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 161 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1,879 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11.67 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2,229.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Govindpuri &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 82 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 951 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11.60 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2,039.7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tekhand &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 376 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4,054 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10.78 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5,040.1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; All three &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 619 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6,884 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11.12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;9,309.4&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-6.small.sp-after-half[SS&lt;sub&gt;within&lt;/sub&gt; adds up each group's SS: every score against its **own** group's mean]
+
+.box-6.small[SS&lt;sub&gt;total&lt;/sub&gt; treats everyone as one group, against the overall mean. Here it's 9,419.9]
+
+.book-tag[In the book: k = 3 groups, N = 619 students, and G = 6,884 is the grand total of T]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Each SS is the one from Topic 3. In a spreadsheet, the computational formula from Topic 3 is the quick way.
+
+The pooled variance assumes one σ². Govindpuri's own σ̂² is 25.18, against 13.93 in Chhatarpur and 13.44 in Tekhand, so that assumption is strained here. A version that drops the assumption, Welch's ANOVA, gives F(2, 188.0) = 3.68 and p = 0.027, so the decision doesn't change.
+
+---
+
+# Next, the means' own spread
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Center &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; n &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; M &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; M − overall mean &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; n × (M − overall mean)² &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Chhatarpur &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 161 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11.67 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.55 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 48.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Govindpuri &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 82 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11.60 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.48 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 18.6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tekhand &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 376 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10.78 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.34 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 43.3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Add them up &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;110.5&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-6.small.sp-after-half[Every student counts, so a bigger center gets more weight. The overall mean is 11.12]
+
+.box-6.small[Check the split: 9,309.4 + 110.5 = 9,419.9. The parts add up to SS&lt;sub&gt;total&lt;/sub&gt;]
+
+.book-tag[In the book: SS&lt;sub&gt;between&lt;/sub&gt; = ΣT² / n − G² / N. It's the same number]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The book's version, with our numbers: 1,879² / 161 + 951² / 82 + 4,054² / 376 − 6,884² / 619 = 110.52. It's easier on a calculator, while the table shows the idea.
+
+Rounded means can drift by a little, so keep several decimals by hand. Another shortcut: SS between = SS total − SS within.
+
+---
+
+# df split the same way
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Source &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Our numbers &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Why &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Between &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; k − 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 − 1 = 2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 means, and 1 df spent on the overall mean &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Within &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; N − k &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 619 − 3 = 616 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Each group spends 1 df on its own mean &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; N − 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 619 − 1 = 618 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Everyone, around 1 overall mean &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-6.small[Check the split: 2 + 616 = 618. F has two df, and we report both]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Same logic as Topic 9, where two groups gave n₁ + n₂ − 2. Within is that same df, with three groups.
+
+---
+
+# A mean square is a variance
+
+&lt;div class="math-display"&gt;\[
+MS_{\text{between}} = SS_{\text{between}} \,/\, df_{\text{between}} = 110.52 \,/\, 2 = 55.26
+\]&lt;/div&gt;
+
+&lt;div class="math-display"&gt;\[
+MS_{\text{within}} = SS_{\text{within}} \,/\, df_{\text{within}} = 9309.39 \,/\, 616 = 15.11
+\]&lt;/div&gt;
+
+&lt;div class="math-display"&gt;\[
+F = MS_{\text{between}} \,/\, MS_{\text{within}} = 55.26 \,/\, 15.11 = 3.66
+\]&lt;/div&gt;
+
+.box-inv-6.small[MS&lt;sub&gt;within&lt;/sub&gt; is the pooled variance from Topic 9, now with three groups]
+
+.book-tag[In the book: each MS is also written s². Both are estimates, like σ̂²]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+SS / df is the recipe from Topic 3 for an estimate of a variance. It's the same recipe here, twice. Unlike SS and df, the two MS don't add up to a total, so a source table leaves that cell empty.
+
+---
+
+# The source table holds all of it
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Source &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; SS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; MS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; F &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Between centers &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 110.52 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 55.26 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;3.66&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Within centers &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9,309.39 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 616 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 15.11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9,419.91 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 618 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-6.small.sp-after-half[Read it left to right: SS / df = MS, then MS between / MS within = F]
+
+.box-6.small[Software prints this same table. Now you can read it]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The book calls this an ANOVA summary table. Next up, students fill one in. Topic 14 returns to this table with regression, which gives the same F.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Centers at endline
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Source &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; SS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; MS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; F &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Between centers &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ? &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ? &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ? &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ? &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Within centers &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 18,357.4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ? &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ? &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 19,143.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ? &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-8.small.sp-after-half[3 centers, 539 students. The cutoff is F(2, 536) = 3.01. Fill in the table, then decide]
+
+.box-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote: reject or maintain?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+About 6 minutes, with calculators. Vote with hands on the decision. Common slips: using N for the total df, or dividing MS between by SS within.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Source &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; SS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; MS &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; F &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Between centers &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;786.0&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;2&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;393.0&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;11.48&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Within centers &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 18,357.4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;536&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;34.25&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 19,143.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;538&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-8.small.sp-after-half[11.48 is well past 3.01, so we reject H₀]
+
+.box-8.small[At least one center's mean differs at endline. F doesn't say which one]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+
+???
+
+The between part is the total minus the within part. By hand, 393.0 / 34.25 gives 11.47. Unrounded, it's 11.48. The means are 19.11, 18.17 and 16.38 for Chhatarpur, Govindpuri and Tekhand.
+
+Don't read this as the centers changing students. Each center's mix of Mindspark and control students isn't part of this table.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# The test, and what comes after
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# Steps 1 and 2: set up the test
+
+.box-3.small.sp-after-half[At baseline, do math scores differ across the three centers?]
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; In words &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; In symbols &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. State H₀ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The three population means are the same &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; μ&lt;sub&gt;Chhatarpur&lt;/sub&gt; = μ&lt;sub&gt;Govindpuri&lt;/sub&gt; = μ&lt;sub&gt;Tekhand&lt;/sub&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. Set the criteria &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; α = 0.05, and two df &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; df = 2 and 616 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Reject H₀ if F is beyond the cutoff &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; F(2, 616) beyond 3.01 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-3.small[There's one cutoff. Differences in any direction make F bigger, so H₁ needs no direction]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The F table has df between across the top and df within down the side. If the exact df isn't in the table, use the next lower one. Each pair of dfs has its own curve, just as each df had its own t curve.
+
+Don't call an F-test two-tailed. H₁ is non-directional, but we only look in the upper tail.
+
+---
+
+# Steps 3 and 4: F passes the cutoff
+
+&lt;img src="10-anova_files/figure-html/decision-plot-1.png" alt="An F curve with 2 and 616 degrees of freedom. It starts high at 0 and falls toward a long right tail. The tail beyond the cutoff of 3.01 is shaded. A vertical line marks our F of 3.66, a little past the cutoff." width="90%" style="display: block; margin: auto;" /&gt;
+
+.box-3.small[3.66 is beyond 3.01, so we reject H₀. p = 0.026]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+If the three population means were the same, an F this large would turn up about 2.6% of the time. So at least one center differs.
+
+F can't go below zero, so there's no lower tail to worry about.
+
+---
+
+# How big? About 1.2% of the total
+
+&lt;div class="math-display"&gt;\[
+\hat{\eta}^2 = \frac{SS_{\text{between}}}{SS_{\text{total}}} = \frac{110.5}{9419.9} = 0.012
+\]&lt;/div&gt;
+
+.box-inv-3.small.sp-after-half[At baseline, math scores differed across the three centers, F(2, 616) = 3.66, p = 0.026, η̂² = 0.012]
+
+.box-3.small[Real, but small. And no lottery made these groups, so it's a difference, not an effect]
+
+.book-tag[In the book: η² (eta squared), with no hat. Regression calls this share r²]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Topic 8's notes promised this. η̂² is the share of the total variability that sits between the groups. With 619 students, a small difference can reach significance, as Topic 7 warned.
+
+Greek means population, so this deck adds a hat to the book's η². The sample value is an estimate.
+
+---
+
+# With two groups, F is just t²
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Mindspark and control at endline &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Topic 9: t-test &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Today: ANOVA &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Test statistic &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t(537) = 5.371 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; F(1, 537) = 28.85 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Cutoff &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; ±1.964 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.859 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; p &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Below 0.001 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Below 0.001 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-3.small.sp-after-half[5.371² = 28.85, and 1.964² = 3.859. Same test, same decision]
+
+.box-3.small[Squaring folds t's two tails into F's one. ANOVA is the t-test, opened up to more groups]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is the blueprint's point. t compares a gap with its standard error. F compares a squared gap, stretched to any number of groups, with a variance. Topic 14 shows that regression gives this same number too.
+
+---
+
+# F doesn't say which group differs
+
+.box-inv-3.small.sp-after-half[With three or more groups, a significant F doesn't name the group]
+
+.pull-left[
+.box-inv-3.small[One center against the other two?]
+]
+
+.pull-right[
+.box-inv-3.small[All three apart?]
+]
+
+.box-3.small.sp-after-half[So after a significant F, we compare pairs. These are called post hoc tests]
+
+.box-inv-3.small[That's our t-tests again, so the false alarms are back. Post hoc tests set a stricter α]
+
+???
+
+Post hoc means "after this". They come after a significant F. If F isn't significant, we stop there.
+
+There are many such tests. The book covers Tukey's and Scheffé's. We use Bonferroni's, because it's simple, and it shows the logic.
+
+---
+
+# Bonferroni: split α across tests
+
+&lt;div class="math-display"&gt;\[
+\alpha_{\text{adjusted}} = \frac{\alpha}{\text{tests}} = \frac{0.05}{3} = 0.0167
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-3.small[Test each pair at 0.0167, not 0.05]
+]
+
+.pull-right[
+.box-inv-3.small[Overall: 1 − (1 − 0.0167)³ = 0.049]
+]
+
+.box-3.small[That's just under 0.05, as we wanted. Bonferroni plays it a little safe]
+
+???
+
+The 0.049 assumes independent tests, and these three aren't. Bonferroni keeps the overall rate at or under 0.05 either way.
+
+Compare with 0.14 for three tests at 0.05.
+
+Keep four decimals here. With 0.017 you'd get 0.0501, a shade over 0.05, but that's only rounding. The exact 0.05 / 3 gives 0.049.
+
+A slightly less cautious correction, Šidák's, hits 0.05 exactly. It isn't needed in this course.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Chhatarpur against Tekhand
+
+.box-inv-8.small.sp-after-half[Chhatarpur: n = 161, M = 11.67. Tekhand: n = 376, M = 10.78. MS within = 15.11]
+
+.box-8.small.sp-after-half[MS within is our pooled variance. Find the standard error of the gap, then t]
+
+.box-inv-8.small.sp-after-half[With α = 0.0167, the cutoff is t(616) = ±2.40. Decide: reject or maintain?]
+
+.box-8.small[Work alone, compare with a neighbor, then we vote]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Vote with hands on the decision. This is Topic 9's t, with MS within in place of the pooled variance and df = 616. The standard error is √(MS within / n₁ + MS within / n₂). It's the biggest gap of the three.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.box-inv-8.small.sp-after-half[σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt; = √(15.11 / 161 + 15.11 / 376) = 0.366, so t = 0.89 / 0.366 = **2.43**: reject H₀]
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Pair &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Gap &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; t &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; p &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; At α = 0.0167 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Chhatarpur and Tekhand &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.89 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.43 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.015 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;Reject H₀&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Govindpuri and Tekhand &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.82 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.72 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.086 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Maintain H₀ &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Chhatarpur and Govindpuri &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.07 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.14 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.890 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Maintain H₀ &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-8.small[Only one pair clears the stricter bar. Tukey's test agrees: p = 0.041]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+A close call: 2.43 against 2.40. Tukey's test is the other common choice, and software runs it. Its p already carries its adjustment, so it's compared with 0.05. The p of 0.015 is just under 0.0167. Maintaining H₀ for the other pairs doesn't show they're equal. Govindpuri has only 82 students.
+
+Post hoc tests can disagree on a close call. The 2024 deck used Scheffé's test on this pair, and it maintained H₀, with F = 2.95 against 3.01. Scheffé's is more cautious than Bonferroni's or Tukey's.
+
+---
+
+class: title title-8
+
+# The blueprint so far
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Blueprint step &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Statistic &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Bottom of the fraction &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. One score &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; None &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. One mean, σ known &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; None &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3a. One mean, σ unknown &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3b. Mean gain &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M&lt;/sub&gt; of the gains &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Two means &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n₁ + n₂ − 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;5. Two or more means&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;F&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;MS&lt;sub&gt;within&lt;/sub&gt;&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;k − 1 and N − k&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-8.small[Same idea every time: what we saw, over what chance alone would give]
+
+???
+
+Step 5 still has a fraction. The top became a variance of means, and the bottom became a variance of people. Steps 6 and 7 are next: relationships between two variables.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Say why many t-tests inflate the risk of a Type 1 error]
+
+.box-inv-8.small[Explain F as a ratio of two variances, and why it averages about 1 under H₀]
+
+.box-inv-8.small[Split SS and df, then build a source table]
+
+.box-inv-8.small[Run the four steps for an F-test, and report it with η̂²]
+
+.box-inv-8.small[Use a Bonferroni correction to find which groups differ]
+
+???
+
+Lab 8 on Friday is a game, not a regular lab, so ANOVA gets no spreadsheet practice there. Chapter 12's Mastery and Problem Set are due March 7.
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Thursday, February 25: Topic 11]
+
+Correlation. Read the correlation part of Chapter 14
+]
+
+.pull-right[
+.box-6.small[Friday, February 26: Lab 8]
+
+Predict the Simulator: a game on t-tests, gains, intervals and ANOVA
+]
+
+.box-3.small[Mastery and Problem Set for Chapter 11 are due Sunday, February 28 at 6 PM]
+
+&lt;style type="text/css"&gt;
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The tree of variability: one box over two, as in the book's figure */
+.tree-top {
+  width: 42%;
+  margin: 0 auto;
+}
+
+.tree-arrows {
+  display: flex;
+  justify-content: space-around;
+  width: 60%;
+  margin: 0 auto;
+  font-size: 1.1em;
+  line-height: 1.1;
+  color: #47505a;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "navigation": {
+    "scroll": true
+  },
+  "incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

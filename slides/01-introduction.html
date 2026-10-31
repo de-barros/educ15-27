@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>Introduction and measurement</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas de Barros" />
+    <meta name="date" content="2026-10-31" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <!-- MathJax measures fonts through remark's scaling, so in a small window or an
+         embedded frame it shrinks math to half size. Fix the size instead. -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+    <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
+    <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: center middle main-title section-title-4
+
+# Introduction and measurement
+
+.class-info[
+
+**Topic 1 · Tuesday, January 5**
+
+.light[EDUC 15: Statistics for Education Research&lt;br&gt;
+UCI School of Education
+]
+
+]
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[Welcome!]
+
+.box-6.medium.sp-after-half[What statistics is for]
+
+.box-3.medium.sp-after-half[Measurement]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: play, predict, try.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# Welcome!
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Please call me Andy
+
+.pull-left[
+.box-1.medium[Andreas de Barros]
+
+.center[
+Lectures
+
+[Student hours on Calendly](https://calendly.com/de-barros/student-hours-andy-de-barros)
+
+[adb@uci.edu](mailto:adb@uci.edu)
+]
+]
+
+.pull-right[
+.box-inv-1.medium[TA: to be announced]
+
+.center[
+Friday labs
+
+Drop-in student hours
+
+Email to come
+]
+]
+
+???
+
+Andy: replace "to be announced" with the TA's name and details once you have them.
+
+---
+
+class: title title-1 long-title one-line
+
+# Shout out to all those here who find this place a bit strange
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Where &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; What &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Germany &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; BA and MA in Political Science, and teacher training, at Konstanz University &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Guatemala &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; An education NGO in Ciudad de Guatemala &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; France &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; International education policy at UNESCO &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Chile, India and the US &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Education research at J-PAL and at MIT &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; US &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; PhD in Education at Harvard University &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+???
+
+The personal note. Say this your own way: nobody here should feel they have to already belong.
+
+---
+
+class: title title-1 long-title
+
+# My work promotes large-scale research-practice partnerships, particularly in Sub-Saharan Africa and South Asia
+
+.box-inv-1.tiny-box[Educational technology]
+
+&lt;table class="deck-table tight work"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Size &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Partners &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 240 government schools &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; State Government of Haryana, Avanti Fellows, USAID DIV &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 250 early-childhood centers &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; State Government of Uttarakhand, Dost Education, The Agency Fund &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 30 government schools &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; State Government of Rajasthan, Educational Initiatives, Douglas B. Marshall Foundation &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-1.tiny-box[Assisting teachers in adjusting and improving their instruction]
+
+&lt;table class="deck-table tight work"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Size &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Partners &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 292 government schools &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; State Government of Karnataka, Akshara Foundation, Omidyar &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 209 government schools &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Cambodia Ministry of Education, Youth and Sport, The World Bank &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 273 government schools &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Zambia Ministry of Education, TaRL Africa, VVOB, KIX &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 500+ government schools &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Morocco Ministry of National Education, Pratham, J-PAL, Harvard &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+# What you'll take from this course
+
+.box-1.medium.sp-after-half[Read and explain statistics in education research]
+
+.box-inv-1.medium.sp-after-half[Describe and define the key ideas]
+
+.box-inv-1.medium.sp-after-half[Do the calculations]
+
+.box-1.small[We build intuition first: you'll run simulations, and always ask what's the truth and what's only our estimate]
+
+???
+
+Every week comes back to the same question: is this number a fact about the population, or our estimate of it?
+
+---
+
+# Your week has a routine
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; When &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; What &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Where &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Before class &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Do the reading &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The book, through MindTap &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tue and Thu, 12:30–1:50 PM &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Lecture: 20 minutes of talk, then you do something, three times &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; EDUC 2009 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Fri, 12:00–12:50 PM &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Lab A1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; EDUC 2009 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Fri, 1:00–1:50 PM &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Lab A2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; EDUC 2001 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Sun, 6 PM &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; MindTap homework is due &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Canvas &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-1.small[Go to all classes. Go to your own lab. Lecture activities aren't scored]
+
+???
+
+Andy: confirm rooms and times on WebSOC.
+
+---
+
+# Fridays: six regular labs, four game days
+
+.pull-left[
+.box-1.small[Regular labs]
+
+.small[
+A by-hand problem in pairs
+
+The same idea on real data, in a spreadsheet or the simulator
+
+One written sentence on what it means
+]
+]
+
+.pull-right[
+.box-1.small[Game days]
+
+.small[
+Jeopardy in Labs 3, 5 and 10
+
+Predict the Simulator in Lab 8
+
+Your team is scored on its own answers, never on a ranking
+]
+]
+
+.box-inv-1.small[Lab 2 has a 15-minute individual check. Use Google Sheets or Excel]
+
+???
+
+Four games plus the Lab 2 check make the five Friday events. Teams of 4 or 5 form within a lab, so go to your own. No R for students.
+
+---
+
+# It adds up to 350 points
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; What &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Points &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; How it counts &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Quizzes and games &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 40 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Best 4 of 5 Friday events, 10 points each &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Labs &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 21 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Best 7 of 10 labs, 3 points each &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Mastery Training &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 40 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Best 8 of 9, 5 points each &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Problem Sets &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 40 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Best 8 of 9, 5 points each &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Midterm &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 100 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; In person &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Final &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 100 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; In person, cumulative &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Course evaluation &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; For completing it &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-1.small[You earn 261 of the 350 points in person. Lecture attendance isn't graded]
+
+???
+
+A lab's 3 points are for being there and handing in a real attempt at the sentence, not for being correct. Game days earn them for being there.
+
+---
+
+# Two exams, both in person
+
+.pull-left[
+.box-1.small[Midterm]
+
+.small[
+Thursday, February 11, in class
+
+80 minutes, Chapters 1 to 9
+]
+]
+
+.pull-right[
+.box-1.small[Final]
+
+.small[
+Date to come from the Registrar
+
+Cumulative
+]
+]
+
+.box-inv-1.small.sp-after-half[Each is 100 points of free response, built on the Mindspark data]
+
+.box-inv-1.small.sp-after-half[Bring a calculator, and no other device. We attach tables and a formula sheet]
+
+.box-inv-1.small[You can ask for a translated exam, in any language]
+
+???
+
+Exams use an outcome students haven't seen in class. Andy: add the final's date once WebSOC has it, and the date to ask for a translation by.
+
+---
+
+# Homework is due Sundays at 6 PM
+
+.pull-left[
+.box-1.small[Mastery Training]
+
+.small.center[
+Unlimited attempts
+]
+]
+
+.pull-right[
+.box-1.small[Problem Sets]
+
+.small.center[
+3 attempts, full credit at 75%
+]
+]
+
+.box-inv-1.small.sp-after-half[Chapters 5 to 12 and 14. The first set is due Sunday, January 17]
+
+.box-inv-1.small.sp-after-half[No extensions: your lowest score of each type drops, which covers emergencies]
+
+.box-1.small[Get access to Cengage MindTap now, through Canvas]
+
+???
+
+There are 9 of each type. MindTap is practice: the Friday lab's by-hand problem is what looks like the exams.
+
+---
+
+# Use AI to learn, not to get answers
+
+.pull-left[
+.box-1.small[You're welcome to use AI to]
+
+.small[
+Explain an idea
+
+Make practice problems
+
+Help with a spreadsheet formula
+]
+]
+
+.pull-right[
+.box-1.small[Don't use it to]
+
+.small[
+Get answers to MindTap questions
+]
+
+.box-inv-1.small[Homework is your practice for exams and quizzes, where you'll have no AI and no devices]
+]
+
+.box-inv-1.small.sp-after-half[AI also makes mistakes in statistics, so check what it tells you]
+
+.center.small[UCI's academic integrity rules still apply]
+
+???
+
+The full wording is in the syllabus. There's no take-home writing in this course, so this replaces the old Composition Program wording.
+
+---
+
+# Where to find things
+
+.pull-left[
+.box-1.small[Course website]
+
+.small.center[
+[educ15.de-barros.com](https://educ15.de-barros.com)
+
+Syllabus, schedule, slides, lab handouts
+]
+]
+
+.pull-right[
+.box-1.small[Canvas]
+
+.small.center[
+MindTap and the ebook
+
+Grades, solutions, and slide files
+]
+]
+
+.box-inv-1.medium[Not sure about a rule? It's in the syllabus]
+
+---
+
+# Most importantly
+
+.box-1.medium.sp-after-half[Ask for help, and tell us how you're doing]
+
+.box-inv-1.medium.sp-after-half[Check yourself before you wreck yourself]
+
+.center.small[(Sorry, Ice Cube)]
+
+.box-inv-1.small[Not sure about your math? Try the Math Skills Assessment in Appendix A]
+
+---
+
+layout: false
+class: title title-8
+
+# Play it: Course rules
+
+.box-inv-8.small.sp-after-half[In Jeopardy, the clue is an answer. Talk to a neighbor, then call out the question]
+
+.options.clues[
+.option[
+**100** · Sunday at 6 PM
+]
+.option[
+**200** · 7 of 10
+]
+.option[
+**300** · A calculator, and no other device
+]
+.option[
+**400** · Explain an idea, but not a MindTap answer
+]
+]
+
+???
+
+About 6 minutes. This also shows how Friday's Jeopardy games work, with clues and teams. Nothing is scored.
+
+---
+
+class: title title-8
+
+# Play it: The questions
+
+.options.clues[
+.option[
+**100** · When is homework due?
+]
+.option[
+**200** · How many labs count?
+]
+.option[
+**300** · What device can you use on an exam?
+]
+.option[
+**400** · What can AI do for you?
+]
+]
+
+.box-8.small[That's the rhythm of every lecture: some talk, then your turn]
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# What statistics is for
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+
+.center[**We start here**]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Forecast the future]
+
+.box-inv-6.small[Focus is on Y]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+
+.box-inv-3.small[Effect of X on Y]
+
+.box-inv-3.small[Focus is on X]
+]
+
+???
+
+This map opens every topic. Statistics does three jobs, and we'll work through them in this order.
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# One topic, three kinds of question
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Description &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Prediction &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Explanation &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Netflix &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Which movie was watched most? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; What's your next show? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; What's the effect of the time of day on what you pick? &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; SNAP &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; What % of students are eligible? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Who will enroll? &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; What's the effect of SNAP on poverty? &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-6.small[Before you pick a method, ask which of the three you're trying to do]
+
+???
+
+Ask students for a third row from their own lives.
+
+---
+
+class: title title-6 long-title one-line
+
+# Prediction focuses on Y. Explanation focuses on one X
+
+&lt;img src="01-introduction_files/figure-html/venn-plot-1.png" alt="Two diagrams of overlapping circles. On the left, a circle for the next show on Netflix overlaps five circles labeled X1 to X5, which together cover most of it. On the right, a very large circle for poverty barely touches a small circle for a program, and only the thin sliver where they overlap is highlighted and labeled as its effect." width="92%" style="display: block; margin: auto;" /&gt;
+
+.source[Adapted from Andrew Heiss's slides.]
+
+???
+
+Left: Netflix doesn't care which X matters, as long as the guess is good. Right: poverty has many causes, and the program explains only a sliver of it. The whole job is getting that sliver right.
+
+---
+
+# Meet Mindspark, our running example
+
+.box-6.small.sp-after-half[Adaptive learning software in after-school centers in Delhi, India]
+
+.pull-left-3[
+.box-inv-6.medium[619]
+
+.center.small[students]
+]
+
+.pull-middle-3[
+.box-inv-6.medium[3]
+
+.center.small[centers]
+]
+
+.pull-right-3[
+.box-inv-6.medium[95%]
+
+.center.small[in grades 6 to 9]
+]
+
+.box-6.small[You'll work with the real data in labs and on both exams]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+76% of the students are girls. Their math and Hindi were tested before the program ("baseline") and after it ("endline").
+
+---
+
+# A lottery decided who got it
+
+.pull-left[
+.box-6.small[Treatment]
+
+.center.small[314 students got the program]
+
+.box-inv-6.medium[18.68]
+
+.center.small[average math score at endline]
+]
+
+.pull-right[
+.box-6.small[Control]
+
+.center.small[305 students were promised it later]
+
+.box-inv-6.medium[15.99]
+
+.center.small[average math score at endline]
+]
+
+.box-6.small[Is a gap of 2.69 points real, or just luck? By March, you'll be able to say]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline: 539 students.]
+
+???
+
+Here's the hook for the quarter. This is explanation: X is the program and Y is the math score, and the lottery is why we can read it as an effect.
+
+---
+
+# From population to sample, and back
+
+&lt;img src="01-introduction_files/figure-html/cycle-plot-1.png" alt="A cycle of four arrows. From the population, all the people we care about, an arrow leads to the step of selecting a sample. The next arrow leads to the sample, the people in the study. The next leads to the step of generalizing the results, and the last arrow returns to the population." width="84%" style="display: block; margin: auto;" /&gt;
+
+.source[After Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*, 10e.]
+
+???
+
+In Mindspark, the sample is the 619 students. Ask who the population might be. Delhi? Students like these? That's a real question, and the data can't settle it.
+
+---
+
+# We use data to estimate the truth
+
+$$
+X \;\rightarrow\; M = \frac{\sum X}{n} \;\rightarrow\; \hat{\mu} \;\overset{\text{hopefully}}{\longrightarrow}\; \mu
+$$
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Data &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Calculation &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Estimate &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Truth &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; The scores we saw &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; The mean of those scores &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Our best guess about the population &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; The population's real mean &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-6.small[A *parameter* describes a population. A *statistic* describes a sample]
+
+.center.small[Greek means population. A Latin letter or a hat means an estimate]
+
+???
+
+This chain is the course. Students should soon be able to label any number as a parameter or an estimate.
+
+---
+
+layout: false
+class: title title-8 long-title one-line
+
+# Predict it: Two samples from one population
+
+.box-inv-8.small.sp-after-half[Treat our 619 students as a population, with a mean math score of μ = 11.12]
+
+.box-8.small.sp-after-half[Two people each draw a random sample of 25 students and find M. What happens?]
+
+.options[
+.option[
+**A** Both get exactly 11.12
+]
+.option[
+**B** They match, but miss 11.12
+]
+.option[
+**C** They differ, and both land near 11.12
+]
+.option[
+**D** They differ, and both land far from 11.12
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes. Hands are fine. Ask two or three students why before showing the next slide.
+
+---
+
+class: title title-8
+
+# Predict it: Samples rarely agree
+
+&lt;img src="01-introduction_files/figure-html/sampling-plot-1.png" alt="Twenty dots, one for each random sample of 25 students from the 619, spread on either side of a dashed line at the population mean of 11.12. No dot sits exactly on the line, and the dots all fall within about two points of it." width="80%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-8.small.sp-after-half[The first two samples, in red, got M = 10.24 and M = 11.28. The answer is C]
+
+.box-8.small[*Sampling error* is the chance gap between an estimate and the truth]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Sampling error isn't a mistake. Nobody did anything wrong. It's the reason we need the rest of this course. Topic 6 comes back to this with the simulator.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# Measurement
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# Statisticians measure variables
+
+.box-3.small.sp-after-half[A *variable* is a characteristic that differs from one person to the next]
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Center &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Grade &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Group &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Math score &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Chhatarpur &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Control &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Govindpuri &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Treatment &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tekhand &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Control &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Chhatarpur &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Treatment &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 15 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-3.small[Each row is a student. Each column is a variable]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Four of the 619 students.]
+
+---
+
+# Many variables stand in for constructs
+
+.box-3.small.sp-after-half[A *construct* is an internal attribute that we can't observe directly]
+
+.pull-left[
+.box-inv-3.medium[Construct]
+
+.center.small[Math ability, motivation, self-esteem]
+]
+
+.pull-right[
+.box-inv-3.medium[Variable]
+
+.center.small[A test score, a survey answer]
+]
+
+.box-3.small[We can't see math ability. We can see how many questions a student gets right]
+
+---
+
+# Say what you mean, then measure it
+
+.pull-left[
+.box-3.small[Conceptualization]
+
+.center.small[**What do you mean?**]
+
+.small[A construct can be understood in many ways, so we have to define it]
+
+.box-inv-3.small[Math ability: which math, at what level?]
+]
+
+.pull-right[
+.box-3.small[Operationalization]
+
+.center.small[**How do you measure it?**]
+
+.small[Spell out the steps that turn it into something we can observe]
+
+.box-inv-3.small[A test, scored by the number of correct answers]
+]
+
+???
+
+Mindspark's total math score is one operationalization. A different test would give a different variable for the same construct.
+
+---
+
+# Two related variables get special names
+
+.pull-left[
+.box-3.medium[Y]
+
+.box-inv-3.small[Outcome variable]
+
+.box-inv-3.small[Response variable]
+
+.box-inv-3.small[Dependent variable]
+
+.center.small[What you want to explain or predict]
+]
+
+.pull-right[
+.box-3.medium[X]
+
+.box-inv-3.small[Explanatory variable]
+
+.box-inv-3.small[Predictor variable]
+
+.box-inv-3.small[Independent variable]
+
+.center.small[What you use to explain or predict Y]
+]
+
+---
+
+# Find the Y and the X
+
+.small[Talk to a neighbor. Is each study prediction or explanation?]
+
+.work-grid[
+.option[
+A study examines the effect of smoking on lung cancer
+]
+.option[
+You want to see if taking more AP classes in high school improves college grades
+]
+.option[
+Researchers predict genocides by looking at negative media coverage, revolutions in neighboring countries, and economic growth
+]
+.option[
+Netflix uses your past viewing history, the day of the week, and the time of day to guess which show you want to watch next
+]
+]
+
+???
+
+One or two minutes, then show the next slide. This is a quick check inside the talk, not one of the three activities.
+
+---
+
+# One X to explain, many X to predict
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Study &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Y &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Purpose &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Smoking &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Lung cancer &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Smoking &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Explanation &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; AP classes &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; College grades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AP classes taken &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Explanation &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Genocides &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Genocide &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Media coverage, nearby revolutions, economic growth &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Prediction &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Netflix &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Next show &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Viewing history, day of the week, time of day &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Prediction &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+class: title title-3 long-title one-line
+
+# The categories we use to measure a variable make up a scale
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Scale &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; What it does &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Examples &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Nominal &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Labels categories. No quantities &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Gender, diagnosis, experimental or control &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Ordinal &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Puts categories in order of size &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Rank in class, clothing sizes, Olympic medals &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Interval &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Equal steps, but an arbitrary zero or none &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Temperature, IQ, golf scores above or below par &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Ratio &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Equal steps and an absolute zero &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Number of correct answers, time to finish a task, gain in height &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small[Each scale can do everything the one above it can, and a bit more]
+
+---
+
+# Mindspark has all four scales
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Variable &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Its values &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Scale &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Why &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Center &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Chhatarpur, Govindpuri, Tekhand &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Nominal &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Names only &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Extra math tuition &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Less than 1 hour to more than 4 hours &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Ordinal &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; The top group has no upper end &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; SES index &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; −5.6 to 4.8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Interval &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Zero is just the group's average &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Math score &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0 to 35 correct &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Ratio &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; It counts correct answers &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small[A score of zero means no correct answers. It doesn't mean no math ability]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Baseline.]
+
+???
+
+SES is socioeconomic status. Treatment group is nominal too, with two categories, which is called binary.
+
+---
+
+# Discrete or continuous?
+
+.pull-left[
+.box-3.medium[Discrete]
+
+.small.center[Only limited values, often counts]
+
+.box-inv-3.small[Students in a class]
+
+.box-inv-3.small[Children in a family]
+]
+
+.pull-right[
+.box-3.medium[Continuous]
+
+.small.center[Measured, so any value in a range]
+
+.box-inv-3.small[Time to finish a test]
+
+.box-inv-3.small[Height]
+]
+
+???
+
+A raw test score counts correct answers, so strictly it's discrete, while the ability behind it is continuous. Bring this up if someone asks.
+
+---
+
+# Switches and sliders
+
+&lt;img src="01-introduction_files/figure-html/switch-plot-1.png" alt="A drawing of two wall controls. On the left, a switch with two positions, on and off, is labeled categorical variables. On the right, a slider that can stop anywhere along a track is labeled continuous variables." width="76%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small[Getting the program is a switch: on or off. Age is a slider]
+
+.source[Adapted from Andrew Heiss's slides.]
+
+---
+
+# A rounded value is really a small range
+
+&lt;img src="01-introduction_files/figure-html/limits-plot-1.png" alt="A number line from 148.5 to 152.5 with whole numbers from 149 to 152 at the center of equal cells. The cell for 150 is shaded and runs from 149.5 to 150.5. Two values, 149.6 and 150.3, both fall inside it, so both get recorded as 150." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small[Recording weight to the nearest pound, 149.6 and 150.3 both become 150]
+
+.source[After Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*, 10e.]
+
+???
+
+Real limits sit halfway between neighboring values. We bucket a continuous variable into cells like these.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Try it: What scale is this?
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Mindspark also records a math quintile for each student, from 1 (the lowest fifth) to 5 (the highest fifth). Which scale is that?
+]
+
+.options[
+.option[
+**A** Nominal
+]
+.option[
+**B** Ordinal
+]
+.option[
+**C** Interval
+]
+.option[
+**D** Ratio
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes. Work alone, talk to a neighbor, then vote.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Try it: Answer
+
+.options[
+.option.wrong[
+**A** Nominal
+]
+.option.correct[
+**B** Ordinal
+]
+.option.wrong[
+**C** Interval
+]
+.option.wrong[
+**D** Ratio
+]
+]
+
+.box-inv-8.small.sp-after-half[
+Quintiles keep the order, but the steps aren't equal
+]
+
+.box-8.small[
+Step by step, average scores rise 2.5, 1.2, 2.0, then 3.5 points
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Baseline.]
+
+---
+
+layout: false
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Say how this course runs, and where to find things]
+
+.box-inv-8.small[Tell description, prediction and explanation apart]
+
+.box-inv-8.small[Label a number as a parameter or an estimate, and explain sampling error]
+
+.box-inv-8.small[Name a study's Y and X, and a variable's scale of measurement]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Thursday, January 7]
+
+Topic 2, displaying data. Read Chapter 2 first
+]
+
+.pull-right[
+.box-6.small[Friday, January 8: Lab 1]
+
+Meet the data. Go to your own lab, and bring a calculator and a laptop
+]
+
+.box-3.small[Nothing is due this Sunday. Get MindTap through Canvas now]
+
+&lt;style type="text/css"&gt;
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+/* A long title that fits on one line sits in the middle of the bar */
+.remark-slide-content.long-title.one-line h1 {
+  margin-top: -78px;
+  margin-bottom: 77px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table.work {
+  width: 100%;
+  margin: 0.15em auto 0.35em;
+  font-size: 0.55em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.tiny-box {
+  font-size: 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.9em;
+  font-size: 0.65em;
+}
+
+.options.clues {
+  gap: 0.6em 1em;
+  margin-top: 0.8em;
+  font-size: 0.85em;
+}
+
+.options.clues .option {
+  padding: 0.7em 0.6em;
+}
+
+.work-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5em 0.8em;
+  margin-top: 0.4em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "navigation": {
+    "scroll": true
+  },
+  "incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

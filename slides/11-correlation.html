@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>Correlation</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas de Barros" />
+    <meta name="date" content="2026-10-31" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <!-- MathJax measures fonts through remark's scaling, so in a small window or an
+         embedded frame it shrinks math to half size. Fix the size instead. -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+    <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
+    <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/simulator.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: center middle main-title section-title-4
+
+# Correlation
+
+.class-info[
+
+**Topic 11 · Thursday, February 25**
+
+.light[EDUC 15: Statistics for Education Research&lt;br&gt;
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+
+.box-inv-6.small[Does one score go with another?]
+
+.center[**We are here**]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+Same map. Until now we've compared groups. Today each person has two scores, and we ask how the scores go together. It's the first step toward regression, which takes three sessions after this one.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[What r shows]
+
+.box-6.medium.sp-after-half[Computing r]
+
+.box-3.medium.sp-after-half[Testing r]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: predict, try, try. The running question: does a student's baseline math score predict their endline score?
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# What r shows
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Each dot is one student
+
+&lt;img src="11-correlation_files/figure-html/scatter-plot-1.png" alt="Scatter plot of 539 Mindspark students, with baseline math score on the horizontal axis and endline math score on the vertical axis. The dots form a wide cloud that rises from lower left to upper right." width="86%" style="display: block; margin: auto;" /&gt;
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 539 students. Dots are nudged so equal scores don't hide each other.]
+
+???
+
+Our question from 2024: does a student's baseline score predict their endline score? Every student has two scores, so every student is one dot.
+
+Ask: what do you see? Students who start higher tend to end higher, but there's a lot of scatter. We aren't saying anything about what causes what yet.
+
+---
+
+# A correlation describes three things
+
+&lt;img src="11-correlation_files/figure-html/features-plot-1.png" alt="Six small scatter plots of made-up data in three columns. Direction: one cloud rises and one falls. Form: one cloud follows a straight line and one follows an arch. Consistency: one cloud hugs a line tightly and one is loose." width="88%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[Which way does it go? Is it straight? How closely do the dots follow it?]
+
+.source[Made-up data.]
+
+???
+
+Direction: when X goes up, does Y go up or down? Form: a straight line, or a curve? Consistency: how well does X tell you Y?
+
+Everyday pairs: years of education and income, or hours of cat videos and happiness. A correlation says nothing about what causes what.
+
+---
+
+# r runs from −1 to 1
+
+&lt;img src="11-correlation_files/figure-html/gallery-plot-1.png" alt="Four scatter plots of made-up data. With r of minus 1, the dots lie on a falling line. With r of minus 0.4, a loose falling cloud. With r of 0, a round cloud with no direction. With r of 0.9, a tight rising cloud." width="92%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small.sp-after-half[The sign gives the direction. The distance from 0 gives the consistency]
+
+.box-1.small[Our 539 students: r = 0.50. Upward, roughly straight, and loose]
+
+.source[Top: made-up data. Bottom: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is Pearson's correlation. Pearson's r needs a straight-line form, which is the next slide. r has no units: it doesn't matter whether we use points, percent or z-scores.
+
+In the book, the sample value is also r. Greek ρ is the population value, and it comes in the third block.
+
+---
+
+# Same r, four different stories
+
+&lt;img src="11-correlation_files/figure-html/anscombe-plot-1.png" alt="Four scatter plots from Anscombe's quartet. All have a correlation of 0.82. The first is a loose straight cloud. The second is a smooth curve. The third is a tight line with one point far above it. The fourth is a stack of points at one X value, with one distant point that creates the correlation." width="92%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small.sp-after-half[r measures straight lines only. The second panel is a perfect curve, and r can't tell]
+
+.box-1.small[Plot your data before you trust the number]
+
+.source[Data: Anscombe (1973), four made-up data sets.]
+
+???
+
+Each panel has 11 points, and all four have r = 0.82. Only the first one is what r = 0.82 makes you picture. Our 8 students later today happen to have the same r. Any r can hide any of these.
+
+---
+
+# A narrow range hides a correlation
+
+&lt;img src="11-correlation_files/figure-html/range-plot-1.png" alt="The scatter plot of all 539 students. A band marks baseline scores from 10 to 12, and its dots are dark, while the rest are pale. Across all students r is 0.50. Inside the band the dots show no direction, and r is 0.06." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[Same tests, 181 students. We can only speak for the range we observed]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This replaces the book's figure from 2024, using our own data. The relationship didn't go away. We just looked where X barely varies.
+
+It happens whenever a study selects people on X. Among students admitted to a selective school, entrance scores predict grades less well than they do across all applicants.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: One point, far from the rest
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+A scatter plot has 12 points and r = 0.60. We add one new point: far to the right, and near the bottom. What happens to r?
+]
+
+.options[
+.option[
+**A** It goes up
+]
+.option[
+**B** It barely moves
+]
+.option[
+**C** It drops a lot
+]
+.option[
+**D** It becomes exactly 0
+]
+]
+
+???
+
+About 6 minutes for this slide and the next four. Vote, turn to a neighbor, vote again, then watch it live.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8
+
+# Predict it: Add the outlier
+
+&lt;div class="sim-slide" style="height: 495px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=correlation&amp;n=12&amp;r=0.6&amp;seed=2027" title="Simulator's correlation view with 12 draggable points that rise from lower left to upper right, a regression line, and a readout showing r of 0.60." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/5d42a0ab5406.png" alt="Simulator's correlation view with 12 draggable points that rise from lower left to upper right, a regression line, and a readout showing r of 0.60."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+
+???
+
+**Press Add outlier.** r falls from 0.60 to 0.33. **Now drag that point** around while students call out what r will do. Drag it toward the corner, then back into the cloud.
+
+Students can't drag on this screen. Those with a phone or laptop can open the Simulator page on the course site and go to the Correlation tab, where every point can be dragged.
+
+Leave Residuals and Squared residuals off. They belong to Topic 12. The line is there to show the direction.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** It goes up
+]
+.option.wrong[
+**B** It barely moves
+]
+.option.correct[
+**C** It drops a lot
+]
+.option.wrong[
+**D** It becomes exactly 0
+]
+]
+
+.box-inv-8.small.sp-after-half[
+One new point took r from 0.60 to 0.33, nearly half
+]
+
+.box-8.small[
+Now, the same move with 200 points. Hands: does r fall by more, by less, or by the same?
+]
+
+---
+
+class: title title-8
+
+# Predict it: Same move, 200 points
+
+&lt;div class="sim-slide" style="height: 495px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;tab=correlation&amp;n=200&amp;r=0.6&amp;seed=2027" title="Simulator's correlation view with 200 draggable points in a rising cloud, a regression line, and a readout showing r of 0.60." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/915b034a3cb2.png" alt="Simulator's correlation view with 200 draggable points in a rising cloud, a regression line, and a readout showing r of 0.60."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+**Press Add outlier.** r only falls from 0.60 to 0.54. Drag it around. One point now has much less pull, because it's one of 201.
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# One outlier swings 8 students, not 539
+
+&lt;img src="11-correlation_files/figure-html/ghost-plot-1.png" alt="Two scatter plots of baseline against endline math scores, each with one made-up student added at a baseline of 26 and an endline of 5. With 8 real students, r falls from 0.82 to −0.57. With all 539 students, r falls only from 0.50 to 0.48." width="92%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[The same made-up student flips the sign for 8 students, and barely touches the 539. Outliers matter less as n grows]
+
+.source[One made-up student added. Other data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The same lesson as the simulator, on our own students. Only the diamond is invented. An outlier isn't a reason to delete a student. It's a reason to look, and to report what happens with and without them.
+
+---
+
+# So what is a correlation good for?
+
+.pull-left[
+.box-inv-1.small[Prediction]
+
+Baseline scores can flag who may need help, whatever the reason
+
+.box-inv-1.small[Reliability]
+
+The same test, given twice, should give similar scores
+]
+
+.pull-right[
+.box-inv-1.small[Validity]
+
+A new math test should correlate with an established one
+
+.box-inv-1.small[Testing theories]
+
+A theory says two things go together. Do they?
+]
+
+???
+
+The first three are everyday uses in education research, and none of them needs a causal story. The fourth is where people get into trouble, which we come back to later today.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Computing r
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Eight students, by hand
+
+.pull-left[
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Baseline X &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Endline Y &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 30 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 20 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 16 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 26 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 27 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 16 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 22 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 23 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+&lt;img src="11-correlation_files/figure-html/eight-plot-1.png" alt="Scatter plot of the eight students, with baseline scores from 8 to 13 and endline scores from 16 to 30. The dots rise from lower left to upper right. Two students share the point at 8 and 16." width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+
+???
+
+The 2024 hand example. These are the 25th to 32nd of the students with both scores. There's nothing special about them, and we'll see that their r isn't the same as everyone's.
+
+Lab 9 on March 5 does this with `CORREL` on all 539.
+
+---
+
+# Do the two scores move together?
+
+&lt;img src="11-correlation_files/figure-html/quadrant-plot-1.png" alt="The eight students' scatter plot, with a dashed vertical line at the mean baseline score of 10.5 and a dashed horizontal line at the mean endline score of 22.5. The upper right and lower left corners are shaded and marked plus. The upper left and lower right are marked minus. The students farthest from the means are in the shaded corners." width="80%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[Multiply each student's two deviations. Same side of both means gives a positive product]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+This is a new idea with an old tool. For variance, we squared one deviation. Now we multiply two different deviations. If high goes with high and low goes with low, the products are mostly positive, and they add up to something big.
+
+The dashed lines are M&lt;sub&gt;X&lt;/sub&gt; = 10.5 and M&lt;sub&gt;Y&lt;/sub&gt; = 22.5.
+
+---
+
+# The sum of products, SP
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; X &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Y &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; X − M&lt;sub&gt;X&lt;/sub&gt; &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Y − M&lt;sub&gt;Y&lt;/sub&gt; &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Product &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 30 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 18.75 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 20 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −2.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −1.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 16 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −2.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −6.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 16.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 26 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −1.75 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 27 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6.75 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 16 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −2.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −6.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 16.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 22 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.75 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 23 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.25 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;SP&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;54.00&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.book-tag[Shortcut: SP = ΣXY − (ΣX)(ΣY) / n = 1,944 − (84 × 180) / 8 = 54]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+SP is to two variables what SS is to one. SS is the sum of a deviation times itself. SP is the sum of one deviation times the other. Unlike SS, SP can be negative.
+
+M&lt;sub&gt;X&lt;/sub&gt; = 10.5, M&lt;sub&gt;Y&lt;/sub&gt; = 22.5. The shortcut needs no deviations, like the faster formula for SS. Both formulas give 54, so students can use either one.
+
+---
+
+# r divides by each score's own spread
+
+&lt;div class="math-display"&gt;\[
+r = \frac{SP}{\sqrt{SS_X \, SS_Y}}
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-6.small[Top: how much X and Y move together]
+]
+
+.pull-right[
+.box-inv-6.small[Bottom: how much each moves alone]
+]
+
+&lt;div class="math-display"&gt;\[
+r = \frac{54}{\sqrt{24 \times 180}} = \frac{54}{65.73} = 0.822
+\]&lt;/div&gt;
+
+.box-6.small[The bottom is why r has no units, and why it stays between −1 and 1]
+
+???
+
+SS&lt;sub&gt;X&lt;/sub&gt; = 24 and SS&lt;sub&gt;Y&lt;/sub&gt; = 180, computed the usual way from the deviations on the last slide.
+
+SP alone depends on the scale: score the tests out of 100, and SP grows. Dividing by the spreads removes that. r can only reach 1 when X and Y move together as much as they move at all.
+
+---
+
+# r² is the share we can predict
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Group &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; r &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; r² &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; In words &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Our 8 students &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.822 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.675 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 67.5% of Y's variability can be predicted from X &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; All 539 students &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.502 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.252 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 25.2% of Y's variability can be predicted from X &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-6.small.sp-after-half[r = 0.50 doesn't mean half. It means about a quarter of the variability is shared]
+
+.box-6.small[r² works like η̂² in ANOVA: a share of the total. It's our effect size]
+
+.book-tag[In the book: r² is the coefficient of determination]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Say "predicted", not "caused". The share belongs to both variables, which is why it's called shared variability. It works in either direction: X predicts Y exactly as well as Y predicts X.
+
+Topic 12 shows where this share comes from, using the distance between each dot and a line.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Five more students
+
+.pull-left[
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Baseline X &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Endline Y &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 21 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 11 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 22 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+.box-inv-8.small[M&lt;sub&gt;X&lt;/sub&gt; = 11, M&lt;sub&gt;Y&lt;/sub&gt; = 19]
+
+.box-inv-8.small[SS&lt;sub&gt;X&lt;/sub&gt; = 6, SS&lt;sub&gt;Y&lt;/sub&gt; = 88]
+
+.box-8.small[Find SP, then r]
+]
+
+.box-inv-8.small[Work alone, compare with a neighbor, then vote with hands: is r positive or negative?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Two of the X deviations are 0, so this is quicker than it looks. SS is given to save time.
+
+I picked these five because the arithmetic is easy and the sign is a surprise. That's fine to say out loud.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; X − M&lt;sub&gt;X&lt;/sub&gt; &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Y − M&lt;sub&gt;Y&lt;/sub&gt; &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Product &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −10 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; −1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; −1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −3 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+]
+
+.pull-right[
+.box-inv-8.small[SP = **−15**]
+
+.box-inv-8.small[r = −15 / √(6 × 88) = **−0.65**]
+]
+
+.box-8.small[Eight students said 0.82, and these five say −0.65. All 539 say 0.50. Who's right?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+A real group of five really does run the other way. Nothing went wrong. The question on this slide starts the next block.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# Testing r
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# Three samples, three values of r
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Students &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; n &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; r &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Students 25 to 32 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.82 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; The five from the try-it &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; −0.65 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Everyone with both scores &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 539 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.50 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small.sp-after-half[Each r estimates one number: ρ, the correlation in the population]
+
+.box-inv-3.small[Greek means population. r is to ρ what M is to μ]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+ρ is the Greek letter rho. r is a statistic, so it has a sampling distribution, like M did. That's step 6 of the blueprint. Each dot in panel 1 is now a person in the population, with an X and a Y.
+
+---
+
+# With 8 students, r bounces a lot
+
+&lt;div class="sim-slide" style="height: 495px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=6&amp;n=8&amp;d=0.5&amp;view=raw&amp;draws=2000&amp;seed=15" title="Simulator at step 6 with 2,000 samples of eight pairs from a population with a true correlation of 0.5. Panel 1 shows a rising cloud. Panel 2 shows one sample's eight dots. Panel 3 shows the values of r piled up widely, from below 0 to near 1." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/b3cbacbf5577.png" alt="Simulator at step 6 with 2,000 samples of eight pairs from a population with a true correlation of 0.5. Panel 1 shows a rising cloud. Panel 2 shows one sample's eight dots. Panel 3 shows the values of r piled up widely, from below 0 to near 1."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Here ρ = 0.50, close to our 539 students. Samples of 8 give almost any r. Drag n up to see the pile narrow.
+
+On real data: treat our 539 students as the population. In 20,000 samples of 8, the middle 95% of r runs from −0.27 to 0.90, and 10% of samples reach 0.82 or more. So 0.82 from 8 students is ordinary.
+
+---
+
+# Steps 1 and 2: H₀ says ρ = 0
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; In words &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Our 8 students &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. State H₀ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; No relationship in the population &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; H₀: ρ = 0&lt;br&gt;H₁: ρ ≠ 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. Set the criteria &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Two tails, α = 0.05, and a t curve &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; df = n − 2 = 6&lt;br&gt;t(6) beyond ±2.447 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small[The rule stays the same: is what we saw surprising, if nothing is going on?]
+
+???
+
+Same four steps as every test this quarter, with two tails as our default. Why n − 2? A correlation needs both means, M&lt;sub&gt;X&lt;/sub&gt; and M&lt;sub&gt;Y&lt;/sub&gt;, and each one costs a degree of freedom.
+
+---
+
+# Under H₀, r still bounces
+
+&lt;div class="sim-slide" style="height: 495px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=6&amp;n=8&amp;d=0&amp;view=stat&amp;draws=551&amp;seed=15" title="Simulator at step 6 with 551 samples of eight pairs from a population with a true correlation of 0. Panel 3 shows t values stacked along a t curve with 6 degrees of freedom, with cutoffs near plus and minus 2.45." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/8f94bbb7c6ef.png" alt="Simulator at step 6 with 551 samples of eight pairs from a population with a true correlation of 0. Panel 3 shows t values stacked along a t curve with 6 degrees of freedom, with cutoffs near plus and minus 2.45."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+Here ρ = 0, the world H₀ describes. The round cloud in panel 1 has no relationship, but small samples still show one by chance. Panel 3 turns each r into a t. About 5% of them land beyond the cutoffs, which are the ±2.447 from step 2.
+
+---
+
+# Step 3: The same fraction again
+
+&lt;div class="math-display"&gt;\[
+t = \frac{r - \rho}{\hat{\sigma}_r}
+\qquad \text{where} \qquad
+\hat{\sigma}_r = \sqrt{\frac{1 - r^2}{n - 2}}
+\]&lt;/div&gt;
+
+.pull-left[
+.box-inv-3.small[Top: how far r is from H₀'s ρ, which is 0]
+]
+
+.pull-right[
+.box-inv-3.small[Bottom: how far an r typically falls]
+]
+
+.box-3.small[Ours: σ̂&lt;sub&gt;r&lt;/sub&gt; = √(0.325 / 6) = 0.233, so t = 0.822 / 0.233 = **3.53**]
+
+.book-tag[In the book: σ̂&lt;sub&gt;r&lt;/sub&gt; is written s&lt;sub&gt;r&lt;/sub&gt;]
+
+???
+
+What we saw, over what chance alone would give: it's the same fraction as every t so far. The bottom shrinks with n. It also shrinks as r grows, because a tight cloud pins r down.
+
+The 2024 deck showed 3.51, because it rounded r to 0.82 first. With r² = 0.675, it's 3.53. Keep three decimals in r when computing.
+
+---
+
+# Eight students or 539: reject H₀
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Our 8 students &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; All 539 students &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. State H₀ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ρ = 0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; ρ = 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. Set the criteria &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t(6) beyond ±2.447 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t(537) beyond ±1.964 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3. Find the spread &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; σ̂&lt;sub&gt;r&lt;/sub&gt; = 0.233 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; σ̂&lt;sub&gt;r&lt;/sub&gt; = 0.037 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3. Compute t &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t = 3.53 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; t = 13.46 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Decide &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Reject H₀: 3.53 &gt; 2.447 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Reject H₀: 13.46 &gt; 1.964 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-3.small.sp-after-half[Eight students: t(6) = 3.53, p = 0.012, r = 0.82]
+
+.box-3.small[All 539: t(537) = 13.46, p &lt; 0.001, r = 0.50, 95% CI [0.44, 0.56]]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Software gives the interval for r.]
+
+???
+
+Rejecting H₀ means this sample would be surprising if ρ were 0. It doesn't say the relationship is strong. r and r² do that.
+
+The 8 students overstate the relationship, and the 539 pin it down. The interval for r has its own formula, which is beyond this course, so we read it from software. Every t-test since Topic 8 comes with an effect size and an interval, and this one does too.
+
+---
+
+# A correlation can't name a cause
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Pair &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; r &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; t &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Who set X? &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; A cause? &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tuition, baseline math &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.10 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t(617) = 2.43 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Families &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; We can't say &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Lottery, endline math &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.23 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t(537) = 5.37 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; A lottery &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Yes &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-3.small.sp-after-half[Both correlations are significant. Math scores might drive tuition, or a third thing might drive both]
+
+.box-3.small[The lottery is the difference. It broke every other link, so only the program is left]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Tuition: X is 1 if the family pays for any extra lessons. Stronger students may be the ones whose families pay. Or families may pay because a child is struggling. Or keen parents may do both things. The data can't tell these apart.
+
+The lottery: X is 1 for a Mindspark spot, and nobody could choose it. Before the program, the same lottery had no detectable link to math: r = −0.05, t(537) = −1.17.
+
+Watch for the trick of hinting at a cause in the discussion section, then retreating to "it's only a correlation" when someone objects. This is the "motte and bailey" from 2024.
+
+---
+
+# Other kinds of scores, same formula
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; The two variables &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Name &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; What it does &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Mindspark &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Both continuous &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Pearson's r &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; What we did today &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Baseline, endline: 0.50 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; One or both ordinal &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Spearman's r&lt;sub&gt;S&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Pearson's r on ranks &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Same scores, ranked: 0.48 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; One binary, one continuous &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Point-biserial r &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Pearson's r, with 0 and 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Lottery, endline: 0.23 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Both binary &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Phi, φ &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Pearson's r, with 0 and 1 for both &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Lottery, top half at endline: 0.19 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-3.small[The lottery's t(537) = 5.37 is Topic 9's two-sample t-test. Same data, same t]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+All three are Pearson's formula, applied to recoded numbers. Point-biserial r is why a t-test and a correlation agree, and it's the first hint that regression can do what t-tests do. Topic 14 comes back to it.
+
+φ breaks our rule: it's a Greek letter for an estimate. That's history, not a parameter.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Nine fifth graders
+
+.box-inv-8.small.sp-after-half[Nine students started in grade 5. Their baseline and endline scores have r = 0.583]
+
+.box-8.small.sp-after-half[Test H₀: ρ = 0 with α = 0.05 and two tails. The cutoff is t(7) = ±2.365]
+
+.box-inv-8.small.sp-after-half[Find σ̂&lt;sub&gt;r&lt;/sub&gt; and t, then decide. Work alone, compare with a neighbor, then vote with hands]
+
+.box-inv-8.small[This r is bigger than the 0.50 from all 539. Does that make it easier to reject?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Vote on the decision: reject or maintain. Common slips: using n − 1 for df, or forgetting the square root.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left[
+.box-inv-8.small[σ̂&lt;sub&gt;r&lt;/sub&gt; = √((1 − 0.340) / 7) = **0.307**]
+]
+
+.pull-right[
+.box-inv-8.small[t = 0.583 / 0.307 = **1.90**]
+]
+
+.box-8.small.sp-after-half[1.90 is inside ±2.365, so we **maintain H₀**: t(7) = 1.90, p = 0.099]
+
+.box-inv-8.small.sp-after-half[A bigger r than everyone's, and still no rejection. With n = 9, an r this size isn't surprising if ρ = 0]
+
+.box-inv-8.small[Maintaining H₀ doesn't mean ρ = 0. It means 9 students can't tell]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+A significance test weighs r against n. These nine are a real group, not a random sample of fifth graders, so read this as practice with the steps.
+
+---
+
+class: title title-8
+
+# The blueprint so far
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Blueprint step &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Statistic &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Bottom of the fraction &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; df &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1. One score &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; None &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 2. One mean, σ known &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; z &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; None &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3a. One mean, σ unknown &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 3b. Mean gain &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M&lt;/sub&gt; of the gains &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n − 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 4. Two means &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; n₁ + n₂ − 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 5. Two or more means &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; F &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; MS&lt;sub&gt;within&lt;/sub&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; k − 1 and N − k &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; &lt;strong&gt;6. A correlation&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;t&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;σ̂&lt;sub&gt;r&lt;/sub&gt;&lt;/strong&gt; &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; &lt;strong&gt;n − 2&lt;/strong&gt; &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 7a. A slope: next &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; t &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Topic 13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-8.small[Same idea every time: what we saw, over what chance alone would give]
+
+???
+
+Steps 6 and 7 turn to relationships between two variables. In step 6, each dot in the population is a person with two scores. Next week, a line goes through those dots.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Read direction, form and consistency from a scatter plot]
+
+.box-inv-8.small[Say what outliers, curves and a narrow range do to r]
+
+.box-inv-8.small[Compute SP, r and r² by hand]
+
+.box-inv-8.small[Test H₀: ρ = 0 with t and n − 2 degrees of freedom]
+
+.box-inv-8.small[Explain why a correlation alone doesn't show a cause]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Friday, February 26: Lab 8]
+
+Predict the Simulator: a game on t-tests, gains, intervals and ANOVA
+]
+
+.pull-right[
+.box-6.small[Sunday, February 28, 6 PM]
+
+Mastery and Problem Set for Chapter 11 are due
+]
+
+.box-3.small[For Tuesday, March 2: read the regression part of Chapter 14. Topic 12 is Regression: the line]
+
+&lt;style type="text/css"&gt;
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+.source a {
+  color: #244a70;
+  text-decoration: underline;
+}
+
+.book-tag {
+  margin-top: 0.7em;
+  font-size: 0.65em;
+  color: #47505a;
+  text-align: right;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  margin-bottom: 0.8em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "navigation": {
+    "scroll": true
+  },
+  "incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

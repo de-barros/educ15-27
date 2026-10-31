@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+  <head>
+    <title>Probability</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andreas de Barros" />
+    <meta name="date" content="2026-10-31" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
+    <!-- MathJax measures fonts through remark's scaling, so in a small window or an
+         embedded frame it shrinks math to half size. Fix the size instead. -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+    <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
+    <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="css/simulator.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+
+class: center middle main-title section-title-4
+
+# Probability
+
+.class-info[
+
+**Topic 5 · Tuesday, January 19, and Thursday, January 21**
+
+.light[EDUC 15: Statistics for Education Research&lt;br&gt;
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# Where are we?
+
+.pull-left-3[
+.box-1.medium[Description]
+
+.box-inv-1.small[Summarize data]
+
+.box-inv-1.small[Visualize data]
+
+.center[**We are here, heading right**]
+]
+
+.pull-middle-3[
+.box-6.medium[Prediction]
+]
+
+.pull-right-3[
+.box-3.medium[Explanation]
+]
+
+???
+
+We can describe a distribution now. Probability is the bridge from describing data to saying something about people we never observed.
+
+---
+
+class: title title-8
+
+# Where are we? From sample to everyone
+
+&lt;img src="05-probability_files/figure-html/cycle-plot-1.png" alt="Diagram with two boxes, the population on the left and the sample on the right. An arrow along the top runs from population to sample and is labeled, we draw a sample. A darker arrow along the bottom runs from sample back to population and is labeled, we generalize, and today's groundwork." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-8.small[A sample is never the whole story. Probability says how much it can fool us]
+
+.source[After a figure in Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*.]
+
+???
+
+Book's cycle, redrawn. The bottom arrow is the one we can't do yet.
+
+---
+
+class: title title-8
+
+# The question we'll keep asking
+
+&lt;img src="05-probability_files/figure-html/weird-plot-1.png" alt="A wide bell curve labeled what I think the population looks like. A small cluster of dots labeled my sample sits far out in the right tail." width="80%" style="display: block; margin: auto;" /&gt;
+
+.box-8.small.sp-after-half[If what I think about the population is true, how weird would a sample like mine be?]
+
+--
+
+.box-inv-8.small[And how weird must it be before I decide I was wrong?]
+
+???
+
+Say the first question and let it sit before showing the second. The second one is the logic of hypothesis testing, which starts in Topic 7.
+
+---
+
+name: outline
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[What is probability?]
+
+.box-6.medium.sp-after-half[From bars to curves]
+
+.box-3.medium.sp-after-half[The normal distribution]
+
+???
+
+Three blocks of about 20 minutes. Each ends with students doing something: try, predict, predict.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# What is probability?
+
+---
+
+layout: true
+class: title title-1
+
+---
+
+# Probability is a share of outcomes
+
+$$
+p(A) = \frac{\text{outcomes that count as } A}{\text{all possible outcomes}}
+$$
+
+.pull-left[
+.box-inv-1.small[
+Roll a fair die: p(6) = 1 / 6 = 0.167
+]
+]
+
+.pull-right[
+.box-inv-1.small[
+A share always lies between 0 (never) and 1 (always)
+]
+]
+
+.box-1.small[0.25, 1 in 4 and 25% all say the same thing]
+
+???
+
+Proportion, probability and percentage are the same idea here. We'll move between them all quarter.
+
+---
+
+# This only works if we draw at random
+
+.pull-left[
+.box-1.medium[Random]
+
+Everyone has the same chance of being picked
+]
+
+.pull-right[
+.box-1.medium[Independent]
+
+One draw doesn't change the chances for the next
+]
+
+.box-inv-1.small[
+Together these are called *independent and identically distributed*, or i.i.d. Every formula in this course leans on it
+]
+
+???
+
+A friend-of-a-friend survey isn't random. Picking a whole classroom isn't independent: classmates share a teacher. Picking one student and putting them back keeps the chances the same on every draw.
+
+---
+
+# Pretend these 619 are everyone
+
+&lt;img src="05-probability_files/figure-html/pretend-plot-1.png" alt="Bar chart of how many of the 619 students got each baseline math score. Scores run from 0 to 26, and the tallest bar is 76 students at a score of 12." width="78%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-1.small[They're really a sample from Delhi. For today they're everyone, so we write μ = 11.12 and σ = 3.90]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). 619 students in Delhi.]
+
+???
+
+Greek letters, no hats, because today we know everybody. We come back to this same trick in Topic 6, when we draw many samples from these 619 students.
+
+---
+
+# Pick one student: what's p(12)?
+
+&lt;img src="05-probability_files/figure-html/bar-12-1.png" alt="The same bar chart with the bar at a score of 12 picked out in a dark color. It holds 76 of the 619 students." width="82%" style="display: block; margin: auto;" /&gt;
+
+--
+
+.box-1.small[p(X = 12) = 76 / 619 = 0.123]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Ask first, then show the answer. The tallest bar is simply the most likely score.
+
+---
+
+# A range of scores just adds up bars
+
+&lt;img src="05-probability_files/figure-html/bar-range-1.png" alt="The same bar chart with every bar from 0 to 12 picked out in a dark color. Together they hold 405 of the 619 students." width="82%" style="display: block; margin: auto;" /&gt;
+
+--
+
+.box-1.small[p(X ≤ 12) = (2 + 1 + 4 + … + 76) / 619 = 405 / 619 = 0.654]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Read the counts
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Score &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 9 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 10 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 11 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 20 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 21 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 22 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 23 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 24 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 25 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; 26 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Students &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 66 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 60 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-8.small.sp-after-half[Pick one of the 619 students at random. Find each probability]
+
+.pull-left-3[
+.box-inv-8.small[p(X = 10)]
+]
+
+.pull-middle-3[
+.box-inv-8.small[p(9 ≤ X ≤ 11)]
+]
+
+.pull-right-3[
+.box-inv-8.small[p(X ≥ 20)]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes, with calculators. Work alone, compare with a neighbor, then hands.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+.pull-left-3[
+.box-inv-8.small[p(X = 10)]
+
+.center[66 / 619 = **0.107**]
+]
+
+.pull-middle-3[
+.box-inv-8.small[p(9 ≤ X ≤ 11)]
+
+.center[(55 + 66 + 60) / 619 = **0.292**]
+]
+
+.pull-right-3[
+.box-inv-8.small[p(X ≥ 20)]
+
+.center[12 / 619 = **0.019**]
+]
+
+.box-8.small[A score of 20 or more is rare here. That's the sense of "weird" we'll use all quarter]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Nobody scored 22 or 25, so in this population those probabilities are exactly 0.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# From bars to curves
+
+---
+
+layout: true
+class: title title-6
+
+---
+
+# Shares make a probability distribution
+
+&lt;img src="05-probability_files/figure-html/prop-plot-1.png" alt="The same bars of Mindspark scores, now with proportion of students on the vertical axis. The tallest bar is 0.123 at a score of 12." width="78%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[Same shape, new axis. Each bar is now a probability, and all the bars add up to 1]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Scores here are whole numbers from 0 to 26, so we can list every outcome. The word for the general idea is a probability distribution. The book reserves "density" for the continuous case, which is next.
+
+---
+
+# Continuous scores can't be counted
+
+&lt;img src="05-probability_files/figure-html/narrow-bars-1.png" alt="Three bar charts of the same normal curve with mean 11.12 and standard deviation 3.90. With bars 4 points wide the tallest bar is about 0.38. With bars 1 point wide it is about 0.10. With bars a quarter of a point wide it is about 0.03. The bars get shorter as they get narrower." width="92%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[A continuous variable has endless possible values. The chance of any one exact value is zero]
+
+???
+
+Think of time spent on a test. Exactly 12.000000 minutes never happens. The bars shrink toward nothing, so we stop asking about single values and ask about ranges.
+
+---
+
+# Density: where probability piles up
+
+&lt;img src="05-probability_files/figure-html/density-plot-1.png" alt="A smooth bell curve of density over scores from 0 to 26. A label near the peak says scores crowd together here. A label near the right tail says they thin out here." width="82%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-6.small[Height isn't a probability. It tells you how concentrated the probability is around that point]
+
+---
+
+# Ask about ranges: area is the answer
+
+&lt;img src="05-probability_files/figure-html/area-plot-1.png" alt="The Mindspark bars drawn touching each other with a smooth curve over them. Every bar from 0 to 12 is dark. The dark bars cover 0.654 of the total area." width="72%" style="display: block; margin: auto;" /&gt;
+
+.box-6.small.sp-after-half[What's the chance of 12 or below?]
+
+--
+
+.box-inv-6.small[The whole area is 1, and the dark area is 405 / 619 = 0.654: the same answer as counting]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+layout: false
+class: title title-8
+
+# Predict it: Tall or wide?
+
+&lt;img src="05-probability_files/figure-html/tall-wide-1.png" alt="A bell curve with two shaded regions. Region A is a thin slice around the peak, where the curve is tallest. Region B is a wide stretch to the right, where the curve is lower." width="74%" style="display: block; margin: auto;" /&gt;
+
+.box-8.small.sp-after-half[Draw one person at random. Which is more likely?]
+
+.options[
+.option[
+**A** The person lands in region A, where the curve is tallest
+]
+.option[
+**B** The person lands in region B, where the curve is lower
+]
+]
+
+???
+
+About 6 minutes. Hands are fine here. Ask a few students to say why before showing the answer.
+
+---
+
+class: title title-8
+
+# Predict it: Area wins, not height
+
+&lt;img src="05-probability_files/figure-html/tall-wide-answer-1.png" alt="The same curve. Region A holds 20% of the area and region B holds 31%." width="82%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-8.small[Region B is lower everywhere, but it's so much wider that it holds more of the area]
+
+.box-8.small[Probability is area. Height alone can't tell you]
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# The normal distribution
+
+---
+
+layout: true
+class: title title-3
+
+---
+
+# A bell curve, set by just two numbers
+
+.pull-left[
+&lt;img src="05-probability_files/figure-html/bell-plot-1.png" alt="A symmetric bell curve. A vertical line at the peak is labeled mean, median and mode." width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+.box-inv-3.small[Symmetric, so one side mirrors the other]
+
+.box-inv-3.small[Most common in the middle]
+
+.box-inv-3.small[Tapers off toward both ends]
+
+$$
+Y = \frac{1}{\sqrt{2\pi\sigma^2}}\, e^{-(X - \mu)^2 / 2\sigma^2}
+$$
+]
+
+.box-3.small[Only μ and σ change. You'll never compute this by hand]
+
+???
+
+It's a common shape for populations, which is why we start here. Look at the formula once: only two parameters, both Greek, so the curve describes a population. Everything else is a constant.
+
+---
+
+# Every normal curve splits the same way
+
+&lt;img src="05-probability_files/figure-html/sections-plot-1.png" alt="A normal curve divided at each standard deviation. From the mean to 1 standard deviation holds 34.13%. From 1 to 2 holds 13.59%. Beyond 2 holds 2.28%. The left side mirrors the right." width="86%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small[Each mark is one standard deviation. The areas are always the same]
+
+???
+
+The tail sections hold everything beyond 2, so the outer labels sit a little above the thin curve. Each side adds up to 50%.
+
+---
+
+# The standard normal relabels the axis
+
+&lt;img src="05-probability_files/figure-html/relabel-plot-1.png" alt="A normal curve with two axes. The bottom axis shows z-scores from minus 3 to 3. The top axis shows the same points as math scores, with the mean of 11.12 above z equals 0." width="84%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small[z = (X − μ) / σ moves the mean to 0 and the SD to 1. The shape doesn't change]
+
+???
+
+This is Topic 4's z-score. A standard normal distribution is a normal distribution in z-score units. A normal curve doesn't have to be standardized, but once it is, the sections sit at whole numbers.
+
+---
+
+# Our 619 scores stay close to the curve
+
+&lt;img src="05-probability_files/figure-html/check-plot-1.png" alt="Bars of the Mindspark scores as proportions, with a normal curve of mean 11.12 and standard deviation 3.90 drawn over them. The curve follows the bars closely." width="82%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-3.small[Within 1 σ: 71% of students, 68% of the curve. Within 2 σ: 94% and 95%]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Close, not perfect, and that's normal for real data. The curve even gives some area to scores below zero, which can't happen.
+
+---
+
+# Area is probability, so we can read it off
+
+&lt;img src="05-probability_files/figure-html/read-off-1.png" alt="Two normal curves. On the left, the area from z equals 1 to z equals 2 is shaded. On the right, the area beyond z equals 2 is shaded." width="90%" style="display: block; margin: auto;" /&gt;
+
+.box-3.small.sp-after-half[Draw one person from a normal population. What's the chance of each?]
+
+--
+
+.pull-left[
+.box-inv-3.small[p(1 &lt; z &lt; 2) = 0.1359]
+]
+
+.pull-right[
+.box-inv-3.small[p(z &gt; 2) = 0.0228]
+]
+
+???
+
+Both come straight from the sections on the previous slide. A probability that small is what we'll later call weird.
+
+---
+
+# Watch it happen, one person at a time
+
+&lt;div class="sim-slide" style="height: 515px;"&gt;
+&lt;iframe class="sim-live" src="../simulator/index.html?ui=slide&amp;step=1&amp;view=stat&amp;draws=551&amp;seed=15" title="Simulator with three panels. The top panel is a normal population with mean 100 and SD 15. The middle panel shows one person's score and z-score. The bottom panel stacks the z-scores of 551 people into a bell shape, with about 5 percent beyond plus or minus 1.96." loading="lazy"&gt;&lt;/iframe&gt;
+&lt;img class="sim-static" src="img/sim/6f8aa42a90bb.png" alt="Simulator with three panels. The top panel is a normal population with mean 100 and SD 15. The middle panel shows one person's score and z-score. The bottom panel stacks the z-scores of 551 people into a bell shape, with about 5 percent beyond plus or minus 1.96."&gt;
+&lt;/div&gt;
+
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
+
+???
+
+This is step 1 of the blueprint from Topic 4, read a new way. Click +1 a few times, then +50 and +500. Each dot is one person drawn at random, and panel 3 shows the share of draws in each place. That's probability as a long-run share, and the shares settle on the areas. Ignore the H₀ label for now. Tool after Kristoffer Magnusson's rpsychologist.com.
+
+---
+
+layout: false
+class: title title-8 poll-slide
+
+# Predict it: Halfway out
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+You know that p(z &gt; 1) = 0.1587 and p(z &gt; 2) = 0.0228. Now pick the spot halfway between. What's p(z &gt; 1.5)?
+]
+
+.options[
+.option[
+**A** About 2%
+]
+.option[
+**B** About 7%
+]
+.option[
+**C** About 9%
+]
+.option[
+**D** About 16%
+]
+]
+
+???
+
+About 6 minutes. Vote, turn to a neighbor, vote again, then show the answer. C is what you get by splitting the 1-to-2 section in half. Sketching the curve shows why that's a little too much.
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Predict it: Answer
+
+.options[
+.option.wrong[
+**A** About 2%
+]
+.option.correct[
+**B** About 7%
+]
+.option.wrong[
+**C** About 9%
+]
+.option.wrong[
+**D** About 16%
+]
+]
+
+&lt;img src="05-probability_files/figure-html/halfway-plot-1.png" alt="A normal curve with the area from z equals 1 to 1.5 shaded, about 9 percent, and the whole tail beyond 1.5 shaded, about 7 percent, because the curve keeps falling." width="72%" style="display: block; margin: auto;" /&gt;
+
+.box-8.small[The curve keeps falling, so more of that section sits near z = 1. To get exact values for any z, we need a table]
+
+---
+
+class: title title-8
+
+# Before Thursday
+
+.box-inv-8.medium.sp-after-half[Finish Chapter 6]
+
+.box-inv-8.medium.sp-after-half[Read Chapter 7 for the second half of class]
+
+.box-8.medium[Bring a calculator: we'll use the table]
+
+---
+
+name: session-2
+class: title title-8
+
+# Session 2: Thursday, January 21
+
+.box-inv-8.small.sp-after-half[Tuesday in one line: probability is area under a curve]
+
+.box-5.medium.sp-after-half[The unit normal table]
+
+.box-7.medium.sp-after-half[From scores to percentiles]
+
+.box-inv-8.small[Then Topic 6 begins: sampling distributions]
+
+???
+
+Two blocks of about 20 minutes, each ending with something to do: try, then play. Topic 6 takes the rest of the session.
+
+---
+
+layout: false
+class: center middle section-title section-title-5 animated fadeIn
+
+# The unit normal table
+
+---
+
+layout: true
+class: title title-5
+
+---
+
+# The table answers one z in three ways
+
+&lt;img src="05-probability_files/figure-html/columns-plot-1.png" alt="Three normal curves, each with a line at z equals 1. The body, everything below z, is shaded at 0.8413. The tail, everything above z, is shaded at 0.1587. The area between the mean and z is shaded at 0.3413." width="92%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-5.small[These are the three areas for z = 1. Body and tail always add up to 1]
+
+???
+
+The table in the book's appendix has these same columns, labeled A to D. The exams attach a copy.
+
+---
+
+# A piece of the table
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; z &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Body &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Tail &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Mean to z &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 0.25 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.5987 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.4013 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.0987 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 0.50 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.6915 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.3085 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.1915 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 1.00 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.8413 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.1587 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.3413 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 1.50 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.9332 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.0668 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.4332 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 1.96 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.9750 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.0250 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.4750 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 2.00 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.9772 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.0228 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.4772 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-5.small.sp-after-half[Tuesday's poll: the row for 1.50, column Tail, gives p(z &gt; 1.5) = 0.0668]
+
+.box-inv-5.small[The full table is at the back of the book, and exams come with a copy]
+
+---
+
+# Sketch first, then pick the column
+
+.pull-left[
+.steps[
+1. Draw the curve and shade the area you want
+2. Mark your z-scores
+3. Is that a body, a tail, or a piece from the mean?
+4. Read the column, then add or subtract
+]
+]
+
+.pull-right[
+&lt;img src="05-probability_files/figure-html/sketch-plot-1.png" alt="A normal curve with the area from z equals minus 1 to z equals 1.5 shaded and split at the mean. The left piece is 0.3413 and the right piece is 0.4332." width="100%" style="display: block; margin: auto;" /&gt;
+
+.center[p(−1 &lt; z &lt; 1.5) = **0.7745**]
+]
+
+???
+
+Most mistakes in this chapter come from skipping the sketch. Here the area crosses the mean, so we add two "mean to z" values.
+
+---
+
+# Negative z? The curve is a mirror
+
+&lt;img src="05-probability_files/figure-html/mirror-plot-1.png" alt="Two normal curves. On the left the area below z equals minus 1.5 is shaded. On the right the area above z equals 1.5 is shaded. The two shaded areas match." width="90%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-5.small[The table lists only positive z. Both tails here equal 0.0668, so drop the sign and read the tail]
+
+---
+
+# The table also runs backwards
+
+&lt;img src="05-probability_files/figure-html/backwards-plot-1.png" alt="Two normal curves. On the left the top 5 percent is shaded beyond z equals 1.65. On the right the two outer tails are shaded beyond z equals minus 1.96 and 1.96, leaving the middle 95 percent." width="90%" style="display: block; margin: auto;" /&gt;
+
+.pull-left[
+.box-inv-5.small[Find 0.0500 in the Tail column. It falls between z = 1.64 and 1.65, and we use 1.65]
+]
+
+.pull-right[
+.box-inv-5.small[Split 5% into 0.0250 per tail. The Tail column gives z = 1.96]
+]
+
+???
+
+Remember 1.96. It will come back for the rest of the quarter.
+
+---
+
+# A spreadsheet does the same lookup
+
+&lt;table class="deck-table"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; You want &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Formula, in Excel or Google Sheets &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Result &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Body for z = 1.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; =NORM.DIST(1.5, 0, 1, TRUE) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.9332 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Tail for z = 1.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; =1 - NORM.DIST(1.5, 0, 1, TRUE) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.0668 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; z for a body of 0.95 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; =NORM.INV(0.95, 0, 1) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.645 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.box-inv-5.small[The 0 and the 1 are μ and σ. The body is everything below z, so a tail is 1 minus the formula]
+
+???
+
+No devices on exams, so the table is still the skill to practice. The spreadsheet helps with homework.
+
+---
+
+layout: false
+class: title title-8
+
+# Try it: Use the table
+
+&lt;table class="deck-table tight"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; z &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Body &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Tail &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Mean to z &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 0.25 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.5987 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.4013 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.0987 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 0.84 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.7995 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.2005 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.2995 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; 1.28 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.8997 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.1003 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.3997 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+.options[
+.option[
+**1** Find p(z &lt; 0.25)
+]
+.option[
+**2** Find p(z &gt; −0.25)
+]
+.option[
+**3** 90% of scores fall below which z?
+]
+.option[
+**4** The middle 60% lies between which two z-scores?
+]
+]
+
+.box-8.small[Sketch first. Work alone, compare with a neighbor, then we vote]
+
+???
+
+About 6 minutes. Hands for the vote. Questions 1 and 2 have the same answer, and that's the point: sketch them.
+
+---
+
+class: title title-8
+
+# Try it: Answer
+
+&lt;img src="05-probability_files/figure-html/try-answer-1.png" alt="Four normal curves. One: area below z equals 0.25 is shaded, 0.5987. Two: area above z equals minus 0.25 is shaded, also 0.5987. Three: area below z equals 1.28 is shaded, 90 percent. Four: area between z equals minus 0.84 and 0.84 is shaded, the middle 60 percent." width="96%" style="display: block; margin: auto;" /&gt;
+
+.box-8.small[The first two match because the curve is symmetric. For the last one, each tail holds 20%]
+
+---
+
+layout: false
+class: center middle section-title section-title-7 animated fadeIn
+
+# From scores to percentiles
+
+---
+
+layout: true
+class: title title-7
+
+---
+
+# Normal curves differ only in their labels
+
+&lt;img src="05-probability_files/figure-html/three-normals-1.png" alt="Three identical bell curves with different horizontal axes: Mindspark math with mean 11.12 and SD 3.90, an IQ test with mean 100 and SD 15, and the SAT with mean 1029 and SD 235." width="92%" style="display: block; margin: auto;" /&gt;
+
+.box-inv-7.small[Convert to z and one table serves them all. But the population must be normal, or the table's areas are wrong]
+
+.source[Mindspark: Muralidharan, Singh, and Ganimian (2019). SAT: College Board, 2025 SAT Suite Annual Report.]
+
+???
+
+For a heavily skewed population the table gives wrong answers, because its areas belong to the normal shape. Always ask whether normal is reasonable.
+
+---
+
+# Three stops: score, z, probability
+
+.stops[
+.stop[Score X]
+.link[
+z = (X − μ) / σ
+
+X = μ + zσ
+]
+.stop[z-score]
+.link[
+Unit normal table
+]
+.stop[Probability]
+]
+
+.pull-left[
+.box-7.small[Have a score?]
+
+Go right: find z, then read the area
+]
+
+.pull-right[
+.box-7.small[Have a share?]
+
+Go left: read z from the table, then find X
+]
+
+.box-inv-7.small[You can't jump straight from X to a probability. Every trip goes through z]
+
+.source[After a figure in Gravetter et al., *Essentials of Statistics for the Behavioral Sciences*.]
+
+---
+
+# How many students scored above 1200?
+
+.pull-left[
+.box-7.small[Class of 2025: μ = 1029, σ = 235. Treat it as normal]
+
+.box-inv-7.small[z = (1200 − 1029) / 235 = 0.73]
+
+.box-inv-7.small[Tail for z = 0.73: 0.2327, so about 23%]
+]
+
+.pull-right[
+&lt;img src="05-probability_files/figure-html/sat-plot-1.png" alt="A normal curve for SAT totals with the area above 1200 shaded. That is z equals 0.73, and the shaded tail is about 23%." width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+--
+
+.box-7.small[Real count at 1200 or above: 507,341 of 2,004,965, or 25%. Close, not exact]
+
+.source[Data: College Board, 2025 SAT Suite Annual Report, Total Group.]
+
+???
+
+Work this one on the board and ask the room for each step. SAT totals run from 400 to 1600, so the real distribution is cut off at both ends and isn't perfectly normal.
+
+---
+
+# Percentile rank: the share at or below
+
+.box-7.medium.sp-after-half[1200 has a percentile rank of 77]
+
+.box-inv-7.small.sp-after-half[
+23% scored above it, so 100 − 23 = 77% scored at or below it
+]
+
+.box-inv-7.small.sp-after-half[
+It's the body of the curve at that score
+]
+
+.box-inv-7.small[
+Percentile rank describes a person's place in the group. It isn't the percent they got right
+]
+
+.source[Data: College Board, 2025 SAT Suite Annual Report, Total Group.]
+
+---
+
+# A percentile: the score at a given share
+
+.pull-left[
+.box-7.small[To be in the top 5%, what score did you need?]
+
+.box-inv-7.small[The 95th percentile has a tail of 0.05, so z = 1.65]
+
+.box-inv-7.small[X = μ + zσ = 1029 + 1.65 × 235]
+
+.box-7.small[X = 1417, or about 1420 on the SAT's scale]
+]
+
+.pull-right[
+&lt;img src="05-probability_files/figure-html/sat-95-1.png" alt="A normal curve for SAT totals with the top 5 percent shaded, beyond a score of about 1417." width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.source[Data: College Board, 2025 SAT Suite Annual Report, Total Group.]
+
+???
+
+Percentile rank starts with a score and ends with a percent. A percentile starts with a percent and ends with a score. Scores come in steps of 10, which is why 1416 becomes about 1420.
+
+---
+
+layout: false
+class: title title-8
+
+# Play it: Warm-up for Friday
+
+.box-inv-8.small.sp-after-half[Curves and percentiles. Answer as a question. Nothing is scored]
+
+.pull-left[
+.box-8.medium[For 100]
+
+The percentile rank of z = 0
+]
+
+.pull-right[
+.box-8.medium[For 200]
+
+The share of a normal population above z = −1
+]
+
+--
+
+.pull-left[
+.center[**What is the 50th?**]
+]
+
+.pull-right[
+.center[**What is about 84%?**]
+]
+
+???
+
+About 6 minutes for all three clues. Tell a neighbor your answer to each one, then reveal.
+
+---
+
+class: title title-8 poll-slide
+
+# Play it: For 300
+
+.poll-respond[Respond at **PollEv.com/adb**]
+
+.box-inv-8.small[
+Mindspark's curve has μ = 11.12 and σ = 3.90. Treating it as normal, this score is the 90th percentile. In the table, the tail 0.10 is closest at z = 1.28
+]
+
+.options[
+.option[
+**A** What is 6.1?
+]
+.option[
+**B** What is 12.0?
+]
+.option[
+**C** What is 14.6?
+]
+.option[
+**D** What is 16.1?
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Andy: create this poll in Poll Everywhere, then add the `.poll-bar` button from EDUC 265's 06-01 with its presenter id.
+
+---
+
+class: title title-8 poll-answer
+
+# Play it: Answer
+
+.options[
+.option.wrong[
+**A** What is 6.1?
+]
+.option.wrong[
+**B** What is 12.0?
+]
+.option.wrong[
+**C** What is 14.6?
+]
+.option.correct[
+**D** What is 16.1?
+]
+]
+
+.box-inv-8.small.sp-after-half[X = 11.12 + 1.28 × 3.90 = 16.1. The real 90th percentile of our 619 students is 16]
+
+.box-8.small[A takes the wrong sign. B skips σ, C uses 0.90 as if it were a z-score, and 0.90 is a share]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+---
+
+class: title title-8
+
+# From one score to a whole sample
+
+.box-1.medium.sp-after-half[So far: how weird is one score?]
+
+.box-3.medium.sp-after-half[Next: how weird is one sample's mean?]
+
+.box-inv-8.small.sp-after-half[Our 619 students stay a population. We draw many samples, and their means pile up into a curve of their own]
+
+.box-inv-8.small[Areas under that curve drive the four steps of a hypothesis test]
+
+???
+
+The simulator's blueprint from Tuesday was the n = 1 case. Topic 6 raises n, right after this slide.
+
+---
+
+class: title title-8
+
+# What you can do now
+
+.box-inv-8.small[Find a probability as a share of outcomes, or as an area]
+
+.box-inv-8.small[Say why height on a density curve isn't a probability]
+
+.box-inv-8.small[Use the unit normal table, forward and backward]
+
+.box-inv-8.small[Go from a score to a z-score to a probability, and back]
+
+.box-inv-8.small[Find a percentile rank and a percentile]
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Right now]
+
+Topic 6 starts: sampling distributions, from Chapter 7
+]
+
+.pull-right[
+.box-6.small[This Friday: Lab 3]
+
+Jeopardy, covering everything through z-scores and probability. Bring a calculator
+]
+
+.box-3.small[Mastery and Problem Set for Chapter 6 are due Sunday, January 24 at 6 PM]
+
+&lt;style type="text/css"&gt;
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+/* Long titles get two smaller lines inside the 110 px title bar */
+.remark-slide-content.long-title h1 {
+  font-size: 1.05em;
+  line-height: 1.05;
+  margin-top: -100px;
+  margin-bottom: 55px;
+}
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35em 1em;
+  margin-top: 0.6em;
+  font-size: 0.65em;
+}
+
+.option {
+  background-color: #f3f3f3;
+  border: 2px solid #cccccc;
+  padding: 0.35em 0.6em;
+}
+
+.option.correct {
+  background-color: #b18323;
+  border-color: #b18323;
+  color: white;
+}
+
+.option.wrong {
+  opacity: 0.6;
+}
+
+.poll-respond {
+  display: block;
+  font-size: 0.5em;
+  text-align: center;
+  margin-top: 0.1em;
+}
+
+.steps {
+  font-size: 0.8em;
+  line-height: 1.25;
+}
+
+.steps li {
+  margin-bottom: 0.4em;
+}
+
+/* The three stops from a score to a probability */
+.stops {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1fr 1.25fr 1fr;
+  align-items: center;
+  gap: 0.3em;
+  margin: 0.6em 0 0.8em;
+  font-size: 0.8em;
+}
+
+.stop {
+  background-color: #244a70;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding: 0.7em 0.2em;
+}
+
+.link {
+  text-align: center;
+  font-size: 0.8em;
+  border-top: 3px solid #244a70;
+  border-bottom: 3px solid #244a70;
+  padding: 0.2em 0;
+}
+
+.link p {
+  margin: 0.25em 0;
+}
+
+/* The printed PDF keeps the question and drops the answer slide */
+@media print {
+  .remark-slide-container:has(.poll-answer) {
+    display: none !important;
+  }
+}
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "navigation": {
+    "scroll": true
+  },
+  "incremental": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
