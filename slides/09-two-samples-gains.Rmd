@@ -869,6 +869,7 @@ Everyone at endline also took the baseline test. So far, we've ignored that.
 
 ---
 
+name: session-2
 class: title title-8
 
 # Session 2: Thursday, February 18

@@ -63,6 +63,36 @@ website:
         - section: "Overview"
           contents:
             - content/index.qmd
+        - section: "Topics"
+          contents:
+            - text: "1: Introduction and measurement"
+              file: content/01-content.qmd
+            - text: "2: Displaying data"
+              file: content/02-content.qmd
+            - text: "3: Central tendency and variability"
+              file: content/03-content.qmd
+            - text: "4: z-scores"
+              file: content/04-content.qmd
+            - text: "5: Probability"
+              file: content/05-content.qmd
+            - text: "6: Sampling distributions"
+              file: content/06-content.qmd
+            - text: "7: Hypothesis testing"
+              file: content/07-content.qmd
+            - text: "8: Introduction to the t-test"
+              file: content/08-content.qmd
+            - text: "9: t-tests for two samples and for gains"
+              file: content/09-content.qmd
+            - text: "10: ANOVA"
+              file: content/10-content.qmd
+            - text: "11: Correlation"
+              file: content/11-content.qmd
+            - text: "12: Regression: the line"
+              file: content/12-content.qmd
+            - text: "13: Regression: is the slope real?"
+              file: content/13-content.qmd
+            - text: "14: Regression: groups and interactions"
+              file: content/14-content.qmd
 
     - title: "Assignments"
       contents:

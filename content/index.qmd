@@ -2,4 +2,19 @@
 title: "Readings and slides"
 ---
 
-The weekly pages will appear here.
+Each topic has its own page, with its goals, its reading and its slides. The slides are also on Canvas, as a single HTML file (the accessible version) and a PDF (for printing).
+
+- [1: Introduction and measurement](01-content.qmd)
+- [2: Displaying data](02-content.qmd)
+- [3: Central tendency and variability](03-content.qmd)
+- [4: z-scores](04-content.qmd)
+- [5: Probability](05-content.qmd)
+- [6: Sampling distributions](06-content.qmd)
+- [7: Hypothesis testing](07-content.qmd)
+- [8: Introduction to the t-test](08-content.qmd)
+- [9: t-tests for two samples and for gains](09-content.qmd)
+- [10: ANOVA](10-content.qmd)
+- [11: Correlation](11-content.qmd)
+- [12: Regression: the line](12-content.qmd)
+- [13: Regression: is the slope real?](13-content.qmd)
+- [14: Regression: groups and interactions](14-content.qmd)

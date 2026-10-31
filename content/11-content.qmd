@@ -1,0 +1,32 @@
+---
+title: "Correlation"
+date: "2027-02-25"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Read direction, form and consistency from a scatter plot
+- Compute r by hand, and test it
+- Say why a correlation doesn't name a cause
+- Spot a restricted range and an outlier
+
+## Reading
+
+- {{< fa book >}} The correlation part of Chapter 14 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/11-correlation"))
+```
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/11-correlation.html", "Slides for Correlation"))
+```

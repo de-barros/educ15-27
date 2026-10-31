@@ -849,6 +849,7 @@ class: title title-8
 
 ---
 
+name: session-2
 class: title title-8
 
 # Session 2: Thursday, January 21

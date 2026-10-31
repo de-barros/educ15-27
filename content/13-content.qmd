@@ -1,0 +1,32 @@
+---
+title: "Regression: is the slope real?"
+date: "2027-03-04"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Say why a slope has a sampling distribution
+- Test a slope with t and with F
+- Give an interval for β
+- Read a regression table
+
+## Reading
+
+- {{< fa book >}} Finish the regression part of Chapter 14 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/13-regression-inference"))
+```
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/13-regression-inference.html", "Slides for Regression: is the slope real?"))
+```

@@ -1,0 +1,33 @@
+---
+title: "Regression: groups and interactions"
+date: "2027-03-09"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Use a yes/no column to compare groups
+- See t-tests and ANOVA as regression
+- Read an interaction from a product column
+- Say what adding baseline does to the standard error
+- Say when a study earns the word "caused"
+
+## Reading
+
+- {{< fa book >}} No new reading (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/14-regression-groups"))
+```
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/14-regression-groups.html", "Slides for Regression: groups and interactions"))
+```

@@ -586,6 +586,7 @@ The game covers everything through z-scores and probability, not today's materia
 
 ---
 
+name: session-2
 class: title title-8
 
 # Session 2: Tuesday, January 26

@@ -993,6 +993,7 @@ Finish Chapter 8. Tuesday we ask: what if H<sub>0</sub> is false?
 
 ---
 
+name: session-2
 class: title title-8
 
 # Session 2: Tuesday, February 2

@@ -1,0 +1,31 @@
+---
+title: "Central tendency and variability"
+date: "2027-01-12"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Find the mean, median and mode, and say when they pull apart
+- Find the range, the interquartile range and the standard deviation
+- Explain why an estimate of the variance divides by n − 1
+
+## Reading
+
+- {{< fa book >}} Chapters 3 and 4 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/03-central-variability"))
+```
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/03-central-variability.html", "Slides for Central tendency and variability"))
+```

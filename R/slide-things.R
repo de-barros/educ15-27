@@ -8,7 +8,7 @@ slide_buttons <- function(slide_id) {
 slide_frame <- function(slide_url, title = "Lecture slides") {
   glue::glue(
     '<div class="ratio ratio-16x9">\n',
-    '<iframe src="{slide_url}" title="{title}"></iframe>\n',
+    '<iframe src="{slide_url}" title="{title}" loading="lazy"></iframe>\n',
     '</div>'
   )
 }

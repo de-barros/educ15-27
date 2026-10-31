@@ -1,0 +1,47 @@
+---
+title: "Hypothesis testing"
+date: "2027-01-28"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Carry out the four steps of a hypothesis test
+- Say what a p-value is, and what it isn't
+- Tell Type 1 from Type 2 errors
+- Explain power, and what raises it
+- Report an effect size, and judge it against real education research
+
+## Reading
+
+- {{< fa book >}} Chapter 8 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/07-hypothesis-testing"))
+```
+
+::: {.panel-tabset}
+
+## Session 1: Thursday, January 28
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/07-hypothesis-testing.html", "Slides for session 1 of Hypothesis testing"))
+```
+
+## Session 2: Tuesday, February 2
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/07-hypothesis-testing.html#session-2", "Slides for session 2 of Hypothesis testing"))
+```
+
+:::

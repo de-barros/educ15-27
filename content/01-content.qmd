@@ -1,0 +1,32 @@
+---
+title: "Introduction and measurement"
+date: "2027-01-05"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Say what the course is for: reading and explaining statistics in education research
+- Tell description, prediction and explanation apart
+- Separate a population from a sample, and a parameter from an estimate
+- Name a study's variables, and say which scale each one uses
+
+## Reading
+
+- {{< fa book >}} Chapter 1 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/01-introduction"))
+```
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/01-introduction.html", "Slides for Introduction and measurement"))
+```

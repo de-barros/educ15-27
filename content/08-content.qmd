@@ -1,0 +1,46 @@
+---
+title: "Introduction to the t-test"
+date: "2027-02-04"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Explain why estimating σ leads to t, and what df does
+- Run a one-sample t-test
+- Report Hedges' g and a confidence interval
+- Keep statistical and practical significance apart
+
+## Reading
+
+- {{< fa book >}} Chapter 9 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/08-t-test"))
+```
+
+::: {.panel-tabset}
+
+## Session 1: Thursday, February 4
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/08-t-test.html", "Slides for session 1 of Introduction to the t-test"))
+```
+
+## Session 2: Tuesday, February 9
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/08-t-test.html#session-2", "Slides for session 2 of Introduction to the t-test"))
+```
+
+:::

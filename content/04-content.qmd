@@ -1,0 +1,32 @@
+---
+title: "z-scores"
+date: "2027-01-14"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Turn a score into a z-score and back
+- Use z-scores to compare scores from different scales
+- Say what standardizing changes, and what it keeps
+- Meet the first step of the simulator's blueprint
+
+## Reading
+
+- {{< fa book >}} Chapter 5 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/04-z-scores"))
+```
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/04-z-scores.html", "Slides for z-scores"))
+```

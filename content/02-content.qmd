@@ -1,0 +1,32 @@
+---
+title: "Displaying data"
+date: "2027-01-07"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Build a frequency table and a grouped frequency table
+- Read a histogram, a polygon, a density plot and a bar graph
+- Describe a distribution by its shape
+- Use percentages to compare groups of different sizes
+
+## Reading
+
+- {{< fa book >}} Chapter 2 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/02-displaying-data"))
+```
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/02-displaying-data.html", "Slides for Displaying data"))
+```

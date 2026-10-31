@@ -1,0 +1,46 @@
+---
+title: "Sampling distributions"
+date: "2027-01-21"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Explain sampling error and the distribution of sample means
+- State the central limit theorem: shape, center and spread
+- Compute a standard error, and say why it shrinks with n
+- Use a z-score for a mean to judge how weird a sample is
+
+## Reading
+
+- {{< fa book >}} Chapter 7 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/06-sampling-distributions"))
+```
+
+::: {.panel-tabset}
+
+## Session 1: Thursday, January 21
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/06-sampling-distributions.html", "Slides for session 1 of Sampling distributions"))
+```
+
+## Session 2: Tuesday, January 26
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/06-sampling-distributions.html#session-2", "Slides for session 2 of Sampling distributions"))
+```
+
+:::

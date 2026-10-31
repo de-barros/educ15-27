@@ -1,0 +1,46 @@
+---
+title: "Probability"
+date: "2027-01-19"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Find a probability by counting, then as an area under a curve
+- Use the normal table in both directions
+- Get the same areas from a spreadsheet
+- Say what makes a result weird, which is the idea behind every test in the course
+
+## Reading
+
+- {{< fa book >}} Chapter 6 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/05-probability"))
+```
+
+::: {.panel-tabset}
+
+## Session 1: Tuesday, January 19
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/05-probability.html", "Slides for session 1 of Probability"))
+```
+
+## Session 2: Thursday, January 21
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/05-probability.html#session-2", "Slides for session 2 of Probability"))
+```
+
+:::

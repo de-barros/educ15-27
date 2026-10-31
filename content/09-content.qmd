@@ -1,0 +1,45 @@
+---
+title: "t-tests for two samples and for gains"
+date: "2027-02-16"
+---
+
+## Goals
+
+By the end of this topic, you should be able to:
+
+- Run a t-test for two independent samples, with a pooled variance
+- Run a t-test on gains, and say why pairing helps
+- Say what a gain alone can't tell you, and why control groups exist
+
+## Reading
+
+- {{< fa book >}} Chapters 10 and 11 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/09-two-samples-gains"))
+```
+
+::: {.panel-tabset}
+
+## Session 1: Tuesday, February 16
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/09-two-samples-gains.html", "Slides for session 1 of t-tests for two samples and for gains"))
+```
+
+## Session 2: Thursday, February 18
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/09-two-samples-gains.html#session-2", "Slides for session 2 of t-tests for two samples and for gains"))
+```
+
+:::

@@ -884,6 +884,7 @@ Chapter 9's homework is due before we cover effect size and confidence intervals
 
 ---
 
+name: session-2
 class: title title-8
 
 # Session 2: Tuesday, February 9
