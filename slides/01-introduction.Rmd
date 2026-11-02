@@ -178,7 +178,7 @@ Lectures
 ]
 
 .pull-right[
-.box-inv-1.medium[TA: to be announced]
+.box-inv-1.medium[TA: Pritha Sengupta]
 
 .center[
 Friday labs
@@ -191,7 +191,7 @@ Email to come
 
 ???
 
-Andy: replace "to be announced" with the TA's name and details once you have them.
+Andy: replace "Email to come" with Pritha's email once you have it.
 
 ---
 

@@ -12,10 +12,9 @@ instructor:
     E-mail is the best way to contact us. From Monday to Friday, we will try to respond to all course-related messages within 24 hours. At the same time, our work day may look different from your work day. Please do not feel obligated to respond out of your normal working hours.
   appointment_url: https://calendly.com/de-barros/student-hours-andy-de-barros
 
-# TODO: no TA assigned yet
 assistant:
-  name: To be announced
-  name_no_title: To be announced
+  name: Pritha Sengupta
+  name_no_title: Pritha Sengupta
 
 course:
   number: "EDUC 15"
