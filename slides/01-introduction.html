@@ -4,7 +4,7 @@
     <title>Introduction and measurement</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-10-31" />
+    <meta name="date" content="2026-11-02" />
     <script src="libs/header-attrs-2.30/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
@@ -78,6 +78,8 @@ class: title title-1
 .pull-left[
 .box-1.medium[Andreas de Barros]
 
+.portrait[![Portrait of Andy de Barros, smiling, wearing glasses](img/andy.png)]
+
 .center[
 Lectures
 
@@ -109,7 +111,12 @@ class: title title-1 long-title one-line
 
 # Shout out to all those here who find this place a bit strange
 
-&lt;table class="deck-table"&gt;
+.map-left[
+.picture[![World map with the United States, Guatemala, Chile, France, Germany and India shaded](img/andy-map.png)]
+]
+
+.map-right[
+&lt;table class="deck-table tight"&gt;
  &lt;thead&gt;
   &lt;tr&gt;
    &lt;th style="text-align:left;"&gt; Where &lt;/th&gt;
@@ -139,6 +146,7 @@ class: title title-1 long-title one-line
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
+]
 
 ???
 
@@ -484,6 +492,14 @@ Grades, solutions, and slide files
 
 ---
 
+# It's in the syllabus
+
+.picture[![Four comic panels. Students ask a busy instructor: What did we cover in class last week? What's your late homework policy? When are your office hours? How will my grade be computed? Each time the instructor answers, It's in the syllabus, and in the last panel just holds up a sign that says so. Below: It's in the syllabus. This message brought to you by every instructor that ever lived.](img/phd-syllabus.jpg)]
+
+.source["Piled Higher and Deeper" by Jorge Cham, [www.phdcomics.com](https://phdcomics.com/comics.php?f=1583)]
+
+---
+
 # Most importantly
 
 .box-1.medium.sp-after-half[Ask for help, and tell us how you're doing]
@@ -566,6 +582,8 @@ class: title title-8
 .box-inv-1.small[Visualize data]
 
 .center[**We start here**]
+
+.anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
 .pull-middle-3[
@@ -583,6 +601,8 @@ class: title title-8
 
 .box-inv-3.small[Focus is on X]
 ]
+
+.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -1046,6 +1066,14 @@ class: title title-3 long-title one-line
 
 ---
 
+# Nominal, ordinal and binary
+
+.picture[![Three hand-drawn panels. Nominal, unordered descriptions: a turtle, a snail and a butterfly. Ordinal, ordered descriptions: three bees who are unhappy, OK and awesome. Binary, only 2 mutually exclusive outcomes: a dinosaur who says I am extinct and a shark who says I am not extinct.](img/horst-nominal-ordinal-binary.png)]
+
+.source[Artwork by @allison_horst, CC BY 4.0.]
+
+---
+
 # Mindspark has all four scales
 
 &lt;table class="deck-table"&gt;
@@ -1123,13 +1151,21 @@ A raw test score counts correct answers, so strictly it's discrete, while the ab
 
 ---
 
+# Measured or counted?
+
+.picture[![Two hand-drawn panels. Continuous, measured data can have infinite values within a possible range: a chick who says I am 3.1 inches tall, I weigh 34.16 grams. Discrete, observations can only exist at limited values, often counts: an octopus who says I have 8 legs and 4 spots.](img/horst-continuous-discrete.png)]
+
+.source[Artwork by @allison_horst, CC BY 4.0.]
+
+---
+
 # Switches and sliders
 
-&lt;img src="01-introduction_files/figure-html/switch-plot-1.png" alt="A drawing of two wall controls. On the left, a switch with two positions, on and off, is labeled categorical variables. On the right, a slider that can stop anywhere along a track is labeled continuous variables." width="76%" style="display: block; margin: auto;" /&gt;
+.picture-medium[![Two wall controls side by side. A plain light switch on the left is labeled categorical variables. A dimmer slider on the right is labeled continuous variables.](img/switch-slider.png)]
 
 .box-inv-3.small[Getting the program is a switch: on or off. Age is a slider]
 
-.source[Adapted from Andrew Heiss's slides.]
+.source[Image: Andrew Heiss, *Program Evaluation for Public Service*, [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).]
 
 ---
 
@@ -1248,6 +1284,55 @@ Meet the data. Go to your own lab, and bring a calculator and a laptop
 .box-3.small[Nothing is due this Sunday. Get MindTap through Canvas now]
 
 &lt;style type="text/css"&gt;
+/* Images sit under the title. These heights leave room for a source line */
+.picture img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 440px;
+}
+
+.picture-small img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 230px;
+}
+
+.source a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.picture-medium img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 335px;
+}
+
+.portrait img {
+  display: block;
+  margin: 0 auto;
+  max-height: 175px;
+}
+
+.map-left {
+  float: left;
+  width: 42%;
+}
+
+.map-right {
+  float: right;
+  width: 55%;
+}
+
+.anteater img {
+  display: block;
+  margin: 0.15em auto 0;
+  max-height: 105px;
+}
+
 /* This chunk sits at the end because any output before the first slide's
    "class:" line stops remark from reading that slide's properties */
 

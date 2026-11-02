@@ -4,7 +4,7 @@
     <title>Regression: the line</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-10-31" />
+    <meta name="date" content="2026-11-02" />
     <script src="libs/header-attrs-2.30/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
@@ -65,11 +65,15 @@ class: title title-8
 .box-inv-6.small[Use one score to predict another]
 
 .center[**We are here**]
+
+.anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
 .pull-right-3[
 .box-3.medium[Explanation]
 ]
+
+.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -367,6 +371,20 @@ So the squares are a way to see fit. Small squares mean the line fits well, and 
 Back to our 8 students, where each square is big enough to see. Two of them share a point, so one square is darker. All three lines go through the two means.
 
 The name is ordinary least squares, or OLS. It's the same regression. No other straight line through these 8 students gets below 58.5.
+
+---
+
+# Think of the line as held by springs
+
+&lt;img src="12-regression-line_files/figure-html/springs-1.png" alt="Scatter plot of eight students with the least squares line. A vertical spring joins each dot to the line. Dots far from the line have long springs, and dots near it have short ones." width="70%" style="display: block; margin: auto;" /&gt;
+
+.box-6.small[Every student's spring pulls on the line. Least squares is where they balance]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32 from Topic 11.]
+
+???
+
+Vertical springs, one per student. A spring stores energy with the square of its stretch, so the resting place of the line is the one with the smallest total of squared residuals.
 
 ---
 
@@ -803,6 +821,27 @@ Correlation and regression. Bring a calculator and a laptop
 .box-3.small[Sunday, March 7, 6 PM: Mastery and Problem Set for Chapter 12 are due. Chapter 14's are due March 14]
 
 &lt;style type="text/css"&gt;
+/* Images sit under the title. These heights leave room for a source line */
+.picture img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 440px;
+}
+
+.picture-small img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 230px;
+}
+
+.anteater img {
+  display: block;
+  margin: 0.15em auto 0;
+  max-height: 105px;
+}
+
 /* This chunk sits at the end because any output before the first slide's
    "class:" line stops remark from reading that slide's properties */
 

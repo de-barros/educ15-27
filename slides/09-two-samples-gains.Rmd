@@ -199,7 +199,11 @@ class: title title-8
 .box-inv-3.small[Did the program cause the gap?]
 
 .center[**We are here**]
+
+.anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
+
+.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -1603,6 +1607,27 @@ Mastery and Problem Set for Chapter 10 are due. Chapter 11's, on gains, are due 
 .box-3.small[For Tuesday, February 23: read Chapter 12. Topic 10 is ANOVA]
 
 ```{css, echo=FALSE}
+/* Images sit under the title. These heights leave room for a source line */
+.picture img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 440px;
+}
+
+.picture-small img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 230px;
+}
+
+.anteater img {
+  display: block;
+  margin: 0.15em auto 0;
+  max-height: 105px;
+}
+
 /* This chunk sits at the end because any output before the first slide's
    "class:" line stops remark from reading that slide's properties */
 

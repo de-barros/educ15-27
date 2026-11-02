@@ -168,11 +168,15 @@ class: title title-8
 .box-inv-6.small[Use one score to predict another]
 
 .center[**We are here**]
+
+.anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
 .pull-right-3[
 .box-3.medium[Explanation]
 ]
+
+.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -545,6 +549,38 @@ ggplot(squares, aes(x = X, y = Y)) +
 Back to our 8 students, where each square is big enough to see. Two of them share a point, so one square is darker. All three lines go through the two means.
 
 The name is ordinary least squares, or OLS. It's the same regression. No other straight line through these 8 students gets below `r fmt(eight$ss_res, 1)`.
+
+---
+
+# Think of the line as held by springs
+
+```{r springs, fig.width=8.4, fig.height=4.1, out.width="70%", fig.alt="Scatter plot of eight students with the least squares line. A vertical spring joins each dot to the line. Dots far from the line have long springs, and dots near it have short ones."}
+spring <- function(x, from, to, coils = 6, width = 0.16) {
+  tibble(x = x + c(0, rep(c(width, -width), length.out = 2 * coils - 1), 0),
+         y = seq(from, to, length.out = 2 * coils + 1))
+}
+springs <- eight$d %>%
+  mutate(id = row_number(), fit = eight$my + eight$b * (X - eight$mx)) %>%
+  pmap_dfr(function(X, Y, fit, id, ...) mutate(spring(X, Y, fit), id = id))
+
+ggplot(eight$d, aes(x = X, y = Y)) +
+  geom_abline(slope = eight$b, intercept = eight$my - eight$b * eight$mx, color = clr_median, linewidth = 1.3) +
+  geom_path(data = springs, aes(x = x, y = y, group = id), color = clr_mean, linewidth = 0.9) +
+  geom_point(color = clr_median, size = 3.5) +
+  coord_cartesian(xlim = c(5, 15), ylim = c(14, 32)) +
+  scale_x_continuous(breaks = seq(6, 14, 2)) +
+  scale_y_continuous(breaks = seq(15, 30, 5)) +
+  labs(x = "Baseline X", y = "Endline Y") +
+  theme_slides(17)
+```
+
+.box-6.small[Every student's spring pulls on the line. Least squares is where they balance]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32 from Topic 11.]
+
+???
+
+Vertical springs, one per student. A spring stores energy with the square of its stretch, so the resting place of the line is the one with the smallest total of squared residuals.
 
 ---
 
@@ -1013,6 +1049,27 @@ Correlation and regression. Bring a calculator and a laptop
 .box-3.small[Sunday, March 7, 6 PM: Mastery and Problem Set for Chapter 12 are due. Chapter 14's are due March 14]
 
 ```{css, echo=FALSE}
+/* Images sit under the title. These heights leave room for a source line */
+.picture img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 440px;
+}
+
+.picture-small img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 230px;
+}
+
+.anteater img {
+  display: block;
+  margin: 0.15em auto 0;
+  max-height: 105px;
+}
+
 /* This chunk sits at the end because any output before the first slide's
    "class:" line stops remark from reading that slide's properties */
 

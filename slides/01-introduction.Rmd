@@ -166,6 +166,8 @@ class: title title-1
 .pull-left[
 .box-1.medium[Andreas de Barros]
 
+.portrait[![Portrait of Andy de Barros, smiling, wearing glasses](img/andy.png)]
+
 .center[
 Lectures
 
@@ -197,6 +199,11 @@ class: title title-1 long-title one-line
 
 # Shout out to all those here who find this place a bit strange
 
+.map-left[
+.picture[![World map with the United States, Guatemala, Chile, France, Germany and India shaded](img/andy-map.png)]
+]
+
+.map-right[
 ```{r path-table, results="asis"}
 tribble(
   ~Where, ~What,
@@ -206,8 +213,9 @@ tribble(
   "Chile, India and the US", "Education research at J-PAL and at MIT",
   "US", "PhD in Education at Harvard University"
 ) %>%
-  kable(format = "html", table.attr = 'class="deck-table"')
+  kable(format = "html", table.attr = 'class="deck-table tight"')
 ```
+]
 
 ???
 
@@ -458,6 +466,14 @@ Grades, solutions, and slide files
 
 ---
 
+# It's in the syllabus
+
+.picture[![Four comic panels. Students ask a busy instructor: What did we cover in class last week? What's your late homework policy? When are your office hours? How will my grade be computed? Each time the instructor answers, It's in the syllabus, and in the last panel just holds up a sign that says so. Below: It's in the syllabus. This message brought to you by every instructor that ever lived.](img/phd-syllabus.jpg)]
+
+.source["Piled Higher and Deeper" by Jorge Cham, [www.phdcomics.com](https://phdcomics.com/comics.php?f=1583)]
+
+---
+
 # Most importantly
 
 .box-1.medium.sp-after-half[Ask for help, and tell us how you're doing]
@@ -540,6 +556,8 @@ class: title title-8
 .box-inv-1.small[Visualize data]
 
 .center[**We start here**]
+
+.anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
 .pull-middle-3[
@@ -557,6 +575,8 @@ class: title title-8
 
 .box-inv-3.small[Focus is on X]
 ]
+
+.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -1012,6 +1032,14 @@ tribble(
 
 ---
 
+# Nominal, ordinal and binary
+
+.picture[![Three hand-drawn panels. Nominal, unordered descriptions: a turtle, a snail and a butterfly. Ordinal, ordered descriptions: three bees who are unhappy, OK and awesome. Binary, only 2 mutually exclusive outcomes: a dinosaur who says I am extinct and a shark who says I am not extinct.](img/horst-nominal-ordinal-binary.png)]
+
+.source[Artwork by @allison_horst, CC BY 4.0.]
+
+---
+
 # Mindspark has all four scales
 
 ```{r mindspark-scales, results="asis"}
@@ -1063,31 +1091,21 @@ A raw test score counts correct answers, so strictly it's discrete, while the ab
 
 ---
 
+# Measured or counted?
+
+.picture[![Two hand-drawn panels. Continuous, measured data can have infinite values within a possible range: a chick who says I am 3.1 inches tall, I weigh 34.16 grams. Discrete, observations can only exist at limited values, often counts: an octopus who says I have 8 legs and 4 spots.](img/horst-continuous-discrete.png)]
+
+.source[Artwork by @allison_horst, CC BY 4.0.]
+
+---
+
 # Switches and sliders
 
-```{r switch-plot, fig.width=10, fig.height=3.9, out.width="76%", fig.alt="A drawing of two wall controls. On the left, a switch with two positions, on and off, is labeled categorical variables. On the right, a slider that can stop anywhere along a track is labeled continuous variables."}
-ggplot() +
-  # The switch
-  annotate("rect", xmin = 1.2, xmax = 2.8, ymin = 0, ymax = 4, fill = "#f3f3f3", color = clr_median, linewidth = 1.1) +
-  annotate("rect", xmin = 1.5, xmax = 2.5, ymin = 2, ymax = 3.7, fill = clr_bar, color = clr_median, linewidth = 1.1) +
-  annotate("rect", xmin = 1.5, xmax = 2.5, ymin = 0.3, ymax = 2, fill = "white", color = clr_median, linewidth = 1.1) +
-  annotate("text", x = 2, y = 2.85, label = "On", color = "white", size = 7, fontface = "bold", family = "Fira Sans Condensed") +
-  annotate("text", x = 2, y = 1.15, label = "Off", color = "#1f2933", size = 7, fontface = "bold", family = "Fira Sans Condensed") +
-  # The slider
-  annotate("rect", xmin = 7.2, xmax = 8.8, ymin = 0, ymax = 4, fill = "#f3f3f3", color = clr_median, linewidth = 1.1) +
-  annotate("rect", xmin = 7.92, xmax = 8.08, ymin = 0.3, ymax = 3.7, fill = clr_median) +
-  annotate("rect", xmin = 7.5, xmax = 8.5, ymin = 2.35, ymax = 2.85, fill = clr_bar, color = clr_median, linewidth = 1.1) +
-  annotate("text", x = 0.95, y = 2, label = "Categorical\nvariables", hjust = 1, size = 8, lineheight = 0.95,
-           fontface = "bold", color = "#1f2933", family = "Fira Sans Condensed") +
-  annotate("text", x = 9.05, y = 2, label = "Continuous\nvariables", hjust = 0, size = 8, lineheight = 0.95,
-           fontface = "bold", color = "#1f2933", family = "Fira Sans Condensed") +
-  coord_cartesian(xlim = c(-1.5, 11.5), ylim = c(-0.1, 4.1)) +
-  theme_void()
-```
+.picture-medium[![Two wall controls side by side. A plain light switch on the left is labeled categorical variables. A dimmer slider on the right is labeled continuous variables.](img/switch-slider.png)]
 
 .box-inv-3.small[Getting the program is a switch: on or off. Age is a slider]
 
-.source[Adapted from Andrew Heiss's slides.]
+.source[Image: Andrew Heiss, *Program Evaluation for Public Service*, [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).]
 
 ---
 
@@ -1225,6 +1243,55 @@ Meet the data. Go to your own lab, and bring a calculator and a laptop
 .box-3.small[Nothing is due this Sunday. Get MindTap through Canvas now]
 
 ```{css, echo=FALSE}
+/* Images sit under the title. These heights leave room for a source line */
+.picture img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 440px;
+}
+
+.picture-small img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 230px;
+}
+
+.source a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.picture-medium img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 335px;
+}
+
+.portrait img {
+  display: block;
+  margin: 0 auto;
+  max-height: 175px;
+}
+
+.map-left {
+  float: left;
+  width: 42%;
+}
+
+.map-right {
+  float: right;
+  width: 55%;
+}
+
+.anteater img {
+  display: block;
+  margin: 0.15em auto 0;
+  max-height: 105px;
+}
+
 /* This chunk sits at the end because any output before the first slide's
    "class:" line stops remark from reading that slide's properties */
 

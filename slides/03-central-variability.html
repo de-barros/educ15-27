@@ -4,7 +4,7 @@
     <title>Central tendency and variability</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-10-31" />
+    <meta name="date" content="2026-11-02" />
     <script src="libs/header-attrs-2.30/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
@@ -56,6 +56,8 @@ class: title title-8
 .box-inv-1.small[Visualize data]
 
 .center[**We are here**]
+
+.anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
 .pull-middle-3[
@@ -65,6 +67,8 @@ class: title title-8
 .pull-right-3[
 .box-3.medium[Explanation]
 ]
+
+.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -252,9 +256,23 @@ class: title title-6
 
 # Skew is named after the tail
 
-&lt;img src="03-central-variability_files/figure-html/skew-plot-1.png" alt="Three curves side by side. The left curve has its peak on the right and a long tail to the left, labeled skewed left. The middle curve is symmetric. The right curve has its peak on the left and a long tail to the right, labeled skewed right." width="88%" style="display: block; margin: auto;" /&gt;
+&lt;img src="03-central-variability_files/figure-html/skew-plot-1.png" alt="Three curves side by side. The left curve has its peak on the right and a long tail to the left, labeled skewed left. The middle curve is symmetric. The right curve has its peak on the left and a long tail to the right, labeled skewed right." width="84%" style="display: block; margin: auto;" /&gt;
+
+.pull-left-3[
+.dog[![Cartoon dog lying down, with a long tail stretching to the left](img/dog-tail-left.png)]
+]
+
+.pull-middle-3[
+&amp;nbsp;
+]
+
+.pull-right-3[
+.dog[![Cartoon dog lying down, with a long tail stretching to the right](img/dog-tail-right.png)]
+]
 
 .box-inv-6.small[Our math scores are almost symmetric, so all three agreed]
+
+.source[Dogs: Jawlik, *Statistics from A to Z: Confusing Concepts Clarified* (Wiley, 2016).]
 
 ---
 
@@ -637,6 +655,33 @@ $$
 .box-inv-3.small[This needs no deviations, so it's quicker with a calculator]
 
 &lt;style type="text/css"&gt;
+/* Images sit under the title. These heights leave room for a source line */
+.picture img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 440px;
+}
+
+.picture-small img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 230px;
+}
+
+.anteater img {
+  display: block;
+  margin: 0.15em auto 0;
+  max-height: 105px;
+}
+
+.dog img {
+  display: block;
+  margin: -0.2em auto 0;
+  max-height: 72px;
+}
+
 /* This chunk sits at the end because any output before the first slide's
    "class:" line stops remark from reading that slide's properties */
 

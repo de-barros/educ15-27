@@ -4,7 +4,7 @@
     <title>Displaying data</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-10-31" />
+    <meta name="date" content="2026-11-02" />
     <script src="libs/header-attrs-2.30/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
@@ -56,6 +56,8 @@ class: title title-8
 .box-inv-1.small[Visualize data]
 
 .center[**We are here**]
+
+.anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
 .pull-middle-3[
@@ -65,6 +67,8 @@ class: title title-8
 .pull-right-3[
 .box-3.medium[Explanation]
 ]
+
+.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -109,6 +113,8 @@ class: title title-1
 .box-inv-1.small[Where]
 
 After-school centers in Delhi, India
+
+.picture-small[![Children sitting in rows at desktop computers in a Mindspark center, under a painted rainbow and a wall of number charts](img/mindspark-center.jpg)]
 ]
 
 .pull-middle-3[
@@ -123,7 +129,7 @@ After-school centers in Delhi, India
 Software that adapts to each child, plus small-group help from a teaching assistant
 ]
 
-.source[Muralidharan, Singh, and Ganimian (2019), *American Economic Review* 109(4).]
+.source[Muralidharan, Singh, and Ganimian (2019), *American Economic Review* 109(4). Photo: a Mindspark center.]
 
 ???
 
@@ -211,6 +217,14 @@ Math and Hindi tests
 ???
 
 80 students didn't take the endline tests. We'll say more about that in Topic 14.
+
+---
+
+# Tidy data
+
+.picture[![Stylized text giving an overview of tidy data. The top quotes Hadley Wickham: Tidy data is a standard way of mapping the meaning of a dataset to its structure. On the left: in tidy data, each variable forms a column, each observation forms a row, and each cell is a single measurement. On the lower right, an example table of cats has columns for id, name and color.](img/tidy-data.jpg)]
+
+.source[Illustration: Lowndes and Horst (2020), [Openscapes blog](https://openscapes.org/blog/2020-10-12-tidy-data/), CC BY 4.0. Wickham (2014), *Journal of Statistical Software* 59(10).]
 
 ---
 
@@ -776,6 +790,14 @@ Our math scores are unimodal and close to symmetric. Many measurements in nature
 
 ---
 
+# Not everything is normal
+
+.picture[![Cartoon of two smiling distributions on one axis. A tall orange hump tells a two-peaked blue distribution, You're not normal. The blue one throws up its arms and laughs.](img/horst-not-normal.png)]
+
+.source[Artwork by @allison_horst, CC BY 4.0.]
+
+---
+
 # Skewed distributions have one long tail
 
 &lt;img src="02-displaying-data_files/figure-html/skew-1.png" alt="Two curves. On the left, a peak near the high end with a long tail stretching to the left, labeled skewed left. On the right, a peak near the low end with a long tail stretching to the right, labeled skewed right." width="90%" style="display: block; margin: auto;" /&gt;
@@ -793,6 +815,18 @@ Our math scores are unimodal and close to symmetric. Many measurements in nature
 ???
 
 Skew is named after the tail, not the peak. That's the common mistake. Tuesday we'll see what a long tail does to the mean.
+
+---
+
+# Everybody loves a doggo mnemonic
+
+.picture[![Three curves, each with a cartoon dog below it. Skewed left, negative skewness: the long tail runs left, and the dog's tail points left. Skewness = 0: a symmetric curve with two dogs back to back. Skewed right, positive skewness: the long tail runs right, and the dog's tail points right. A line below reads, Reproduced by permission of John Wiley and Sons from the book, Statistics from A to Z, Confusing Concepts Clarified.](img/skew-dogs.jpg)]
+
+.source[Jawlik, *Statistics from A to Z: Confusing Concepts Clarified* (Wiley, 2016), [statisticsfromatoz.com](https://www.statisticsfromatoz.com/blog/statistics-tip-the-skew-is-in-the-direction-of-the-long-tail).]
+
+???
+
+The skew goes the way the dog's tail points.
 
 ---
 
@@ -882,6 +916,32 @@ Meet the data. Go to your own lab, and bring a calculator and a laptop
 .box-3.small[Nothing is due this Sunday. The first MindTap work is due January 17 at 6 PM]
 
 &lt;style type="text/css"&gt;
+/* Images sit under the title. These heights leave room for a source line */
+.picture img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 440px;
+}
+
+.picture-small img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 185px;
+}
+
+.source a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.anteater img {
+  display: block;
+  margin: 0.15em auto 0;
+  max-height: 105px;
+}
+
 /* This chunk sits at the end because any output before the first slide's
    "class:" line stops remark from reading that slide's properties */
 

@@ -4,7 +4,7 @@
     <title>ANOVA</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-10-31" />
+    <meta name="date" content="2026-11-02" />
     <script src="libs/header-attrs-2.30/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
@@ -63,11 +63,15 @@ class: title title-8
 .box-inv-6.small[Do these groups differ in the population?]
 
 .center[**We are here**]
+
+.anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
 .pull-right-3[
 .box-3.medium[Explanation]
 ]
+
+.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -153,6 +157,32 @@ A Type 1 error is a false alarm, from Topic 7. Each t-test at α = 0.05 has a 5%
 That formula treats the tests as independent. Ours share groups, so it runs a little high: a simulation of three t-tests on three identical groups gives 12%, not 14%. Either way, it's well past 5%.
 
 Number of pairs: k(k − 1) / 2, where k is the number of groups.
+
+---
+
+# Green jelly beans
+
+.picture[![Three comic panels. A person says jelly beans cause acne, and scientists are told to investigate. The scientists report no link between jelly beans and acne, p &gt; 0.05. The person says they hear it's only a certain color that causes it, and the scientists are sent back.](img/xkcd-significant-panels.png)]
+
+.source[Randall Munroe, "Significant," [xkcd 882](https://xkcd.com/882/), CC BY-NC 2.5.]
+
+---
+
+# Test 20 colors, and one will go off
+
+.pull-left[
+.picture[![The full comic strip. The scientists test 20 colors of jelly beans, one panel each. Nineteen find no link, p &gt; 0.05. Green finds a link, p &lt; 0.05.](img/xkcd-significant-strip.png)]
+]
+
+.pull-right[
+.picture[![A newspaper front page: Green jelly beans linked to acne! 95% confidence. Only 5% chance of coincidence.](img/xkcd-significant-headline.png)]
+]
+
+.source[Randall Munroe, "Significant," [xkcd 882](https://xkcd.com/882/), CC BY-NC 2.5.]
+
+???
+
+With α = 0.05, 20 true null hypotheses give an average of one false alarm. That one is the headline.
 
 ---
 
@@ -1136,6 +1166,32 @@ Predict the Simulator: a game on t-tests, gains, intervals and ANOVA
 .box-3.small[Mastery and Problem Set for Chapter 11 are due Sunday, February 28 at 6 PM]
 
 &lt;style type="text/css"&gt;
+/* Images sit under the title. These heights leave room for a source line */
+.picture img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 440px;
+}
+
+.picture-small img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 230px;
+}
+
+.source a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.anteater img {
+  display: block;
+  margin: 0.15em auto 0;
+  max-height: 105px;
+}
+
 /* This chunk sits at the end because any output before the first slide's
    "class:" line stops remark from reading that slide's properties */
 

@@ -288,11 +288,15 @@ class: title title-8
 .box-inv-6.small[From a sample to a population]
 
 .center[**We are here**]
+
+.anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
 .pull-right-3[
 .box-3.medium[Explanation]
 ]
+
+.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -1707,6 +1711,27 @@ Jeopardy, as midterm review. Bring a calculator
 .box-3.small[Mastery and Problem Set for Chapters 8 and 9 are due Sunday, February 7 at 6 PM. The midterm is Thursday, February 11]
 
 ```{css, echo=FALSE}
+/* Images sit under the title. These heights leave room for a source line */
+.picture img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 440px;
+}
+
+.picture-small img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 230px;
+}
+
+.anteater img {
+  display: block;
+  margin: 0.15em auto 0;
+  max-height: 105px;
+}
+
 /* This chunk sits at the end because any output before the first slide's
    "class:" line stops remark from reading that slide's properties */
 

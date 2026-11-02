@@ -7,7 +7,7 @@ Undergraduate *Statistics for Education Research* at UC Irvine, taught by Andrea
 ## Rules
 
 - **Student records stay out of everything.** The old course folder holds grades, rosters, attendance, graded exams and evaluations. Don't open them, and never copy anything from them into this repo, a deck, or a chat. If a file turns out to contain student names, stop reading it and say so. `.claude/settings.local.json` blocks the known locations, but only for the Read tool.
-- **Textbook figures are fine on slides, with a citation.** Cite the source on every slide that uses a textbook or other third-party figure. No permission check is needed.
+- **Textbook figures and other third-party images are fine on slides, with a citation.** Andy has permission to use them. Cite the source on every slide that uses one. No permission check is needed. Keep the photos, comics, cartoons and illustrations from the 2024 decks: never swap one for a drawing or text to avoid using it. Only graphs of data or formulas get remade in ggplot.
 - **Other publisher material stays out of the repo and the website.** Cengage test banks, instructor manuals and publisher slides don't go in tracked files or on the site. Prior instructors' materials are for reference: don't republish them.
 - **Slides go on the website and on Canvas.** Each topic page embeds its deck, as on Andrew Heiss's course sites. The user also uploads the single-file HTML (the accessible version) and PDF (for printing) to Canvas. So everything in a deck is public: no exam material or solutions. All decks are released at once, not one by one.
 - **The Mindspark data is public, under its own license.** `files/data/mindspark/` holds the class data, unchanged and untrimmed, and decks and labs read it from there. It's CC BY 4.0, not the site's CC BY-NC, so keep its `README.txt` with it, keep the credit and the exception in the footer, and don't put non-commercial terms on it. If you change the data, say so in that README.
@@ -34,6 +34,8 @@ Run commands from the project root. Outside RStudio, set `RSTUDIO_PANDOC="C:/Pro
 
 - **Rhythm:** each 80-minute session runs about 20 minutes of talk then about 6 of doing, three times. The doing is ungraded: predict it, try it (alone, then a neighbor, then vote), or play it (a quick Jeopardy category by poll). Plan about one real poll per session, because the user has to create those, and use hands or a neighbor for the rest. Nothing scored happens in lecture.
 - **Canvas:** slides are 1210 × 681 px. Under a title there's about 495 px of usable height, or about 450 px with a source line. Size images with max-height classes, not fixed pixels.
+- **Images** live in `slides/img/` and sit in `.picture[![alt](img/name.png)]`, or `.picture-small[...]` beside other content. Both classes are in each deck's end chunk.
+- **Moving images** start paused, with a Play button, because WCAG 2.2.2 requires a way to stop them. See the Datasaurus in `11-correlation.Rmd`.
 - **Theme classes:** `title title-N`, `section-title section-title-N`, `box-N`, `box-inv-N` (with `.medium`, `.small`, `.sp-after-half`), `.pull-left`, `.pull-right`, `.sr-only`. N runs from 1 to 8.
 - **Custom CSS** goes in a `{css}` chunk at the *end* of the Rmd. Any output before the first slide's `class:` line makes remark print the properties as text.
 - **Two-line titles** use a `.long-title` class, defined in that end chunk. See `06-01.Rmd`.

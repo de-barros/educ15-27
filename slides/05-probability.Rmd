@@ -180,6 +180,8 @@ class: title title-8
 .box-inv-1.small[Visualize data]
 
 .center[**We are here, heading right**]
+
+.anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
 .pull-middle-3[
@@ -189,6 +191,8 @@ class: title title-8
 .pull-right-3[
 .box-3.medium[Explanation]
 ]
+
+.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -229,22 +233,15 @@ class: title title-8
 
 # The question we'll keep asking
 
-```{r weird-plot, fig.width=10, fig.height=2.7, out.width="80%", fig.alt="A wide bell curve labeled what I think the population looks like. A small cluster of dots labeled my sample sits far out in the right tail."}
-set.seed(5)
-bell(18) +
-  add_line() +
-  geom_point(data = tibble(z = rnorm(8, 2.9, 0.16), y = runif(8, 0.03, 0.1)), color = clr_mean, size = 3.5) +
-  label_text(0, 0.08, "What I think the population looks like") +
-  label_text(2.9, 0.15, "My sample", clr_mean) +
-  labs(x = NULL) +
-  theme(axis.text.x = element_blank())
-```
+.picture-medium[![Cartoon of a large green hump labeled population, with a small purple pile on each side, labeled sample 1 and sample 2. A note reads p = 0.02. Sample 1 asks, OK, what about now? The population sighs: Yes. I'm still sure I birthed both of you.](img/horst-p-value.png)]
 
 .box-8.small.sp-after-half[If what I think about the population is true, how weird would a sample like mine be?]
 
 --
 
 .box-inv-8.small[And how weird must it be before I decide I was wrong?]
+
+.source[Artwork by Allison Horst, [allisonhorst.com](https://allisonhorst.com/everything-else).]
 
 ???
 
@@ -1400,6 +1397,39 @@ Jeopardy, covering everything through z-scores and probability. Bring a calculat
 .box-3.small[Mastery and Problem Set for Chapter 6 are due Sunday, January 24 at 6 PM]
 
 ```{css, echo=FALSE}
+/* Images sit under the title. These heights leave room for a source line */
+.picture img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 440px;
+}
+
+.picture-small img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 230px;
+}
+
+.source a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.picture-medium img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 270px;
+}
+
+.anteater img {
+  display: block;
+  margin: 0.15em auto 0;
+  max-height: 105px;
+}
+
 /* This chunk sits at the end because any output before the first slide's
    "class:" line stops remark from reading that slide's properties */
 

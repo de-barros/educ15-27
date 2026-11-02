@@ -182,11 +182,15 @@ class: title title-8
 .box-inv-6.small[Does one score go with another?]
 
 .center[**We are here**]
+
+.anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
 .pull-right-3[
 .box-3.medium[Explanation]
 ]
+
+.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -345,6 +349,24 @@ ggplot(ans, aes(x = x, y = y)) +
 ???
 
 Each panel has 11 points, and all four have r = `r fmt(ans_r$r[1])`. Only the first one is what r = `r fmt(ans_r$r[1])` makes you picture. Our 8 students later today happen to have the same r. Any r can hide any of these.
+
+---
+
+# Don't forget to plot your data
+
+.box-1.small.sp-after-half[All of these data sets have the same means, SDs and correlation]
+
+<div class="datasaurus">
+<img class="ds-still" src="img/datasaurus.png" alt="A scatter plot of points that form a dinosaur, next to its summary statistics: X mean 54.26, Y mean 47.83, X SD 16.76, Y SD 26.93, correlation −0.06.">
+<img class="ds-moving" src="img/datasaurus.gif" alt="Animation of a scatter plot. The points move from a dinosaur to a star, circles, lines and other shapes, while the means, SDs and correlation beside it stay the same." hidden>
+<button type="button" class="play-button" onclick="var d=this.parentNode,s=d.querySelector('.ds-still'),m=d.querySelector('.ds-moving'),p=m.hidden;m.hidden=!p;s.hidden=p;this.textContent=p?'Pause':'Play';" onkeydown="event.stopPropagation()" onkeypress="event.stopPropagation()">Play</button>
+</div>
+
+.source[Matejka and Fitzmaurice (2017), ["Same Stats, Different Graphs,"](https://www.research.autodesk.com/publications/same-stats-different-graphs/) CHI 2017. Datasaurus: Alberto Cairo.]
+
+???
+
+Press Play. It starts paused, so the printed PDF shows the dinosaur.
 
 ---
 
@@ -1075,6 +1097,69 @@ Mastery and Problem Set for Chapter 11 are due
 .box-3.small[For Tuesday, March 2: read the regression part of Chapter 14. Topic 12 is Regression: the line]
 
 ```{css, echo=FALSE}
+/* Images sit under the title. These heights leave room for a source line */
+.picture img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 440px;
+}
+
+.picture-small img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 230px;
+}
+
+.source a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.anteater img {
+  display: block;
+  margin: 0.15em auto 0;
+  max-height: 105px;
+}
+
+.datasaurus {
+  text-align: center;
+}
+
+.datasaurus img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 345px;
+}
+
+.datasaurus img[hidden] {
+  display: none;
+}
+
+.play-button {
+  background-color: #b18323;
+  border: 0;
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.6em;
+  margin-top: 0.3em;
+  padding: 0.15em 0.9em;
+}
+
+.play-button:focus {
+  outline: 3px solid #1f2933;
+  outline-offset: 2px;
+}
+
+@media print {
+  .play-button {
+    display: none;
+  }
+}
+
 /* This chunk sits at the end because any output before the first slide's
    "class:" line stops remark from reading that slide's properties */
 
