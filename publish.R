@@ -8,8 +8,8 @@
 # variable (Netlify > User settings > Applications > Personal access tokens)
 
 targets <- list(
-  # TODO: create the Netlify projects, then fill in these ids
-  preview = list(id = NA_character_,
+  # TODO: create the release project when the site goes live, then fill in its id
+  preview = list(id = "4c8aa500-e0c8-4b2c-b0a2-4bc3328c5074",
                  url = "https://educ15-2027.netlify.app"),
   release = list(id = NA_character_,
                  url = "https://educ15.de-barros.com")
