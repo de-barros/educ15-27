@@ -1087,7 +1087,7 @@ class: title title-8
 
 ???
 
-Lab 8 on Friday is a game, not a regular lab, so ANOVA gets no spreadsheet practice there. Chapter 12's Mastery and Problem Set are due March 7.
+Lab 8 on Friday is a quiz, not a regular lab, so ANOVA gets no spreadsheet practice there. Chapter 12's Mastery and Problem Set are due March 7.
 
 ---
 
@@ -1104,7 +1104,7 @@ Correlation. Read the correlation part of Chapter 14
 .pull-right[
 .box-6.small[Friday, February 26: Lab 8]
 
-Predict the Simulator: a game on t-tests, gains, intervals and ANOVA
+Quiz on t-tests, gains, intervals and ANOVA
 ]
 
 .box-3.small[Mastery and Problem Set for Chapter 11 are due Sunday, February 28 at 6 PM]

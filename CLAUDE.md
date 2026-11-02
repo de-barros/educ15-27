@@ -42,6 +42,7 @@ Run commands from the project root. Outside RStudio, set `RSTUDIO_PANDOC="C:/Pro
 - **Plots:** `dev = "ragg_png"`, so Fira Sans Condensed renders on Windows.
 - **Math size:** keep `includes: in_header: "css/mathjax.html"` in the YAML header. Without it, math shrinks to half size in embedded frames and small windows.
 - **Math in markdown:** display math containing `}_` goes in raw HTML, `<div class="math-display">\[...\]</div>`, because remark reads `_..._` as emphasis. Inline `$..$` inside a one-line `.box[...]` doesn't render: use the multi-line box form or Unicode. Raw HTML needs `\(..\)` delimiters.
+- **Friday quizzes:** public wording says "Quiz" for Labs 3, 5, 8 and 10. Don't name a format, teams or a game, because the plan may change with enrollment. Speaker notes count as public too. The ungraded clue rounds in lecture can stay.
 - **Speaker notes** go after `???` on a slide.
 - **Live polls** use the `.poll-slide` and `.poll-answer` pattern in `06-01.Rmd`, which keeps answers out of the printed PDF. Poll Everywhere has two ids per poll; the button uses the presenter id. Students respond at PollEv.com/adb.
 - **After editing a deck, check every slide, the title slide included.** Rendering without an error doesn't mean the slide looks right.

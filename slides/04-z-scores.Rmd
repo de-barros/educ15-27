@@ -809,7 +809,7 @@ class: title title-8
 
 ???
 
-About 6 minutes. Read one clue at a time, in order. No calculators. Take answers by hands or by calling out. This is the format of the Jeopardy games in the labs.
+About 6 minutes. Read one clue at a time, in order. No calculators. Take answers by hands or by calling out.
 
 ---
 

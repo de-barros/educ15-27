@@ -877,7 +877,7 @@ r_block(r_short(fit_tui, f_line = FALSE)[1:6], width = 64)
 
 ???
 
-About 6 minutes. Read one clue at a time, in order. Take answers by hands or by calling out. Same Jeopardy format as Friday's Lab 10.
+About 6 minutes. Read one clue at a time, in order. Take answers by hands or by calling out.
 
 ---
 
@@ -1236,7 +1236,7 @@ Bring your questions
 .pull-right[
 .box-6.small[Friday, March 12: Lab 10]
 
-Jeopardy: final review
+Quiz: final review
 ]
 
 .box-3.small[Sunday, March 14, 6 PM: Mastery and Problem Set for Chapter 14 are due]
