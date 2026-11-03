@@ -3,6 +3,7 @@
 //
 // Parameters: tab, ui=slide, theme=light (for printing), step, n, d, pop, mu, sd, a, rho,
 // gm (three group means, such as 100,100,115), alpha, tails, view, hide, draws, seed.
+// The correlation tab also reads r, resid, squares, means, swap and data=mindspark.
 // Example: index.html?ui=slide&step=2&n=10&draws=551
 (function (root) {
   "use strict";
@@ -245,8 +246,37 @@
 
   // Correlation ----
 
+  var CORR_CAPTIONS = {
+    random: "Click empty space to add a point.",
+    mindspark: "Mindspark math scores of the students who took both tests.",
+    file: "Your data. It stays in your browser."
+  };
+  var mindspark = null;
+
+  // Fetch the two Mindspark files once, then reuse them
+  function showMindspark(then) {
+    function use(files) {
+      R.loadMindspark(files[0], files[1]);
+      syncCorrelation();
+      if (then) then();
+    }
+    if (mindspark) { use(mindspark); return; }
+    Promise.all(["baseline", "endline"].map(function (round) {
+      return root.fetch("../files/data/mindspark/ms_blel_jpal_" + round + ".csv").then(function (res) {
+        if (!res.ok) throw new Error(res.status);
+        return res.text();
+      });
+    })).then(function (files) {
+      mindspark = files;
+      use(files);
+    }).catch(function () {
+      $("cap-corr").textContent = "The Mindspark data didn't load. Try again.";
+    });
+  }
+
   function syncCorrelation() {
     var s = R.state;
+    $("cap-corr").textContent = CORR_CAPTIONS[s.source];
     $("r-target").value = s.target; $("r-n").value = s.n;
     $("r-target-out").textContent = s.target.toFixed(2);
     $("r-n-out").textContent = s.n;
@@ -258,8 +288,10 @@
   function bindCorrelation() {
     var s = R.state;
     R.bind();
-    $("r-new").onclick = function () { R.generate(); R.render(); };
+    $("r-new").onclick = function () { R.generate(); syncCorrelation(); R.render(); };
     $("r-outlier").onclick = function () { R.addOutlier(); };
+    $("r-mindspark").onclick = function () { showMindspark(); };
+    $("r-swap").onclick = function () { R.swap(); };
     $("r-delete").onclick = function () { s.deleting = !s.deleting; syncCorrelation(); };
     $("r-target").oninput = function () { s.target = parseFloat(this.value); syncCorrelation(); R.generate(); R.render(); };
     $("r-n").oninput = function () { s.n = parseInt(this.value, 10); syncCorrelation(); R.generate(); R.render(); };
@@ -270,7 +302,7 @@
       var file = this.files[0];
       if (!file) return;
       var reader = new FileReader();
-      reader.onload = function () { R.loadCsv(String(reader.result)); };
+      reader.onload = function () { R.loadCsv(String(reader.result)); syncCorrelation(); };
       reader.readAsText(file);
     };
   }
@@ -350,9 +382,12 @@
       if (I.state.total) q.set("draws", I.state.total);
     }
     if (tab === "correlation") {
-      q.set("r", R.state.target); q.set("n", R.state.n);
+      if (R.state.source === "mindspark") q.set("data", "mindspark");
+      else { q.set("r", R.state.target); q.set("n", R.state.n); }
       if (R.state.resid) q.set("resid", 1);
       if (R.state.squares) q.set("squares", 1);
+      if (R.state.means) q.set("means", 1);
+      if (R.state.swapped) q.set("swap", 1);
     }
     return root.location.origin + root.location.pathname + "?" + q.toString();
   }
@@ -435,10 +470,17 @@
     if (tab === "correlation") {
       R.state.target = num("r", R.state.target); R.state.n = Math.round(num("n", R.state.n));
       R.state.resid = params.get("resid") === "1"; R.state.squares = params.get("squares") === "1";
+      R.state.means = params.get("means") === "1";
     }
     syncPower(); I.reset(); syncIntervals(); R.reset(); syncCorrelation();
 
     showTab(tab);
+
+    if (tab === "correlation") {
+      var flip = params.get("swap") === "1";
+      if (params.get("data") === "mindspark") showMindspark(function () { if (flip) R.swap(); });
+      else if (flip) R.swap();
+    }
 
     // A slide can open with samples already drawn
     var draws = Math.max(0, Math.min(20000, Math.round(num("draws", 0))));

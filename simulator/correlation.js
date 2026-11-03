@@ -4,9 +4,20 @@
   var E = root.SimEngine, S = root.SimStats, D = root.SimDraw, C = D.COLORS;
   var state = {
     points: [], target: 0.5, n: 30, line: true, resid: false, squares: false, means: false,
-    selected: -1, deleting: false, drag: -1, seed: 2027, rng: null, dom: null, loaded: false
+    selected: -1, deleting: false, drag: -1, seed: 2027, rng: null, dom: null,
+    source: "random", swapped: false, xName: "X", yName: "Y"
   };
   var view = {};
+
+  // Where the points came from: random, mindspark or file
+  function setSource(source, xName, yName) {
+    state.source = source;
+    state.xName = xName;
+    state.yName = yName;
+    state.swapped = false;
+    state.selected = -1;
+    setDomain();
+  }
 
   // Data with exactly the requested correlation: the residual part is made
   // orthogonal to X before mixing, so a small n doesn't wander from the target
@@ -21,9 +32,7 @@
       pts.push({ x: 50 + 15 * zx, y: 50 + 15 * (r * zx + Math.sqrt(1 - r * r) * zr) });
     }
     state.points = pts;
-    state.selected = -1;
-    state.loaded = false;
-    setDomain();
+    setSource("random", "X", "Y");
   }
 
   function setDomain() {
@@ -39,7 +48,8 @@
   function stats() {
     var p = state.points;
     if (p.length < 3) return null;
-    return S.bivariate(p.map(function (q) { return q.x; }), p.map(function (q) { return q.y; }));
+    var st = S.bivariate(p.map(function (q) { return q.x; }), p.map(function (q) { return q.y; }));
+    return isFinite(st.b) ? st : null;
   }
 
   function render() {
@@ -101,8 +111,10 @@
       ctx.fill();
     });
 
-    D.xAxis(ctx, x, base, left, right, 8);
-    D.yAxis(ctx, y, left, base, top, 6);
+    // Random data has no names, so its axes stay unlabeled, as on the slides
+    var named = state.source !== "random";
+    D.xAxis(ctx, x, base, left, right, 8, named ? state.xName : undefined);
+    D.yAxis(ctx, y, left, base, top, 6, named ? state.yName : undefined);
 
     var f2 = D.fmt, html;
     if (st) {
@@ -113,12 +125,13 @@
         "<tr><th scope=\"row\">R², variance shared</th><td>" + D.pct(st.r2, 0) + "</td></tr>" +
         "<tr><th scope=\"row\">Intercept a</th><td>" + f2(st.a) + "</td></tr>" +
         "<tr><th scope=\"row\">Slope b</th><td>" + f2(st.b) + "</td></tr>" +
+        "<tr class=\"slide-hide\"><th scope=\"row\">SE of the slope</th><td>" + f2(st.seB) + "</td></tr>" +
         "<tr><th scope=\"row\">Sum of squared residuals</th><td>" + f2(st.ssres, 0) + "</td></tr>" +
         "<tr><th scope=\"row\">t(" + st.df + ")</th><td>" + f2(st.t) + "</td></tr>" +
-        "<tr><th scope=\"row\">p</th><td>" + (p < 0.001 ? "&lt; .001" : p.toFixed(3).replace(/^0/, "")) + "</td></tr></tbody></table>";
+        "<tr><th scope=\"row\">p</th><td>" + (!isFinite(p) ? "–" : p < 0.001 ? "&lt; .001" : p.toFixed(3).replace(/^0/, "")) + "</td></tr></tbody></table>";
       canvas.setAttribute("aria-label", "Scatter plot of " + st.n + " points. r = " + f2(st.r) + ", slope b = " + f2(st.b) + ", intercept a = " + f2(st.a) + ".");
     } else {
-      html = "Add at least three points.";
+      html = "Add at least three points, with different values of X.";
       canvas.setAttribute("aria-label", "Scatter plot with too few points.");
     }
     document.getElementById("r-readout").innerHTML = html;
@@ -201,18 +214,53 @@
     render();
   }
 
-  // Read x and y from the first two columns. Nothing leaves the browser.
+  // Flip the two variables. r and t stay put, and the slope doesn't
+  function swap() {
+    state.points.forEach(function (p) { var v = p.x; p.x = p.y; p.y = v; });
+    var name = state.xName;
+    state.xName = state.yName;
+    state.yName = name;
+    state.swapped = !state.swapped;
+    setDomain();
+    render();
+  }
+
+  // The class data, as decks 11 to 13 use it: each student's raw math score at
+  // baseline and at endline, for everyone who took both tests
+  function loadMindspark(baselineText, endlineText) {
+    function rows(textData) {
+      var lines = textData.split(/\r?\n/), head = lines[0].split(",");
+      var id = head.indexOf("st_id"), math = head.indexOf("tot_math");
+      return lines.slice(1).map(function (l) {
+        var parts = l.split(",");
+        return { id: parts[id], math: parseFloat(parts[math]) };
+      });
+    }
+    var before = {}, pts = [];
+    rows(baselineText).forEach(function (r) { if (r.id && isFinite(r.math)) before[r.id] = r.math; });
+    rows(endlineText).forEach(function (r) {
+      if (r.id && isFinite(r.math) && before.hasOwnProperty(r.id)) pts.push({ x: before[r.id], y: r.math });
+    });
+    if (pts.length < 3) return false;
+    state.points = pts;
+    setSource("mindspark", "Math score at baseline", "Math score at endline");
+    render();
+    return true;
+  }
+
+  // Read x and y from the first two columns, and their names from a header row
+  // if there is one. Nothing leaves the browser.
   function loadCsv(textData) {
     var lines = textData.split(/\r?\n/).filter(function (l) { return l.trim().length; }), pts = [];
+    if (!lines.length) return false;
+    var first = lines[0].split(/[,;\t]/), named = !isFinite(parseFloat(first[0])) && first.length > 1;
     lines.forEach(function (l) {
       var parts = l.split(/[,;\t]/), a = parseFloat(parts[0]), b = parseFloat(parts[1]);
       if (isFinite(a) && isFinite(b)) pts.push({ x: a, y: b });
     });
     if (pts.length < 3) return false;
     state.points = pts;
-    state.selected = -1;
-    state.loaded = true;
-    setDomain();
+    setSource("file", named ? first[0].trim() : "X", named ? first[1].trim() : "Y");
     render();
     return true;
   }
@@ -224,6 +272,6 @@
 
   root.SimCorrelation = {
     state: state, reset: reset, generate: generate, render: render, bind: bind,
-    addOutlier: addOutlier, loadCsv: loadCsv
+    addOutlier: addOutlier, swap: swap, loadMindspark: loadMindspark, loadCsv: loadCsv
   };
 })(typeof window !== "undefined" ? window : this);
