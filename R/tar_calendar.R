@@ -32,21 +32,17 @@ build_schedule_for_page <- function(schedule_file) {
     mutate(var_resource = ifelse(!is.na(resource),
                                 glue('<a href="{resource}" aria-label="Slides: {subgroup}"><i class="fa-solid fa-person-chalkboard fa-lg" aria-hidden="true"></i></a>'),
                                 glue('<font color="#e9ecef"><i class="fa-solid fa-person-chalkboard fa-lg" aria-hidden="true"></i></font>'))) %>%
-    mutate(var_assignment = ifelse(!is.na(assignment),
-                                   glue('<a href="{assignment}.qmd" aria-label="Assignment: {title}"><i class="fa-solid fa-pen-ruler fa-lg" aria-hidden="true"></i></a>'),
-                                   glue('<font color="#e9ecef"><i class="fa-solid fa-pen-ruler fa-lg" aria-hidden="true"></i></font>'))) %>%
     mutate(col_date = ifelse(is.na(date_end),
                              glue('<strong>{format(date, "%B %e")}</strong>'),
                              glue('<strong>{format(date, "%B %e")}</strong>–<strong>{format(date_end, "%B %e")}</strong>'))) %>%
     mutate(col_title = glue('{var_title}{var_deadline}{var_note}')) %>%
     mutate(col_content = var_content,
-           col_resource = var_resource,
-           col_assignment = var_assignment)
+           col_resource = var_resource)
 
   schedule_nested <- schedule %>%
     select(group, subgroup,
            ` ` = col_date, Title = col_title, Content = col_content,
-           Slides = col_resource, Assignment = col_assignment) %>%
+           Slides = col_resource) %>%
     group_by(group) %>%
     nest() %>%
     mutate(subgroup_count = map(data, ~count(.x, subgroup)),
@@ -69,7 +65,7 @@ build_ical <- function(schedule_file, base_url, page_suffix, class_number) {
            date_end_dt = if_else(is.na(date_end), date_start_dt, date_end)) %>%
     mutate(date_start_cal = map(date_start_dt, ~as.POSIXct(., format = "%B %d, %Y")),
            date_end_cal = map(date_end_dt, ~as.POSIXct(., format = "%B %d, %Y"))) %>%
-    mutate(url = coalesce(content, resource, assignment),
+    mutate(url = coalesce(content, resource),
            url = if_else(is.na(url), glue(""), glue("{base_url}{url}{page_suffix}")))
 
   schedule_ics <- schedule %>%

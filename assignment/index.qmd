@@ -1,5 +1,0 @@
----
-title: "Assignments"
----
-
-The assignment details will appear here.

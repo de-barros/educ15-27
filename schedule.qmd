@@ -32,7 +32,7 @@ Here's your roadmap for the quarter!
 
 - **Slides** ({{< fa person-chalkboard >}}): Each of these icons will link to my slides, once I post them on Canvas.
 
-- [**Assignments**](/assignment/index.html) ({{< fa pen-ruler >}}): This page contains the instructions for each assignment. Assignments are due on the day they're listed.
+- **Homework**: Mastery Training and Problem Sets in MindTap, through Canvas, are listed below on the Sunday they're due, by 6 PM. The [syllabus](/syllabus.qmd#assignments-and-grades) explains everything that counts toward your grade.
 
 ::: {.callout-tip}
 
@@ -63,11 +63,13 @@ show_table <- function(group_id) {
   # Make the table
   tbl <- schedule_nested$data[[group_id]] %>% 
     select(-subgroup) %>% 
-    kbl(escape = FALSE, align = "rlccc", table.attr = 'class="schedule-table"') %>% 
+    # Quarto would otherwise parse the table and drop the empty <i> icons
+    kbl(escape = FALSE, align = "rlcc",
+        table.attr = 'class="schedule-table" data-quarto-disable-processing="true"') %>% 
     kable_styling() %>% 
     column_spec(1, width = "20%", extra_css = "padding-right: 20px;") %>% 
     column_spec(2, width = "50%") %>% 
-    column_spec(3:5, width = "10%") %>% 
+    column_spec(3:4, width = "15%") %>% 
     pack_rows(index = schedule_nested$subgroup_index[[group_id]],
               label_row_css = "border-bottom: 2px solid #000000;")
   

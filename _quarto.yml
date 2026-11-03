@@ -44,8 +44,6 @@ website:
       - schedule.qmd
       - text: "Content"
         file: content/index.qmd
-      - text: "Assignments"
-        file: assignment/index.qmd
       - text: "Simulator"
         file: resource/simulator.qmd
       - text: "Resources"
@@ -93,12 +91,6 @@ website:
               file: content/13-content.qmd
             - text: "14: Regression: groups and interactions"
               file: content/14-content.qmd
-
-    - title: "Assignments"
-      contents:
-        - section: "Assignments"
-          contents:
-            - assignment/index.qmd
 
     - title: "Resources"
       contents:
