@@ -38,6 +38,7 @@ withr::with_dir(here::here(), {
 ### Teaching assistant
 
 - [{{< fa user >}}]{.fa-li} {{< var assistant.name_no_title >}}
+- [{{< fa envelope >}}]{.fa-li} <a href='mailto:{{< var assistant.email >}}'>{{< var assistant.email >}}</a>
 :::
 
 ::: {.g-col-12 .g-col-sm-6 .g-col-md-4}

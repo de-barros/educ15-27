@@ -1,5 +1,352 @@
 ---
-title: "Syllabus"
+title: Syllabus
 ---
 
-The syllabus for this offering is still being written.
+::: {.grid .course-details .course-details-smaller}
+
+::: {.g-col-12 .g-col-md-4}
+### Instructor
+
+- [{{< fa user >}}]{.fa-li} [{{< var instructor.name_no_title >}}]({{< var instructor.url >}})
+- [{{< fa university >}}]{.fa-li} {{< var instructor.office >}}
+- [{{< fa envelope >}}]{.fa-li} <a href='mailto:{{< var instructor.email >}}'>{{< var instructor.email >}}</a>
+- [{{< iconify fa6-brands bluesky size=1.1em title='Bluesky' >}}]{.fa-li} [Bluesky]({{< var instructor.bluesky >}})
+- [{{< fa calendar-check >}}]{.fa-li} [Schedule an appointment]({{< var instructor.appointment_url >}})
+:::
+
+::: {.g-col-12 .g-col-md-4}
+### Teaching assistant
+
+- [{{< fa user >}}]{.fa-li} {{< var assistant.name_no_title >}}
+- [{{< fa envelope >}}]{.fa-li} <a href='mailto:{{< var assistant.email >}}'>{{< var assistant.email >}}</a>
+:::
+
+::: {.g-col-12 .g-col-md-4}
+### Course details
+
+- {{< fa calendar >}} &nbsp; {{< var course.days >}}
+- {{< fa clock >}} &nbsp; {{< var course.time >}}
+- {{< fa location-dot >}} &nbsp; {{< var course.location >}}
+- {{< iconify simple-icons canvas >}} &nbsp; [Canvas]({{< var course.canvas >}})
+:::
+
+:::
+
+::: {.callout-tip}
+
+## Please read the syllabus!
+
+This page has important information about the course, including its structure, assignments, grading, and student hours, [among many others](https://phdcomics.com/comics.php?f=1583).
+
+<b><a href="https://www.cameo.com/v/5f2b392a0299b100202e624a?utm_campaign=video_share_to_copy" style="color: #981e32">Even Snoop Dogg wants you to read the syllabus!</a></b>
+
+:::
+
+
+## Course objectives
+
+This course provides an introduction to statistics in education research. You will acquire essential tools that allow you to read, interpret, and draw conclusions from quantitative education research.
+
+In this course, you will learn how to
+
+- describe and define key concepts related to education research,
+- read and explain key statistical concepts found in education research studies, and
+- perform statistical calculations related to education research.
+
+We build intuition first. You will run simulations, work with real data from a study of students in India, and keep asking one question: is this number the truth about everyone (a *parameter*), or only our *estimate* of it from a sample?
+
+### Expectations
+
+In this course, you will be expected to
+
+- come to our lectures on Tuesdays and Thursdays,
+- attend your own lab every Friday,
+- do the readings before class,
+- complete the Mastery Training and Problem Sets in MindTap,
+- take a short check and four quizzes in the Friday labs,
+- take two in-person exams, and
+- complete the course evaluation.
+
+### Connections to other classes
+
+[EDUC 10](https://catalogue.uci.edu/search/?P=EDUC%2010) (Educational Research Design) is a prerequisite for this course. Beyond that, the course makes no assumptions about prior knowledge of statistics, apart from basic math skills. Not sure about your math? Try the Math Skills Assessment in Appendix A of our book.
+
+[EDUC 157](https://catalogue.uci.edu/search/?P=EDUC%20157) (Educational Research and Evaluation) and [EDUC 159](https://catalogue.uci.edu/search/?P=EDUC%20159) (Experimental Research Methods) build on EDUC 10 and EDUC 15.
+
+### My promise
+
+I *promise* you can succeed in this course.
+
+This course is all about practical application. You will notice "How will I ever use this?" is a question I consider for every class.
+
+Now, you will have to tool up. You will hear about weird new concepts, use some unfamiliar math, learn new software, and approach practical questions from a new perspective. Initially, some of this might pose challenges. Most everything will be new to you. But, it's perfectly normal not to grasp concepts immediately and make mistakes during your initial encounters. This is how you acquire new skills and build a strong toolkit.
+
+Many parallels come to mind. Learning to ride a bike. Learning a new language. Learning how to use a hammer (and when to pick a different tool). Building muscle through training. All of these demand time, grit, and—oftentimes—productive failure. All of them are easier with friends, through apprenticeship, consistency, and by working with a coach. Similarly, if you find yourself struggling with some of the course content, that's a *good* sign. When you do, take a breather, talk to classmates, ask questions, or contact our teaching team for assistance.
+
+## Course structure
+
+This syllabus reflects a plan for the quarter. Deviations may become necessary as the quarter progresses.
+
+### Flow of the course
+
+The course follows the same routine every week.
+
+- **Before class**: Do the reading for the topic.
+- **Tuesday and Thursday**: Lecture, 12:30–1:50 PM in EDUC 2009. Each class runs about 20 minutes of talk, then a few minutes where you do something (predict, try, or play), three times over. None of it is scored.
+- **Friday**: Lab with {{< var assistant.name_no_title >}}, at 12:00 PM (Lab A1, EDUC 2009) or 1:00 PM (Lab A2, EDUC 2001). Go to the lab you're enrolled in.
+- **Sunday, 6 PM**: The week's Mastery Training and Problem Set are due in MindTap.
+
+You can find every class, lab, and due date on the [schedule page](/schedule.qmd).
+
+### Labs
+
+Six of our ten Friday labs follow one routine. You solve a by-hand, exam-style problem in pairs, then work on the same idea with real data in a spreadsheet or the [course simulator](/resource/simulator.qmd), and finally write one sentence on what the result means and hand it in. Each lab comes with a one-page handout on this website.
+
+The other four labs (Labs 3, 5, 8, and 10) are quiz days. Labs 5 and 10 also review for the exams. Lab 2 includes a 15-minute individual check. We'll explain the format in class.
+
+If you can, bring a laptop to lab. You'll work in pairs, so one laptop per pair is enough.
+
+### This website and Canvas
+
+This website holds the syllabus, the schedule, a page for each topic with its slides, the lab handouts, and other resources.
+
+Our Canvas page is [here]({{< var course.canvas >}}). We use Canvas for
+
+1. **MindTap**: the ebook, Mastery Training, and Problem Sets all open through Canvas.
+2. **Grades**: I post your grades on Canvas.
+3. **Solutions and slides**: solutions to the lab problems, and my slides as HTML (accessible version) and PDF (for printing).
+
+Please update your Canvas settings and notifications to make sure you receive announcements. Click on ["settings"](https://canvas.eee.uci.edu/profile/settings) to add another email address and/or a cell phone number to receive notifications. Click on ["notifications"](https://canvas.eee.uci.edu/profile/communication) to configure how you receive Canvas notifications.
+
+## Course materials
+
+### Book and MindTap
+
+Frederick J. Gravetter, Larry B. Wallnau, Lori-Ann B. Forzano, and James E. Witnauer, *Essentials of Statistics for the Behavioral Sciences*, 10th ed. (Cengage, 2021).
+
+We use the book through Cengage MindTap, which includes the ebook and the homework. MindTap works only through our Canvas page, so start there. I'll post how to get access, and the price for our course, on Canvas before the quarter begins.
+
+If the cost of MindTap is a problem for you, please email me. Don't let it keep you from starting the homework.
+
+### Spreadsheets and the simulator
+
+You'll use Google Sheets or Excel, whichever you prefer. We only use functions that work in both, such as `AVERAGE`, `STDEV.S`, and `CORREL`. You do not need R or any other programming language. I'll show you some R output on the slides, and you'll learn to read it.
+
+You'll also use our [course simulator](/resource/simulator.qmd) in class and in labs. It runs in your browser, and it's based on [Kristoffer Magnusson](https://rpsychologist.com/)'s visualizations.
+
+### Calculator
+
+Please bring a calculator to labs and exams. A basic scientific calculator is enough.
+
+## Assignments and grades
+
+### Quizzes
+
+There are five scored events in our Friday labs: a 15-minute individual check in Lab 2, and a quiz in each of Labs 3, 5, 8, and 10. Each is worth 10 points. I'll count your best four. Go to your own lab for each of them.
+
+### Labs
+
+Each lab is worth 3 points. In a regular lab, you earn them by being there and handing in a real attempt at the sentence, which doesn't have to be correct. On a quiz day, you earn them by being there. I'll count your best seven of the ten labs.
+
+### Mastery Training and Problem Sets
+
+You'll complete two types of homework in MindTap, for Chapters 5 to 12 and 14. Both are due on Sundays at 6 PM. There are nine of each, worth 5 points each, and I'll count your best eight of each type.
+
+The **Mastery Training** helps you become familiar with the important terms and ideas in each chapter. You have unlimited attempts.
+
+The **Problem Sets** strengthen your knowledge of the concepts and procedures covered in each chapter. You have three attempts, and I keep your highest score. A score of at least 75% earns full credit (5 points), and a score below 75% earns no credit.
+
+MindTap is your practice. The by-hand problems in the Friday labs are what look most like the exams.
+
+### Exams
+
+There are two in-person exams, each worth 100 points.
+
+- The **midterm exam** takes place in class on Thursday, February 11 (Week 6). It covers Chapters 1 to 9 and takes 80 minutes.
+- The **final exam** is cumulative. It takes place during finals week, on the date the Registrar sets.
+
+Both exams are free response and built on the data we use in class. They test your intuition as well as your calculations: for example, whether a number is a parameter or an estimate.
+
+You must not use any electronic devices during the exams, except a calculator (and anything permitted by an accommodation you may have). We attach the z, t, and F tables and a formula sheet to each exam.
+
+If you'd prefer to take an exam in a language other than English, I can provide a translated version, in any language. Just email me. I'll announce the date to ask by in class.
+
+### Course evaluation
+
+You earn 9 points for completing the course evaluation at the end of the quarter.
+
+Personally, I like the plus-delta approach. Start by telling me what you like. These are things I should maintain and build on. Then, provide opportunities for improvements. These should be action-oriented suggestions as to how I can provide a more effective course. This feedback is very important to me, and I appreciate your input.
+
+### Grading
+
+You (the student) and I (the instructor) should care the most about what you *learn*, not what numerical/letter summary of that learning you get at the end of the quarter. So I would love to not have grades at all, but unfortunately we humans are very good at procrastinating on our good intentions when there is no incentive not to. Thus, we have grades to help solve this commitment problem and to encourage you to put effort into learning the course material.
+
+Here is how each part of the course contributes to your overall grade.
+
+| Category          | Points | How it counts                              |
+|:------------------|-------:|:-------------------------------------------|
+| Quizzes           |     40 | Best 4 of 5 Friday events, 10 points each  |
+| Labs              |     21 | Best 7 of 10 labs, 3 points each           |
+| Mastery Training  |     40 | Best 8 of 9, 5 points each                 |
+| Problem Sets      |     40 | Best 8 of 9, 5 points each                 |
+| Midterm exam      |    100 | In person                                  |
+| Final exam        |    100 | In person, cumulative                      |
+| Course evaluation |      9 | For completing it                          |
+| **Total**         | **350**|                                            |
+
+You earn 261 of the 350 points in person: in the Friday labs and on the exams. Attendance at lectures isn't graded, but please come to every class.
+
+:::{.callout-note}
+## Grace policy
+
+When calculating your grade, I drop your lowest quiz, your three lowest labs, your lowest Mastery Training, and your lowest Problem Set. Thus, if you have an emergency that forces you to miss a lab or a deadline, your grade will not be affected. The exams cannot be dropped.
+
+:::
+
+All grades will be posted through Canvas.
+
+**Bump-up policy**: I reserve the right to "bump up" the grades of students who have made valuable contributions to the course in our in-person classes and labs. This also applies to students who show tremendous progress and growth over the quarter.
+
+### Calendar
+
+You can find a detailed class calendar on the [schedule page](/schedule.qmd). Here is a brief summary of the dates that count toward your grade.
+
+| What                       | When                                  |
+|:---------------------------|:--------------------------------------|
+| Lab 2: individual check    | Fri, Jan 15                           |
+| Lab 3: quiz                | Fri, Jan 22                           |
+| Lab 5: quiz                | Fri, Feb 05                           |
+| Midterm exam               | Thu, Feb 11, in class                 |
+| Lab 8: quiz                | Fri, Feb 26                           |
+| Lab 10: quiz               | Fri, Mar 12                           |
+| Final exam                 | Finals week, date to come from the Registrar |
+| Mastery Training and Problem Sets | Sundays at 6 PM: Jan 17 (Ch. 5), Jan 24 (Ch. 6), Jan 31 (Ch. 7), Feb 07 (Chs. 8 and 9), Feb 21 (Ch. 10), Feb 28 (Ch. 11), Mar 07 (Ch. 12), Mar 14 (Ch. 14) |
+
+Nothing is due in midterm week. All times are in Pacific time.
+
+## Course policies
+
+**Be nice. Be honest. Don't cheat.**
+
+We will also follow UCI's [Code of Conduct](https://www.compliance.uci.edu/ethical-values.php).
+
+### Attendance and participation
+
+Attendance and participation are important to your success in this course. You are expected to come to *all classes* prepared—having done the reading—and ready to discuss the content. You are also expected to attend *your own lab* every Friday.
+
+Missing a class or lab has the potential to put you significantly behind. Still, life happens. That's why three labs drop from your grade, and you don't need to contact me if you miss one (except for the exams).
+
+If you are sick, hunker down and focus on getting better! Please do not come to class. If you have to miss an exam due to such an unavoidable health or emergency situation, you should message me before the exam starts. Similarly, if you have to miss an exam due to religious reasons, please message me before it starts.
+
+You are expected to arrive before the start of each class to allow us to begin on time.
+
+If you have to miss the midterm exam, you will need to take a similar make-up exam during UCI's final exam period (I would assign a date and time). If at all possible, try to avoid this. There are at least three reasons. First, I deliberately scheduled the midterm exam during a period in which you do not have to worry about other exams—in turn, taking yet another exam during finals week can be stressful. Second, the make-up exam may also include the additional content we will have covered after the midterm. Third, the midterm exam is meant to prepare you for the remainder of our course—you would miss an important opportunity to check your knowledge.
+
+### Staying focused during class
+
+Let's stay focused!
+
+Evidence from multiple randomized experiments indicates that students who take notes on their laptops or tablets learn less than those who take notes using pen/pencil and paper. They are also more likely to adversely affect their peers' learning and grades (see Prof. Susan M. Dynarski's [summary of the evidence](http://brook.gs/2vS6I3e)). Therefore, while not prohibited, using a laptop or tablet is strongly discouraged during lectures.
+
+There are only three exceptions:
+
+1. I may prompt you to take out your laptop or phone (e.g., to answer a poll).
+2. You may use a tablet that lays flat on your table, with a stylus pen (i.e., without typing on a keyboard).
+3. You have an [accommodation plan](https://dsc.uci.edu/accommodations/) requiring a tablet or laptop.
+
+Cell phone use is prohibited during class (unless I ask you to take out your phone). Please stow your phone away. In our Friday labs, you'll use a laptop for the spreadsheet and the simulator.
+
+### Late assignments
+
+You should budget enough time to submit all assignments well ahead of each deadline (Sunday, 6 PM). Late assignments will not be accepted, regardless of how late they are. No extensions will be granted due to religious holidays, sickness, or any other reasons. Instead, I will disregard your lowest Mastery Training and your lowest Problem Set. I suggest using this option cautiously, just in case something happens, you foresee needing time to observe a religious holiday, or any other issue that may keep you from submitting your homework on time.
+
+### Academic honesty
+
+Violation of the [UCI Academic Senate Policy on Academic Integrity](https://conduct.uci.edu/academic-integrity/) will result in an F in the course and possible disciplinary action. Violating the Academic Integrity Policy is unacceptable, devaluing the teaching and learning experience for the entire community.
+
+You're welcome to use AI to learn: to explain an idea, make practice problems, or help with a spreadsheet formula. Don't use it to get answers to MindTap questions. Homework is your practice for the exams and quizzes, where you'll have no AI and no devices. AI also makes mistakes in statistics, so check what it tells you.
+
+### Recordings
+
+I will not record our in-person classes. Also, you are not allowed to record the class, unless you have an [accommodation plan](https://dsc.uci.edu/accommodations/) that requires a recording.
+
+### Drop policy
+
+Following [UCI's policy](https://www.reg.uci.edu/enrollment/adc/adcpolicy.html), drops after the second week of instruction need the dean's approval.
+
+## Doing well
+
+### A personal note
+
+If you tell me you're having trouble, I will not judge you or think less of you. I hope you'll extend me the same grace.
+
+You *never* owe me personal information about your health (mental or physical). You are *always* welcome to talk to me about things that you're going through, though. If I can't help you, I usually know somebody who can.
+
+If you need extra help, or if you feel like you're behind or not understanding everything, **do not suffer in silence.** Talk to me! I will work with you.
+
+### Student hours
+
+Please watch this video:
+
+<div class="ratio ratio-16x9" style="max-width: 640px; margin: 0 auto 1rem;">
+<iframe title="Video: What are Office Hours? by Andrew Ishak" src="https://player.vimeo.com/video/270014784" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+</div>
+
+Student hours are set times dedicated to all of you (most professors call these "office hours"; I don't).[^studenthours] This means that I will be waiting for you to come by to talk to me---either remotely or in-person---with whatever questions you have. This is the best and easiest way to find me and the best chance for discussing class material and concerns.
+
+[^studenthours]: There's fairly widespread misunderstanding about what office hours actually are! [Many students often think that they are the times I *shouldn't* be disturbed](https://www.chronicle.com/article/Can-This-Man-Change-How-Elite/245714/), which is the exact opposite of what they're for!
+
+It is easiest to meet with me online. [Make an appointment with me here]({{< var instructor.appointment_url >}})—the confirmation e-mail will contain a link for a Zoom meeting (the default). If you prefer an in-person meeting, (1) schedule a Zoom meeting first, then (2) contact me via e-mail, at least one day before our meeting.
+
+{{< var assistant.name_no_title >}} also holds drop-in student hours. She'll share the times in the first lab.
+
+{{< var instructor.contact_policy >}}
+
+### On-campus resources
+
+Life at UCI can be complicated and challenging. Fortunately, UCI offers a wealth of resources to support you.
+
+Please take the time to seriously consider the following (confidential) resources available to you.
+
+- [Emergency food and toiletries](https://basicneeds.uci.edu/fresh-pantry/)
+- [More broadly, services at the UCI Basic Needs Center](https://basicneeds.uci.edu/all-services/)
+- [Services at the UCI Counseling Center](https://counseling.uci.edu)
+- [Support to become a better writer](http://www.writingcenter.uci.edu)
+- [Guides at UCI Libraries](https://guides.lib.uci.edu/), including on [academic writing](https://guides.lib.uci.edu/scientificwriting) and how to [cite your sources](https://guides.lib.uci.edu/citations)
+- [Tutoring and mentoring options](https://larc.uci.edu/all-services/)
+- [Resources at UCI's Cross-Cultural Center](https://ccc.uci.edu)
+- [Resources for DACA students](https://ssi.uci.edu/dreamscholars/)
+- [Resources for first-generation college students](http://firstgen.due.uci.edu)
+- [Resources for those caring for (or expecting) little anteaters](https://ssi.uci.edu/spf/)
+
+One of the (very few) things I regret from college is that I did not ask for enough help. I'm sure at least one of the above can help you do better---do reach out.
+
+### Safety
+
+**I will listen to and believe you if someone is threatening you.**
+
+If you are in immediate danger, call 911. UCI police provides a safety escort (949-824-7233) and a 24-hour *non*-emergency line (949-824-5223). Save these numbers.
+
+Please double-check and make sure you are signed up to [zotAlert](https://www.oit.uci.edu/services/communication-collaboration/zotalert/).
+
+If you are experiencing sexual assault or misconduct, domestic or relationship violence, stalking, or retaliation, please report it to me and I will connect you to resources. The University of California, Irvine is committed to creating and maintaining an environment in which all persons who live, work, and learn in our campus community can be free of sexual assault, sexual misconduct, relationship violence, stalking, and retaliation. Every member of the University community should be aware that sexual violence is prohibited by law as well as our University policy and will not be tolerated.
+
+At any time---even if you are in doubt, or would like to know more about what you can do to *prevent* cases---do not hesitate to reach out to [UCI Care](https://care.uci.edu/) and the [Sexual Harassment/Title IX Officer (SHO)](https://www.oeod.uci.edu/sho/index.php).
+
+### Accommodations and accessibility
+
+If you wish to request academic accommodations you may do so through the [Disability Services Center (DSC)](https://dsc.uci.edu/accommodations/). To obtain services, please [register with DSC](https://dsc.uci.edu/register/) and complete the [DSC Intake Form](https://uci-accommodate.symplicity.com). You should then make an appointment with me during the first week of class to discuss any accommodations that need to be made.
+
+At the University of California, Irvine, providing a culture of inclusion and equal opportunity for students with disabilities is a campuswide responsibility and commitment. If you have difficulty accessing any materials for this course, please let me know by email at <a href='mailto:{{< var instructor.email >}}'>{{< var instructor.email >}}</a> as soon as possible.
+
+I will do everything possible to make sure our course materials are accessible. My slides come in two versions: an HTML version, which works with screen readers (including the math) and lets you zoom, and a PDF version for printing. *Please* let me know if you know of ways to improve on this further. Even a short message on, say, the colors I use on a slide can help a lot.
+
+## Petr
+
+Once you have read this entire syllabus and [the schedule](/schedule.qmd), please [click here](mailto:{{< var instructor.email >}},{{< var assistant.email >}}) and e-mail Pritha and me your *favorite* picture of Peter the Anteater.[^Petr] Extra credit if it's animated.
+
+[^Petr]: Petr stickers are *great*. [Fun facts](https://www.reddit.com/r/UCI/comments/spp8db/fun_uci_history_our_mascot_is_the_anteater/) count, too.
+
+<figure>
+<img src="https://media.giphy.com/media/u48zGxF3kJ80XemhJ3/giphy.gif" alt="Peter the Anteater giving a thumbs-up" class="img-fluid">
+</figure>
