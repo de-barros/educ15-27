@@ -44,8 +44,6 @@ website:
       - schedule.qmd
       - text: "Content"
         file: content/index.qmd
-      - text: "Simulator"
-        file: resource/simulator.qmd
       - text: "Resources"
         file: resource/index.qmd
       - text: "{{< iconify simple-icons canvas >}}<span class='visually-hidden'>Canvas</span>"
