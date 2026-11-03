@@ -188,16 +188,36 @@
 
   function syncPower() {
     var s = P.state;
+    $("p-design").value = s.design;
     $("p-d").value = s.d; $("p-n").value = s.n; $("p-alpha").value = s.alpha; $("p-tails").value = s.tails;
+    $("p-N").value = s.N; $("p-P").value = s.P; $("p-r2").value = s.r2;
+    $("p-J").value = s.J; $("p-m").value = s.m; $("p-rho").value = s.rho;
     $("p-d-out").textContent = s.d.toFixed(2);
     $("p-n-out").textContent = s.n;
+    $("p-N-out").textContent = s.N.toLocaleString("en-US");
+    $("p-J-out").textContent = s.J;
+    $("p-m-out").textContent = s.m;
+    $("p-rho-out").textContent = s.rho.toFixed(2);
+    $("p-P-out").textContent = Math.round(s.P * 100) + "%";
+    $("p-r2-out").textContent = Math.round(s.r2 * 100) + "%";
     $("p-alpha-out").textContent = s.alpha.toFixed(2);
+    // Show only the settings that the chosen design uses
+    document.querySelectorAll("#view-power [data-design]").forEach(function (el) {
+      el.style.display = el.getAttribute("data-design").split(" ").indexOf(s.design) >= 0 ? "" : "none";
+    });
     P.render();
   }
 
   function bindPower() {
+    $("p-design").onchange = function () { P.state.design = this.value; syncPower(); };
     $("p-d").oninput = function () { P.state.d = parseFloat(this.value); syncPower(); };
     $("p-n").oninput = function () { P.state.n = parseInt(this.value, 10); syncPower(); };
+    $("p-N").oninput = function () { P.state.N = parseInt(this.value, 10); syncPower(); };
+    $("p-P").oninput = function () { P.state.P = parseFloat(this.value); syncPower(); };
+    $("p-r2").oninput = function () { P.state.r2 = parseFloat(this.value); syncPower(); };
+    $("p-J").oninput = function () { P.state.J = parseInt(this.value, 10); syncPower(); };
+    $("p-m").oninput = function () { P.state.m = parseInt(this.value, 10); syncPower(); };
+    $("p-rho").oninput = function () { P.state.rho = parseFloat(this.value); syncPower(); };
     $("p-alpha").oninput = function () { P.state.alpha = parseFloat(this.value); syncPower(); };
     $("p-tails").onchange = function () { P.state.tails = this.value; syncPower(); };
   }
@@ -316,7 +336,13 @@
       if (B.state.N) q.set("draws", B.state.N);
     }
     if (tab === "power") {
-      q.set("d", P.state.d); q.set("n", P.state.n); q.set("alpha", P.state.alpha); q.set("tails", P.state.tails);
+      var p = P.state;
+      if (p.design !== "one") q.set("design", p.design);
+      q.set("d", p.d); q.set("alpha", p.alpha); q.set("tails", p.tails);
+      if (p.design === "one") q.set("n", p.n);
+      if (p.design === "two") q.set("N", p.N);
+      if (p.design === "cluster") { q.set("J", p.J); q.set("m", p.m); q.set("rho", p.rho); }
+      if (p.design !== "one") { q.set("P", p.P); q.set("r2", p.r2); }
     }
     if (tab === "intervals") {
       q.set("n", I.state.n); q.set("level", I.state.level); q.set("known", I.state.known ? 1 : 0);
@@ -394,8 +420,13 @@
     syncControls();
 
     if (tab === "power") {
-      P.state.d = num("d", P.state.d); P.state.n = Math.round(num("n", P.state.n));
-      P.state.alpha = num("alpha", P.state.alpha); P.state.tails = params.get("tails") === "one" ? "one" : "two";
+      var ps = P.state, design = params.get("design");
+      ps.design = ["one", "two", "cluster"].indexOf(design) >= 0 ? design : "one";
+      if (ps.design !== "one") ps.d = 0.2;
+      ps.d = num("d", ps.d); ps.n = Math.round(num("n", ps.n));
+      ps.N = Math.round(num("N", ps.N)); ps.P = num("P", ps.P); ps.r2 = num("r2", ps.r2);
+      ps.J = Math.round(num("J", ps.J)); ps.m = Math.round(num("m", ps.m)); ps.rho = num("rho", ps.rho);
+      ps.alpha = num("alpha", ps.alpha); ps.tails = params.get("tails") === "one" ? "one" : "two";
     }
     if (tab === "intervals") {
       I.state.n = Math.round(num("n", I.state.n)); I.state.level = num("level", I.state.level);

@@ -157,13 +157,45 @@
       </figure>
     </div>
     <aside class="controls" aria-label="Power controls">
+      <div class="field slide-hide">
+        <label for="p-design">Design</label>
+        <select id="p-design">
+          <option value="one">One mean against a fixed value</option>
+          <option value="two">Two groups, students randomized</option>
+          <option value="cluster">Two groups, schools randomized</option>
+        </select>
+      </div>
       <div class="field">
         <label for="p-d">Effect size d: <output id="p-d-out" for="p-d"></output></label>
         <input type="range" id="p-d" min="0" max="2" step="0.01">
       </div>
-      <div class="field">
+      <div class="field" data-design="one">
         <label for="p-n">Sample size n: <output id="p-n-out" for="p-n"></output></label>
         <input type="range" id="p-n" min="2" max="200" step="1">
+      </div>
+      <div class="field" data-design="two">
+        <label for="p-N">Students N, in both groups: <output id="p-N-out" for="p-N"></output></label>
+        <input type="range" id="p-N" min="20" max="4000" step="10">
+      </div>
+      <div class="field" data-design="cluster">
+        <label for="p-J">Schools J, in both groups: <output id="p-J-out" for="p-J"></output></label>
+        <input type="range" id="p-J" min="4" max="600" step="2">
+      </div>
+      <div class="field" data-design="cluster">
+        <label for="p-m">Students tested per school n: <output id="p-m-out" for="p-m"></output></label>
+        <input type="range" id="p-m" min="1" max="100" step="1">
+      </div>
+      <div class="field" data-design="cluster">
+        <label for="p-rho">Intraclass correlation ρ: <output id="p-rho-out" for="p-rho"></output></label>
+        <input type="range" id="p-rho" min="0" max="0.5" step="0.01">
+      </div>
+      <div class="field" data-design="two cluster">
+        <label for="p-P">Share treated P: <output id="p-P-out" for="p-P"></output></label>
+        <input type="range" id="p-P" min="0.1" max="0.9" step="0.05">
+      </div>
+      <div class="field" data-design="two cluster">
+        <label for="p-r2">Variance explained by controls R²: <output id="p-r2-out" for="p-r2"></output></label>
+        <input type="range" id="p-r2" min="0" max="0.8" step="0.01">
       </div>
       <div class="field">
         <label for="p-alpha">Alpha: <output id="p-alpha-out" for="p-alpha"></output></label>

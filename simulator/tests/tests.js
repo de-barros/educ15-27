@@ -67,6 +67,19 @@
   near("04-01 one-sided", E.powerZ(0.89, 10, 0.05, "one").power, 0.88, 0.01);
   near("04-01 n = 15", E.powerZ(0.89, 15, 0.05, "two").power, 0.93, 0.01);
 
+  // The power view's designs: one mean must match powerZ, and the group
+  // designs must match the examples on the EDUC 265 page
+  var PW = window.SimPower;
+  ["two", "one"].forEach(function (t) {
+    near("view one mean, " + t, PW.compute({ design: "one", d: 0.89, n: 10, alpha: 0.05, tails: t }).power,
+      E.powerZ(0.89, 10, 0.05, t).power, 1e-9);
+  });
+  near("view two groups", PW.compute({ design: "two", d: 0.2, N: 400, P: 0.5, r2: 0, alpha: 0.05, tails: "two" }).power, 0.52, 0.005);
+  near("view schools", PW.compute({ design: "cluster", d: 0.12, J: 396, m: 40, rho: 0.16, P: 0.5, r2: 0, alpha: 0.05, tails: "two" }).power, 0.80, 0.005);
+  var mdeSet = { design: "cluster", d: 0.12, J: 100, m: 40, rho: 0.16, P: 0.5, r2: 0.3, alpha: 0.05, tails: "two" };
+  mdeSet.d = PW.compute(mdeSet).mde;
+  near("view MDE gives 80% power", PW.compute(mdeSet).power, 0.80, 0.001);
+
   // Every population must have mean 0, SD 1 and a density that integrates to 1 ----
 
   Object.keys(E.POPULATIONS).forEach(function (key) {

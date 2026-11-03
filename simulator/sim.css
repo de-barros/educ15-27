@@ -255,6 +255,8 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .readout table + h2 { margin-top: 8px; }
 
+.readout .note { margin: 6px 0 0; font-size: 0.85rem; color: var(--muted); }
+
 .credit, .hint { margin: 0; font-size: 0.85rem; color: var(--muted); }
 
 kbd {
@@ -318,6 +320,8 @@ body.ui-slide .readout table { display: block; }
 body.ui-slide .readout tbody { display: flex; flex-wrap: wrap; gap: 0 16px; }
 
 body.ui-slide .readout tr { display: flex; gap: 5px; }
+
+body.ui-slide .readout tr.slide-hide { display: none; }
 
 /* The screenshot for a printed slide has nothing to press */
 body.ui-print .controls { display: none; }

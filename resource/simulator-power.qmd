@@ -1,16 +1,22 @@
 ---
 title: "Power"
-description: "See how effect size, sample size and alpha change the chance of finding a real effect."
+description: "See how effect size, sample size, alpha and the design of a study change the chance of finding a real effect."
 toc: false
 page-layout: full
 ---
 
 Power is the chance that a study finds an effect that's really there. The plot shows two worlds: what H₀ predicts, and what would happen if the effect were real. Move the sliders and watch the two curves, the cutoff and the power change.
 
+::: {.callout-note}
+## This tool goes beyond EDUC 15
+
+In class, we use only the first design, one mean against a fixed value. The other two designs compare a treatment group with a comparison group, as a randomized study does: one randomizes students, and the other randomizes whole schools. They add settings we don't cover, such as the share treated, controls and the intraclass correlation, and the tool also gives the minimum detectable effect (MDE). They're here if you're curious, and you won't be tested on them.
+:::
+
 ```{=html}
 <p><a class="btn btn-primary" href="../simulator/index.html?tab=power" target="_blank" rel="noopener">Open the simulator in a full window</a></p>
 <div class="simulator-frame">
-  <iframe src="../simulator/index.html?tab=power" title="Statistics simulator: power" style="width: 100%; height: 640px; border: 1px solid #5b6570; border-radius: 6px;"></iframe>
+  <iframe src="../simulator/index.html?tab=power" title="Statistics simulator: power" style="width: 100%; height: 880px; border: 1px solid #5b6570; border-radius: 6px;"></iframe>
 </div>
 ```
 
@@ -20,8 +26,15 @@ Each link opens the simulator ready to go. Before you press a button, predict wh
 
 ### What gives a study power?
 
-- [Four levers](../simulator/index.html?tab=power&d=0.89&n=10). Start at 80% power, then change alpha, the test, the sample size and the effect size one at a time.
+- [Four levers](../simulator/index.html?tab=power&d=0.89&n=10). Start at 80% power, then change alpha, the test, the sample size and the effect size one at a time. Which one moves power the most?
+- [When there is no effect](../simulator/index.html?tab=power&d=0&n=10). Set d to 0. H₀ is true here, so the only possible mistake is a Type I error.
+
+### Beyond EDUC 15: comparing two groups
+
+- [Two groups](../simulator/index.html?tab=power&design=two&d=0.2&N=400). 400 students, half of them treated, and a true effect of 0.2 SD. Power is 52%. Find the number of students that gives 80% power. Then go back to 400 and raise the variance explained by controls to 50%. What happens to power?
+- [A small effect](../simulator/index.html?tab=power&design=two&d=0.1&N=400). Many education programs have effects of about 0.1 SD. How much power do 400 students give? How many students would a study need for 80% power?
+- [Schools instead of students](../simulator/index.html?tab=power&design=cluster&d=0.12&J=396&m=40&rho=0.16). 396 schools of 40 students, and a true effect of 0.12 SD. Power is 80%. Now test 80 students per school instead of 40. How much does power rise? Then halve the number of schools instead.
 
 ## Credit
 
-This simulator was written for EDUC 15. This view was inspired by the [statistical power visualization](https://rpsychologist.com/d3/NHST/) by Kristoffer Magnusson at [R Psychologist](https://rpsychologist.com/viz/).
+This simulator was written for EDUC 15. The two-group designs come from the version I adapted for EDUC 265. This view was inspired by the [statistical power visualization](https://rpsychologist.com/d3/NHST/) by Kristoffer Magnusson at [R Psychologist](https://rpsychologist.com/viz/).
