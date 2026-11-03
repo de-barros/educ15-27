@@ -480,7 +480,7 @@ sim_frame(
 )
 ```
 
-.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator-correlation.html).]
 
 ???
 
@@ -490,7 +490,7 @@ sim_frame(
 
 The tool always shows the best line for the dots, so students can't move the line itself. The next slide and the plot after it do that job.
 
-Students can't drag on this screen. Those with a phone or laptop can open the Simulator page on the course site and go to the Correlation tab, where Residuals and Squared residuals are checkboxes.
+Students can't drag on this screen. Those with a phone or laptop can open the simulator's Correlation and regression page on the course site, where Residuals and Squared residuals are checkboxes.
 
 ---
 

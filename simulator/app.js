@@ -275,6 +275,8 @@
       tab.tabIndex = on ? 0 : -1;
       $("view-" + t).hidden = !on;
     });
+    // Each view has its own page on the site
+    $("back").href = "../resource/simulator" + (name === "blueprint" ? "" : "-" + name) + ".html";
     if (focus) $("tab-" + name).focus();
     renderTab(name);
   }
@@ -379,7 +381,7 @@
     var seed = Math.round(num("seed", 2027));
     B.state.seed = seed; I.state.seed = seed; R.state.seed = seed;
 
-    var step = params.get("step") || "2", meta = E.STEPS[step] || E.STEPS["2"];
+    var step = params.get("step") || "1", meta = E.STEPS[step] || E.STEPS["2"];
     B.state.hide = params.get("hide") === "1";
     B.state.curve = params.get("curve") !== "0";
     B.configure({

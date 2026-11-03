@@ -1,0 +1,28 @@
+---
+title: "Confidence intervals"
+description: "Draw sample after sample and see how often the interval catches the population mean."
+toc: false
+page-layout: full
+---
+
+Every sample gives its own confidence interval. The vertical line is the true population mean. Press **+1** to draw a sample, then **+50** or **+500** to draw many, and see how often the intervals catch it.
+
+```{=html}
+<p><a class="btn btn-primary" href="../simulator/index.html?tab=intervals" target="_blank" rel="noopener">Open the simulator in a full window</a></p>
+<div class="simulator-frame">
+  <iframe src="../simulator/index.html?tab=intervals" title="Statistics simulator: confidence intervals" style="width: 100%; height: 640px; border: 1px solid #5b6570; border-radius: 6px;"></iframe>
+</div>
+```
+
+## Things to try
+
+Each link opens the simulator ready to go. Before you press a button, predict what will happen.
+
+### What does a confidence interval promise?
+
+- [100 intervals](../simulator/index.html?tab=intervals&n=10&draws=100). The population mean never moves. The intervals do. About 95% of them catch it. Then raise n and watch them narrow.
+- [When H₀ is false](../simulator/index.html?tab=intervals&n=10&d=0.89&draws=100). An interval that leaves out the H₀ mean means the same as rejecting H₀. Look at how often that happens, then compare it with the power for the same effect and sample size.
+
+## Credit
+
+This simulator was written for EDUC 15. This view was inspired by the [confidence interval visualization](https://rpsychologist.com/d3/CI/) by Kristoffer Magnusson at [R Psychologist](https://rpsychologist.com/viz/).

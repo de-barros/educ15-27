@@ -40,7 +40,7 @@ Run commands from the project root. Outside RStudio, set `RSTUDIO_PANDOC="C:/Pro
 - **Custom CSS** goes in a `{css}` chunk at the *end* of the Rmd. Any output before the first slide's `class:` line makes remark print the properties as text.
 - **Two-line titles** use a `.long-title` class, defined in that end chunk. See `06-01.Rmd`.
 - **Plots:** `dev = "ragg_png"`, so Fira Sans Condensed renders on Windows.
-- **Math size:** keep `includes: in_header: "css/mathjax.html"` in the YAML header. Without it, math shrinks to half size in embedded frames and small windows.
+- **Math size:** keep `includes: in_header: "css/mathjax.html"` in the YAML header. Without it, math shrinks to half size in embedded frames and small windows, and a simulator frame can stay blank after a reload.
 - **Math in markdown:** display math containing `}_` goes in raw HTML, `<div class="math-display">\[...\]</div>`, because remark reads `_..._` as emphasis. Inline `$..$` inside a one-line `.box[...]` doesn't render: use the multi-line box form or Unicode. Raw HTML needs `\(..\)` delimiters.
 - **Friday quizzes:** public wording says "Quiz" for Labs 3, 5, 8 and 10. Don't name a format, teams or a game, because the plan may change with enrollment. Speaker notes count as public too. The ungraded clue rounds in lecture can stay.
 - **Speaker notes** go after `???` on a slide.
@@ -49,14 +49,14 @@ Run commands from the project root. Outside RStudio, set `RSTUDIO_PANDOC="C:/Pro
 
 ## The simulator
 
-`simulator/` is the course's own interactive tool, in plain JavaScript with no build step and no dependencies. Students use it at `resource/simulator.qmd`, and slides embed it. It replaces the rpsychologist.com screenshots from 2024, because those pages can't be embedded. Keep crediting Kristoffer Magnusson.
+`simulator/` is the course's own interactive tool, in plain JavaScript with no build step and no dependencies. Students use it on four site pages, one per view: `resource/simulator.qmd` (sampling distributions) and `resource/simulator-power.qmd`, `-intervals.qmd` and `-correlation.qmd`. Slides embed it too. Inside any frame the tool hides its tabs, so the site's sidebar does that job. The tabs only show in a full window. It replaces the rpsychologist.com screenshots from 2024, because those pages can't be embedded. Keep crediting Kristoffer Magnusson.
 
 - **On a slide:** add `css/simulator.css` to the deck's `css` list, `source(here::here("R", "slide-things.R"))` in a setup chunk, then call `sim_frame(alt = "...", step = 2, n = 10, draws = 551)` in a chunk with `results="asis"`. See the end of `slides/00-template.Rmd`. The "Copy a link to this view" button gives the parameters for any view.
 - **Printing:** `sim_frame()` also screenshots the preset in a light theme for the PDF, into `slides/img/sim/`. Delete those files after changing the tool, or the PDF keeps old screenshots.
 - **Canvas:** the single-file deck loads the simulator from the live site, so it needs the site deployed and an internet connection.
 - **Tests:** open `simulator/tests/index.html` through a local server. `simulator/tests/make_reference.R` writes the R values they check against. Run the tests after any change to `stats.js` or `engine.js`.
 - **Animation:** the buttons play it, on the `#c-fx` layer over the panels. `?draws=` presets and `prefers-reduced-motion` skip it. A browser tab that isn't in front barely runs `requestAnimationFrame`, so test frames directly with `SimBlueprint.fxStep(time)`.
-- **Rebuilding:** {targets} doesn't track `simulator/`. After changing it, run `tar_invalidate("site")`.
+- **Rebuilding:** {targets} doesn't track `simulator/`. After changing it, run `tar_invalidate("site")`. It doesn't track `slides/css/mathjax.html` either: after changing that, invalidate each deck's `slide_html_` target.
 
 ## Accessibility
 

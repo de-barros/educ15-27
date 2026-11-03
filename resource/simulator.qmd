@@ -1,18 +1,18 @@
 ---
-title: "Statistics simulator"
+title: "Sampling distributions"
 description: "Draw samples from a population and watch the distribution of a statistic build up."
 toc: false
 page-layout: full
 ---
 
-Almost everything in this course follows one blueprint. Start with a population, draw one sample, calculate a statistic, then ask: if we drew sample after sample, where would all those statistics land? The **Sampling distributions** tab lets you do that yourself.
+Almost everything in this course follows one blueprint. Start with a population, draw one sample, calculate a statistic, then ask: if we drew sample after sample, where would all those statistics land? This page lets you do that yourself.
 
-Press **+1** to draw a sample, then **+50** or **+500** to draw many. Click any dot to see the sample behind it. Change the population, the sample size or the true effect and draw again.
+Press **+1** to draw a sample, then **+50** or **+500** to draw many. Click any dot to see the sample behind it. Step 1 draws one score at a time. Pick another step from the menu to change the sample size, then change the population or the true effect and draw again.
 
 ```{=html}
 <p><a class="btn btn-primary" href="../simulator/index.html" target="_blank" rel="noopener">Open the simulator in a full window</a></p>
 <div class="simulator-frame">
-  <iframe src="../simulator/index.html" title="Statistics simulator" style="width: 100%; height: 860px; border: 1px solid #5b6570; border-radius: 6px;"></iframe>
+  <iframe src="../simulator/index.html" title="Statistics simulator: sampling distributions" style="width: 100%; height: 910px; border: 1px solid #5b6570; border-radius: 6px;"></iframe>
 </div>
 ```
 
@@ -57,21 +57,6 @@ Each link opens the simulator ready to go. Before you press a button, predict wh
 - [No group differences](../simulator/index.html?step=5&n=10&draws=2000). Compare **MS within** and **MS between** in the table. Both estimate σ², so F hovers around 1.
 - [Real group differences](../simulator/index.html?step=5&n=10&d=1&draws=2000). MS within stays where it was, MS between grows, and F moves right.
 - [Only one group differs](../simulator/index.html?step=5&n=10&gm=100,100,115&draws=2000). Type your own group means to try other patterns. F says that the means differ, but not which ones.
-
-### How do correlation and regression relate?
-
-- [A slope with n = 20](../simulator/index.html?step=7&n=20&d=0.4&draws=800). Each dot is one estimate b. The table compares the average a and b with the true intercept and slope. The intercept is where the line meets X = 0, so try a different true intercept: the line moves, and the slope doesn't.
-- [A yes/no predictor](../simulator/index.html?step=7b&n=20&d=0.5&draws=800). With a yes/no X, the slope is just the difference between two group means, and its t is the t from a two-sample test.
-- [Drag the points](../simulator/index.html?tab=correlation&r=0.6&n=12&resid=1). Pull one point far away, and see what happens to the line, r and the residuals. Then try it [with many points](../simulator/index.html?tab=correlation&r=0.6&n=200).
-
-### What does a confidence interval promise?
-
-- [100 intervals](../simulator/index.html?tab=intervals&n=10&draws=100). The population mean never moves. The intervals do. About 95% of them catch it. Then raise n and watch them narrow.
-- [When H₀ is false](../simulator/index.html?tab=intervals&n=10&d=0.89&draws=100). An interval that leaves out the H₀ mean means the same as rejecting H₀. Look at how often that happens, then compare it with the power for the same effect and sample size.
-
-### What gives a study power?
-
-- [Four levers](../simulator/index.html?tab=power&d=0.89&n=10). Start at 80% power, then change alpha, the test, the sample size and the effect size one at a time.
 
 ## Credit
 

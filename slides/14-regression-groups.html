@@ -14,6 +14,20 @@
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
     </script>
+
+    <!-- A lazy frame can stay blank when a deck reloads on its slide, so load the
+         simulator on the slide that's showing. -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        function loadSimulators() {
+          document.querySelectorAll(".remark-slides-area .remark-visible .sim-live").forEach(function (frame) {
+            frame.loading = "eager";
+          });
+        }
+        slideshow.on("afterShowSlide", loadSimulators);
+        loadSimulators();
+      });
+    </script>
     <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
     <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
     <link rel="stylesheet" href="css/animate.css" type="text/css" />

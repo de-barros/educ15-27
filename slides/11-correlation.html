@@ -14,6 +14,20 @@
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
     </script>
+
+    <!-- A lazy frame can stay blank when a deck reloads on its slide, so load the
+         simulator on the slide that's showing. -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        function loadSimulators() {
+          document.querySelectorAll(".remark-slides-area .remark-visible .sim-live").forEach(function (frame) {
+            frame.loading = "eager";
+          });
+        }
+        slideshow.on("afterShowSlide", loadSimulators);
+        loadSimulators();
+      });
+    </script>
     <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
     <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />
     <link rel="stylesheet" href="css/animate.css" type="text/css" />
@@ -249,13 +263,13 @@ class: title title-8
 &lt;img class="sim-static" src="img/sim/5d42a0ab5406.png" alt="Simulator's correlation view with 12 draggable points that rise from lower left to upper right, a regression line, and a readout showing r of 0.60."&gt;
 &lt;/div&gt;
 
-.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator-correlation.html).]
 
 ???
 
 **Press Add outlier.** r falls from 0.60 to 0.33. **Now drag that point** around while students call out what r will do. Drag it toward the corner, then back into the cloud.
 
-Students can't drag on this screen. Those with a phone or laptop can open the Simulator page on the course site and go to the Correlation tab, where every point can be dragged.
+Students can't drag on this screen. Those with a phone or laptop can open the simulator's Correlation and regression page on the course site, where every point can be dragged.
 
 Leave Residuals and Squared residuals off. They belong to Topic 12. The line is there to show the direction.
 

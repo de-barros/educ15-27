@@ -1,0 +1,29 @@
+---
+title: "Correlation and regression"
+description: "Drag points on a scatter plot and watch the correlation, the line and the residuals change."
+toc: false
+page-layout: full
+---
+
+Drag any point and watch r and the regression line respond. Click empty space to add a point. You can turn on the residuals and their squares, or load your own data, which stays in your browser.
+
+```{=html}
+<p><a class="btn btn-primary" href="../simulator/index.html?tab=correlation" target="_blank" rel="noopener">Open the simulator in a full window</a></p>
+<div class="simulator-frame">
+  <iframe src="../simulator/index.html?tab=correlation" title="Statistics simulator: correlation and regression" style="width: 100%; height: 790px; border: 1px solid #5b6570; border-radius: 6px;"></iframe>
+</div>
+```
+
+## Things to try
+
+Each link opens the simulator ready to go. Before you press a button, predict what will happen.
+
+### How do correlation and regression relate?
+
+- [A slope with n = 20](../simulator/index.html?step=7&n=20&d=0.4&draws=800). Each dot is one estimate b. The table compares the average a and b with the true intercept and slope. The intercept is where the line meets X = 0, so try a different true intercept: the line moves, and the slope doesn't.
+- [A yes/no predictor](../simulator/index.html?step=7b&n=20&d=0.5&draws=800). With a yes/no X, the slope is just the difference between two group means, and its t is the t from a two-sample test.
+- [Drag the points](../simulator/index.html?tab=correlation&r=0.6&n=12&resid=1). Pull one point far away, and see what happens to the line, r and the residuals. Then try it [with many points](../simulator/index.html?tab=correlation&r=0.6&n=200).
+
+## Credit
+
+This simulator was written for EDUC 15. This view was inspired by the [correlation visualization](https://rpsychologist.com/correlation/) by Kristoffer Magnusson at [R Psychologist](https://rpsychologist.com/viz/).

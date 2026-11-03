@@ -1,0 +1,27 @@
+---
+title: "Power"
+description: "See how effect size, sample size and alpha change the chance of finding a real effect."
+toc: false
+page-layout: full
+---
+
+Power is the chance that a study finds an effect that's really there. The plot shows two worlds: what H₀ predicts, and what would happen if the effect were real. Move the sliders and watch the two curves, the cutoff and the power change.
+
+```{=html}
+<p><a class="btn btn-primary" href="../simulator/index.html?tab=power" target="_blank" rel="noopener">Open the simulator in a full window</a></p>
+<div class="simulator-frame">
+  <iframe src="../simulator/index.html?tab=power" title="Statistics simulator: power" style="width: 100%; height: 640px; border: 1px solid #5b6570; border-radius: 6px;"></iframe>
+</div>
+```
+
+## Things to try
+
+Each link opens the simulator ready to go. Before you press a button, predict what will happen.
+
+### What gives a study power?
+
+- [Four levers](../simulator/index.html?tab=power&d=0.89&n=10). Start at 80% power, then change alpha, the test, the sample size and the effect size one at a time.
+
+## Credit
+
+This simulator was written for EDUC 15. This view was inspired by the [statistical power visualization](https://rpsychologist.com/d3/NHST/) by Kristoffer Magnusson at [R Psychologist](https://rpsychologist.com/viz/).

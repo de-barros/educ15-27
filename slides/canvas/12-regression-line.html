@@ -331,6 +331,20 @@ th, td { padding: 5px; }
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
     </script>
+
+    <!-- A lazy frame can stay blank when a deck reloads on its slide, so load the
+         simulator on the slide that's showing. -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        function loadSimulators() {
+          document.querySelectorAll(".remark-slides-area .remark-visible .sim-live").forEach(function (frame) {
+            frame.loading = "eager";
+          });
+        }
+        slideshow.on("afterShowSlide", loadSimulators);
+        loadSimulators();
+      });
+    </script>
     <style>
 /* 
 Typography
@@ -4976,7 +4990,7 @@ Deviations from the mean add up to zero, and that's why variance squares them. T
 &lt;img class="sim-static" src="data:,asset-5" alt="Simulator's correlation view with 12 draggable points in a loose cloud and a regression line. A vertical residual joins each point to the line, and a pink square shows each squared residual. Many squares are large. The readout shows r of 0.30 and a sum of squared residuals of about 2,252."&gt;
 &lt;/div&gt;
 
-.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator-correlation.html).]
 
 ???
 
@@ -4986,7 +5000,7 @@ Deviations from the mean add up to zero, and that's why variance squares them. T
 
 The tool always shows the best line for the dots, so students can't move the line itself. The next slide and the plot after it do that job.
 
-Students can't drag on this screen. Those with a phone or laptop can open the Simulator page on the course site and go to the Correlation tab, where Residuals and Squared residuals are checkboxes.
+Students can't drag on this screen. Those with a phone or laptop can open the simulator's Correlation and regression page on the course site, where Residuals and Squared residuals are checkboxes.
 
 ---
 

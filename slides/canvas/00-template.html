@@ -4,7 +4,7 @@
     <title>EDUC 15 deck template</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-10-30" />
+    <meta name="date" content="2026-11-02" />
     <script>
 // Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -330,6 +330,20 @@ th, td { padding: 5px; }
          embedded frame it shrinks math to half size. Fix the size instead. -->
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+
+    <!-- A lazy frame can stay blank when a deck reloads on its slide, so load the
+         simulator on the slide that's showing. -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        function loadSimulators() {
+          document.querySelectorAll(".remark-slides-area .remark-visible .sim-live").forEach(function (frame) {
+            frame.loading = "eager";
+          });
+        }
+        slideshow.on("afterShowSlide", loadSimulators);
+        loadSimulators();
+      });
     </script>
     <style>
 /* 

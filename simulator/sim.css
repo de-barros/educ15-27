@@ -267,8 +267,9 @@ kbd {
 /* Inside a slide: panels fill the frame, with one bar of controls below */
 body.ui-slide { font-size: 15px; }
 
-/* The heading stays for screen readers, and the slide's title does the visual work */
-body.ui-slide .topbar {
+/* The heading stays for screen readers. The slide's title or the site's page does
+   the visual work, and each view has its own page in the site's menu. */
+body.embedded .topbar, body.ui-slide .topbar {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -278,7 +279,7 @@ body.ui-slide .topbar {
   clip: rect(0, 0, 0, 0);
 }
 
-body.ui-slide .tabs { display: none; }
+body.embedded .tabs, body.ui-slide .tabs { display: none; }
 
 body.ui-slide .view {
   grid-template-columns: minmax(0, 1fr);

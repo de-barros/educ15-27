@@ -446,13 +446,13 @@ sim_frame(
 )
 ```
 
-.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator-correlation.html).]
 
 ???
 
 **Press Add outlier.** r falls from `r fmt(sim_r)` to `r fmt(sim_small_after)`. **Now drag that point** around while students call out what r will do. Drag it toward the corner, then back into the cloud.
 
-Students can't drag on this screen. Those with a phone or laptop can open the Simulator page on the course site and go to the Correlation tab, where every point can be dragged.
+Students can't drag on this screen. Those with a phone or laptop can open the simulator's Correlation and regression page on the course site, where every point can be dragged.
 
 Leave Residuals and Squared residuals off. They belong to Topic 12. The line is there to show the direction.
 

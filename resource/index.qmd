@@ -2,5 +2,9 @@
 title: "Resources"
 ---
 
-- [Statistics simulator](simulator.qmd): draw samples and watch the statistics build up.
+- Statistics simulator: draw samples and watch the statistics build up.
+    - [Sampling distributions](simulator.qmd)
+    - [Power](simulator-power.qmd)
+    - [Confidence intervals](simulator-intervals.qmd)
+    - [Correlation and regression](simulator-correlation.qmd)
 - [Data](data.qmd): download the Mindspark data used throughout the course.

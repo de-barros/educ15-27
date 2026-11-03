@@ -4,7 +4,7 @@
     <title>EDUC 15 deck template</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-10-30" />
+    <meta name="date" content="2026-11-02" />
     <script src="libs/header-attrs-2.30/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
@@ -13,6 +13,20 @@
          embedded frame it shrinks math to half size. Fix the size instead. -->
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+
+    <!-- A lazy frame can stay blank when a deck reloads on its slide, so load the
+         simulator on the slide that's showing. -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        function loadSimulators() {
+          document.querySelectorAll(".remark-slides-area .remark-visible .sim-live").forEach(function (frame) {
+            frame.loading = "eager";
+          });
+        }
+        slideshow.on("afterShowSlide", loadSimulators);
+        loadSimulators();
+      });
     </script>
     <link rel="stylesheet" href="css/ath-slides.css" type="text/css" />
     <link rel="stylesheet" href="css/ath-inferno-fonts.css" type="text/css" />

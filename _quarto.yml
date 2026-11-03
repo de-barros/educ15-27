@@ -105,10 +105,18 @@ website:
         - section: "Overview"
           contents:
             - resource/index.qmd
-        - section: "Tools"
+        - section: "Statistics simulator"
           contents:
-            - resource/simulator.qmd
-            - resource/data.qmd
+            - text: "Sampling distributions"
+              file: resource/simulator.qmd
+            - text: "Power"
+              file: resource/simulator-power.qmd
+            - text: "Confidence intervals"
+              file: resource/simulator-intervals.qmd
+            - text: "Correlation and regression"
+              file: resource/simulator-correlation.qmd
+        - text: "Data"
+          file: resource/data.qmd
 
   page-footer:
     left: |
