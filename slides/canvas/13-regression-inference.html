@@ -4,7 +4,7 @@
     <title>Regression: is the slope real?</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-11-02" />
+    <meta name="date" content="2026-11-04" />
     <script>
 // Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -4698,7 +4698,7 @@ class: center middle main-title section-title-4
 
 .class-info[
 
-**Topic 13 · Thursday, March 4**
+**Topic 13 · Tuesday, March 9**
 
 .light[EDUC 15: Statistics for Education Research&lt;br&gt;
 UCI School of Education
@@ -4744,7 +4744,7 @@ class: title title-8
 
 ???
 
-Same map. On Tuesday we found a line. Today we ask whether its slope could be a fluke of the sample. It's the last new statistic in our blueprint.
+Same map. On Thursday we found a line. Today we ask whether its slope could be a fluke of the sample. It's the last new statistic in our blueprint.
 
 ---
 
@@ -4805,7 +4805,7 @@ class: title title-1
 
 ???
 
-Tuesday ended with three slopes: −2.50, 2.25 and 0.76. Same test, same schools. Here's why. Every thin line is a line we might have reported, if a different 8 students had landed in our sample.
+Thursday ended with three slopes: −2.50, 2.25 and 0.76. Same test, same schools. Here's why. Every thin line is a line we might have reported, if a different 8 students had landed in our sample.
 
 Each thin line only runs across its own sample's baseline scores. The short ones are samples with little spread in X, and they swing the most. Hold that thought for the poll.
 
@@ -5071,7 +5071,7 @@ class: title title-6
 
 ???
 
-Back to our 8 students from Tuesday. Two tails is our default. Why n − 2? The line spends two degrees of freedom, one on a and one on b. Topic 11 got the same df from the two means.
+Back to our 8 students from Thursday. Two tails is our default. Why n − 2? The line spends two degrees of freedom, one on a and one on b. Topic 11 got the same df from the two means.
 
 H₀ doesn't have to be 0. It's almost always 0, because "no relationship" is the question people ask.
 
@@ -5120,9 +5120,9 @@ MS_{residual} = \frac{SS_{residual}}{n - 2}
 
 ???
 
-MS residual is the average squared miss from Tuesday, with n − 2 on the bottom. It's our estimate of the variance around the line.
+MS residual is the average squared miss from Thursday, with n − 2 on the bottom. It's our estimate of the variance around the line.
 
-Students don't need to derive this. They should be able to say why each of the three things helps. The first was the loose and tight dots on Tuesday, and the second was the poll.
+Students don't need to derive this. They should be able to say why each of the three things helps. The first was the loose and tight dots on Thursday, and the second was the poll.
 
 ---
 
@@ -5152,7 +5152,7 @@ t = \frac{b - \beta}{\hat{\sigma}_b} = \frac{2.25 - 0}{0.637} = 3.53
 
 ???
 
-SS residual = 58.5 is the "Least squares" total from Tuesday's curve. SS&lt;sub&gt;X&lt;/sub&gt; = 24 is from Topic 11.
+SS residual = 58.5 is the "Least squares" total from Thursday's curve. SS&lt;sub&gt;X&lt;/sub&gt; = 24 is from Topic 11.
 
 Decision wording as in Topic 7: this slope would be surprising if the true line were flat, so we reject H₀.
 
@@ -5419,7 +5419,7 @@ class: title title-3
 
 ???
 
-Tuesday's bars split SS&lt;sub&gt;Y&lt;/sub&gt; this way, with the same numbers. This is the "analysis of regression". What X predicts goes on top of F, and what's left over goes on the bottom. A line has one slope, so regression gets 1 df.
+Thursday's bars split SS&lt;sub&gt;Y&lt;/sub&gt; this way, with the same numbers. This is the "analysis of regression". What X predicts goes on top of F, and what's left over goes on the bottom. A line has one slope, so regression gets 1 df.
 
 r² is the only link between the two pieces: 0.675 × 180.0 = 121.5.
 
@@ -5545,7 +5545,7 @@ When Topic 14 adds a second predictor, each slope gets its own t, and F tests th
 
 ???
 
-This is the first place students read raw output, and Topic 14 does it again. They don't write R. Lab 9 gets the same numbers from a spreadsheet's `LINEST`, `SLOPE` and `INTERCEPT`.
+This is the first place students read raw output, and Topic 14 does it again. They don't write R. In Lab 9, a spreadsheet's `SLOPE` and `INTERCEPT` gave the same line, and its `LINEST` gives the rest of these numbers.
 
 Read it top to bottom: the call names the outcome first, the Coefficients table has one row per number in the line, and the bottom three lines describe the whole fit.
 
@@ -5827,18 +5827,18 @@ class: title title-8
 # Next steps
 
 .pull-left[
-.box-1.small[Friday, March 5: Lab 9]
+.box-1.small[Thursday, March 11: Topic 14]
 
-Correlation and regression. Bring a calculator and a laptop
+Regression: groups and interactions. Read section 13-1
 ]
 
 .pull-right[
-.box-6.small[Sunday, March 7, 6 PM]
+.box-6.small[Friday, March 12: Lab 10]
 
-Mastery and Problem Set for Chapter 12 are due. Chapter 14's are due March 14
+Quiz: final review. Bring a calculator
 ]
 
-.box-3.small[For Tuesday, March 9: finish the regression part of Chapter 14. Topic 14 is Regression: groups and interactions]
+.box-3.small[Finals week, March 13 to 19: the final exam. Date to come]
 
 &lt;style type="text/css"&gt;
 /* Images sit under the title. These heights leave room for a source line */

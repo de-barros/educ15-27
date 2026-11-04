@@ -990,7 +990,7 @@ Sampling distributions and the four steps. Bring a calculator and a laptop
 .pull-right[
 .box-6.small[Over the weekend]
 
-Finish Chapter 8. Tuesday we ask: what if H<sub>0</sub> is false?
+Read sections 8-4 to 8-6. Tuesday we ask: what if H<sub>0</sub> is false?
 ]
 
 .box-3.small[Mastery and Problem Set for Chapter 7 are due Sunday, January 31 at 6 PM]
@@ -1699,16 +1699,16 @@ class: title title-8
 .pull-left[
 .box-1.small[Before Thursday]
 
-Read Chapter 9 on the t-test, for when σ is unknown
+Read sections 9-1, 9-2 and 9-4 on the t-test, for when σ is unknown
 ]
 
 .pull-right[
 .box-6.small[This Friday: Lab 5]
 
-Quiz, as midterm review. Bring a calculator
+Power and the one-sample t-test. Bring a calculator and a laptop
 ]
 
-.box-3.small[Mastery and Problem Set for Chapters 8 and 9 are due Sunday, February 7 at 6 PM. The midterm is Thursday, February 11]
+.box-3.small[Mastery and Problem Set for Chapter 8 are due Sunday, February 7 at 6 PM. The midterm is Tuesday, February 16]
 
 ```{css, echo=FALSE}
 /* Images sit under the title. These heights leave room for a source line */

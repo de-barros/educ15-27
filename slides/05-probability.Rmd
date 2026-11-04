@@ -840,7 +840,7 @@ class: title title-8
 
 .box-inv-8.medium.sp-after-half[Finish Chapter 6]
 
-.box-inv-8.medium.sp-after-half[Read Chapter 7 for the second half of class]
+.box-inv-8.medium.sp-after-half[Read sections 7-1 and 7-2 for the second half of class]
 
 .box-8.medium[Bring a calculator: we'll use the table]
 
@@ -1385,7 +1385,7 @@ class: title title-8
 .pull-left[
 .box-1.small[Right now]
 
-Topic 6 starts: sampling distributions, from Chapter 7
+Topic 6 starts: sampling distributions, from sections 7-1 and 7-2
 ]
 
 .pull-right[

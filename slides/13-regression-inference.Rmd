@@ -180,7 +180,7 @@ class: center middle main-title section-title-4
 
 .class-info[
 
-**Topic 13 · Thursday, March 4**
+**Topic 13 · Tuesday, March 9**
 
 .light[EDUC 15: Statistics for Education Research<br>
 UCI School of Education
@@ -226,7 +226,7 @@ class: title title-8
 
 ???
 
-Same map. On Tuesday we found a line. Today we ask whether its slope could be a fluke of the sample. It's the last new statistic in our blueprint.
+Same map. On Thursday we found a line. Today we ask whether its slope could be a fluke of the sample. It's the last new statistic in our blueprint.
 
 ---
 
@@ -300,7 +300,7 @@ ggplot(both, aes(x = X, y = Y)) +
 
 ???
 
-Tuesday ended with three slopes: `r fmt(five$b)`, `r fmt(eight$b)` and `r fmt(all$b)`. Same test, same schools. Here's why. Every thin line is a line we might have reported, if a different 8 students had landed in our sample.
+Thursday ended with three slopes: `r fmt(five$b)`, `r fmt(eight$b)` and `r fmt(all$b)`. Same test, same schools. Here's why. Every thin line is a line we might have reported, if a different 8 students had landed in our sample.
 
 Each thin line only runs across its own sample's baseline scores. The short ones are samples with little spread in X, and they swing the most. Hold that thought for the poll.
 
@@ -538,7 +538,7 @@ tribble(
 
 ???
 
-Back to our 8 students from Tuesday. Two tails is our default. Why n − 2? The line spends two degrees of freedom, one on a and one on b. Topic 11 got the same df from the two means.
+Back to our 8 students from Thursday. Two tails is our default. Why n − 2? The line spends two degrees of freedom, one on a and one on b. Topic 11 got the same df from the two means.
 
 H₀ doesn't have to be 0. It's almost always 0, because "no relationship" is the question people ask.
 
@@ -589,9 +589,9 @@ MS_{residual} = \frac{SS_{residual}}{n - 2}
 
 ???
 
-MS residual is the average squared miss from Tuesday, with n − 2 on the bottom. It's our estimate of the variance around the line.
+MS residual is the average squared miss from Thursday, with n − 2 on the bottom. It's our estimate of the variance around the line.
 
-Students don't need to derive this. They should be able to say why each of the three things helps. The first was the loose and tight dots on Tuesday, and the second was the poll.
+Students don't need to derive this. They should be able to say why each of the three things helps. The first was the loose and tight dots on Thursday, and the second was the poll.
 
 ---
 
@@ -621,7 +621,7 @@ t = \frac{b - \beta}{\hat{\sigma}_b} = \frac{`r fmt(eight$b)` - 0}{`r fmt(eight$
 
 ???
 
-SS residual = `r fmt(eight$ss_res, 1)` is the "Least squares" total from Tuesday's curve. SS<sub>X</sub> = `r fmt(eight$ss_x, 0)` is from Topic 11.
+SS residual = `r fmt(eight$ss_res, 1)` is the "Least squares" total from Thursday's curve. SS<sub>X</sub> = `r fmt(eight$ss_x, 0)` is from Topic 11.
 
 Decision wording as in Topic 7: this slope would be surprising if the true line were flat, so we reject H₀.
 
@@ -851,7 +851,7 @@ class: title title-3
 
 ???
 
-Tuesday's bars split SS<sub>Y</sub> this way, with the same numbers. This is the "analysis of regression". What X predicts goes on top of F, and what's left over goes on the bottom. A line has one slope, so regression gets 1 df.
+Thursday's bars split SS<sub>Y</sub> this way, with the same numbers. This is the "analysis of regression". What X predicts goes on top of F, and what's left over goes on the bottom. A line has one slope, so regression gets 1 df.
 
 r² is the only link between the two pieces: `r fmt(eight$r2, 3)` × `r fmt(eight$ss_y, 1)` = `r fmt(eight$ss_reg, 1)`.
 
@@ -931,7 +931,7 @@ r_block(r_summary(fit_base), list("^\\(Intercept\\)" = "a", "^baseline" = "b, σ
 
 ???
 
-This is the first place students read raw output, and Topic 14 does it again. They don't write R. Lab 9 gets the same numbers from a spreadsheet's `LINEST`, `SLOPE` and `INTERCEPT`.
+This is the first place students read raw output, and Topic 14 does it again. They don't write R. In Lab 9, a spreadsheet's `SLOPE` and `INTERCEPT` gave the same line, and its `LINEST` gives the rest of these numbers.
 
 Read it top to bottom: the call names the outcome first, the Coefficients table has one row per number in the line, and the bottom three lines describe the whole fit.
 
@@ -1113,18 +1113,18 @@ class: title title-8
 # Next steps
 
 .pull-left[
-.box-1.small[Friday, March 5: Lab 9]
+.box-1.small[Thursday, March 11: Topic 14]
 
-Correlation and regression. Bring a calculator and a laptop
+Regression: groups and interactions. Read section 13-1
 ]
 
 .pull-right[
-.box-6.small[Sunday, March 7, 6 PM]
+.box-6.small[Friday, March 12: Lab 10]
 
-Mastery and Problem Set for Chapter 12 are due. Chapter 14's are due March 14
+Quiz: final review. Bring a calculator
 ]
 
-.box-3.small[For Tuesday, March 9: finish the regression part of Chapter 14. Topic 14 is Regression: groups and interactions]
+.box-3.small[Finals week, March 13 to 19: the final exam. Date to come]
 
 ```{css, echo=FALSE}
 /* Images sit under the title. These heights leave room for a source line */

@@ -582,7 +582,7 @@ class: title title-8
 
 .box-inv-8.medium.sp-after-half[Sunday, January 24 at 6 PM: Mastery and Problem Set for Chapter 6]
 
-.box-8.medium[Finish Chapter 7 for Tuesday]
+.box-8.medium[Read sections 7-3 to 7-5 for Tuesday]
 
 ???
 
@@ -1311,7 +1311,7 @@ class: title title-8
 .pull-left[
 .box-1.small[Before Thursday]
 
-Read Chapter 8. Topic 7 is hypothesis testing
+Read sections 8-1 to 8-3. Topic 7 is hypothesis testing
 ]
 
 .pull-right[
