@@ -1,6 +1,6 @@
 ---
 title: "Correlation"
-date: "2027-02-25"
+date: "2027-03-02"
 ---
 
 ## Goals
@@ -14,7 +14,7 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} The correlation part of Chapter 14 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Sections 14-1 to 14-4. Skim 14-5: we cover Spearman, point-biserial and phi as ideas, without the calculations.
 
 ## Slides
 

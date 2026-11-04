@@ -14,7 +14,8 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} Chapter 7 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Before session 1: sections 7-1 and 7-2.
+- {{< fa book >}} Before session 2: sections 7-3 to 7-5.
 
 ## Slides
 

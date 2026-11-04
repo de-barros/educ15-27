@@ -14,7 +14,13 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} Chapter 6 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Chapter 6.
+
+::: {.callout-note}
+## The book and our slides
+
+- **The book:** reads areas from the unit normal table, in body and tail columns. **Our slides:** use the table too, and the spreadsheet's `NORM.DIST`, which always gives the area to the left. The table rounds, so answers can differ in the second decimal.
+:::
 
 ## Slides
 

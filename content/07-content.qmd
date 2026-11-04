@@ -15,7 +15,15 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} Chapter 8 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Before session 1: sections 8-1 to 8-3.
+- {{< fa book >}} Before session 2: sections 8-4 to 8-6. Read 8-6 for the idea of power. We don't compute power by hand, so you can skip working through Examples 8.6 and 8.7.
+
+::: {.callout-note}
+## The book and our slides
+
+- **The book:** says in one place that the p-value is the probability of a Type 1 error. **Our slides:** α is that probability, set before we look. p is how surprising our sample would be if H₀ were true. It isn't the chance that H₀ is true, or that we made an error.
+- **The book:** says we *fail to reject* H₀. **Our slides:** say we *maintain* H₀. Both mean the same thing: the data didn't rule H₀ out.
+:::
 
 ## Slides
 

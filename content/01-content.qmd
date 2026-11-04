@@ -14,7 +14,13 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} Chapter 1 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Chapter 1 in *Essentials of Statistics for the Behavioral Sciences*. Read it before our first class if you can, or by Thursday. You can skip real limits (in 1-2).
+
+::: {.callout-note}
+## The book and our slides
+
+- **The book:** calls a number computed from a sample a *statistic*. **Our slides:** call it an *estimate*, because it estimates a population value. Greek letters (μ, σ) mean the population in both. On our slides, a Latin letter or a hat (σ̂) means an estimate.
+:::
 
 ## Slides
 

@@ -1,6 +1,6 @@
 ---
 title: "ANOVA"
-date: "2027-02-23"
+date: "2027-02-25"
 ---
 
 ## Goals
@@ -14,7 +14,13 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} Chapter 12 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Sections 12-1 to 12-4 and 12-6, plus the start of 12-5 on why we need post hoc tests. Skip Tukey's and Scheffé's tests (Examples 12.5 and 12.6).
+
+::: {.callout-note}
+## The book and our slides
+
+- **The book:** writes the effect size as η². **Our slides:** write η̂², because it's an estimate.
+:::
 
 ## Slides
 

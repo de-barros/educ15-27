@@ -14,7 +14,13 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} Chapter 5 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Chapter 5.
+
+::: {.callout-note}
+## The book and our slides
+
+- **The book:** writes z = (X − M)/s for a sample. **Our slides:** same formula, with σ̂ for s.
+:::
 
 ## Slides
 

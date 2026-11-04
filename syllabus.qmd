@@ -63,7 +63,7 @@ In this course, you will be expected to
 - attend your own lab every Friday,
 - do the readings before class,
 - complete the Mastery Training and Problem Sets in MindTap,
-- take a short check and four quizzes in the Friday labs,
+- take two short checks and three quizzes in the Friday labs,
 - take two in-person exams, and
 - complete the course evaluation.
 
@@ -94,15 +94,15 @@ The course follows the same routine every week.
 - **Before class**: Do the reading for the topic.
 - **Tuesday and Thursday**: Lecture, 12:30–1:50 PM in EDUC 2009. Each class runs about 20 minutes of talk, then a few minutes where you do something (predict, try, or play), three times over. None of it is scored.
 - **Friday**: Lab with {{< var assistant.name_no_title >}}, at 12:00 PM (Lab A1, EDUC 2009) or 1:00 PM (Lab A2, EDUC 2001). Go to the lab you're enrolled in.
-- **Sunday, 6 PM**: The week's Mastery Training and Problem Set are due in MindTap.
+- **Sunday, 6 PM**: The week's Mastery Training and Problem Set are due in MindTap, with an automatic one-day extension (see [Late assignments](#late-assignments)).
 
 You can find every class, lab, and due date on the [schedule page](/schedule.qmd).
 
 ### Labs
 
-Six of our ten Friday labs follow one routine. You solve a by-hand, exam-style problem in pairs, then work on the same idea with real data in a spreadsheet or the [course simulator](/resource/simulator.qmd), and finally write one sentence on what the result means and hand it in. Each lab comes with a one-page handout on this website.
+Seven of our ten Friday labs follow one routine. You solve a by-hand, exam-style problem in pairs, then work on the same idea with real data in a spreadsheet or the [course simulator](/resource/simulator.qmd), and finally write one sentence on what the result means and hand it in. Each lab comes with a one-page handout on this website. Labs 2 and 8 start with a 15-minute individual check.
 
-The other four labs (Labs 3, 5, 8, and 10) are quiz days. Labs 5 and 10 also review for the exams. Lab 2 includes a 15-minute individual check. We'll explain the format in class.
+The other three labs (Labs 3, 6, and 10) are quiz days. Labs 6 and 10 also review for the exams. We'll explain the format in class.
 
 If you can, bring a laptop to lab. You'll work in pairs, so one laptop per pair is enough.
 
@@ -142,7 +142,7 @@ Please bring a calculator to labs and exams. A basic scientific calculator is en
 
 ### Quizzes
 
-There are five scored events in our Friday labs: a 15-minute individual check in Lab 2, and a quiz in each of Labs 3, 5, 8, and 10. Each is worth 10 points. I'll count your best four. Go to your own lab for each of them.
+There are five scored events in our Friday labs: a 15-minute individual check in each of Labs 2 and 8, and a quiz in each of Labs 3, 6, and 10. Each is worth 10 points. I'll count your best four. Go to your own lab for each of them.
 
 ### Labs
 
@@ -150,7 +150,7 @@ Each lab is worth 3 points. In a regular lab, you earn them by being there and h
 
 ### Mastery Training and Problem Sets
 
-You'll complete two types of homework in MindTap, for Chapters 5 to 12 and 14. Both are due on Sundays at 6 PM. There are nine of each, worth 5 points each, and I'll count your best eight of each type.
+You'll complete two types of homework in MindTap, for Chapters 5 to 12 and 14. Both are due on Sundays at 6 PM, with an automatic one-day extension (see [Late assignments](#late-assignments)). There are nine of each, worth 5 points each, and I'll count your best eight of each type. Chapters 1 to 4 have the same two activities as ungraded practice, open all quarter.
 
 The **Mastery Training** helps you become familiar with the important terms and ideas in each chapter. You have unlimited attempts.
 
@@ -162,12 +162,12 @@ MindTap is your practice. The by-hand problems in the Friday labs are what look 
 
 There are two in-person exams, each worth 100 points.
 
-- The **midterm exam** takes place in class on Thursday, February 11 (Week 6). It covers Chapters 1 to 9 and takes 80 minutes.
+- The **midterm exam** takes place in class on Tuesday, February 16 (Week 7). It covers Chapters 1 to 9 and takes 80 minutes. We review in class on Thursday, February 11, and in Lab 6 on Friday, February 12.
 - The **final exam** is cumulative. It takes place during finals week, on the date the Registrar sets.
 
 Both exams are free response and built on the data we use in class. They test your intuition as well as your calculations: for example, whether a number is a parameter or an estimate.
 
-You must not use any electronic devices during the exams, except a calculator (and anything permitted by an accommodation you may have). We attach the z, t, and F tables and a formula sheet to each exam.
+The exams are open book: you can bring any print materials you like, including your own notes and cheat sheets. You must not use any electronic devices, except a calculator (and anything permitted by an accommodation you may have). We also attach the z, t, and F tables and a formula sheet to each exam.
 
 If you'd prefer to take an exam in a language other than English, I can provide a translated version, in any language. Just email me. I'll announce the date to ask by in class.
 
@@ -215,14 +215,14 @@ You can find a detailed class calendar on the [schedule page](/schedule.qmd). He
 |:---------------------------|:--------------------------------------|
 | Lab 2: individual check    | Fri, Jan 15                           |
 | Lab 3: quiz                | Fri, Jan 22                           |
-| Lab 5: quiz                | Fri, Feb 05                           |
-| Midterm exam               | Thu, Feb 11, in class                 |
-| Lab 8: quiz                | Fri, Feb 26                           |
+| Lab 6: quiz                | Fri, Feb 12                           |
+| Midterm exam               | Tue, Feb 16, in class                 |
+| Lab 8: individual check    | Fri, Feb 26                           |
 | Lab 10: quiz               | Fri, Mar 12                           |
 | Final exam                 | Finals week, date to come from the Registrar |
-| Mastery Training and Problem Sets | Sundays at 6 PM: Jan 17 (Ch. 5), Jan 24 (Ch. 6), Jan 31 (Ch. 7), Feb 07 (Chs. 8 and 9), Feb 21 (Ch. 10), Feb 28 (Ch. 11), Mar 07 (Ch. 12), Mar 14 (Ch. 14) |
+| Mastery Training and Problem Sets | Sundays at 6 PM: Jan 17 (Ch. 5), Jan 24 (Ch. 6), Jan 31 (Ch. 7), Feb 07 (Ch. 8), Feb 14 (Ch. 9), Feb 21 (Ch. 10), Feb 28 (Chs. 11 and 12), Mar 07 (Ch. 14) |
 
-Nothing is due in midterm week. All times are in Pacific time.
+All times are in Pacific time.
 
 ## Course policies
 
@@ -258,7 +258,11 @@ Cell phone use is prohibited during class (unless I ask you to take out your pho
 
 ### Late assignments
 
-You should budget enough time to submit all assignments well ahead of each deadline (Sunday, 6 PM). Late assignments will not be accepted, regardless of how late they are. No extensions will be granted due to religious holidays, sickness, or any other reasons. Instead, I will disregard your lowest Mastery Training and your lowest Problem Set. I suggest using this option cautiously, just in case something happens, you foresee needing time to observe a religious holiday, or any other issue that may keep you from submitting your homework on time.
+You should budget enough time to submit all assignments well ahead of each deadline (Sunday, 6 PM). A one-day extension is granted automatically, to cover holidays, sickness, or any other reasons (Monday, 6 PM).
+
+No questions asked.
+
+I suggest using the extension cautiously, though, just in case something happens, you get sick, or any other issue arises that keeps you from submitting your homework on time. Late assignments past the extension will not be accepted, regardless of how late they are. On top of the extension, I disregard your lowest Mastery Training and your lowest Problem Set.
 
 ### Academic honesty
 

@@ -14,7 +14,16 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} Chapter 9 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Before session 1: sections 9-1, 9-2 and 9-4.
+- {{< fa book >}} Before session 2: section 9-3. Skip r² as an effect size.
+
+::: {.callout-note}
+## The book and our slides
+
+- **The book:** writes the estimated standard error as s_M. **Our slides:** write σ̂_M.
+- **The book:** calls the effect size *estimated Cohen's d*. **Our slides:** call it g. d is the population value, and g is its estimate.
+- **The book:** writes an interval as μ = M ± t s_M. **Our slides:** say it's an interval for μ: from M − t σ̂_M to M + t σ̂_M.
+:::
 
 ## Slides
 

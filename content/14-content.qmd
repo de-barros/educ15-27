@@ -1,6 +1,6 @@
 ---
 title: "Regression: groups and interactions"
-date: "2027-03-09"
+date: "2027-03-11"
 ---
 
 ## Goals
@@ -15,7 +15,8 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} No new reading (to be confirmed)
+- {{< fa book >}} Section 13-1, on main effects and interactions.
+- {{< fa book >}} Our handout on regression with two predictors (coming soon).
 
 ## Slides
 

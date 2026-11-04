@@ -1,6 +1,6 @@
 ---
 title: "t-tests for two samples and for gains"
-date: "2027-02-16"
+date: "2027-02-18"
 ---
 
 ## Goals
@@ -13,7 +13,15 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} Chapters 10 and 11 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Before session 1: Chapter 10. Skip Hartley's F-max test (in 10-3) and r² (in 10-4).
+- {{< fa book >}} Before session 2: Chapter 11. Skip r² (in 11-4).
+
+::: {.callout-note}
+## The book and our slides
+
+- **The book:** writes the pooled variance as s²_p. **Our slides:** write σ̂²_p.
+- **The book:** analyzes before-and-after gains in one group as evidence that a treatment worked. **Our slides:** without a control group, a gain also includes growth that would have happened anyway. Session 2 shows how much that matters for Mindspark.
+:::
 
 ## Slides
 
@@ -26,7 +34,7 @@ cat(slide_buttons("/slides/09-two-samples-gains"))
 
 ::: {.panel-tabset}
 
-## Session 1: Tuesday, February 16
+## Session 1: Thursday, February 18
 
 ```{r}
 #| echo: false
@@ -34,7 +42,7 @@ cat(slide_buttons("/slides/09-two-samples-gains"))
 cat(slide_frame("/slides/09-two-samples-gains.html", "Slides for session 1 of t-tests for two samples and for gains"))
 ```
 
-## Session 2: Thursday, February 18
+## Session 2: Tuesday, February 23
 
 ```{r}
 #| echo: false

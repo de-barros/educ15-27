@@ -14,7 +14,7 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} Chapter 2 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Sections 2-1 to 2-3. Skip percentiles, percentile ranks and interpolation (in 2-1) and real limits (in 2-2). We find percentiles from the normal curve in Topic 5.
 
 ## Slides
 

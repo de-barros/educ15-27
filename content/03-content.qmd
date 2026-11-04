@@ -13,7 +13,14 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} Chapters 3 and 4 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Chapter 3. Skip the precise median for a continuous variable and its formula (in 3-3).
+- {{< fa book >}} Chapter 4. The computational formula for SS (in 4-3) is optional.
+
+::: {.callout-note}
+## The book and our slides
+
+- **The book:** divides SS by N for a population and calls SS/n *biased* for a sample. It picks the formula by whether the data are a population. **Our slides:** SS/n is the sample's own variance, and it's correct for that sample. To estimate the population's variance, we divide by n − 1 and write σ̂². The book's s² and s are our σ̂² and σ̂.
+:::
 
 ## Slides
 

@@ -1,6 +1,6 @@
 ---
 title: "Regression: is the slope real?"
-date: "2027-03-04"
+date: "2027-03-09"
 ---
 
 ## Goals
@@ -14,7 +14,14 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} Finish the regression part of Chapter 14 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} The rest of section 14-6, "analysis of regression".
+- {{< fa book >}} Our handout on the slope, which goes further than the book (coming soon).
+
+::: {.callout-note}
+## The book and our slides
+
+- **The book:** uses *beta* for the standardized slope, and tests the slope only with F. **Our slides:** use β for the true slope in the population, and test it with t as well as F, with an interval for β.
+:::
 
 ## Slides
 

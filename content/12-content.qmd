@@ -1,6 +1,6 @@
 ---
 title: "Regression: the line"
-date: "2027-03-02"
+date: "2027-03-04"
 ---
 
 ## Goals
@@ -14,7 +14,13 @@ By the end of this topic, you should be able to:
 
 ## Reading
 
-- {{< fa book >}} The regression part of Chapter 14 in *Essentials of Statistics for the Behavioral Sciences* (to be confirmed)
+- {{< fa book >}} Section 14-6, through the standard error of estimate and r².
+
+::: {.callout-note}
+## The book and our slides
+
+- **The book:** writes the line as Ŷ = bX + a, and the slope as b = r(s_Y/s_X). **Our slides:** write a + bX, and σ̂ for s. Same line, same numbers.
+:::
 
 ## Slides
 
