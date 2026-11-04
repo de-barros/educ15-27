@@ -1,0 +1,687 @@
+---
+title: "Midterm review"
+lang: "en"
+author: "Andreas de Barros"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: "libs"
+    chakra: "libs/remark-latest.min.js"
+    css: ["default", "css/ath-slides.css", "css/ath-inferno-fonts.css", "css/animate.css"]
+    seal: false
+    anchor_sections: false
+    includes:
+      in_header: "css/mathjax.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+      navigation:
+        scroll: true
+      incremental: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      fig.retina = 3, fig.align = "center",
+                      dev = "ragg_png")  # ragg finds Fira Sans Condensed on Windows
+```
+
+```{r packages-data, include=FALSE}
+library(tidyverse)
+library(knitr)
+
+# Colors from the slide theme, all readable on white ----
+clr_bar <- "#538ba2"
+clr_soft <- "#c5d9e2"
+clr_mean <- "#a93e31"
+clr_median <- "#244a70"
+
+theme_slides <- function(base_size = 20) {
+  theme_minimal(base_size = base_size, base_family = "Fira Sans Condensed") +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.x = element_blank(),
+          axis.title = element_text(face = "bold"),
+          strip.text = element_text(face = "bold", size = rel(1)))
+}
+
+fmt <- function(x, d = 2) str_replace(formatC(x, format = "f", digits = d), "-", "−")
+pct <- function(x, d = 0) paste0(fmt(100 * x, d), "%")
+
+label_text <- function(x, y, label, color = clr_median, hjust = 0.5, size = 6.5) {
+  annotate("text", x = x, y = y, label = label, color = color, hjust = hjust, size = size,
+           fontface = "bold", family = "Fira Sans Condensed")
+}
+
+deck_table <- function(df, align = NULL, class = "deck-table") {
+  kable(df, format = "html", escape = FALSE, align = align, table.attr = paste0('class="', class, '"'))
+}
+
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+math <- baseline$tot_math
+N <- length(math)
+
+# The population, as the decks round it: mu = 11.12, sigma = 3.90 ----
+mu <- 11.12
+sigma <- 3.90
+stopifnot(round(mean(math), 2) == mu, round(sqrt(mean((math - mean(math))^2)), 2) == sigma)
+
+# Practice 1: six Govindpuri students, next to each other in the file ----
+gp <- filter(baseline, ms_center1 == "Govindpuri")
+six <- gp$tot_math[43:48]
+six_n <- length(six)
+six_M <- mean(six)
+six_dev <- six - six_M
+six_SS <- sum(six_dev^2)
+six_var <- six_SS / (six_n - 1)
+six_sd <- sqrt(six_var)
+six_top <- max(six)
+six_z <- (six_top - six_M) / six_sd
+stopifnot(six_M == 10, six_SS == 54)
+
+# Practice 2: the normal curve and a sampling distribution, with the table's two decimals ----
+cut_hi <- 15
+z_hi <- round((cut_hi - mu) / sigma, 2)
+tail_hi <- 1 - pnorm(z_hi)
+z_q1 <- -0.67  # The body closest to 0.2500 in the table
+x_q1 <- mu + z_q1 * sigma
+n2 <- 16
+se2 <- sigma / sqrt(n2)
+cut_M <- 12.5
+z_M <- round((cut_M - mu) / se2, 2)
+tail_M <- 1 - pnorm(z_M)
+
+# Practice 3: all of Govindpuri, with sigma known ----
+gp_n <- nrow(gp)
+gp_M <- mean(gp$tot_math)
+gp_se <- sigma / sqrt(gp_n)
+gp_z <- (round(gp_M, 2) - mu) / gp_se
+gp_p <- 2 * pnorm(-abs(gp_z))
+
+# Practice 4: Chhatarpur's ninth graders, with sigma unknown ----
+c9 <- filter(baseline, ms_center1 == "Chhatarpur", st_grade1 == 9)$tot_math
+c9_n <- length(c9)
+c9_df <- c9_n - 1
+c9_M <- mean(c9)
+c9_SS <- sum((c9 - c9_M)^2)
+c9_sd <- sqrt(c9_SS / c9_df)
+c9_se <- c9_sd / sqrt(c9_n)
+c9_t <- (c9_M - mu) / c9_se
+c9_p <- 2 * pt(-abs(c9_t), c9_df)
+c9_table_df <- 30  # The book's table skips 31, so we use the next lower df
+c9_crit <- round(qt(0.975, c9_table_df), 3)
+c9_g <- (c9_M - mu) / c9_sd
+c9_ci <- c9_M + c(-1, 1) * c9_crit * c9_se
+stopifnot(c9_n == 32)
+
+# Curves for practice 2 ----
+curve_grid <- tibble(x = seq(0, 22, 0.02)) %>%
+  mutate(Population = dnorm(x, mu, sigma), `Means of 16` = dnorm(x, mu, se2))
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view"))
+```
+
+class: center middle main-title section-title-4
+
+# Midterm review
+
+.class-info[
+
+**Thursday, February 11**
+
+.light[EDUC 15: Statistics for Education Research<br>
+UCI School of Education
+]
+
+]
+
+---
+
+class: title title-8
+
+# The midterm is on Tuesday
+
+```{r logistics-table, results="asis"}
+tribble(
+  ~` `, ~Details,
+  "When", "Tuesday, February 16, in class, 80 minutes",
+  "What", "Chapters 1 to 9, which are Topics 1 to 8",
+  "How", "Free response: show your work and explain your thinking",
+  "Bring", "A calculator, and any print materials, including your own notes",
+  "We attach", "The z, t and F tables, and a formula sheet in both sets of symbols",
+  "Not allowed", "Any other device"
+) %>%
+  deck_table(align = "ll")
+```
+
+.box-8.small[Today is practice, in pairs. Nothing is scored]
+
+???
+
+General format only. No exam content in this deck, since it's public. The practice uses Mindspark students the exam won't use.
+
+---
+
+class: title title-8
+
+# Plan for today
+
+.box-1.medium.sp-after-half[Describe: Topics 1 to 4]
+
+.box-6.medium.sp-after-half[Probability and sampling: Topics 5 and 6]
+
+.box-3.medium.sp-after-half[Tests and intervals: Topics 7 and 8]
+
+.box-inv-8.small[Each round: work alone for a few minutes, then with a neighbor. Then we compare]
+
+???
+
+Three rounds of about 25 minutes, with the answers after each. Walk the room during the pair work: that's where you'll see the slips worth naming. Calculators and the tables out.
+
+---
+
+class: title title-8
+
+# One question runs through all of it
+
+.pull-left[
+.box-1.medium.sp-after-half[Parameter]
+
+.box-inv-1.small[A fact about the population: μ, σ, σ<sub>M</sub>]
+
+.box-inv-1.small[Usually unknown]
+]
+
+.pull-right[
+.box-6.medium.sp-after-half[Estimate]
+
+.box-inv-6.small[From our sample: M, σ̂, σ̂<sub>M</sub>, g]
+
+.box-inv-6.small[Changes from sample to sample]
+]
+
+.box-8.small[Every test asks: is our estimate too far from what H₀ says the parameter is?]
+
+???
+
+The Topic 1 question, one more time. If students can say for each symbol on the formula sheet whether it's a parameter or an estimate, most of the midterm's reasoning follows.
+
+---
+
+layout: false
+class: center middle section-title section-title-1 animated fadeIn
+
+# Describe
+
+---
+
+layout: false
+class: title title-8
+
+# Practice 1: Six students
+
+.box-inv-8.small.sp-after-half[Six Govindpuri students' baseline math scores: **`r paste(six, collapse = ", ")`**]
+
+.pull-left[
+.box-8.small.sp-after-half[**a.** Find the mean, the median and the mode]
+
+.box-8.small.sp-after-half[**b.** Find SS, then σ̂, our estimate of the SD of all Govindpuri students]
+]
+
+.pull-right[
+.box-8.small.sp-after-half[**c.** Find the z of the `r six_top` within these six]
+
+.box-8.small.sp-after-half[**d.** Which scale is math score? Which is the center a student goes to?]
+]
+
+.box-inv-8.small[Work alone for 3 minutes, then compare with a neighbor]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 8 minutes. Common slips: dividing SS by n instead of n − 1, and forgetting the square root at the end.
+
+---
+
+class: title title-8
+
+# Practice 1: Answers a and b
+
+```{r six-table, results="asis"}
+tibble(X = six, `X − M` = fmt(six_dev, 0), `(X − M)²` = fmt(six_dev^2, 0)) %>%
+  bind_rows(tibble(X = NA, `X − M` = "Sum", `(X − M)²` = paste0("<strong>SS = ", six_SS, "</strong>"))) %>%
+  mutate(X = if_else(is.na(X), " ", as.character(X))) %>%
+  deck_table(align = "ccc", class = "deck-table tight")
+```
+
+.pull-left[
+.box-inv-8.small[M = `r sum(six)` / `r six_n` = **`r six_M`**. Median: (`r sort(six)[3]` + `r sort(six)[4]`) / 2 = **`r median(six)`**. Mode: **`r names(which.max(table(six)))`**]
+]
+
+.pull-right[
+.box-inv-8.small[σ̂ = √(`r six_SS` / `r six_n - 1`) = √`r fmt(six_var, 1)` = **`r fmt(six_sd)`**]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+n − 1 on the bottom because these six are a sample, and σ̂ estimates the SD of all Govindpuri students. The six students' own SD, with n on the bottom, would describe only them, and tends to run low as an estimate.
+
+The median needs the scores in order first: `r paste(sort(six), collapse = ", ")`.
+
+---
+
+class: title title-8
+
+# Practice 1: Answers c and d
+
+.box-8.medium.sp-after-half[z = (`r six_top` − `r six_M`) / `r fmt(six_sd)` = `r fmt(six_z)`]
+
+.box-inv-8.small.sp-after-half[The `r six_top` sits `r fmt(six_z)` standard deviations above the mean of these six]
+
+.box-inv-8.small.sp-after-half[**Math score:** ratio. A score of 0 means no answers right]
+
+.box-inv-8.small[**Center:** nominal. It's a name, with no order]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Ratio, as in Topic 1. Some students will say interval, and that's a fair argument to hear: a 0 on this test doesn't mean no math at all. On the exam, an answer with a reason is what counts.
+
+---
+
+class: title title-8
+
+# Parameter or estimate? Hands up
+
+```{r which-table, results="asis"}
+tribble(
+  ~` `, ~`The number`,
+  "A", paste0("The mean of all ", N, " Mindspark students at baseline, treated as our population"),
+  "B", paste0("The mean of the six Govindpuri students, ", six_M),
+  "C", paste0("σ̂ = ", fmt(six_sd), " from the six"),
+  "D", "The SD of the sampling distribution of M, for samples of 16 from the population",
+  "E", "The mean math score of every fifth grader in Delhi"
+) %>%
+  deck_table(align = "cl")
+```
+
+.box-8.small[Hands up for parameter, then for estimate]
+
+???
+
+About 3 minutes. Answers: A parameter, μ. B estimate, M. C estimate, σ̂. D parameter, σ<sub>M</sub>: it's set by σ and n, before any sample. E parameter, and one nobody knows. The Mindspark students aren't a random sample of Delhi, so M from them isn't a good estimate of it.
+
+---
+
+layout: false
+class: center middle section-title section-title-6 animated fadeIn
+
+# Probability and sampling
+
+---
+
+layout: false
+class: title title-8
+
+# Practice 2: One score or a mean?
+
+.box-inv-8.small.sp-after-half[Treat all `r N` students as a population, with μ = `r fmt(mu)` and σ = `r fmt(sigma)`. Treat their scores as normal]
+
+.pull-left[
+.box-8.small.sp-after-half[**a.** What share of students score above `r cut_hi`?]
+
+.box-8.small.sp-after-half[**b.** What score is the 25th percentile?]
+]
+
+.pull-right[
+.box-8.small.sp-after-half[**c.** We draw samples of `r n2`. What are the mean and SD of the sample means?]
+
+.box-8.small.sp-after-half[**d.** In what share of those samples is M above `r cut_M`?]
+]
+
+.box-inv-8.small[Sketch a curve and shade it before you open the table]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 8 minutes, with the unit normal table. Common slips: reading the body when the question wants the tail, and using σ instead of σ<sub>M</sub> in part d.
+
+---
+
+class: title title-8
+
+# Practice 2: Answers a and b
+
+.pull-left[
+.box-inv-8.small.sp-after-half[**a.** z = (`r cut_hi` − `r fmt(mu)`) / `r fmt(sigma)` = `r fmt(z_hi)`]
+
+.box-inv-8.small.sp-after-half[The tail beyond z = `r fmt(z_hi)` is **`r fmt(tail_hi, 4)`**, about `r pct(tail_hi)` of students]
+]
+
+.pull-right[
+.box-inv-8.small.sp-after-half[**b.** A tail of 0.2500 is closest at z = `r fmt(-z_q1)`. Below the mean, that's z = `r fmt(z_q1)`]
+
+.box-inv-8.small.sp-after-half[X = `r fmt(mu)` + (`r fmt(z_q1)`) × `r fmt(sigma)` = **`r fmt(x_q1)`**]
+]
+
+.box-8.small[Going right: X to z to area. Going left: area to z to X]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+For part b, the table lists only positive z. The 25th percentile is below the mean, so find the tail closest to 0.2500, then make z negative. 0.67 gives 0.2514 and 0.68 gives 0.2483, so 0.67 is closer.
+
+The normal curve is a model. In the real data, `r pct(mean(math > cut_hi), 1)` of the `r N` scored above `r cut_hi`, because scores are whole numbers and the shape isn't a perfect bell. Use the model on the exam unless a question gives you the raw scores.
+
+---
+
+class: title title-8
+
+# Practice 2: Answers c and d
+
+```{r means-plot, fig.width=11, fig.height=3.3, out.width="88%", fig.alt=paste0("Two normal curves centered at ", fmt(mu), ". The wide one is the population of single scores, with SD ", fmt(sigma), ". The tall narrow one is the distribution of means of ", n2, " students, with SD ", fmt(se2, 3), ". A dashed line at ", cut_M, " cuts off a thin tail of the narrow curve, shaded red, which is ", fmt(tail_M, 4), " of its area.")}
+curves <- pivot_longer(curve_grid, -x, names_to = "curve", values_to = "y")
+ggplot(curves, aes(x = x, y = y)) +
+  geom_area(data = filter(curves, curve == "Means of 16", x >= cut_M), fill = clr_mean) +
+  geom_line(aes(color = curve, linetype = curve), linewidth = 1.3) +
+  geom_vline(xintercept = cut_M, color = clr_mean, linewidth = 1, linetype = "dashed") +
+  scale_color_manual(values = c(Population = clr_bar, `Means of 16` = clr_median), guide = "none") +
+  scale_linetype_manual(values = c(Population = "solid", `Means of 16` = "solid"), guide = "none") +
+  label_text(16.5, dnorm(16.5, mu, sigma) + 0.03, "One student", clr_bar, hjust = 0) +
+  label_text(mu - 1.3, dnorm(mu, mu, se2) * 0.9, paste("Means of", n2), clr_median, hjust = 1) +
+  label_text(cut_M + 0.3, dnorm(mu, mu, se2) * 0.55, paste("M >", cut_M), clr_mean, hjust = 0) +
+  scale_x_continuous(breaks = seq(0, 22, 4)) +
+  labs(x = "Math score at baseline", y = NULL) +
+  theme_slides() +
+  theme(axis.text.y = element_blank(), panel.grid.major.y = element_blank())
+```
+
+.box-inv-8.small.sp-after-half[**c.** The mean of the means is `r fmt(mu)`. σ<sub>M</sub> = `r fmt(sigma)` / √`r n2` = **`r fmt(se2, 3)`**]
+
+.box-inv-8.small[**d.** z = (`r cut_M` − `r fmt(mu)`) / `r fmt(se2, 3)` = `r fmt(z_M)`, and the tail beyond it is **`r fmt(tail_M, 4)`**]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The picture is the point: a mean of 16 students is much less spread out than one student, so a mean above `r cut_M` is rarer than a single score above it. That's σ<sub>M</sub> = σ / √n, and it's why tests work at all.
+
+The central limit theorem lets us use the normal curve for means of 16 even if single scores weren't quite normal.
+
+---
+
+layout: false
+class: center middle section-title section-title-3 animated fadeIn
+
+# Tests and intervals
+
+---
+
+layout: false
+class: title title-8
+
+# Practice 3: All of Govindpuri, σ known
+
+.box-inv-8.small.sp-after-half[Govindpuri's `r gp_n` students: M = `r fmt(gp_M)`. All `r N`: μ = `r fmt(mu)` and σ = `r fmt(sigma)`]
+
+.box-8.small.sp-after-half[If Govindpuri's students were a random draw from the `r N`, would a mean this high be too unexpected? Run all four steps, with α = 0.05 and two tails]
+
+.box-inv-8.small[Work alone, then compare with a neighbor. Then hands: reject or maintain?]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 6 minutes. Common slip: using σ = `r fmt(sigma)` on the bottom instead of σ<sub>M</sub>.
+
+---
+
+class: title title-8
+
+# Practice 3: Answer
+
+```{r gp-steps, results="asis"}
+tribble(
+  ~Step, ~`Our numbers`,
+  "1. State H₀", paste0("H₀: μ = ", fmt(mu), ". H₁: μ ≠ ", fmt(mu)),
+  "2. Set the criteria", "α = 0.05, two tails, so z beyond ±1.96",
+  "3. Observe", paste0("σ<sub>M</sub> = ", fmt(sigma), " / √", gp_n, " = ", fmt(gp_se, 3), ", so z = (", fmt(gp_M), " − ", fmt(mu), ") / ", fmt(gp_se, 3), " = ", fmt(gp_z)),
+  "4. Decide", paste0("<strong>Maintain H₀</strong>: z = ", fmt(gp_z), " is inside ±1.96, p = ", fmt(gp_p, 3))
+) %>%
+  deck_table(align = "ll")
+```
+
+.box-8.small.sp-after-half[Govindpuri's mean isn't surprisingly far from `r fmt(mu)`]
+
+.box-inv-8.small[Maintain, not accept: the test can't show that Govindpuri's μ is exactly `r fmt(mu)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Topic 7's ninth graders gave a reject with the same recipe. This one maintains, and the wording matters as much as the arithmetic.
+
+For anyone who asks: Govindpuri's students are part of the `r N`, which makes the true standard error a little smaller. It doesn't change the decision.
+
+---
+
+class: title title-8
+
+# Practice 4: Ninth graders, σ unknown
+
+.box-inv-8.small.sp-after-half[Chhatarpur's `r c9_n` ninth graders: M = `r fmt(c9_M)` and SS = `r fmt(c9_SS, 1)` at baseline]
+
+.pull-left[
+.box-8.small.sp-after-half[**a.** Test H₀: μ = `r fmt(mu)` with α = 0.05 and two tails. Find σ̂, σ̂<sub>M</sub> and t]
+
+.box-8.small.sp-after-half[**b.** The table skips df = `r c9_df`. Which row do you use?]
+]
+
+.pull-right[
+.box-8.small.sp-after-half[**c.** Find g, and say whether it's large]
+
+.box-8.small.sp-after-half[**d.** Find a 95% confidence interval for μ. Does it hold `r fmt(mu)`?]
+]
+
+.box-inv-8.small[Work alone for 4 minutes, then compare with a neighbor]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 10 minutes. This is the longest problem today, and the most midterm-like. Common slips: dividing SS by n, and using n instead of n − 1 for df.
+
+---
+
+class: title title-8
+
+# Practice 4: Answers a and b
+
+.pull-left[
+.box-inv-8.small.sp-after-half[σ̂ = √(`r fmt(c9_SS, 1)` / `r c9_df`) = **`r fmt(c9_sd)`**]
+
+.box-inv-8.small.sp-after-half[σ̂<sub>M</sub> = `r fmt(c9_sd)` / √`r c9_n` = **`r fmt(c9_se, 3)`**]
+
+.box-inv-8.small[t = (`r fmt(c9_M)` − `r fmt(mu)`) / `r fmt(c9_se, 3)` = **`r fmt(c9_t)`**]
+]
+
+.pull-right[
+.box-inv-8.small.sp-after-half[**b.** Use df = `r c9_table_df`, the next lower row. Its cutoff is ±`r fmt(c9_crit, 3)`]
+
+.box-inv-8.small[A lower df has a wider cutoff, so it's the cautious choice]
+]
+
+.box-8.small[`r fmt(c9_t)` is beyond ±`r fmt(c9_crit, 3)`: **reject H₀**. t(`r c9_df`) = `r fmt(c9_t)`, p = `r fmt(c9_p, 3)`]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+Report the real df, `r c9_df`, even though the cutoff came from the row for `r c9_table_df`. The exact cutoff for `r c9_df` is `r fmt(qt(0.975, c9_df), 3)`, so the decision is the same.
+
+---
+
+class: title title-8
+
+# Practice 4: Answers c and d
+
+.pull-left[
+.box-inv-8.small.sp-after-half[**c.** g = (`r fmt(c9_M)` − `r fmt(mu)`) / `r fmt(c9_sd)` = **`r fmt(c9_g)`**]
+
+.box-inv-8.small[About half an SD. Large next to the effects of real education programs in Topic 7's table]
+]
+
+.pull-right[
+.box-inv-8.small.sp-after-half[**d.** `r fmt(c9_M)` ± `r fmt(c9_crit, 3)` × `r fmt(c9_se, 3)` = **[`r fmt(c9_ci[1])`, `r fmt(c9_ci[2])`]**]
+
+.box-inv-8.small[It doesn't hold `r fmt(mu)`, which matches the reject]
+]
+
+.box-8.small[The test says real. g says how big. The interval says how sure. None of them says why: these are older students]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+g divides by σ̂, not σ̂<sub>M</sub>. That's the most common mix-up on this part. g doesn't change with n, and t does.
+
+Why: they're in grade 9, two or three grades above most of the `r N`. The test can only say that the gap is too big for sampling error.
+
+---
+
+class: title title-8
+
+# True or false? Hands up
+
+```{r tf-table, results="asis"}
+tribble(
+  ~` `, ~Statement,
+  "A", "p = 0.03 means there's a 3% chance that H₀ is true",
+  "B", "α is the chance of a Type 1 error when H₀ is true",
+  "C", "Maintaining H₀ shows the program had no effect",
+  "D", "A bigger sample raises power",
+  "E", "A tiny p means a big effect"
+) %>%
+  deck_table(align = "cl")
+```
+
+.box-8.small[Hands up for true, then for false. Then fix each false one with a neighbor]
+
+???
+
+About 5 minutes. A false: p is how surprising our sample would be if H₀ were true. B true. C false: it means the sample can't tell, maybe because power was low. D true: so does a bigger effect, less spread, or a larger α. E false: p also depends on n, which is why we report g.
+
+---
+
+class: title title-8
+
+# The slips we see most
+
+.pull-left[
+.box-inv-8.small[Dividing SS by n, when σ̂ needs n − 1]
+
+.box-inv-8.small[Forgetting the last square root]
+
+.box-inv-8.small[Using σ where the test needs σ<sub>M</sub> or σ̂<sub>M</sub>]
+
+.box-inv-8.small[Using n for df, when it's n − 1]
+]
+
+.pull-right[
+.box-inv-8.small[Reading the body when you need the tail. Sketch first]
+
+.box-inv-8.small[Writing "accept H₀". It's maintain]
+
+.box-inv-8.small[Saying the test shows why]
+
+.box-inv-8.small[A decision with no numbers. Report t(df) = …, p = …]
+]
+
+???
+
+These come from the try-its across Topics 3 to 8. Each is quick to check on the exam, so suggest students save two minutes at the end for this list.
+
+---
+
+class: title title-8
+
+# How to get ready
+
+.box-inv-8.small.sp-after-half[Redo the try-its in the decks, and the by-hand problems from Labs 2, 4 and 5]
+
+.box-inv-8.small.sp-after-half[MindTap for Chapters 1 to 4 is open as practice, all quarter]
+
+.box-inv-8.small.sp-after-half[Make your own notes: you can bring them, so build one page per topic]
+
+.box-8.small[Practise with the tables we attach: z first, then t]
+
+???
+
+Open book can make students study less. Remind them there's no time to learn from the book during the exam: notes help only if they wrote them.
+
+---
+
+class: title title-8
+
+# Next steps
+
+.pull-left[
+.box-1.small[Friday, February 12: Lab 6]
+
+Quiz, as midterm review. Bring a calculator
+]
+
+.pull-right[
+.box-6.small[Tuesday, February 16]
+
+The midterm, in class. Bring a calculator and your notes
+]
+
+.box-3.small[Sunday, February 14 at 6 PM: Mastery and Problem Set for Chapter 9]
+
+```{css, echo=FALSE}
+/* This chunk sits at the end because any output before the first slide's
+   "class:" line stops remark from reading that slide's properties */
+
+.source {
+  position: absolute;
+  bottom: 18px;
+  left: 60px;
+  font-size: 0.55em;
+  color: #47505a;
+}
+
+table.deck-table {
+  width: 92%;
+  margin: 0.4em auto;
+  border-collapse: collapse;
+  font-size: 0.72em;
+}
+
+table.deck-table.tight td,
+table.deck-table.tight th {
+  padding: 0.12em 0.6em;
+}
+
+table.deck-table th {
+  border-bottom: 2px solid #244a70;
+  padding: 0.3em 0.6em;
+}
+
+table.deck-table td {
+  border-bottom: 1px solid #c9d1d9;
+  padding: 0.3em 0.6em;
+}
+```

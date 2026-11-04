@@ -717,7 +717,47 @@ ggplot(ints, aes(y = group, x = b)) +
 
 Same recipe as Topic 8: the t cutoff from step 2, times the standard error. Students could do this on a calculator. The interval says something a t alone doesn't: with all `r all$n`, a point at baseline goes with about `r fmt(all$ci[1])` to `r fmt(all$ci[2])` points at endline.
 
-The 95% is about the method, as in Topic 8, not about this one interval. The test also assumes the line is straight and the misses are independent, which is another reason to plot first.
+The 95% is about the method, as in Topic 8, not about this one interval. The test also assumes things about the data, which is the next slide.
+
+---
+
+# The test trusts four things
+
+.pull-left[
+.box-inv-6.small.sp-after-half[**Straight:** a line, not a curve]
+
+.box-inv-6.small.sp-after-half[**Even spread:** as wide at every X]
+
+.box-inv-6.small.sp-after-half[**Independent:** one miss says nothing about another]
+
+.box-inv-6.small[**Normal misses:** a bell around 0. Matters less with many students]
+]
+
+.pull-right[
+```{r residual-plot, fig.width=6, fig.height=4.3, out.width="100%", fig.alt=paste0("Scatter plot of the misses from the line for all ", all$n, " students, against their baseline math score. The dots form an even band around a dashed line at 0, about as wide at low baseline scores as at high ones, with no curve. The misses run from about ", fmt(min(resid(fit_base)), 0), " to about ", fmt(max(resid(fit_base)), 0), " points.")}
+set.seed(15)
+tibble(X = mindspark$baseline, miss = resid(fit_base)) %>%
+  ggplot(aes(x = X, y = miss)) +
+  geom_hline(yintercept = 0, color = clr_mean, linewidth = 1.2, linetype = "dashed") +
+  geom_jitter(width = 0.25, height = 0.25, color = clr_bar, alpha = 0.6, size = 2.4) +
+  labs(x = "Baseline math", y = "Miss: Y − Ŷ") +
+  theme_slides(base_size = 22)
+```
+]
+
+.box-6.small[Plot the misses first. Ours form an even band around 0, so the test is fair]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019). All `r all$n` students, jittered so tied scores show.]
+
+???
+
+These are the assumptions behind the t, the interval and F for a slope. Students should be able to name them and say what breaking one looks like. They won't test them formally.
+
+What breaking each looks like: a curve, so the misses smile or frown. A fan, so the misses spread wider at one end. Students who share a center or a classroom, who may be more alike than strangers. A few huge misses, or a lopsided pile.
+
+Our data passes. A curve term adds nothing (p = 0.66). The misses have an SD of about 4 to 5.5 points in every band of baseline scores, and their pile is nearly symmetric. Independence is the one a plot can't show: it comes from how the students were sampled.
+
+The same four sit behind the two-sample t and ANOVA, where "even spread" was the equal-variance assumption behind pooling.
 
 ---
 
@@ -1103,6 +1143,8 @@ class: title title-8
 .box-inv-8.small[Split SS and df, and run the same test with F]
 
 .box-inv-8.small[Say why the tests of r, b and F agree, and why F = t²]
+
+.box-inv-8.small[Name the four things the test assumes, and check them in a plot of the misses]
 
 .box-inv-8.small[Read a, b, σ̂<sub>b</sub>, t, p, r² and F from R's output or a table in a paper]
 

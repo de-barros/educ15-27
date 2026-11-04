@@ -35,3 +35,6 @@ REVIEW-before-triage.md
 COVERAGE.md
 CLAUDE.local.md
 .claude/settings.local.json
+
+# Solutions and other material that goes on Canvas only, never on the public site
+/canvas-only/

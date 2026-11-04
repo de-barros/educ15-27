@@ -3,6 +3,7 @@ project:
   render:
     - "*.qmd"
     - "!slides/"
+    - "!canvas-only/"
     - "!README.qmd"
   resources:
     - "files/"
@@ -77,6 +78,8 @@ website:
               file: content/07-content.qmd
             - text: "8: Introduction to the t-test"
               file: content/08-content.qmd
+            - text: "Midterm review"
+              file: content/midterm-review.qmd
             - text: "9: t-tests for two samples and for gains"
               file: content/09-content.qmd
             - text: "10: ANOVA"
@@ -107,6 +110,8 @@ website:
               file: resource/simulator-correlation.qmd
         - text: "Data"
           file: resource/data.qmd
+        - text: "Regression handout"
+          file: resource/regression-handout.qmd
 
   page-footer:
     left: |

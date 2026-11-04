@@ -12,6 +12,7 @@ Each topic has its own page, with its goals, its reading and its slides. The sli
 - [6: Sampling distributions](06-content.qmd)
 - [7: Hypothesis testing](07-content.qmd)
 - [8: Introduction to the t-test](08-content.qmd)
+- [Midterm review](midterm-review.qmd)
 - [9: t-tests for two samples and for gains](09-content.qmd)
 - [10: ANOVA](10-content.qmd)
 - [11: Correlation](11-content.qmd)

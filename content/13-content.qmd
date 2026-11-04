@@ -15,7 +15,8 @@ By the end of this topic, you should be able to:
 ## Reading
 
 - {{< fa book >}} The rest of section 14-6, "analysis of regression".
-- {{< fa book >}} Our handout on the slope, which goes further than the book (coming soon).
+- {{< fa book >}} [Part 1 of our regression handout](/resource/regression-handout.qmd#part-1), on testing the slope, which goes further than the book.
+- {{< fa pencil >}} Practice: Problems 1 to 3 at the end of [the handout](/resource/regression-handout.qmd#practice). Solutions are on Canvas.
 
 ::: {.callout-note}
 ## The book and our slides

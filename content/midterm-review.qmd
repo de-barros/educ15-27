@@ -1,0 +1,33 @@
+---
+title: "Midterm review"
+date: "2027-02-11"
+---
+
+## Goals
+
+This session is practice for the midterm on Tuesday, February 16. By the end, you should know where you stand on:
+
+- Describing a set of scores: mean, median, SS, σ̂ and z
+- Areas under the normal curve, and the sampling distribution of M
+- The four steps with z and with t, plus g and a confidence interval
+- The wording: parameter or estimate, maintain or reject
+
+## Before class
+
+- {{< fa book >}} No new reading. Bring a calculator, and look back over the try-its in the slides for Topics 1 to 8.
+- {{< fa pencil >}} The midterm covers Chapters 1 to 9 (Topics 1 to 8). It's open book: bring any print materials, including your own notes. A calculator is the only device you can use. See the [syllabus](/syllabus.qmd) for the details.
+
+## Slides
+
+```{r}
+#| echo: false
+#| results: asis
+source(here::here("R", "slide-things.R"))
+cat(slide_buttons("/slides/midterm-review"))
+```
+
+```{r}
+#| echo: false
+#| results: asis
+cat(slide_frame("/slides/midterm-review.html", "Slides for the midterm review"))
+```

@@ -1,0 +1,268 @@
+---
+title: "Regression handout"
+subtitle: "The slope, groups and two predictors"
+---
+
+```{r setup}
+#| include: false
+library(tidyverse)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+fmt <- function(x, d = 2) str_replace(formatC(x, format = "f", digits = d), "-", "−")
+
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+mindspark <- inner_join(
+  select(baseline, st_id, baseline = tot_math, grade = st_grade1, age = st_age1, ses_index),
+  select(endline, st_id, endline = tot_math, treat, center = ms_center1),
+  by = "st_id"
+) %>%
+  mutate(upper = as.integer(grade >= 7))
+
+# R's output, trimmed to the lines we read
+r_lines <- function(fit) {
+  old <- options(width = 80)
+  on.exit(options(old))
+  out <- capture.output(print(summary(fit)))
+  keep <- str_detect(out, "^lm\\(|Estimate|^\\(Intercept\\)|^age|^treat|^upper|^baseline|^ses_index|^Residual standard|^Multiple|^F-statistic")
+  cat(out[keep], sep = "\n")
+}
+
+fourth <- filter(mindspark, grade == 4)
+govindpuri <- filter(mindspark, center == "Govindpuri")
+```
+
+This handout goes with Topics 13 and 14. Part 1 goes further than the book on testing a slope, and Part 2 covers what the book leaves out: yes/no columns and more than one predictor. Read each part before its class. The practice problems at the end are ungraded. Their solutions are on Canvas.
+
+All the data are from the Mindspark study (Muralidharan, Singh, and Ganimian 2019), which you can [download](data.qmd). The data are CC BY 4.0.
+
+## Part 1: Is the slope real? {#part-1}
+
+Read this before Topic 13, on Tuesday, March 9.
+
+### b is an estimate of β
+
+In Topic 12, we fit a line to a sample: $\hat{Y} = a + bX$. Another sample would give another line. So b is an estimate, and the slope in the whole population is β. Like M, a slope has a sampling distribution, and its standard error is
+
+$$
+\hat{\sigma}_b = \sqrt{\frac{MS_{residual}}{SS_X}}
+\qquad \text{where} \qquad
+MS_{residual} = \frac{SS_{residual}}{n - 2}
+$$
+
+Three things make $\hat{\sigma}_b$ small: dots that sit close to the line (a small $MS_{residual}$), X values that are spread out, and more people (both make $SS_X$ big).
+
+The line spends two degrees of freedom, one on a and one on b, so df = n − 2.
+
+### Testing the slope
+
+The four steps are the same as for any t-test:
+
+1. **State the hypotheses.** H₀: β = 0, the line is flat in the population. H₁: β ≠ 0.
+2. **Set the criteria.** α = 0.05, two tails, and a t curve with df = n − 2.
+3. **Compute t.** $t = \dfrac{b - \beta}{\hat{\sigma}_b} = \dfrac{b - 0}{\hat{\sigma}_b}$
+4. **Decide.** Reject H₀ if t is beyond the cutoff.
+
+This t is exactly the t from testing r in Topic 11, because H₀: ρ = 0 and H₀: β = 0 are the same question. If r is 0, b is 0.
+
+A 95% interval for β works as in Topic 8: $b \pm t_{cutoff} \times \hat{\sigma}_b$. If it holds 0, the test maintains H₀.
+
+### The book's way: F
+
+Section 14-6 tests the slope with F, by splitting $SS_Y$ into $SS_{regression}$ and $SS_{residual}$, as ANOVA does:
+
+$$
+F = \frac{MS_{regression}}{MS_{residual}} = \frac{SS_{regression} / 1}{SS_{residual} / (n - 2)}
+$$
+
+With one predictor, F = t², and the two tests always agree. The book also uses "beta" for a standardized slope. We use β for the true slope in the population.
+
+### The test trusts four things
+
+- **Straight:** the dots follow a line, not a curve.
+- **Even spread:** the misses, $Y - \hat{Y}$, are about as wide everywhere along X.
+- **Independent:** one person's miss says nothing about another's.
+- **Normal misses:** the misses pile up like a bell around 0. This matters less with many people.
+
+Plot the data, or the misses, before you trust a test. A plot can show a curve, a fan or a far-off point. It can't show independence, which comes from how the people were sampled.
+
+### Real, big and caused are three questions
+
+- **Is the slope real?** The test: t and p.
+- **How big is it?** b, in the units of Y, and r², the share of $SS_Y$ the line explains.
+- **Did X cause Y?** Only the design can say, for example a lottery that set X.
+
+With enough people, a tiny slope is "significant". Rejecting H₀ says the line isn't flat, not that it's steep.
+
+### Reading R's output
+
+```{r}
+#| comment: ""
+r_lines(lm(endline ~ baseline, data = mindspark))
+```
+
+- **Estimate:** a in the `(Intercept)` row, b in the `baseline` row.
+- **Std. Error:** $\hat{\sigma}_b$ in the `baseline` row.
+- **t value and Pr(>|t|):** t = b / $\hat{\sigma}_b$, and its two-tailed p. The `(Intercept)` row tests whether a is 0, which we rarely care about.
+- **Residual standard error:** $\sqrt{MS_{residual}}$, the typical miss, with df = n − 2. The book calls it the standard error of estimate.
+- **Multiple R-squared:** r².
+- **F-statistic:** the book's F, with 1 and n − 2 df. Here it's t².
+
+## Part 2: Groups and two predictors {#part-2}
+
+Read this before Topic 14, on Thursday, March 11, along with section 13-1 of the book.
+
+### A yes/no column
+
+Regression needs numbers, so a group becomes a column of 0s and 1s. Take treat: 1 for Mindspark, 0 for control. Then $\hat{Y} = a + b \times \text{treat}$ gives:
+
+- for control, treat = 0, so $\hat{Y} = a$: **a is the control mean.**
+- for Mindspark, treat = 1, so $\hat{Y} = a + b$: **b is the gap between the two means.**
+
+Its t is the pooled two-sample t from Topic 9. The group coded 0 is called the reference group.
+
+With three or more groups, use one column per group except the reference. Three centers need two columns, k − 1, which is ANOVA's df between. Each b is then that group's mean minus the reference group's mean, and the F in R's output is the one-way ANOVA's F from Topic 10.
+
+### Two predictors
+
+A line can use two X's:
+
+$$
+\hat{Y} = a + b_1 X_1 + b_2 X_2
+$$
+
+Each b is how much $\hat{Y}$ changes when its X goes up by 1 **and the other X stays the same.** So a b can change when you add a predictor, because it now answers a different question.
+
+- Each row's t tests one b, holding the other X fixed.
+- df = n − 3, because the line spends one df on each of a, b₁ and b₂. In general, df = n minus the number of numbers in the line.
+- r² is written R², and the F tests all the b's at once, so it's no longer t².
+
+A predictor added to explain Y, so the misses shrink and the test gets sharper, is called a **covariate**. Baseline math is a good covariate for endline math.
+
+### An interaction: one more column
+
+Sometimes a program helps one group more than another. Add a column that is the product of two yes/no columns:
+
+$$
+\hat{Y} = a + b_1 \,\text{treat} + b_2 \,\text{female} + b_3 \,(\text{treat} \times \text{female})
+$$
+
+The product is 1 only for Mindspark girls. Plug in 0s and 1s to read each number:
+
+| Group | treat | female | treat × female | $\hat{Y}$ |
+|---|:-:|:-:|:-:|---|
+| Control boys | 0 | 0 | 0 | a |
+| Mindspark boys | 1 | 0 | 0 | a + b₁ |
+| Control girls | 0 | 1 | 0 | a + b₂ |
+| Mindspark girls | 1 | 1 | 1 | a + b₁ + b₂ + b₃ |
+
+- b₁ is Mindspark's effect **for boys**, where female = 0.
+- b₂ is girls minus boys **in the control group**, where treat = 0.
+- b₃ is how much the effect differs for girls. Its t tests H₀: β₃ = 0, "the same effect for both".
+
+With a product in the model, each b holds where the other column is 0. The book's section 13-1 calls an average gap across the other factor a **main effect**. b₁ isn't one: it's the effect for one group only.
+
+### Who set X?
+
+R prints every slope the same way. A lottery set treat, so a real gap in treat is the program's effect. Nobody set a student's center, tuition or family income at random, so their gaps are differences between groups, not effects.
+
+## Practice problems {#practice}
+
+Use a calculator and the t table. Solutions are on Canvas.
+
+### Problem 1: Five fourth graders, by hand
+
+Only five students in the study were in grade 4. Here are their math scores.
+
+```{r}
+#| results: asis
+fourth %>%
+  transmute(Student = row_number(), `Baseline, X` = baseline, `Endline, Y` = endline) %>%
+  knitr::kable(align = "ccc")
+```
+
+a. Find $SS_X$, $SS_Y$ and SP. Then find b and a, and write the line.
+b. Find $SS_{residual} = SS_Y - \dfrac{SP^2}{SS_X}$, then $MS_{residual}$ and $\hat{\sigma}_b$.
+c. Test H₀: β = 0 with α = 0.05, two tails. Write all four steps.
+d. Give a 95% interval for β.
+e. Which student do you think has the most say over the slope? Sketch the five points, and say which of the four assumptions you'd worry about.
+
+### Problem 2: Age and endline math
+
+This is R's output for all `r nrow(filter(mindspark, !is.na(age)))` students with an age, with age in years at baseline as X.
+
+```{r}
+#| comment: ""
+r_lines(lm(endline ~ age, data = mindspark))
+```
+
+a. Write the line, and say what the slope means in a sentence about students.
+b. Is the slope real? Give t, df and your decision with α = 0.05.
+c. How big is it? Use the slope and r².
+d. Check that F is t².
+e. A friend says: "So being older makes you better at math." What's wrong with that?
+
+### Problem 3: Narrowing the pile
+
+A researcher wants a smaller $\hat{\sigma}_b$ for the slope of endline math on baseline math. For each plan, say whether it helps, and why.
+
+a. Test 200 students instead of 100.
+b. Test only students with baseline scores between 10 and 14.
+c. Use a test with less measurement error, so the dots sit closer to the line.
+d. Use α = 0.01 instead of 0.05.
+
+### Problem 4: One center
+
+This is R's output for the `r nrow(govindpuri)` students at the Govindpuri center, with treat = 1 for Mindspark and 0 for control.
+
+```{r}
+#| comment: ""
+r_lines(lm(endline ~ treat, data = govindpuri))
+```
+
+a. Find the control mean and the Mindspark mean.
+b. Find F, and say which test from Topic 9 gives the same t.
+c. Decide with α = 0.05. Does this show that Mindspark had no effect in Govindpuri?
+
+### Problem 5: Does the effect depend on grade?
+
+Here, upper = 1 for students in grades 7 to 9, and 0 for grades 4 to 6.
+
+```{r}
+#| comment: ""
+r_lines(lm(endline ~ treat * upper, data = mindspark))
+```
+
+a. Find the mean for each of the four groups.
+b. What is Mindspark's effect in grades 4 to 6? In grades 7 to 9?
+c. Does the effect depend on grade? Test it with α = 0.05.
+d. A classmate reads the `treat` row and says: "Mindspark's effect is `r fmt(coef(lm(endline ~ treat * upper, data = mindspark))[["treat"]])` points." Why is that misleading here?
+
+### Problem 6: Two predictors
+
+First SES alone, then SES with baseline math. SES is an index of family income and assets.
+
+```{r}
+#| comment: ""
+r_lines(lm(endline ~ ses_index, data = mindspark))
+```
+
+```{r}
+#| comment: ""
+r_lines(lm(endline ~ baseline + ses_index, data = mindspark))
+```
+
+a. In the second output, what does the `ses_index` slope mean? Use "holding … the same".
+b. The SES slope shrinks when baseline is added. Give a reason.
+c. Find the df for the second model from n.
+d. Is SES's slope real in the second model? Does it show that more family income causes higher math scores?
+
+### Problem 7: Who set X?
+
+For each, say whether "caused" is a fair word, and why.
+
+a. Mindspark students scored higher at endline than control students.
+b. Students with math tuition scored higher than students without.
+c. Students at Tekhand scored lower at baseline than students at Chhatarpur.

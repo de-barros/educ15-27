@@ -16,7 +16,8 @@ By the end of this topic, you should be able to:
 ## Reading
 
 - {{< fa book >}} Section 13-1, on main effects and interactions.
-- {{< fa book >}} Our handout on regression with two predictors (coming soon).
+- {{< fa book >}} [Part 2 of our regression handout](/resource/regression-handout.qmd#part-2), on yes/no columns, two predictors and interactions.
+- {{< fa pencil >}} Practice: Problems 4 to 7 at the end of [the handout](/resource/regression-handout.qmd#practice). Solutions are on Canvas.
 
 ## Slides
 
