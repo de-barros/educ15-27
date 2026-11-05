@@ -52,3 +52,12 @@ above.
 
 The site design is adapted from [Andrew
 Heiss](https://www.andrewheiss.com/)’s course sites.
+
+The [course simulator](simulator/) was written for EDUC 15. It was
+inspired by the visualizations of [Kristoffer
+Magnusson](https://rpsychologist.com/) at [R
+Psychologist](https://rpsychologist.com/viz/), including
+[p-values](https://rpsychologist.com/pvalue/), [statistical
+power](https://rpsychologist.com/d3/NHST/), [confidence
+intervals](https://rpsychologist.com/d3/CI/) and
+[correlation](https://rpsychologist.com/correlation/).
