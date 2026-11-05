@@ -30,7 +30,7 @@ Here's your roadmap for the quarter!
 
 - [**Content**](/content/index.html) ({{< fa book-open-reader >}}): This page contains the readings and other materials for the class. 
 
-- **Slides** ({{< fa person-chalkboard >}}): Each of these icons will link to my slides, once I post them on Canvas.
+- **Slides** ({{< fa person-chalkboard >}}): Each of these icons links to my slides for that class.
 
 - **Homework**: Mastery Training and Problem Sets in MindTap, through Canvas, are listed below on the Sunday they're due, by 6 PM. The [syllabus](/syllabus.qmd#assignments-and-grades) explains everything that counts toward your grade.
 
