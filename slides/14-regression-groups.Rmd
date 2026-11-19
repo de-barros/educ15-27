@@ -165,12 +165,6 @@ stopifnot(all.equal(int$a + int$b1 + int$b2 + int$b3, cell(1, 1)))
 t_boys <- coef(summary(lm(endline_math ~ treat, data = filter(mindspark, female == 0))))[2, 3]
 t_girls <- coef(summary(lm(endline_math ~ treat, data = filter(mindspark, female == 1))))[2, 3]
 
-# Block 2's game: Mindspark and math tuition ----
-fit_tui <- lm(endline_math ~ treat * tuition, data = mindspark)
-tui_ctab <- coef(summary(fit_tui))
-tui <- list(a = tui_ctab[1, 1], b1 = tui_ctab[2, 1], b2 = tui_ctab[3, 1], b3 = tui_ctab[4, 1],
-            t = tui_ctab[4, 3], p = tui_ctab[4, 4], df = fit_tui$df.residual)
-
 # Block 3: same gap, adding one predictor at a time ----
 fit_gender <- lm(endline_math ~ treat + female, data = mindspark)
 fit_base <- lm(endline_math ~ treat + baseline_math, data = mindspark)
@@ -190,6 +184,18 @@ r_base <- cor(mindspark$baseline_math, mindspark$endline_math)
 r_gender <- cor(mindspark$female, mindspark$endline_math)
 stopifnot(all.equal(m_treat$b + slope_base * base_gap, m_base$b),
           all.equal(m_treat$b + base_gap, m_gain$b))
+
+# The worked problem: Block 1's Chhatarpur students again, now with baseline ----
+fit_chh_base <- lm(endline_math ~ treat + baseline_math, data = chhatarpur)
+chh_base_ctab <- coef(summary(fit_chh_base))
+chh_alone <- list(b = chh_ctab[2, 1], se = chh_ctab[2, 2], t = chh_ctab[2, 3], miss = sigma(fit_chh))
+chh_base <- list(b = chh_base_ctab["treat", 1], se = chh_base_ctab["treat", 2],
+                 t = chh_base_ctab["treat", 3], p = chh_base_ctab["treat", 4],
+                 df = fit_chh_base$df.residual, crit = qt(0.975, fit_chh_base$df.residual),
+                 miss = sigma(fit_chh_base), slope = chh_base_ctab["baseline_math", 1])
+chh_gap <- with(chhatarpur, mean(baseline_math[treat == 0]) - mean(baseline_math[treat == 1]))
+stopifnot(all.equal(chh_alone$b + chh_base$slope * chh_gap, chh_base$b),
+          chh_ctab[2, 4] > 0.05, chh_base$p < 0.05)
 
 # Two made-up groups for the picture of spread ----
 toy <- expand_grid(group = c("Control", "Program"), offset = -3:3) %>%
@@ -242,7 +248,7 @@ r_short <- function(fit, f_line = TRUE) {
   old <- options(width = 80)
   on.exit(options(old))
   out <- str_replace_all(capture.output(print(summary(fit))), "\t", " ")
-  keep <- str_detect(out, "^lm\\(|Estimate|^\\(Intercept\\)|^center|^treat|^female|^tuition|^Residual standard|^Multiple")
+  keep <- str_detect(out, "^lm\\(|Estimate|^\\(Intercept\\)|^center|^treat|^female|^baseline|^Residual standard|^Multiple")
   if (f_line) keep <- keep | str_detect(out, "^F-statistic")
   out[keep]
 }
@@ -300,8 +306,6 @@ class: title title-8
 .anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map, last time. Today the third column finally fills in. This is the last new content of the quarter, and it pulls the course together: ANOVA, the t-test and the Mindspark study all turn out to live inside one regression.
@@ -321,7 +325,7 @@ class: title title-8
 
 ???
 
-Three blocks of about 20 minutes. Each ends with students doing something: try, play, predict. Nothing here adds a new formula to compute by hand. It's about reading output and saying what it means.
+Three blocks. The first ends with a try-it, and the second, shorter one with a quick show of hands. The third has a poll in the middle and ends with a worked problem in pairs, about 12 minutes, on one output from start to finish. Nothing here adds a new formula to compute by hand. It's about reading output and saying what it means.
 
 ---
 
@@ -383,7 +387,7 @@ r_block(r_short(fit_center), list("^\\(Intercept\\)" = "a: Chhatarpur's mean",
 
 .box-inv-1.small[Those are Topic 10's three means. With yes/no columns, every row is about groups]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). All `r nrow(students)` students at baseline. Output from R, `summary(lm())`.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -392,6 +396,8 @@ The last row's t, `r fmt(center_ctab[3, 3])`, is Topic 10's try-it: Chhatarpur a
 To compare Govindpuri with Tekhand, change which center is the reference. Nothing else about the model changes.
 
 Each row has a t, and the F at the bottom tests all the b's together. That's the point Tuesday's notes made: with more than one predictor, F and t are no longer the same number.
+
+The model uses all `r nrow(students)` students at baseline.
 
 ---
 
@@ -443,13 +449,15 @@ ggplot(mindspark, aes(x = treat, y = endline_math)) +
 
 .box-1.small[X can only be 0 or 1, so the line joins two means. Its slope is the gap]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). `r n_all` students. Dots are nudged so equal scores don't hide each other.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Same picture as Topic 12, with only two places for X to be. The least squares line must go through both group means, since each mean is what minimizes squares within its own column.
 
 So a is the control group's mean and b is the gap. Nothing else is possible.
+
+The dots are nudged so equal scores don't hide each other.
 
 ---
 
@@ -473,7 +481,7 @@ r_block(r_short(fit_treat), list("^\\(Intercept\\)" = "a: the control mean",
 
 .box-1.small[The Std. Error, `r fmt(treat$se, 3)`, is Topic 9's σ̂<sub>M₁−M₂</sub>. The t, `r fmt(treat$t)`, is Topic 9's t]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -521,7 +529,7 @@ sim_frame(
 )
 ```
 
-.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
 
 ???
 
@@ -565,7 +573,7 @@ r_block(r_short(fit_chh, f_line = FALSE), width = 64)
 
 .box-inv-8.small[Then decide with α = 0.05. Work alone, compare with a neighbor, then vote with hands: reject or maintain?]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -602,6 +610,8 @@ class: title title-8
 Common slip: reading the intercept's p, which is about something else.
 
 The gaps by center are `r fmt(chh_all[1])`, `r fmt(chh_all[2])` and `r fmt(chh_all[3])`. They bounce, as gaps do. Telling a bounce from a real difference is the next block's job.
+
+These same Chhatarpur students come back at the end of the session, with baseline added.
 
 ---
 
@@ -686,7 +696,7 @@ ggplot(prices, aes(x = x, y = price, color = chili, linetype = chili)) +
 
 .box-6.small[On the right, what chili adds depends on whether you have cheese]
 
-.source[The right-hand price of $`r fmt(price_combo)` is made up.]
+.source[Prices: Dairy Queen. The right-hand price of $`r fmt(price_combo)` is made up.]
 
 ???
 
@@ -719,15 +729,19 @@ ggplot(cell_plot, aes(x = treat, y = M, color = group, linetype = group)) +
   theme_slides()
 ```
 
-.box-6.small[The gap is `r fmt(eff_boys)` for boys and `r fmt(eff_girls)` for girls. Is that `r fmt(eff_boys - eff_girls)`-point difference real?]
+.box-6.small[The gap is `r fmt(eff_boys)` for boys and `r fmt(eff_girls)` for girls. Is that `r fmt(eff_boys - eff_girls)`-point difference real? Hands up: yes, no, or can't tell]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Boys: `r cell(0, 0, "n")` control, `r cell(1, 0, "n")` Mindspark. Girls: `r cell(0, 1, "n")` control, `r cell(1, 1, "n")` Mindspark.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 The old two-factor ANOVA question: does the program's effect vary by gender?
 
-A sample's lines are never perfectly parallel, just as two sample means are never perfectly equal. So we need a test.
+A sample's lines are never perfectly parallel, just as two sample means are never perfectly equal. So it's a question for a test.
+
+Take a quick show of hands, about a minute, and leave the answer for two slides on.
+
+Boys: `r cell(0, 0, "n")` control and `r cell(1, 0, "n")` Mindspark. Girls: `r cell(0, 1, "n")` control and `r cell(1, 1, "n")` Mindspark.
 
 ---
 
@@ -756,51 +770,24 @@ tribble(
 
 This is the idea of a two-factor design, and it's still just columns. Regression doesn't need a new method for two factors.
 
-Four groups, four numbers: a, b₁, b₂ and b₃. So the model fits all four means exactly. The next slides show how to get them back.
+Four groups, four numbers: a, b₁, b₂ and b₃. So the model fits all four means exactly. The next slide shows how to get them back.
 
 We skip the two-factor partition of SS on purpose. With unequal group sizes it isn't a simple hand calculation, and a table of results tells us all we need.
 
 ---
 
-# R writes the product as treat:female
-
-```{r int-output, results="asis"}
-r_block(r_short(fit_int), list("^\\(Intercept\\)" = "a",
-                               "^treat " = "b₁",
-                               "^female" = "b₂",
-                               "^treat:female" = "b₃"), width = 64)
-```
-
-.box-6.small.sp-after-half[`r int_line`]
-
-.box-inv-6.small[Read the four coefficients as groups. Don't start with the stars]
-
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
-
-???
-
-Point out that the `treat` row's t is `r fmt(int_ctab[2, 3])`, smaller than the `r fmt(treat$t)` from before. That isn't a weaker effect. It's a different question, as the next slide shows.
-
-With a product in the model, the F at the bottom tests all three b's at once. We don't use it here.
-
----
-
 # Each coefficient compares two groups
 
-```{r meaning-table, results="asis"}
-tribble(
-  ~` `, ~Value, ~`What it says`,
-  "a", fmt(int$a), "The mean of control boys, where every column is 0",
-  "b₁: treat", fmt(int$b1, 3), "Mindspark's effect <strong>for boys</strong>, where female = 0",
-  "b₂: female", fmt(int$b2), "Girls minus boys <strong>in the control group</strong>",
-  "b₃: treat × female", fmt(int$b3, 3), "How much smaller the effect is for girls"
-) %>%
-  kable(format = "html", escape = FALSE, align = "lcl", table.attr = 'class="deck-table tight"')
+```{r int-output, results="asis"}
+r_block(r_short(fit_int, f_line = FALSE), list("^\\(Intercept\\)" = "a: control boys' mean",
+                                               "^treat " = "b₁: the effect for boys",
+                                               "^female" = "b₂: girls − boys, in control",
+                                               "^treat:female" = "b₃: the extra for girls"), width = 64)
 ```
 
 .box-inv-6.small.sp-after-half[Mindspark girls: `r fmt(int$a)` + `r fmt(int$b1, 3)` − `r fmt(abs(int$b2))` − `r fmt(abs(int$b3), 3)` = `r fmt(cell(1, 1))`. Every column is 1, so add all four]
 
-.box-6.small[With a product in the model, each b holds where the other column is 0]
+.box-6.small[Is b₃ real? t(`r int$df`) = `r fmt(int$t)`, `r p_text(int$p)`, so we can't tell]
 
 .book-tag[You'll also read: moderation, or heterogeneous, conditional or differential effects]
 
@@ -808,107 +795,21 @@ tribble(
 
 ???
 
-The trap is reading `r fmt(int$b1, 3)` as "the effect of Mindspark". It's the effect for boys. For girls it's `r fmt(int$b1, 3)` − `r fmt(abs(int$b3), 3)` = `r fmt(eff_girls)`.
+R writes the product column as `treat:female`. Read the four coefficients as groups. Don't start with the stars.
 
-The three t's answer three questions, a little different from a two-factor ANOVA's, whose main effects are averages across groups. The interaction test is the same: `r fmt(int$t)`² = `r fmt(int$t^2)`, the F from 2024.
+The trap is reading `r fmt(int$b1, 3)` as "the effect of Mindspark". It's the effect for boys, where female = 0. For girls it's `r fmt(int$b1, 3)` − `r fmt(abs(int$b3), 3)` = `r fmt(eff_girls)`. With a product in the model, each b holds where the other column is 0.
 
-Students don't need the other names on the last line for exams, but they'll see them in papers.
+That's also why the `treat` row's t, `r fmt(int_ctab[2, 3])`, is smaller than the `r fmt(treat$t)` from before. It isn't a weaker effect. It's a different question, about boys only.
 
----
-
-# The four steps: is the interaction real?
-
-```{r int-steps, results="asis"}
-tribble(
-  ~Step, ~`In words`, ~`Our numbers`,
-  "1. State H₀", "Same effect for girls and boys", "H₀: β₃ = 0",
-  "2. Set the criteria", "Two tails, α = 0.05", paste0("t(", int$df, ") beyond ±", fmt(int$crit, 3)),
-  "3. Compute t", "Estimate / Std. Error", paste0(fmt(int$b3, 3), " / ", fmt(int$se, 3), " = ", fmt(int$t)),
-  "4. Decide", "Inside the cutoffs", paste0("<strong>Maintain H₀</strong>, ", p_text(int$p))
-) %>%
-  kable(format = "html", escape = FALSE, align = "lll", table.attr = 'class="deck-table tight"')
-```
-
-.box-inv-6.small.sp-after-half[We can't say the effect differs by gender. We can't say it's the same either: the 95% interval for β₃ is [`r fmt(int$ci[1])`, `r fmt(int$ci[2])`]]
-
-.box-6.small[b₃'s standard error is `r fmt(int$se)`, over twice the `r fmt(treat$se)` for the overall gap. Only `r n_boys` students are boys, and that limits this test]
-
-.source[Data: Muralidharan, Singh, and Ganimian (2019).]
-
-???
-
-The four steps one last time.
-
-df = n − 4, because the model spends one df on each of its four numbers.
+This answers the show of hands, with the same four steps as any slope. H₀ is β₃ = 0, the same effect for girls and boys. t(`r int$df`) = `r fmt(int$b3, 3)` / `r fmt(int$se, 3)` = `r fmt(int$t)`, inside ±`r fmt(int$crit, 3)`, so we maintain H₀. We can't say the effect differs by gender. We can't say it's the same either: the 95% interval for β₃ is [`r fmt(int$ci[1])`, `r fmt(int$ci[2])`]. b₃'s standard error, `r fmt(int$se)`, is over twice the `r fmt(treat$se)` for the overall gap, because only `r n_boys` students are boys. df = n − 4, because the model spends one df on each of its four numbers.
 
 A common mistake: "It's significant for one group and not the other, so the effect differs." Test the interaction itself. Here both groups clear the bar on their own: boys alone, t = `r fmt(t_boys)`; girls alone, t = `r fmt(t_girls)`.
 
+These t's answer slightly different questions from a two-factor ANOVA's, whose main effects are averages across groups. The interaction test is the same: `r fmt(int$t)`² = `r fmt(int$t^2)`, the F from 2024. Problem 5 in the handout works through a full interaction test, on grade.
+
 With no sign of an interaction, we go back to one effect for everyone: `r fmt(treat$b)`.
 
----
-
-layout: false
-class: title title-8
-
-# Play it: Mindspark and math tuition
-
-```{r play-output, results="asis"}
-r_block(r_short(fit_tui, f_line = FALSE)[1:6], width = 64)
-```
-
-.clues[
-.clue[
-**100** The control mean without tuition
-]
-.clue[
-**200** What Mindspark adds without tuition
-]
-.clue[
-**300** What Mindspark adds with tuition
-]
-.clue[
-**400** Does the effect depend on tuition? α = 0.05
-]
-]
-
-.box-8.small[tuition = 1 means extra math tuition. Answer with a neighbor, as a question]
-
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
-
-???
-
-About 6 minutes. Read one clue at a time, in order. Take answers by hands or by calling out.
-
----
-
-class: title title-8
-
-# Play it: Answers
-
-.clues[
-.clue[
-**100: What is `r fmt(tui$a)`?**<br>a: every column is 0
-]
-.clue[
-**200: What is `r fmt(tui$b1)`?**<br>b₁: the effect where tuition = 0
-]
-.clue[
-**300: What is `r fmt(tui$b1 + tui$b3)`?**<br>b₁ + b₃: `r fmt(tui$b1)` − `r fmt(abs(tui$b3))`
-]
-.clue[
-**400: What is maintain H₀?**<br>t(`r tui$df`) = `r fmt(tui$t)`, `r p_text(tui$p)`
-]
-]
-
-.box-8.small.sp-after-half[The lines are close to parallel. Mindspark helped about as much either way]
-
-.box-inv-8.small[The lottery set Mindspark, but not tuition. So b₂ = `r fmt(tui$b2)` is a difference, not an effect]
-
-.source[Data: Muralidharan, Singh, and Ganimian (2019). `r nobs(fit_tui)` students with a tuition answer.]
-
-???
-
-Mindspark's effect is causal within each group, since the lottery ran for everyone. The tuition gap isn't: families chose tuition. That's a preview of the last block.
+Students don't need the other names on the last line for exams, but they'll see them in papers.
 
 ---
 
@@ -1045,7 +946,7 @@ rbind(se_row("treat alone", m_treat),
 
 .box-3.small[A **covariate** is a predictor added to sharpen a test, by explaining Y]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Typical miss is R's Residual standard error.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -1056,6 +957,8 @@ Check the arithmetic: `r fmt(m_treat$b)` + `r fmt(slope_base)` × `r fmt(base_ga
 Adding gender moves F for treat from `r fmt(treat$f)` to `r fmt(m_gender$t^2)`, which is the "very similar" result from 2024.
 
 Researchers can build this in. The lottery here ran within strata of similar students, the same idea as a covariate, but done at the design stage. The data has a `strata` column.
+
+Typical miss is R's Residual standard error.
 
 ---
 
@@ -1104,6 +1007,79 @@ This is Tuesday's third question: "Did X cause Y?" is answered by the design, no
 If there's one slide they carry into EDUC 157 or a news story, it's this one. Ask of any claim: who set X?
 
 ---
+
+layout: false
+class: title title-8
+
+# Work it: Chhatarpur, now with baseline
+
+```{r work-output, results="asis"}
+r_block(r_short(fit_chh_base, f_line = FALSE), width = 64)
+```
+
+.questions[
+.question[
+**a** What does `r fmt(chh_base$b)` mean? Say it in a sentence about students
+]
+.question[
+**b** Is it real? Use the four steps, with α = 0.05
+]
+.question[
+**c** In the try-it, these students gave t = `r fmt(chh_alone$t)`, and we maintained H₀. What changed, and why?
+]
+.question[
+**d** Did Mindspark cause the `r fmt(chh_base$b)`? Does a higher baseline cause a higher endline?
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 8 minutes in pairs, then 4 for the answers. This is the final's kind of question: one output, read row by row, then a sentence about what we may say.
+
+These are the `r nrow(chhatarpur)` Chhatarpur students from block 1's try-it, with baseline math added as a second column. Students need the t table: df = `r chh_base$df`, so the 120 row, ±1.98.
+
+Common slips: reading the intercept, `r fmt(chh_base_ctab[1, 1])`, as the control mean, when it's the prediction for a control student who scored 0 at baseline; leaving out "with the same baseline score" in a; and using n − 2 for df, when this model spends three numbers, so df = n − 3.
+
+Walk the room. If a pair is stuck on c, point them to the Residual standard error line in both outputs.
+
+---
+
+class: title title-8
+
+# Work it: Answers
+
+.questions[
+.question[
+**a** Among students with the same baseline score, Mindspark students scored **`r fmt(chh_base$b)` points** higher at endline
+]
+.question[
+**b** t(`r chh_base$df`) = `r fmt(chh_base$t)` is beyond ±`r fmt(chh_base$crit)`, so **reject H₀**, `r str_replace_all(p_text(chh_base$p), " ", "&nbsp;")`
+]
+.question[
+**c** The typical miss fell from `r fmt(chh_alone$miss)` to `r fmt(chh_base$miss)`, so the standard error fell from `r fmt(chh_alone$se)` to `r fmt(chh_base$se)`. And b rose from `r fmt(chh_alone$b)`: by chance, control students started `r fmt(chh_gap)` points ahead
+]
+.question[
+**d** Mindspark: **yes**, a lottery set who got it. Baseline: **no**, nobody set it, so `r fmt(chh_base$slope)` says only that it goes with endline
+]
+]
+
+.box-8.small[Pick the covariate before you see the results. Trying columns until p < 0.05 is Topic 10's jelly beans again]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+c's arithmetic, as on the covariate slide: `r fmt(chh_alone$b)` + `r fmt(chh_base$slope)` × `r fmt(chh_gap)` = `r fmt(chh_base$b)`. Both estimates are fair, because the lottery protects both. The second is sharper, so the same students now give a test with more power.
+
+Baseline was the obvious covariate before anyone saw a result, because it's a pretest of the same skill. That's what keeps the second answer honest.
+
+Why Chhatarpur: it's the one center where adding baseline changes the decision. In Tekhand the two groups started level, so b barely moves. Govindpuri is Problem 4 in the handout.
+
+---
+
+class: title title-3
 
 # Back to January: real, or just luck?
 
@@ -1214,6 +1190,8 @@ class: title title-8
 .box-inv-8.small[Say why a good covariate sharpens a test, and a weak one doesn't]
 
 .box-inv-8.small[Say why a lottery lets us say "caused", and when we can't]
+
+.box-inv-8.small[Read an output row by row: what each b means, and whether it's real]
 
 ???
 
@@ -1371,8 +1349,8 @@ table.deck-table td {
   color: #a93e31;
 }
 
-/* Jeopardy clues */
-.clues {
+/* The worked problem's questions and answers, two by two */
+.questions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.35em 1em;
@@ -1380,7 +1358,7 @@ table.deck-table td {
   font-size: 0.65em;
 }
 
-.clue {
+.question {
   background-color: #f3f3f3;
   border: 2px solid #cccccc;
   padding: 0.35em 0.6em;

@@ -4,7 +4,7 @@
     <title>Regression: groups and interactions</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-11-04" />
+    <meta name="date" content="2026-11-18" />
     <script>
 // Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -4740,8 +4740,6 @@ class: title title-8
 .anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](data:,asset-6)]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map, last time. Today the third column finally fills in. This is the last new content of the quarter, and it pulls the course together: ANOVA, the t-test and the Mindspark study all turn out to live inside one regression.
@@ -4761,7 +4759,7 @@ class: title title-8
 
 ???
 
-Three blocks of about 20 minutes. Each ends with students doing something: try, play, predict. Nothing here adds a new formula to compute by hand. It's about reading output and saying what it means.
+Three blocks. The first ends with a try-it, and the second, shorter one with a quick show of hands. The third has a poll in the middle and ends with a worked problem in pairs, about 12 minutes, on one output from start to finish. Nothing here adds a new formula to compute by hand. It's about reading output and saying what it means.
 
 ---
 
@@ -4834,7 +4832,7 @@ Each b now has its own column, so each gets a number. b₁ and b₂ are still es
 
 .box-inv-1.small[Those are Topic 10's three means. With yes/no columns, every row is about groups]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). All 619 students at baseline. Output from R, `summary(lm())`.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -4843,6 +4841,8 @@ The last row's t, −2.43, is Topic 10's try-it: Chhatarpur against Tekhand, wit
 To compare Govindpuri with Tekhand, change which center is the reference. Nothing else about the model changes.
 
 Each row has a t, and the F at the bottom tests all the b's together. That's the point Tuesday's notes made: with more than one predictor, F and t are no longer the same number.
+
+The model uses all 619 students at baseline.
 
 ---
 
@@ -4911,13 +4911,15 @@ ANOVA and regression grew up in different fields, so they use different words. I
 
 .box-1.small[X can only be 0 or 1, so the line joins two means. Its slope is the gap]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 539 students. Dots are nudged so equal scores don't hide each other.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Same picture as Topic 12, with only two places for X to be. The least squares line must go through both group means, since each mean is what minimizes squares within its own column.
 
 So a is the control group's mean and b is the gap. Nothing else is possible.
+
+The dots are nudged so equal scores don't hide each other.
 
 ---
 
@@ -4935,7 +4937,7 @@ So a is the control group's mean and b is the gap. Nothing else is possible.
 
 .box-1.small[The Std. Error, 0.501, is Topic 9's σ̂&lt;sub&gt;M₁−M₂&lt;/sub&gt;. The t, 5.37, is Topic 9's t]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -5002,7 +5004,7 @@ Each still earns its place: the t-test is the simple hand calculation, ANOVA han
 &lt;img class="sim-static" src="data:,asset-1" alt="Simulator at step 7b with 551 samples of 20 people, half at X = 0 and half at X = 1. Panel 1 shows two curves for the two groups, joined by the population line Y = 3.00 + 0.46 X. Panel 2 shows one sample as two columns of dots with a line through the two group means. Panel 3 shows the values of b piled up around 0.46."&gt;
 &lt;/div&gt;
 
-.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
 
 ???
 
@@ -5042,7 +5044,7 @@ class: title title-8
 
 .box-inv-8.small[Then decide with α = 0.05. Work alone, compare with a neighbor, then vote with hands: reject or maintain?]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -5079,6 +5081,8 @@ class: title title-8
 Common slip: reading the intercept's p, which is about something else.
 
 The gaps by center are 1.60, 2.61 and 3.27. They bounce, as gaps do. Telling a bounce from a real difference is the next block's job.
+
+These same Chhatarpur students come back at the end of the session, with baseline added.
 
 ---
 
@@ -5160,7 +5164,7 @@ So the whole is exactly the sum of its parts. The effect of chili doesn't depend
 
 .box-6.small[On the right, what chili adds depends on whether you have cheese]
 
-.source[The right-hand price of $2.50 is made up.]
+.source[Prices: Dairy Queen. The right-hand price of $2.50 is made up.]
 
 ???
 
@@ -5176,15 +5180,19 @@ Lines don't need to cross for there to be an interaction. They only need to not 
 
 &lt;img src="data:,asset-4" alt="Line chart of mean endline math. Boys rise from 16.02 in control to 19.60 with Mindspark. Girls rise from 15.99 to 18.42. The two lines start at almost the same point, and the boys' line ends a little higher, so they are not quite parallel." width="80%" style="display: block; margin: auto;" /&gt;
 
-.box-6.small[The gap is 3.58 for boys and 2.43 for girls. Is that 1.15-point difference real?]
+.box-6.small[The gap is 3.58 for boys and 2.43 for girls. Is that 1.15-point difference real? Hands up: yes, no, or can't tell]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Boys: 65 control, 60 Mindspark. Girls: 208 control, 206 Mindspark.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 The old two-factor ANOVA question: does the program's effect vary by gender?
 
-A sample's lines are never perfectly parallel, just as two sample means are never perfectly equal. So we need a test.
+A sample's lines are never perfectly parallel, just as two sample means are never perfectly equal. So it's a question for a test.
+
+Take a quick show of hands, about a minute, and leave the answer for two slides on.
+
+Boys: 65 control and 60 Mindspark. Girls: 208 control and 206 Mindspark.
 
 ---
 
@@ -5244,67 +5252,19 @@ A sample's lines are never perfectly parallel, just as two sample means are neve
 
 This is the idea of a two-factor design, and it's still just columns. Regression doesn't need a new method for two factors.
 
-Four groups, four numbers: a, b₁, b₂ and b₃. So the model fits all four means exactly. The next slides show how to get them back.
+Four groups, four numbers: a, b₁, b₂ and b₃. So the model fits all four means exactly. The next slide shows how to get them back.
 
 We skip the two-factor partition of SS on purpose. With unequal group sizes it isn't a simple hand calculation, and a table of results tells us all we need.
 
 ---
 
-# R writes the product as treat:female
-
-&lt;div class="r-output"&gt;&lt;div&gt;lm(formula = endline&amp;#95;math ~ treat &amp;#42; female, data = mindspark)   &lt;/div&gt;&lt;div&gt;             Estimate Std. Error t value Pr(&amp;gt;|t|)               &lt;/div&gt;&lt;div&gt;(Intercept)  16.01538    0.72150  22.197  &amp;lt; 2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;           &lt;span class="r-note"&gt;← a&lt;/span&gt;&lt;/div&gt;&lt;div&gt;treat         3.58462    1.04139   3.442 0.000622 &amp;#42;&amp;#42;&amp;#42;           &lt;span class="r-note"&gt;← b₁&lt;/span&gt;&lt;/div&gt;&lt;div&gt;female       &amp;#45;0.02981    0.82658  &amp;#45;0.036 0.971247               &lt;span class="r-note"&gt;← b₂&lt;/span&gt;&lt;/div&gt;&lt;div&gt;treat:female &amp;#45;1.15272    1.18803  &amp;#45;0.970 0.332349               &lt;span class="r-note"&gt;← b₃&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Residual standard error: 5.817 on 535 degrees of freedom        &lt;/div&gt;&lt;div&gt;Multiple R&amp;#45;squared:  0.05438, Adjusted R&amp;#45;squared:  0.04908      &lt;/div&gt;&lt;div&gt;F&amp;#45;statistic: 10.26 on 3 and 535 DF,  p&amp;#45;value: 1.419e&amp;#45;06         &lt;/div&gt;&lt;/div&gt;
-
-.box-6.small.sp-after-half[Ŷ = 16.02 + 3.585 treat − 0.03 female − 1.153 treat×female]
-
-.box-inv-6.small[Read the four coefficients as groups. Don't start with the stars]
-
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
-
-???
-
-Point out that the `treat` row's t is 3.44, smaller than the 5.37 from before. That isn't a weaker effect. It's a different question, as the next slide shows.
-
-With a product in the model, the F at the bottom tests all three b's at once. We don't use it here.
-
----
-
 # Each coefficient compares two groups
 
-&lt;table class="deck-table tight"&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; Value &lt;/th&gt;
-   &lt;th style="text-align:left;"&gt; What it says &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; a &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 16.02 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; The mean of control boys, where every column is 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; b₁: treat &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.585 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Mindspark's effect &lt;strong&gt;for boys&lt;/strong&gt;, where female = 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; b₂: female &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; −0.03 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Girls minus boys &lt;strong&gt;in the control group&lt;/strong&gt; &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; b₃: treat × female &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; −1.153 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; How much smaller the effect is for girls &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
+&lt;div class="r-output"&gt;&lt;div&gt;lm(formula = endline&amp;#95;math ~ treat &amp;#42; female, data = mindspark)   &lt;/div&gt;&lt;div&gt;             Estimate Std. Error t value Pr(&amp;gt;|t|)               &lt;/div&gt;&lt;div&gt;(Intercept)  16.01538    0.72150  22.197  &amp;lt; 2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;           &lt;span class="r-note"&gt;← a: control boys' mean&lt;/span&gt;&lt;/div&gt;&lt;div&gt;treat         3.58462    1.04139   3.442 0.000622 &amp;#42;&amp;#42;&amp;#42;           &lt;span class="r-note"&gt;← b₁: the effect for boys&lt;/span&gt;&lt;/div&gt;&lt;div&gt;female       &amp;#45;0.02981    0.82658  &amp;#45;0.036 0.971247               &lt;span class="r-note"&gt;← b₂: girls − boys, in control&lt;/span&gt;&lt;/div&gt;&lt;div&gt;treat:female &amp;#45;1.15272    1.18803  &amp;#45;0.970 0.332349               &lt;span class="r-note"&gt;← b₃: the extra for girls&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Residual standard error: 5.817 on 535 degrees of freedom        &lt;/div&gt;&lt;div&gt;Multiple R&amp;#45;squared:  0.05438, Adjusted R&amp;#45;squared:  0.04908      &lt;/div&gt;&lt;/div&gt;
 
 .box-inv-6.small.sp-after-half[Mindspark girls: 16.02 + 3.585 − 0.03 − 1.153 = 18.42. Every column is 1, so add all four]
 
-.box-6.small[With a product in the model, each b holds where the other column is 0]
+.box-6.small[Is b₃ real? t(535) = −0.97, p = 0.332, so we can't tell]
 
 .book-tag[You'll also read: moderation, or heterogeneous, conditional or differential effects]
 
@@ -5312,126 +5272,21 @@ With a product in the model, the F at the bottom tests all three b's at once. We
 
 ???
 
-The trap is reading 3.585 as "the effect of Mindspark". It's the effect for boys. For girls it's 3.585 − 1.153 = 2.43.
+R writes the product column as `treat:female`. Read the four coefficients as groups. Don't start with the stars.
 
-The three t's answer three questions, a little different from a two-factor ANOVA's, whose main effects are averages across groups. The interaction test is the same: −0.97² = 0.94, the F from 2024.
+The trap is reading 3.585 as "the effect of Mindspark". It's the effect for boys, where female = 0. For girls it's 3.585 − 1.153 = 2.43. With a product in the model, each b holds where the other column is 0.
 
-Students don't need the other names on the last line for exams, but they'll see them in papers.
+That's also why the `treat` row's t, 3.44, is smaller than the 5.37 from before. It isn't a weaker effect. It's a different question, about boys only.
 
----
-
-# The four steps: is the interaction real?
-
-&lt;table class="deck-table tight"&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:left;"&gt; Step &lt;/th&gt;
-   &lt;th style="text-align:left;"&gt; In words &lt;/th&gt;
-   &lt;th style="text-align:left;"&gt; Our numbers &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; 1. State H₀ &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Same effect for girls and boys &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; H₀: β₃ = 0 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; 2. Set the criteria &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Two tails, α = 0.05 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; t(535) beyond ±1.964 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; 3. Compute t &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Estimate / Std. Error &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; −1.153 / 1.188 = −0.97 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; 4. Decide &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Inside the cutoffs &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; &lt;strong&gt;Maintain H₀&lt;/strong&gt;, p = 0.332 &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-
-.box-inv-6.small.sp-after-half[We can't say the effect differs by gender. We can't say it's the same either: the 95% interval for β₃ is [−3.49, 1.18]]
-
-.box-6.small[b₃'s standard error is 1.19, over twice the 0.50 for the overall gap. Only 125 students are boys, and that limits this test]
-
-.source[Data: Muralidharan, Singh, and Ganimian (2019).]
-
-???
-
-The four steps one last time.
-
-df = n − 4, because the model spends one df on each of its four numbers.
+This answers the show of hands, with the same four steps as any slope. H₀ is β₃ = 0, the same effect for girls and boys. t(535) = −1.153 / 1.188 = −0.97, inside ±1.964, so we maintain H₀. We can't say the effect differs by gender. We can't say it's the same either: the 95% interval for β₃ is [−3.49, 1.18]. b₃'s standard error, 1.19, is over twice the 0.50 for the overall gap, because only 125 students are boys. df = n − 4, because the model spends one df on each of its four numbers.
 
 A common mistake: "It's significant for one group and not the other, so the effect differs." Test the interaction itself. Here both groups clear the bar on their own: boys alone, t = 3.65; girls alone, t = 4.18.
 
+These t's answer slightly different questions from a two-factor ANOVA's, whose main effects are averages across groups. The interaction test is the same: −0.97² = 0.94, the F from 2024. Problem 5 in the handout works through a full interaction test, on grade.
+
 With no sign of an interaction, we go back to one effect for everyone: 2.69.
 
----
-
-layout: false
-class: title title-8
-
-# Play it: Mindspark and math tuition
-
-&lt;div class="r-output"&gt;&lt;div&gt;lm(formula = endline&amp;#95;math ~ treat &amp;#42; tuition, data = mindspark)  &lt;/div&gt;&lt;div&gt;              Estimate Std. Error t value Pr(&amp;gt;|t|)              &lt;/div&gt;&lt;div&gt;(Intercept)    15.5057     0.4348  35.658  &amp;lt; 2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;          &lt;/div&gt;&lt;div&gt;treat           2.9576     0.6141   4.816 1.91e&amp;#45;06 &amp;#42;&amp;#42;&amp;#42;          &lt;/div&gt;&lt;div&gt;tuition         1.3773     0.7370   1.869   0.0622 .            &lt;/div&gt;&lt;div&gt;treat:tuition  &amp;#45;0.5034     1.0574  &amp;#45;0.476   0.6342              &lt;/div&gt;&lt;/div&gt;
-
-.clues[
-.clue[
-**100** The control mean without tuition
-]
-.clue[
-**200** What Mindspark adds without tuition
-]
-.clue[
-**300** What Mindspark adds with tuition
-]
-.clue[
-**400** Does the effect depend on tuition? α = 0.05
-]
-]
-
-.box-8.small[tuition = 1 means extra math tuition. Answer with a neighbor, as a question]
-
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`.]
-
-???
-
-About 6 minutes. Read one clue at a time, in order. Take answers by hands or by calling out.
-
----
-
-class: title title-8
-
-# Play it: Answers
-
-.clues[
-.clue[
-**100: What is 15.51?**&lt;br&gt;a: every column is 0
-]
-.clue[
-**200: What is 2.96?**&lt;br&gt;b₁: the effect where tuition = 0
-]
-.clue[
-**300: What is 2.45?**&lt;br&gt;b₁ + b₃: 2.96 − 0.50
-]
-.clue[
-**400: What is maintain H₀?**&lt;br&gt;t(529) = −0.48, p = 0.634
-]
-]
-
-.box-8.small.sp-after-half[The lines are close to parallel. Mindspark helped about as much either way]
-
-.box-inv-8.small[The lottery set Mindspark, but not tuition. So b₂ = 1.38 is a difference, not an effect]
-
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 533 students with a tuition answer.]
-
-???
-
-Mindspark's effect is causal within each group, since the lottery ran for everyone. The tuition gap isn't: families chose tuition. That's a preview of the last block.
+Students don't need the other names on the last line for exams, but they'll see them in papers.
 
 ---
 
@@ -5591,7 +5446,7 @@ class: title title-3
 
 .box-3.small[A **covariate** is a predictor added to sharpen a test, by explaining Y]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Typical miss is R's Residual standard error.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -5602,6 +5457,8 @@ Check the arithmetic: 2.69 + 0.78 × 0.40 = 3.00, and 2.69 + 1 × 0.40 = 3.09. T
 Adding gender moves F for treat from 28.85 to 29.00, which is the "very similar" result from 2024.
 
 Researchers can build this in. The lottery here ran within strata of similar students, the same idea as a covariate, but done at the design stage. The data has a `strata` column.
+
+Typical miss is R's Residual standard error.
 
 ---
 
@@ -5671,6 +5528,77 @@ This is Tuesday's third question: "Did X cause Y?" is answered by the design, no
 If there's one slide they carry into EDUC 157 or a news story, it's this one. Ask of any claim: who set X?
 
 ---
+
+layout: false
+class: title title-8
+
+# Work it: Chhatarpur, now with baseline
+
+&lt;div class="r-output"&gt;&lt;div&gt;lm(formula = endline&amp;#95;math ~ treat + baseline&amp;#95;math, data = chhatarpur)&lt;/div&gt;&lt;div&gt;              Estimate Std. Error t value Pr(&amp;gt;|t|)              &lt;/div&gt;&lt;div&gt;(Intercept)     8.5479     1.4700   5.815 4.07e&amp;#45;08 &amp;#42;&amp;#42;&amp;#42;          &lt;/div&gt;&lt;div&gt;treat           2.2819     0.8541   2.672  0.00846 &amp;#42;&amp;#42;           &lt;/div&gt;&lt;div&gt;baseline&amp;#95;math   0.8160     0.1123   7.265 2.56e&amp;#45;11 &amp;#42;&amp;#42;&amp;#42;          &lt;/div&gt;&lt;div&gt;Residual standard error: 5.014 on 137 degrees of freedom        &lt;/div&gt;&lt;div&gt;Multiple R&amp;#45;squared:  0.2914, Adjusted R&amp;#45;squared:  0.2811        &lt;/div&gt;&lt;/div&gt;
+
+.questions[
+.question[
+**a** What does 2.28 mean? Say it in a sentence about students
+]
+.question[
+**b** Is it real? Use the four steps, with α = 0.05
+]
+.question[
+**c** In the try-it, these students gave t = 1.61, and we maintained H₀. What changed, and why?
+]
+.question[
+**d** Did Mindspark cause the 2.28? Does a higher baseline cause a higher endline?
+]
+]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+About 8 minutes in pairs, then 4 for the answers. This is the final's kind of question: one output, read row by row, then a sentence about what we may say.
+
+These are the 140 Chhatarpur students from block 1's try-it, with baseline math added as a second column. Students need the t table: df = 137, so the 120 row, ±1.98.
+
+Common slips: reading the intercept, 8.55, as the control mean, when it's the prediction for a control student who scored 0 at baseline; leaving out "with the same baseline score" in a; and using n − 2 for df, when this model spends three numbers, so df = n − 3.
+
+Walk the room. If a pair is stuck on c, point them to the Residual standard error line in both outputs.
+
+---
+
+class: title title-8
+
+# Work it: Answers
+
+.questions[
+.question[
+**a** Among students with the same baseline score, Mindspark students scored **2.28 points** higher at endline
+]
+.question[
+**b** t(137) = 2.67 is beyond ±1.98, so **reject H₀**, p&amp;nbsp;=&amp;nbsp;0.008
+]
+.question[
+**c** The typical miss fell from 5.88 to 5.01, so the standard error fell from 1.00 to 0.85. And b rose from 1.60: by chance, control students started 0.83 points ahead
+]
+.question[
+**d** Mindspark: **yes**, a lottery set who got it. Baseline: **no**, nobody set it, so 0.82 says only that it goes with endline
+]
+]
+
+.box-8.small[Pick the covariate before you see the results. Trying columns until p &lt; 0.05 is Topic 10's jelly beans again]
+
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+c's arithmetic, as on the covariate slide: 1.60 + 0.82 × 0.83 = 2.28. Both estimates are fair, because the lottery protects both. The second is sharper, so the same students now give a test with more power.
+
+Baseline was the obvious covariate before anyone saw a result, because it's a pretest of the same skill. That's what keeps the second answer honest.
+
+Why Chhatarpur: it's the one center where adding baseline changes the decision. In Tekhand the two groups started level, so b barely moves. Govindpuri is Problem 4 in the handout.
+
+---
+
+class: title title-3
 
 # Back to January: real, or just luck?
 
@@ -5862,6 +5790,8 @@ class: title title-8
 
 .box-inv-8.small[Say why a lottery lets us say "caused", and when we can't]
 
+.box-inv-8.small[Read an output row by row: what each b means, and whether it's real]
+
 ???
 
 That's the end of new content. Lab 10 tomorrow is the final review, so ask students to bring questions.
@@ -6018,8 +5948,8 @@ table.deck-table td {
   color: #a93e31;
 }
 
-/* Jeopardy clues */
-.clues {
+/* The worked problem's questions and answers, two by two */
+.questions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.35em 1em;
@@ -6027,7 +5957,7 @@ table.deck-table td {
   font-size: 0.65em;
 }
 
-.clue {
+.question {
   background-color: #f3f3f3;
   border: 2px solid #cccccc;
   padding: 0.35em 0.6em;
