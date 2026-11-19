@@ -104,7 +104,7 @@ You can find every class, lab, and due date on the [schedule page](/schedule.qmd
 
 The Friday labs are where you bring your questions. {{< var assistant.name_no_title >}} answers them, goes over the week's key ideas again, and shows how the ideas from lecture turn into the calculations you do in MindTap.
 
-Seven of our ten labs follow one routine. {{< var assistant.name_no_title >}} starts with your questions and the key ideas, and works through a problem the way the book sets it up. Then you solve a by-hand, exam-style problem in pairs, work on the same idea with real data in a spreadsheet or the [course simulator](/resource/simulator.qmd), and finally write one sentence on what the result means and hand it in. Each lab comes with a one-page handout on this website. Labs 2 and 8 start with a 15-minute individual check, which we go over right after.
+Seven of our ten labs follow one routine. {{< var assistant.name_no_title >}} starts with your questions and the key ideas, and works through a problem the way the book sets it up. Then you solve a by-hand, exam-style problem in pairs, work on the same idea with real data in a spreadsheet or the [course simulator](/resource/simulator.qmd), and finally write one sentence on what the result means and hand it in on paper. Each lab comes with a one-page handout on this website. Labs 2 and 8 start with a 15-minute individual check, which we go over right after.
 
 The other three labs (Labs 3, 6, and 10) are quiz days. We go over the answers, and there's time for your questions afterward. Labs 6 and 10 also review for the exams. We'll explain the format in class.
 
@@ -148,7 +148,7 @@ Please bring a calculator to labs and exams. A basic scientific calculator is en
 
 There are five scored events in our Friday labs: a 15-minute individual check in each of Labs 2 and 8, and a quiz in each of Labs 3, 6, and 10. Each is worth 10 points. I'll count your best four. Go to your own lab for each of them.
 
-In an individual check, you work on your own for the first 15 minutes of the lab, and then we move on to the rest of the lab. Each check and quiz covers only what we've covered by the Thursday before it.
+In an individual check, you work on your own for the first 15 minutes of the lab, and then we move on to the rest of the lab. The rules are the same as on the exams: you can use any print materials, including your notes, and a calculator, but no other devices. Each check and quiz covers only what we've covered by the Thursday before it.
 
 ### Labs
 
