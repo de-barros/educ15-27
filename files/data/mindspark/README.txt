@@ -35,8 +35,13 @@ What we changed
   said "math" instead of "Hindi".
 
 The lab workbooks in files/labs/ are built from these CSV files. Each keeps
-a few columns, renamed (student = st_id, math = tot_math, center =
-ms_center1, grade = st_grade1), and credits the source and license.
+a few columns, renamed (for example student = st_id, math = tot_math,
+center = ms_center1, grade = st_grade1, female = st_female1), and credits
+the source and license. Some also rearrange the data for a lab: Lab 7's
+splits the math scores by the lottery (treat), Lab 8's keeps the students
+picked for Mindspark and adds each one's gain (endline minus baseline), and
+Lab 9's puts each student's baseline and endline scores side by side. Each
+workbook's "about" sheet says what it changed.
 
 The course workbook wasn't compared with the replication package, so use the
 package itself if you need the authors' original files. The study's authors

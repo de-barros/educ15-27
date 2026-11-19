@@ -84,8 +84,30 @@ list(
                           student_id = "CH080"),
     format = "file", packages = c("tidyverse", "writexl")
   ),
-  # Lab pages load this, so the site rebuilds when a workbook changes
-  tar_target(lab_workbooks, c(lab_01_workbook, lab_02_workbook)),
+  tar_target(
+    lab_04_workbook,
+    build_lab_04_workbook(baseline_file, here_rel("files", "labs", "lab-04.xlsx")),
+    format = "file", packages = c("tidyverse", "writexl")
+  ),
+  tar_target(
+    lab_07_workbook,
+    build_lab_07_workbook(baseline_file, endline_file, here_rel("files", "labs", "lab-07.xlsx")),
+    format = "file", packages = c("tidyverse", "writexl")
+  ),
+  tar_target(
+    lab_08_workbook,
+    build_lab_08_workbook(baseline_file, endline_file, here_rel("files", "labs", "lab-08.xlsx")),
+    format = "file", packages = c("tidyverse", "writexl")
+  ),
+  tar_target(
+    lab_09_workbook,
+    build_lab_09_workbook(baseline_file, endline_file, here_rel("files", "labs", "lab-09.xlsx")),
+    format = "file", packages = c("tidyverse", "writexl")
+  ),
+  # Lab pages load this, so the site rebuilds when a workbook changes. Lab 5
+  # uses the simulator, so it has no workbook
+  tar_target(lab_workbooks, c(lab_01_workbook, lab_02_workbook, lab_04_workbook, lab_07_workbook,
+                              lab_08_workbook, lab_09_workbook)),
 
 
   ## Render the README ----

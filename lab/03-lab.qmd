@@ -1,0 +1,8 @@
+---
+title: "Lab 3: Quiz"
+date: "2027-01-22"
+---
+
+Today's quiz covers Topics 1 to 5, through probability. Bring a calculator, your notes and your questions. Pritha explains how the quiz works at the start.
+
+We go over each answer as we go, and then there's time for your questions, before Sunday's homework on Chapter 6. The quiz is worth 10 points, and being there earns the lab's 3 points (see the [syllabus](/syllabus.qmd#quizzes)).

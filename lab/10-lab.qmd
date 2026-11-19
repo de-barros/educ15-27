@@ -1,0 +1,8 @@
+---
+title: "Lab 10: Quiz"
+date: "2027-03-12"
+---
+
+Today's quiz reviews for the final. It covers the whole course, with most of it on Topics 9 to 14: two samples, gains, ANOVA, correlation and regression. Bring a calculator, your notes and your questions.
+
+We go over each answer as we go, and then there's time for your questions before the final. The quiz is worth 10 points, and being there earns the lab's 3 points (see the [syllabus](/syllabus.qmd#quizzes)).

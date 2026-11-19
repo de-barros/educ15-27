@@ -1,0 +1,58 @@
+---
+title: "Lab 4: Sampling distributions and the four steps"
+date: "2027-01-29"
+---
+
+```{r setup}
+#| include: false
+library(tidyverse)
+withr::with_dir(here::here(), targets::tar_load(lab_04_workbook))
+
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+fmt <- function(x, d = 2) formatC(x, format = "f", digits = d)
+mu <- mean(baseline$tot_math)
+sigma <- sqrt(mean((baseline$tot_math - mu)^2))
+boys <- baseline$tot_math[baseline$st_female1 == 0]
+```
+
+Bring a calculator, and a laptop per pair if you can. For part 2, you'll need the unit normal table (Appendix B of the book). For part 3, [download the workbook](/files/labs/lab-04.xlsx) ([how to open it](index.qmd#opening-a-workbook)).
+
+## 1. Your questions and the key ideas
+
+Pritha starts with your questions about Topics 6 and 7. Then she goes over the key ideas again: the standard error σ<sub>M</sub> = σ / √n, a z-score for a sample mean, and the four steps of a hypothesis test, laid out the way the book does them. Where we say "maintain H₀", the book says "fail to reject H₀".
+
+## 2. By hand, in pairs (about 10 minutes)
+
+A reading test is built so that, across a state's fourth graders, μ = 80 and σ = 12. A school tries a new reading app with 16 of its fourth graders, and they score M = 85. These numbers are made up.
+
+a. What is σ<sub>M</sub>, the standard error for samples of 16?
+b. Run the four steps at α = 0.05, two tails. Step 1: state H₀ and H₁, in words and in symbols. Step 2: find the cutoffs. Step 3: find z. Step 4: decide.
+c. Use the unit normal table to find the p-value.
+d. Say the app really does raise scores. Was your decision right? If not, which kind of error is it?
+e. Now say 64 students had used the app, with the same M = 85. What changes?
+
+## 3. Real data, in pairs (about 10 minutes)
+
+As in lecture, treat all `r nrow(baseline)` students at baseline as the population: μ = `r fmt(mu)` and σ = `r fmt(sigma)`. `r length(boys)` of them are boys. If we drew `r length(boys)` students at random, how surprising would a mean like the boys' be?
+
+Open the workbook. The `baseline` sheet holds all `r nrow(baseline)` students, with the math score in column B, and in column E a 1 for a girl and a 0 for a boy. In the `work` sheet, rows 2 and 3 are filled in. Type these in column B:
+
+| Row | What | Formula |
+|---|---|---|
+| 4 | n, the boys | `=COUNTIFS(baseline!E:E, 0)` |
+| 5 | M, the boys | `=AVERAGEIFS(baseline!B:B, baseline!E:E, 0)` |
+| 6 | σ<sub>M</sub> | `=B3/SQRT(B4)` |
+| 7 | z | `=(B5-B2)/B6` |
+| 8 | p, two tails | `=2*(1-NORM.DIST(ABS(B7), 0, 1, TRUE))` |
+| 9 | The cutoff for α = 0.05, two tails | `=NORM.INV(0.975, 0, 1)` |
+
+a. Is the boys' z past the cutoff? What's your decision at α = 0.05?
+b. `NORM.DIST` gives the area to the left of z, which for a positive z is the body. Why does row 8 take 1 minus it, and then double it?
+c. In the `means` sheet, type `=work!$B$3/SQRT(A2)` in cell B2, then copy it down to B6. What happens to σ<sub>M</sub> each time n is four times bigger?
+
+## 4. Your sentence (about 5 minutes)
+
+On a slip of paper with your name, write one sentence that a parent could follow: what does the test say about the boys' math scores at baseline? Hand it to Pritha. A real attempt earns the lab's 3 points. It doesn't have to be correct.
+
+<p class="small text-muted">Data: Muralidharan, Singh, and Ganimian (2019), CC BY 4.0. See the [Data page](/resource/data.qmd).</p>

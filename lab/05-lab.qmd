@@ -1,0 +1,36 @@
+---
+title: "Lab 5: Power and the one-sample t-test"
+date: "2027-02-05"
+---
+
+Bring a calculator, and a laptop per pair if you can. For part 2, you'll need the t table (Appendix B of the book). Part 3 uses the [course simulator](/resource/simulator-power.qmd), so there's no workbook this week.
+
+## 1. Your questions and the key ideas
+
+Pritha starts with your questions about Topics 7 and 8. Then she goes over the key ideas again: power and the four ways to raise it, and the one-sample t-test: why σ̂ takes the place of σ, degrees of freedom, and reading the t table. Where we write σ̂ and σ̂<sub>M</sub>, the book writes s and s<sub>M</sub>.
+
+## 2. By hand, in pairs (about 10 minutes)
+
+On a 20-question fractions test, sixth graders across the country average μ = 10, but nobody knows σ. A teacher gives the test to her 6 students after a new unit, and they score:
+
+<p class="lead">12, 15, 9, 14, 13, 15</p>
+
+These numbers are made up.
+
+a. Find M, SS, σ̂ and σ̂<sub>M</sub>.
+b. Run the four steps at α = 0.05, two tails. State H₀ and H₁, find df and the cutoffs in the t table, find t, and decide.
+c. Before she gave the test, the teacher predicted that her class would score higher than 10. With a one-tailed test, what's the cutoff? Does the decision change?
+d. Why does this test use t and the t table, rather than z and the unit normal table?
+
+## 3. Power on the simulator, in pairs (about 10 minutes)
+
+[Open the simulator with d = 0.40 and n = 20](../simulator/index.html?tab=power&d=0.4&n=20){target="_blank"}. It shows the design from class: one mean against a fixed value. The readout on the right gives the power. To set a slider exactly, click it and use the arrow keys.
+
+a. What's the power? Out of 100 studies like this one, about how many would reject H₀?
+b. Change one thing at a time, and set it back before the next. Predict first, then check: α = 0.10; a one-tailed test; n = 40; d = 0.60. Which change raised power the most?
+c. With d = 0.40, find the smallest n that gives 80% power. Check it with n = (2.80 / d)².
+d. Set d to 0. Why does the readout show no power now?
+
+## 4. Your sentence (about 5 minutes)
+
+On a slip of paper with your name, write one sentence: what does the t-test in part 2 let the teacher say about her class, and what doesn't it? Hand it to Pritha. A real attempt earns the lab's 3 points. It doesn't have to be correct.

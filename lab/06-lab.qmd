@@ -1,0 +1,8 @@
+---
+title: "Lab 6: Quiz"
+date: "2027-02-12"
+---
+
+Today's quiz reviews for Tuesday's midterm. It covers Topics 1 to 8, with most of it on Topics 6 to 8: sampling distributions, hypothesis tests, the t-test and confidence intervals. Bring a calculator, your notes and your questions.
+
+We go over each answer as we go, and then there's time for your questions before the midterm. The quiz is worth 10 points, and being there earns the lab's 3 points (see the [syllabus](/syllabus.qmd#quizzes)).

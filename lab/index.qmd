@@ -38,11 +38,11 @@ We only use functions that work in both, such as `AVERAGE`, `STDEV.S` and `COUNT
 |---|---|---|
 | [Lab 1](01-lab.qmd) | Friday, January 8 | Meet the data |
 | [Lab 2](02-lab.qmd) | Friday, January 15 | Mean, SD and z-scores, after a 15-minute individual check |
-| Lab 3 | Friday, January 22 | Quiz, through probability |
-| Lab 4 | Friday, January 29 | Sampling distributions and the four steps |
-| Lab 5 | Friday, February 5 | Power and the one-sample t-test |
-| Lab 6 | Friday, February 12 | Quiz, as midterm review |
-| Lab 7 | Friday, February 19 | Two samples |
-| Lab 8 | Friday, February 26 | Gains and ANOVA, after a 15-minute individual check |
-| Lab 9 | Friday, March 5 | Correlation and regression |
-| Lab 10 | Friday, March 12 | Quiz, as final review |
+| [Lab 3](03-lab.qmd) | Friday, January 22 | Quiz, through probability |
+| [Lab 4](04-lab.qmd) | Friday, January 29 | Sampling distributions and the four steps |
+| [Lab 5](05-lab.qmd) | Friday, February 5 | Power and the one-sample t-test |
+| [Lab 6](06-lab.qmd) | Friday, February 12 | Quiz, as midterm review |
+| [Lab 7](07-lab.qmd) | Friday, February 19 | Two samples |
+| [Lab 8](08-lab.qmd) | Friday, February 26 | Gains and ANOVA, after a 15-minute individual check |
+| [Lab 9](09-lab.qmd) | Friday, March 5 | Correlation and regression |
+| [Lab 10](10-lab.qmd) | Friday, March 12 | Quiz, as final review |

@@ -1,0 +1,67 @@
+---
+title: "Lab 7: Two samples"
+date: "2027-02-19"
+---
+
+```{r setup}
+#| include: false
+library(tidyverse)
+withr::with_dir(here::here(), targets::tar_load(lab_07_workbook))
+
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+```
+
+Bring a calculator, and a laptop per pair if you can. For part 2, you'll need the t table (Appendix B of the book). For part 3, [download the workbook](/files/labs/lab-07.xlsx) ([how to open it](index.qmd#opening-a-workbook)).
+
+## 1. Your questions and the key ideas
+
+Pritha starts with your questions about Topic 9. Then she goes over the key ideas again: the pooled variance σ̂²<sub>p</sub>, the standard error of a gap between two means, g, and the interval for a gap. Where we write σ̂²<sub>p</sub>, the book writes s²<sub>p</sub>.
+
+## 2. By hand, in pairs (about 10 minutes)
+
+Two small groups of students take the same 20-point quiz. Group 1 practised with feedback, and group 2 practised without it. These numbers are made up.
+
+| Group 1 | Group 2 |
+|:---:|:---:|
+| 14 | 10 |
+| 11 | 13 |
+| 17 | 9 |
+| 12 | 12 |
+| 16 | 11 |
+
+a. Find M and SS for each group.
+b. Find the pooled variance σ̂²<sub>p</sub>, then the standard error of the gap, σ̂<sub>M₁−M₂</sub>.
+c. Run the four steps at α = 0.05, two tails: find t, df and the cutoffs, and decide.
+d. Find g and the 95% interval for the gap. How do they fit with your decision?
+
+## 3. Real data, in pairs (about 10 minutes)
+
+The lottery picked `r sum(baseline$treat == 1)` of the `r nrow(baseline)` students for Mindspark. Did the two groups differ before the program? And after it?
+
+Open the workbook. In the `baseline` and `endline` sheets, column A holds the math scores of the Mindspark group, and column B those of the control group. In the `work` sheet, rows 2 to 9 are filled in for both rounds: click a cell to see its formula. Type these in column B, then copy B10:B15 to C10:C15:
+
+| Row | What | Formula |
+|---|---|---|
+| 10 | σ̂²<sub>p</sub> | `=(B8+B9)/(B2+B5-2)` |
+| 11 | σ̂<sub>M₁−M₂</sub> | `=SQRT(B10/B2+B10/B5)` |
+| 12 | t | `=(B3-B6)/B11` |
+| 13 | df | `=B2+B5-2` |
+| 14 | p, two tails | `=T.DIST.2T(ABS(B12), B13)` |
+| 15 | g | `=(B3-B6)/SQRT(B10)` |
+
+A p shown as 3.5E-05 means 0.000035: move the decimal point 5 places to the left.
+
+a. Before the program: what are t and p? What does that say about the lottery?
+b. After the program: what are t, p and g? What's your decision at α = 0.05?
+c. Why does your answer to a make your answer to b easier to believe?
+
+If you have time, rows 16 and 17 give the 95% interval for the gap: type `=(B3-B6)-T.INV.2T(0.05, B13)*B11` in B16 and `=(B3-B6)+T.INV.2T(0.05, B13)*B11` in B17, then copy them to column C.
+
+## 4. Your sentence (about 5 minutes)
+
+On a slip of paper with your name, write one sentence that a school principal could follow: what does the comparison after the program say about Mindspark's effect on math? Hand it to Pritha. A real attempt earns the lab's 3 points. It doesn't have to be correct.
+
+<p class="small text-muted">Data: Muralidharan, Singh, and Ganimian (2019), CC BY 4.0. See the [Data page](/resource/data.qmd).</p>

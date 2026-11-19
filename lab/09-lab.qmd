@@ -1,0 +1,62 @@
+---
+title: "Lab 9: Correlation and regression"
+date: "2027-03-05"
+---
+
+```{r setup}
+#| include: false
+library(tidyverse)
+withr::with_dir(here::here(), targets::tar_load(lab_09_workbook))
+
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+```
+
+Bring a calculator, and a laptop per pair if you can. For part 3, [download the workbook](/files/labs/lab-09.xlsx) ([how to open it](index.qmd#opening-a-workbook)).
+
+## 1. Your questions and the key ideas
+
+Pritha starts with your questions about Topics 11 and 12. Then she goes over the key ideas again: SP and r, and the line's slope b and intercept a. The book writes the line as Ŷ = bX + a, and we write Ŷ = a + bX. It's the same line.
+
+## 2. By hand, in pairs (about 10 minutes)
+
+Five students report how many hours they practised in a week (X), then take a quiz (Y). These numbers are made up.
+
+| Student | X | Y |
+|:---:|:---:|:---:|
+| 1 | 1 | 4 |
+| 2 | 2 | 6 |
+| 3 | 3 | 5 |
+| 4 | 4 | 9 |
+| 5 | 5 | 11 |
+
+a. Find SS<sub>X</sub>, SS<sub>Y</sub> and SP.
+b. Find r. Describe the direction and the strength of the relationship.
+c. Find b and a, and write the line Ŷ = a + bX.
+d. What score does the line predict for student 4? What's their residual?
+e. What does b mean, in words?
+
+## 3. Real data, in pairs (about 10 minutes)
+
+Open the workbook. The `scores` sheet holds all `r nrow(endline)` students who took both tests, with the baseline score (X) in column B and the endline score (Y) in column C. In the `work` sheet, type these in column B:
+
+| Row | What | Formula |
+|---|---|---|
+| 2 | r | `=CORREL(scores!B:B, scores!C:C)` |
+| 3 | b | `=SLOPE(scores!C:C, scores!B:B)` |
+| 4 | a | `=INTERCEPT(scores!C:C, scores!B:B)` |
+| 5 | r² | `=B2^2` |
+| 6 | Ŷ for a baseline score of 15 | `=B4+B3*15` |
+
+`SLOPE` and `INTERCEPT` take Y first, then X.
+
+a. Write the line for all `r nrow(endline)` students.
+b. A student scored 15 at baseline. What endline score does the line predict? Will that student score exactly that?
+c. What share of the variation in endline scores can the line predict from baseline scores?
+d. If you have time, plot it. Select columns B and C of the `scores` sheet and insert a scatter chart. In Excel, add the line with *Chart Elements > Trendline*. In Google Sheets, it's under *Customize > Series > Trendline* in the chart editor.
+
+## 4. Your sentence (about 5 minutes)
+
+On a slip of paper with your name, write one sentence: what does b say about two students whose baseline scores were 5 points apart? Hand it to Pritha. A real attempt earns the lab's 3 points. It doesn't have to be correct.
+
+<p class="small text-muted">Data: Muralidharan, Singh, and Ganimian (2019), CC BY 4.0. See the [Data page](/resource/data.qmd).</p>
