@@ -34,6 +34,10 @@ What we changed
 - In the codebook, corrected the labels of quint_hindi1 and terc_hindi1, which
   said "math" instead of "Hindi".
 
+The lab workbooks in files/labs/ are built from these CSV files. Each keeps
+a few columns, renamed (student = st_id, math = tot_math, center =
+ms_center1, grade = st_grade1), and credits the source and license.
+
 The course workbook wasn't compared with the replication package, so use the
 package itself if you need the authors' original files. The study's authors
 aren't connected with this course and haven't endorsed it.

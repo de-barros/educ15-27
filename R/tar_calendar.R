@@ -30,9 +30,10 @@ build_schedule_for_page <- function(schedule_file) {
                                 glue('<a href="{content}.qmd" aria-label="Content: {subgroup}"><i class="fa-solid fa-book-open-reader fa-lg" aria-hidden="true"></i></a>'),
                                 glue('<font color="#e9ecef"><i class="fa-solid fa-book-open-reader fa-lg" aria-hidden="true"></i></font>'))) %>%
     # Each topic page embeds its slides in a "Slides" section, so a row with a
-    # content page links there, unless the CSV's resource column says otherwise
+    # topic page links there, unless the CSV's resource column says otherwise.
+    # Lab pages (lab/) have no slides
     mutate(resource = coalesce(as.character(resource),
-                               if_else(!is.na(content), paste0(content, ".qmd#slides"), NA_character_))) %>%
+                               if_else(str_starts(content, "content/"), paste0(content, ".qmd#slides"), NA_character_))) %>%
     mutate(var_resource = ifelse(!is.na(resource),
                                 glue('<a href="{resource}" aria-label="Slides: {title}"><i class="fa-solid fa-person-chalkboard fa-lg" aria-hidden="true"></i></a>'),
                                 glue('<font color="#e9ecef"><i class="fa-solid fa-person-chalkboard fa-lg" aria-hidden="true"></i></font>'))) %>%

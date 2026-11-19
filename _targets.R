@@ -40,6 +40,7 @@ here_rel <- function(...) {fs::path_rel(here::here(...))}
 # Load functions for the pipeline
 source("R/tar_slides.R")
 source("R/tar_calendar.R")
+source("R/tar_labs.R")
 
 
 # THE MAIN PIPELINE ----
@@ -67,6 +68,24 @@ list(
     save_ical(schedule_ical_data, here_rel("files", "schedule.ics")),
     format = "file"
   ),
+
+
+  ## Lab workbooks ----
+  tar_target(baseline_file, here_rel("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"), format = "file"),
+  tar_target(endline_file, here_rel("files", "data", "mindspark", "ms_blel_jpal_endline.csv"), format = "file"),
+  tar_target(
+    lab_01_workbook,
+    build_lab_01_workbook(endline_file, here_rel("files", "labs", "lab-01.xlsx")),
+    format = "file", packages = c("tidyverse", "writexl")
+  ),
+  tar_target(
+    lab_02_workbook,
+    build_lab_02_workbook(baseline_file, endline_file, here_rel("files", "labs", "lab-02.xlsx"),
+                          student_id = "CH080"),
+    format = "file", packages = c("tidyverse", "writexl")
+  ),
+  # Lab pages load this, so the site rebuilds when a workbook changes
+  tar_target(lab_workbooks, c(lab_01_workbook, lab_02_workbook)),
 
 
   ## Render the README ----

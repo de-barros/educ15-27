@@ -28,7 +28,7 @@ ical_url_absolute <- paste0(base_url, schedule_ical_file)
 
 Here's your roadmap for the quarter!
 
-- [**Content**](/content/index.html) ({{< fa book-open-reader >}}): This page contains the readings and other materials for the class. 
+- [**Content**](/content/index.html) ({{< fa book-open-reader >}}): This page contains the readings and other materials for the class. On a lab's row, the same icon opens the lab's handout. 
 
 - **Slides** ({{< fa person-chalkboard >}}): Each of these icons links to my slides for that class.
 

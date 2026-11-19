@@ -1110,6 +1110,11 @@
       "Version": "1.4-7",
       "Source": "Repository"
     },
+    "writexl": {
+      "Package": "writexl",
+      "Version": "2.0.1",
+      "Source": "Repository"
+    },
     "xaringan": {
       "Package": "xaringan",
       "Version": "0.31",

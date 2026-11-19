@@ -1,0 +1,54 @@
+---
+title: "Lab 2: Mean, SD and z-scores"
+date: "2027-01-15"
+---
+
+```{r setup}
+#| include: false
+library(tidyverse)
+withr::with_dir(here::here(), targets::tar_load(lab_02_workbook))
+
+baseline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_baseline.csv"),
+                     show_col_types = FALSE)
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+student <- "CH080"
+b <- baseline$tot_math[baseline$st_id == student]
+e <- endline$tot_math[endline$st_id == student]
+```
+
+Bring a calculator, your notes, and a laptop per pair if you can. For part 3, [download the workbook](/files/labs/lab-02.xlsx) ([how to open it](index.qmd#opening-a-workbook)).
+
+## 1. Individual check (15 minutes)
+
+The lab starts with a 15-minute individual check on Topics 1 to 4. You work on your own, on paper. As on the exams, you can use any print materials, including your notes, and a calculator, but no other devices. The check is worth 10 points (see the [syllabus](/syllabus.qmd#quizzes)).
+
+## 2. Your questions and the key ideas
+
+Pritha goes over the check and takes your questions. Then she goes over the key ideas again: the sum of squares SS, why we divide by n − 1 to estimate the population's SD (σ̂, which the book writes s), and z-scores both ways.
+
+## 3. Real data, in pairs (about 15 minutes)
+
+Between baseline and endline, the average math score rose by about 6 points. Student `r student` went from `r b` to `r e`. Did they move up compared with the other students?
+
+The workbook's `baseline` sheet holds all `r nrow(baseline)` students at baseline, and the `endline` sheet the `r nrow(endline)` at endline. The math score is in column B of each. Fill in the `work` sheet, first for baseline in column B, then for endline in column C:
+
+| Row | What | Formula for baseline (column B) |
+|---|---|---|
+| 2 | n | `=COUNT(baseline!B:B)` |
+| 3 | Mean M | `=AVERAGE(baseline!B:B)` |
+| 4 | σ̂, dividing SS by n − 1 | `=STDEV.S(baseline!B:B)` |
+| 5 | SD, dividing SS by n | `=STDEV.P(baseline!B:B)` |
+| 7 | `r student`'s z-score | `=(B6-B3)/B4` |
+
+For endline, use `endline!B:B` and column C.
+
+a. Rows 4 and 5 divide by n − 1 and by n. Why are they so close here?
+b. Did `r student`'s score go up? Did their z-score go up?
+c. The two tests weren't exactly the same. Why does comparing z-scores help with that?
+
+## 4. Your sentence (about 5 minutes)
+
+On a slip of paper with your name, write one sentence: what happened to `r student`'s z-score between baseline and endline, and what does it mean? Hand it to Pritha. A real attempt earns the lab's 3 points. It doesn't have to be correct.
+
+<p class="small text-muted">Data: Muralidharan, Singh, and Ganimian (2019), CC BY 4.0. See the [Data page](/resource/data.qmd).</p>

@@ -1,0 +1,46 @@
+---
+title: "Lab 1: Meet the data"
+date: "2027-01-08"
+---
+
+```{r setup}
+#| include: false
+library(tidyverse)
+withr::with_dir(here::here(), targets::tar_load(lab_01_workbook))
+
+endline <- read_csv(here::here("files", "data", "mindspark", "ms_blel_jpal_endline.csv"),
+                    show_col_types = FALSE)
+set.seed(108)
+twenty <- sample(endline$tot_math, 20)
+```
+
+Bring a calculator, and a laptop per pair if you can. For part 3, [download the workbook](/files/labs/lab-01.xlsx) ([how to open it](index.qmd#opening-a-workbook)).
+
+## 1. Your questions and the key ideas
+
+Pritha starts with your questions about Topics 1 and 2. Then she goes over the key ideas again: a population and a sample, a parameter and an estimate, and how to build a grouped frequency table.
+
+## 2. By hand, in pairs (about 10 minutes)
+
+At the end of the study, `r nrow(endline)` Mindspark students took the math test again. Here are the scores of `r length(twenty)` of them, drawn at random:
+
+<p class="lead">`r paste(twenty, collapse = ", ")`</p>
+
+a. Make a grouped frequency table with intervals of 5, starting at 0. Check that the f column adds up to `r length(twenty)`.
+b. Which interval has the most students?
+c. Say we care about all `r nrow(endline)` students. Are these `r length(twenty)` a sample or a population? Is their mean a parameter or an estimate? Which symbol do we use for it?
+d. What scale is a student's math score? What scale is their center?
+
+## 3. Real data, in pairs (about 10 minutes)
+
+Open the workbook. The `data` sheet holds all `r nrow(endline)` students, with their math score in column B. The `table` sheet lists the intervals.
+
+a. Count each interval. In the `table` sheet, type `=COUNTIFS(data!B:B, ">="&B2, data!B:B, "<="&C2)` in cell D2, then copy it down to D8. Check that the counts add up to `r nrow(endline)`.
+b. Draw the table. Select the Interval and f columns: select A1:A8, then hold Ctrl (Cmd on a Mac) and select D1:D8. Then insert a column chart. In Excel, it's *Insert > Column or Bar Chart*. In Google Sheets, it's *Insert > Chart*, then *Column chart* under *Chart type*.
+c. Compare your `r length(twenty)` students with all `r nrow(endline)`. Does the peak fall in the same interval?
+
+## 4. Your sentence (about 5 minutes)
+
+On a slip of paper with your name, write one sentence that describes the shape of all `r nrow(endline)` endline scores: where is the peak, and is the shape symmetric or skewed? Hand it to Pritha. A real attempt earns the lab's 3 points. It doesn't have to be correct.
+
+<p class="small text-muted">Data: Muralidharan, Singh, and Ganimian (2019), CC BY 4.0. See the [Data page](/resource/data.qmd).</p>

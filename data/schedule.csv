@@ -1,10 +1,10 @@
 group,subgroup,date,date_end,title,deadline,content,resource,note
 Weekly schedule,Week 1,2027-01-05,,1. Introduction and measurement,,content/01-content,,
 Weekly schedule,Week 1,2027-01-07,,2. Displaying data,,content/02-content,,
-Weekly schedule,Week 1,2027-01-08,,Lab 1: Meet the data,,,,
+Weekly schedule,Week 1,2027-01-08,,Lab 1: Meet the data,,lab/01-lab,,
 Weekly schedule,Week 2,2027-01-12,,3. Central tendency and variability,,content/03-content,,
 Weekly schedule,Week 2,2027-01-14,,4. z-scores,,content/04-content,,
-Weekly schedule,Week 2,2027-01-15,,"Lab 2: Mean, SD and z-scores",,,,Includes a 15-minute individual check
+Weekly schedule,Week 2,2027-01-15,,"Lab 2: Mean, SD and z-scores",,lab/02-lab,,Includes a 15-minute individual check
 Weekly schedule,Week 2,2027-01-17,,Mastery and Problem Set: Chapter 5,6 PM,,,
 Weekly schedule,Week 3,2027-01-19,,5. Probability,,content/05-content,,
 Weekly schedule,Week 3,2027-01-21,,"5. Probability, then 6. Sampling distributions",,content/06-content,,

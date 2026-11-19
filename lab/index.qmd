@@ -1,0 +1,48 @@
+---
+title: "Labs"
+---
+
+```{r set-dependencies, include=FALSE}
+# The site rebuilds when a lab workbook changes
+withr::with_dir(here::here(), {
+  targets::tar_load(lab_workbooks)
+})
+```
+
+The Friday labs are where you bring your questions. {{< var assistant.name_no_title >}} answers them, goes over the week's key ideas again, and shows how the ideas from lecture turn into the calculations you do in MindTap. Then you practise. Go to your own lab: 12:00 PM (Lab A1, EDUC 2009) or 1:00 PM (Lab A2, EDUC 2001).
+
+## How a lab runs
+
+- **Regular labs:** your questions and the key ideas, then a by-hand problem in pairs, then the same idea on real data in a spreadsheet or the [course simulator](/resource/simulator.qmd), and finally one sentence on what the result means, handed in on paper.
+- **Labs 2 and 8** start with a 15-minute individual check, which we go over right after.
+- **Labs 3, 6 and 10** are quiz days. We go over the answers, and there's time for your questions afterward.
+
+The [syllabus](/syllabus.qmd#labs) explains how labs and quizzes count toward your grade. Solutions to each lab are on Canvas.
+
+## What to bring
+
+A calculator, and a laptop if you can. You'll work in pairs, so one laptop per pair is enough.
+
+## Opening a workbook
+
+Each lab's spreadsheet comes ready, with the data already in it. Download it from the lab's page.
+
+- **Excel:** open the file.
+- **Google Sheets:** go to [sheets.google.com](https://sheets.google.com), choose *File > Open*, then the *Upload* tab, and pick the file.
+
+We only use functions that work in both, such as `AVERAGE`, `STDEV.S` and `COUNTIFS`. The data are from the Mindspark study (Muralidharan, Singh, and Ganimian 2019). The [Data page](/resource/data.qmd) has all of them, with the codebook and the license.
+
+## The labs
+
+| Lab | Date | What |
+|---|---|---|
+| [Lab 1](01-lab.qmd) | Friday, January 8 | Meet the data |
+| [Lab 2](02-lab.qmd) | Friday, January 15 | Mean, SD and z-scores, after a 15-minute individual check |
+| Lab 3 | Friday, January 22 | Quiz, through probability |
+| Lab 4 | Friday, January 29 | Sampling distributions and the four steps |
+| Lab 5 | Friday, February 5 | Power and the one-sample t-test |
+| Lab 6 | Friday, February 12 | Quiz, as midterm review |
+| Lab 7 | Friday, February 19 | Two samples |
+| Lab 8 | Friday, February 26 | Gains and ANOVA, after a 15-minute individual check |
+| Lab 9 | Friday, March 5 | Correlation and regression |
+| Lab 10 | Friday, March 12 | Quiz, as final review |
