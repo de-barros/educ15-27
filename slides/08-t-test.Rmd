@@ -218,8 +218,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map. We can test a hypothesis, but so far only when someone hands us the population's SD. This topic removes that crutch. Two sessions, six blocks.
@@ -530,11 +528,13 @@ tribble(
 
 .box-6.small[Then σ̂ is its square root. From here on, n − 1 is the degrees of freedom: df]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). `r reps_text` samples.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 A reminder from Topic 3. "Tends to", not "always": some samples overshoot. And it's the variance estimate that's unbiased. Taking the square root makes σ̂ run a little low: here it averages `r fmt(sd_hat_mean)` against a true σ of `r fmt(sigma)`. Say that only if someone asks.
+
+The picture uses `r reps_text` samples.
 
 ---
 
@@ -630,11 +630,13 @@ ggplot(beyond_long, aes(x = using, y = 100 * share, fill = using)) +
 
 .box-inv-6.small[As n grows, σ̂ gets closer to σ, and the problem fades]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). `r reps_text` samples of each size.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Same scores, same samples, same cutoff. The only difference is what's in the bottom of the fraction. The dashed line is the 5% we promised.
+
+The picture uses `r reps_text` samples of each size.
 
 ---
 
@@ -1061,13 +1063,15 @@ bind_rows(tuition_row(few, "2 to 3 hours of tuition"), tuition_row(many, "More t
 
 .box-inv-5.small[These families chose tuition, so neither test shows that tuition works]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). H₀: μ = `r fmt(mu)`, α = 0.05, two tails.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 The first row is Thursday's try-it. The two values of g are close, and the decisions differ, because one group has more than three times the people.
 
 The last box matters. Stronger students may be the ones whose families pay for tuition. That's the difference between prediction and explanation, and it's why the lottery matters in Mindspark.
+
+Both tests use H₀: μ = `r fmt(mu)`, α = 0.05, two tails.
 
 ---
 

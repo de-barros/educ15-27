@@ -4,7 +4,7 @@
     <title>Regression: the line</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-11-04" />
+    <meta name="date" content="2026-11-05" />
     <script>
 // Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -4736,8 +4736,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map. Topic 11 asked whether two scores go together. Today we use one to predict the other. Regression takes three sessions: the line today, whether the slope is real next Tuesday, and groups next Thursday.
@@ -4779,13 +4777,15 @@ class: title title-1
 
 .box-inv-1.small[The line shows the pattern, describes it in two numbers, and lets us predict]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 539 students. Dots are nudged so equal scores don't hide each other.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Same dots as Topic 11. Topic 11's simulator already drew a line through a cloud, and now we ask what that line is.
 
 Regression finds the straight line that best fits a set of dots. By the end of block 2, "best" will mean something exact.
+
+The dots are nudged so equal scores don't hide each other.
 
 ---
 
@@ -4990,7 +4990,7 @@ Deviations from the mean add up to zero, and that's why variance squares them. T
 &lt;img class="sim-static" src="data:,asset-5" alt="Simulator's correlation view with 12 draggable points in a loose cloud and a regression line. A vertical residual joins each point to the line, and a pink square shows each squared residual. Many squares are large. The readout shows r of 0.30 and a sum of squared residuals of about 2,252."&gt;
 &lt;/div&gt;
 
-.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator-correlation.html).]
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
 
 ???
 
@@ -5027,7 +5027,7 @@ So the squares are a way to see fit. Small squares mean the line fits well, and 
 
 .box-6.small[Regression chooses the a and b that make Σ(Y − Ŷ)² as small as it can be]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32 from Topic 11.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -5043,7 +5043,7 @@ The name is ordinary least squares, or OLS. It's the same regression. No other s
 
 .box-6.small[Every student's spring pulls on the line. Least squares is where they balance]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32 from Topic 11.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -5057,13 +5057,15 @@ Vertical springs, one per student. A spring stores energy with the square of its
 
 .box-inv-6.small[Every slope has a total. b = 2.25 is the only one at the bottom of the curve]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32. Each line goes through the two means.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 This is what "the squares shrink as the line fits" looks like. Walk along the curve from the left: the line gets steeper, the total falls, it bottoms out at 58.5, and then it rises again. Tilt the line past the best slope, and the squares grow back.
 
 A computer doesn't try slopes one at a time. There's a formula for the bottom of the curve, which we use in block 3.
+
+Each line goes through the two means.
 
 ---
 
@@ -5073,7 +5075,7 @@ A computer doesn't try slopes one at a time. There's a formula for the bottom of
 
 .box-inv-6.small[We're predicting Y, so a miss is a distance in Y]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -5178,7 +5180,7 @@ a = M_Y - b M_X = 22.5 - 2.25 \times 10.5 = −1.125
 
 .box-3.small[Their line: Ŷ = −1.125 + 2.25X]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -5196,7 +5198,7 @@ In Lab 9, a spreadsheet's `SLOPE` and `INTERCEPT` do this for all 539 students.
 
 .box-inv-3.small[A student at M&lt;sub&gt;X&lt;/sub&gt; is predicted to land at M&lt;sub&gt;Y&lt;/sub&gt;. That's where a's formula comes from]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -5210,7 +5212,7 @@ This matches the line from 2024, so students now know where it came from. The sa
 
 .box-inv-3.small[A score below 0 is impossible. Predict only inside the scores you saw]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 

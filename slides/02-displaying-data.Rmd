@@ -158,8 +158,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Statistics has three purposes, and we start with the first. Today is about seeing data. Next week we summarize it in a few numbers.
@@ -219,7 +217,7 @@ After-school centers in Delhi, India
 Software that adapts to each child, plus small-group help from a teaching assistant
 ]
 
-.source[Muralidharan, Singh, and Ganimian (2019), *American Economic Review* 109(4). Photo: a Mindspark center.]
+.source[Muralidharan, Singh, and Ganimian (2019), *American Economic Review* 109(4).]
 
 ???
 
@@ -347,11 +345,13 @@ tibble(score = math) %>%
   theme_void()
 ```
 
-.source[All `r n_all` baseline math scores. Data: Muralidharan, Singh, and Ganimian (2019).]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Give them a moment with this. It's all here, and nobody can see a thing. That's the problem today solves.
+
+These are all `r n_all` baseline math scores.
 
 ---
 
@@ -482,7 +482,11 @@ bind_cols(full_table[1:per_col, c("score", "f")],
 
 .box-inv-6.small[The f column adds up to n = `r sum(score_f$f)`, so every student is counted once]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). In the book, this total is written N.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+In the book, this total is written N.
 
 ---
 
@@ -527,11 +531,13 @@ class: title title-8
 
 .box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote: how many fall in 5–9?]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). A random draw of 20 students.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 About 6 minutes. Students who finish early can sketch a histogram of their table, as a preview. Vote by hands.
+
+The 20 students are a random draw.
 
 ---
 

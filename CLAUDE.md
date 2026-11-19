@@ -34,6 +34,7 @@ Run commands from the project root. Outside RStudio, set `RSTUDIO_PANDOC="C:/Pro
 
 - **Rhythm:** each 80-minute session runs about 20 minutes of talk then about 6 of doing, three times. The doing is ungraded: predict it, try it (alone, then a neighbor, then vote), or play it (a quick Jeopardy category by poll). Plan about one real poll per session, because the user has to create those, and use hands or a neighbor for the rest. Nothing scored happens in lecture.
 - **Canvas:** slides are 1210 × 681 px. Under a title there's about 495 px of usable height, or about 450 px with a source line. Size images with max-height classes, not fixed pixels.
+- **Source lines** (`.source[...]`) say only where the data, image or figure comes from, and whether it's made up. A note about the figure (sample sizes, which students, jitter, what the output is) goes in the speaker notes, and a picture's description goes in its alt text, never on the slide. If a source can't be traced, leave the line out instead of describing the picture.
 - **Images** live in `slides/img/` and sit in `.picture[![alt](img/name.png)]`, or `.picture-small[...]` beside other content. Both classes are in each deck's end chunk.
 - **Moving images** start paused, with a Play button, because WCAG 2.2.2 requires a way to stop them. See the Datasaurus in `11-correlation.Rmd`.
 - **Theme classes:** `title title-N`, `section-title section-title-N`, `box-N`, `box-inv-N` (with `.medium`, `.small`, `.sp-after-half`), `.pull-left`, `.pull-right`, `.sr-only`. N runs from 1 to 8.

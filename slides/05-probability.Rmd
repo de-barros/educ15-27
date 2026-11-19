@@ -192,8 +192,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 We can describe a distribution now. Probability is the bridge from describing data to saying something about people we never observed.
@@ -337,7 +335,7 @@ score_bars(function(s) rep(FALSE, length(s)), "n", "Students") +
 
 .box-inv-1.small[They're really a sample from Delhi. For today they're everyone, so we write μ = `r fmt(mu)` and σ = `r fmt(sigma)`]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). `r N` students in Delhi.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 

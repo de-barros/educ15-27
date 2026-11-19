@@ -190,8 +190,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map. Until now we've compared groups. Today each person has two scores, and we ask how the scores go together. It's the first step toward regression, which takes three sessions after this one.
@@ -239,13 +237,15 @@ ggplot(both, aes(x = X, y = Y)) +
   theme_slides()
 ```
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). `r all$n` students. Dots are nudged so equal scores don't hide each other.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Our question from 2024: does a student's baseline score predict their endline score? Every student has two scores, so every student is one dot.
 
 Ask: what do you see? Students who start higher tend to end higher, but there's a lot of scatter. We aren't saying anything about what causes what yet.
+
+The dots are nudged so equal scores don't hide each other.
 
 ---
 
@@ -446,7 +446,7 @@ sim_frame(
 )
 ```
 
-.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator-correlation.html).]
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
 
 ???
 
@@ -605,7 +605,7 @@ ggplot(eight$d, aes(x = X, y = Y)) +
 ```
 ]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -926,7 +926,7 @@ tribble(
 
 .box-3.small[All `r all$n`: t(`r all$df`) = `r fmt(all$t)`, `r p_text(all$p)`, r = `r fmt(all$r)`, 95% CI [`r fmt(all_ci[1])`, `r fmt(all_ci[2])`]]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Software gives the interval for r.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 

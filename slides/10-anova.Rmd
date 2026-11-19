@@ -234,8 +234,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map. In Topic 9, the lottery let us read a gap as an effect. Today's groups are three Mindspark centers, and nobody drew lots for those. So we're back in the middle column: are these populations different? Not: what caused it?
@@ -306,11 +304,13 @@ ggplot(center_pct, aes(x = score, y = pct)) +
 
 .box-inv-1.small[Did the centers differ before the program, or is this sampling error?]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). `r fmt(base$N, 0)` students at baseline.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 These are the three after-school centers from Topic 1. Children weren't sorted into them by a lottery, so a gap here would be a difference, not an effect. A real worry too: if centers start out different, that matters for reading anything later.
+
+There are `r fmt(base$N, 0)` students at baseline.
 
 ---
 
@@ -793,7 +793,7 @@ tribble(
 
 .box-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote: reject or maintain?]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -819,7 +819,7 @@ tribble(
 
 .box-8.small[At least one center's mean differs at endline. F doesn't say which one]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 

@@ -176,8 +176,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map. Topic 11 asked whether two scores go together. Today we use one to predict the other. Regression takes three sessions: the line today, whether the slope is real next Tuesday, and groups next Thursday.
@@ -229,13 +227,15 @@ ggplot(both, aes(x = X, y = Y)) +
 
 .box-inv-1.small[The line shows the pattern, describes it in two numbers, and lets us predict]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). `r all$n` students. Dots are nudged so equal scores don't hide each other.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Same dots as Topic 11. Topic 11's simulator already drew a line through a cloud, and now we ask what that line is.
 
 Regression finds the straight line that best fits a set of dots. By the end of block 2, "best" will mean something exact.
+
+The dots are nudged so equal scores don't hide each other.
 
 ---
 
@@ -480,7 +480,7 @@ sim_frame(
 )
 ```
 
-.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator-correlation.html).]
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
 
 ???
 
@@ -542,7 +542,7 @@ ggplot(squares, aes(x = X, y = Y)) +
 
 .box-6.small[Regression chooses the a and b that make Σ(Y − Ŷ)² as small as it can be]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32 from Topic 11.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -576,7 +576,7 @@ ggplot(eight$d, aes(x = X, y = Y)) +
 
 .box-6.small[Every student's spring pulls on the line. Least squares is where they balance]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32 from Topic 11.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -607,13 +607,15 @@ tibble(b = seq(-0.75, 5.25, length.out = 200)) %>%
 
 .box-inv-6.small[Every slope has a total. b = `r fmt(eight$b)` is the only one at the bottom of the curve]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32. Each line goes through the two means.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 This is what "the squares shrink as the line fits" looks like. Walk along the curve from the left: the line gets steeper, the total falls, it bottoms out at `r fmt(eight$ss_res, 1)`, and then it rises again. Tilt the line past the best slope, and the squares grow back.
 
 A computer doesn't try slopes one at a time. There's a formula for the bottom of the curve, which we use in block 3.
+
+Each line goes through the two means.
 
 ---
 
@@ -643,7 +645,7 @@ ggplot(gaps, aes(x = X, y = Y)) +
 
 .box-inv-6.small[We're predicting Y, so a miss is a distance in Y]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -748,7 +750,7 @@ a = M_Y - b M_X = `r fmt(eight$my, 1)` - `r fmt(eight$b)` \times `r fmt(eight$mx
 
 .box-3.small[Their line: Ŷ = `r fmt(eight$a, 3)` + `r fmt(eight$b)`X]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -779,7 +781,7 @@ ggplot(eight$d, aes(x = X, y = Y)) +
 
 .box-inv-3.small[A student at M<sub>X</sub> is predicted to land at M<sub>Y</sub>. That's where a's formula comes from]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -809,7 +811,7 @@ ggplot(eight$d, aes(x = X, y = Y)) +
 
 .box-inv-3.small[A score below 0 is impossible. Predict only inside the scores you saw]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 

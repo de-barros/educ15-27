@@ -136,8 +136,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map as last week. Today we summarize a whole distribution in two numbers: where it sits and how spread out it is.
@@ -183,7 +181,7 @@ ggplot(score_pct, aes(x = score, y = pct)) +
   theme_slides()
 ```
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). `r n_all` students in Delhi.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -640,7 +638,11 @@ ggplot(est, aes(x = value)) +
 
 .box-inv-8.small[SS / n tends to be too small, though `r round(100 * share_over)`% of samples still overshoot. Dividing by n − 1 lands on target on average]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Samples drawn from those scores.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The samples are drawn from the `r n_all` students' scores.
 
 ---
 

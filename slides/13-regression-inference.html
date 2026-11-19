@@ -4,7 +4,7 @@
     <title>Regression: is the slope real?</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-11-04" />
+    <meta name="date" content="2026-11-05" />
     <script src="libs/header-attrs-2.32/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
@@ -91,8 +91,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map. On Thursday we found a line. Today we ask whether its slope could be a fluke of the sample. It's the last new statistic in our blueprint.
@@ -152,13 +150,15 @@ class: title title-1
 
 .box-inv-1.small[Treat our 539 students as a population. Each sample of 8 gets its own line]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Samples drawn by computer, with replacement. Dots are nudged.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Thursday ended with three slopes: −2.50, 2.25 and 0.76. Same test, same schools. Here's why. Every thin line is a line we might have reported, if a different 8 students had landed in our sample.
 
 Each thin line only runs across its own sample's baseline scores. The short ones are samples with little spread in X, and they swing the most. Hold that thought for the poll.
+
+The samples are drawn by computer, with replacement, and the dots are nudged.
 
 ---
 
@@ -265,7 +265,7 @@ This is the blueprint from Topic 6, and it's the last new row. Panel 1 is what w
 &lt;img class="sim-static" src="img/sim/43f91e7ef29a.png" alt="Simulator at step 7a with 551 samples of 8 pairs. Panel 1 shows a cloud around the population line Y = 2.00 + 0.50 X. Panel 2 shows one sample's 8 dots and its own line. Panel 3 shows the values of b piled up around 0.50, from below 0 to above 1."&gt;
 &lt;/div&gt;
 
-.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
 
 ???
 
@@ -283,13 +283,15 @@ Panel 3's axis fits itself to each preset, so read its numbers before comparing 
 
 .box-inv-1.small[The middle 95% runs from −0.48 to 1.87, and only 0.9% of samples reach 2.25. The SD of this pile is the standard error of b]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 20,000 samples of 8, drawn with replacement.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 The same pile, on our own students. Here we know the answer, because we're treating the 539 as the population, so β = 0.76. In real research, panel 1 goes dark, and one sample has to tell us how wide the pile is. That's the job of block 2.
 
 Students 25 to 32 aren't a random sample, just neighbors in a file. Their slope is high partly because their baseline scores sit so close together, which is the next point.
+
+The pile is 20,000 samples of 8, drawn with replacement.
 
 ---
 
@@ -368,7 +370,7 @@ class: title title-8
 
 .box-inv-8.small[Same number of students. The only change is how far apart they are on X]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 5,000 samples of each, drawn with replacement.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -377,6 +379,8 @@ Topic 11 said a narrow range hides a correlation. Here's the same problem for a 
 Both piles sit close to the same slope: 0.77 and 0.66. Study B draws from the 353 students between 8 and 14.
 
 Design lesson: if you get to choose your X values, spread them out.
+
+The piles are 5,000 samples of each, drawn with replacement.
 
 ---
 
@@ -418,7 +422,7 @@ class: title title-6
 
 .box-6.small[We found b = 2.25. Would a slope that steep be surprising, if the true line were flat?]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -499,7 +503,7 @@ t = \frac{b - \beta}{\hat{\sigma}_b} = \frac{2.25 - 0}{0.637} = 3.53
 
 .box-6.small[3.53 is beyond ±2.447, so we reject H₀: t(6) = 3.53, p = 0.012]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32. SS&lt;sub&gt;residual&lt;/sub&gt; is from Topic 12, SS&lt;sub&gt;X&lt;/sub&gt; from Topic 11.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -537,7 +541,7 @@ Decision wording as in Topic 7: this slope would be surprising if the true line 
 
 .box-6.small[H₀: ρ = 0 and H₀: β = 0 are one question. If r is 0, b is 0]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -642,7 +646,7 @@ The 95% is about the method, as in Topic 8, not about this one interval. The tes
 
 .box-6.small[Plot the misses first. Ours form an even band around 0, so the test is fair]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). All 539 students, jittered so tied scores show.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -653,6 +657,8 @@ What breaking each looks like: a curve, so the misses smile or frown. A fan, so 
 Our data passes. A curve term adds nothing (p = 0.66). The misses have an SD of about 4 to 5.5 points in every band of baseline scores, and their pile is nearly symmetric. Independence is the one a plot can't show: it comes from how the students were sampled.
 
 The same four sit behind the two-sample t and ANOVA, where "even spread" was the equal-variance assumption behind pooling.
+
+The dots are all 539 students, jittered so tied scores show.
 
 ---
 
@@ -855,7 +861,7 @@ r² is the only link between the two pieces: 0.675 × 180.0 = 121.5.
 
 .box-3.small[12.46 is beyond 5.99, so we reject H₀: F(1, 6) = 12.46, p = 0.012]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -924,7 +930,7 @@ When Topic 14 adds a second predictor, each slope gets its own t, and F tests th
 
 &lt;div class="r-output"&gt;&lt;div&gt;Call:                                                             &lt;/div&gt;&lt;div&gt;lm(formula = endline ~ baseline, data = mindspark)                &lt;/div&gt;&lt;div&gt;&amp;nbsp;&lt;/div&gt;&lt;div&gt;Residuals:                                                        &lt;/div&gt;&lt;div&gt;     Min       1Q   Median       3Q      Max                      &lt;/div&gt;&lt;div&gt;&amp;#45;18.0384  &amp;#45;3.5099  &amp;#45;0.1523   3.8722  15.4901                      &lt;/div&gt;&lt;div&gt;&amp;nbsp;&lt;/div&gt;&lt;div&gt;Coefficients:                                                     &lt;/div&gt;&lt;div&gt;            Estimate Std. Error t value Pr(&amp;gt;|t|)                  &lt;/div&gt;&lt;div&gt;(Intercept)  8.86764    0.66623   13.31   &amp;lt;2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;              &lt;span class="r-note"&gt;← a&lt;/span&gt;&lt;/div&gt;&lt;div&gt;baseline     0.76423    0.05678   13.46   &amp;lt;2e&amp;#45;16 &amp;#42;&amp;#42;&amp;#42;              &lt;span class="r-note"&gt;← b, σ̂&lt;sub&gt;b&lt;/sub&gt;, t, p&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&amp;#45;&amp;#45;&amp;#45;                                                               &lt;/div&gt;&lt;div&gt;Signif. codes:  0 '&amp;#42;&amp;#42;&amp;#42;' 0.001 '&amp;#42;&amp;#42;' 0.01 '&amp;#42;' 0.05 '.' 0.1 ' ' 1    &lt;/div&gt;&lt;div&gt;&amp;nbsp;&lt;/div&gt;&lt;div&gt;Residual standard error: 5.163 on 537 degrees of freedom          &lt;span class="r-note"&gt;← √MS&lt;sub&gt;residual&lt;/sub&gt;, df&lt;/span&gt;&lt;/div&gt;&lt;div&gt;Multiple R&amp;#45;squared:  0.2523,  Adjusted R&amp;#45;squared:  0.2509         &lt;span class="r-note"&gt;← r²&lt;/span&gt;&lt;/div&gt;&lt;div&gt;F&amp;#45;statistic: 181.2 on 1 and 537 DF,  p&amp;#45;value: &amp;lt; 2.2e&amp;#45;16           &lt;span class="r-note"&gt;← F = t²&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`. You read this. You won't need to write it.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -1041,7 +1047,7 @@ The stars are a code for p. Scientific notation gets students stuck, so walk thr
 .box-inv-3.small[Stars stand in for p. The constant is a]
 ]
 
-.source[Table made for this slide. Data: Muralidharan, Singh, and Ganimian (2019).]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -1075,11 +1081,13 @@ class: title title-8
 
 .box-8.small[Answer with a neighbor, as a question. Nothing is scored]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). The SES index is a score for each family.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 About 6 minutes. Read one clue at a time, in order. Take answers by hands or by calling out. Each student has a new predictor here, so it's the same output with new numbers.
+
+The SES index is a score for each family.
 
 ---
 

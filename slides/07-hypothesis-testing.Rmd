@@ -296,8 +296,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 We've moved. Until now we described what we saw. From today we use one sample to say something about a population we can't see.

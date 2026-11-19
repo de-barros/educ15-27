@@ -159,8 +159,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Still description. On Tuesday we summarized a whole distribution in two numbers. Today we use those two numbers to say where one score sits.
@@ -210,7 +208,7 @@ ggplot(score_pct, aes(x = score, y = pct)) +
   theme_slides()
 ```
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). `r n_all` students in Delhi.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 

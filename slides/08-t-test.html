@@ -4,7 +4,7 @@
     <title>Introduction to the t-test</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-11-04" />
+    <meta name="date" content="2026-11-05" />
     <script src="libs/header-attrs-2.32/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
@@ -82,8 +82,6 @@ class: title title-8
 .pull-right-3[
 .box-3.medium[Explanation]
 ]
-
-.source[Peter the Anteater at a UC Irvine basketball game.]
 
 ???
 
@@ -393,11 +391,13 @@ Greek means population. A Latin letter or a hat means an estimate. μ here is st
 
 .box-6.small[Then σ̂ is its square root. From here on, n − 1 is the degrees of freedom: df]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 100,000 samples.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 A reminder from Topic 3. "Tends to", not "always": some samples overshoot. And it's the variance estimate that's unbiased. Taking the square root makes σ̂ run a little low: here it averages 3.64 against a true σ of 3.90. Say that only if someone asks.
+
+The picture uses 100,000 samples.
 
 ---
 
@@ -477,11 +477,13 @@ class: title title-6
 
 .box-inv-6.small[As n grows, σ̂ gets closer to σ, and the problem fades]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 100,000 samples of each size.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Same scores, same samples, same cutoff. The only difference is what's in the bottom of the fraction. The dashed line is the 5% we promised.
+
+The picture uses 100,000 samples of each size.
 
 ---
 
@@ -916,13 +918,15 @@ class: title title-5
 
 .box-inv-5.small[These families chose tuition, so neither test shows that tuition works]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). H₀: μ = 11.12, α = 0.05, two tails.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 The first row is Thursday's try-it. The two values of g are close, and the decisions differ, because one group has more than three times the people.
 
 The last box matters. Stronger students may be the ones whose families pay for tuition. That's the difference between prediction and explanation, and it's why the lottery matters in Mindspark.
+
+Both tests use H₀: μ = 11.12, α = 0.05, two tails.
 
 ---
 

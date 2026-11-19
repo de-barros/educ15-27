@@ -222,8 +222,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map. On Thursday we found a line. Today we ask whether its slope could be a fluke of the sample. It's the last new statistic in our blueprint.
@@ -296,13 +294,15 @@ ggplot(both, aes(x = X, y = Y)) +
 
 .box-inv-1.small[Treat our `r all$n` students as a population. Each sample of 8 gets its own line]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Samples drawn by computer, with replacement. Dots are nudged.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Thursday ended with three slopes: `r fmt(five$b)`, `r fmt(eight$b)` and `r fmt(all$b)`. Same test, same schools. Here's why. Every thin line is a line we might have reported, if a different 8 students had landed in our sample.
 
 Each thin line only runs across its own sample's baseline scores. The short ones are samples with little spread in X, and they swing the most. Hold that thought for the poll.
+
+The samples are drawn by computer, with replacement, and the dots are nudged.
 
 ---
 
@@ -363,7 +363,7 @@ sim_frame(
 )
 ```
 
-.source[Simulator after Kristoffer Magnusson, rpsychologist.com. On your phone: [the simulator page](https://educ15.de-barros.com/resource/simulator.html).]
+.source[Simulator after Kristoffer Magnusson, rpsychologist.com.]
 
 ???
 
@@ -394,13 +394,15 @@ tibble(b = draws_8) %>%
 
 .box-inv-1.small[The middle 95% runs from `r fmt(draws_range[1])` to `r fmt(draws_range[2])`, and only `r pct(draws_high, 1)` of samples reach `r fmt(eight$b)`. The SD of this pile is the standard error of b]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 20,000 samples of 8, drawn with replacement.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 The same pile, on our own students. Here we know the answer, because we're treating the `r all$n` as the population, so β = `r fmt(all$b)`. In real research, panel 1 goes dark, and one sample has to tell us how wide the pile is. That's the job of block 2.
 
 Students 25 to 32 aren't a random sample, just neighbors in a file. Their slope is high partly because their baseline scores sit so close together, which is the next point.
+
+The pile is 20,000 samples of 8, drawn with replacement.
 
 ---
 
@@ -497,7 +499,7 @@ ggplot(band_draws, aes(x = b)) +
 
 .box-inv-8.small[Same number of students. The only change is how far apart they are on X]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 5,000 samples of each, drawn with replacement.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -506,6 +508,8 @@ Topic 11 said a narrow range hides a correlation. Here's the same problem for a 
 Both piles sit close to the same slope: `r fmt(mean(draws_any))` and `r fmt(mean(draws_band))`. Study B draws from the `r nrow(band)` students between `r band_lo` and `r band_hi`.
 
 Design lesson: if you get to choose your X values, spread them out.
+
+The piles are 5,000 samples of each, drawn with replacement.
 
 ---
 
@@ -534,7 +538,7 @@ tribble(
 
 .box-6.small[We found b = `r fmt(eight$b)`. Would a slope that steep be surprising, if the true line were flat?]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -617,7 +621,7 @@ t = \frac{b - \beta}{\hat{\sigma}_b} = \frac{`r fmt(eight$b)` - 0}{`r fmt(eight$
 
 .box-6.small[`r fmt(eight$t)` is beyond ±`r fmt(eight$crit, 3)`, so we reject H₀: t(`r eight$df`) = `r fmt(eight$t)`, `r p_text(eight$p)`]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32. SS<sub>residual</sub> is from Topic 12, SS<sub>X</sub> from Topic 11.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -642,7 +646,7 @@ tribble(
 
 .box-6.small[H₀: ρ = 0 and H₀: β = 0 are one question. If r is 0, b is 0]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -747,7 +751,7 @@ tibble(X = mindspark$baseline, miss = resid(fit_base)) %>%
 
 .box-6.small[Plot the misses first. Ours form an even band around 0, so the test is fair]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). All `r all$n` students, jittered so tied scores show.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -758,6 +762,8 @@ What breaking each looks like: a curve, so the misses smile or frown. A fan, so 
 Our data passes. A curve term adds nothing (p = 0.66). The misses have an SD of about 4 to 5.5 points in every band of baseline scores, and their pile is nearly symmetric. Independence is the one a plot can't show: it comes from how the students were sampled.
 
 The same four sit behind the two-sample t and ANOVA, where "even spread" was the equal-variance assumption behind pooling.
+
+The dots are all `r all$n` students, jittered so tied scores show.
 
 ---
 
@@ -919,7 +925,7 @@ tribble(
 
 .box-3.small[`r fmt(eight$f)` is beyond `r fmt(eight$crit_f)`, so we reject H₀: F(1, `r eight$df`) = `r fmt(eight$f)`, `r p_text(eight$p)`]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Students 25 to 32.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -967,7 +973,7 @@ r_block(r_summary(fit_base), list("^\\(Intercept\\)" = "a", "^baseline" = "b, σ
                                   "^Multiple R-squared" = "r²", "^F-statistic" = "F = t²"), width = 66)
 ```
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Output from R, `summary(lm())`. You read this. You won't need to write it.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -1031,7 +1037,7 @@ tribble(
 .box-inv-3.small[Stars stand in for p. The constant is a]
 ]
 
-.source[Table made for this slide. Data: Muralidharan, Singh, and Ganimian (2019).]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -1069,11 +1075,13 @@ r_block(ses_out[keep], width = 66)
 
 .box-8.small[Answer with a neighbor, as a question. Nothing is scored]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). The SES index is a score for each family.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 About 6 minutes. Read one clue at a time, in order. Take answers by hands or by calling out. Each student has a new predictor here, so it's the same output with new numbers.
+
+The SES index is a score for each family.
 
 ---
 

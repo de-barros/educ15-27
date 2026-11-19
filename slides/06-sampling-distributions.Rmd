@@ -197,8 +197,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map. This topic is the last piece of groundwork before we go from a sample to a population. It's the second half of Thursday and all of Tuesday, so five blocks in all.
@@ -701,11 +699,13 @@ ggplot() +
 
 .box-inv-3.small[The law of large numbers: the bigger the sample, the closer M tends to be to μ]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 5,000 samples of each size, treating the `r N` students as a population.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Real scores, not a smooth curve. These are the same 619 students from Topic 3 and Topic 5, still treated as a population, with μ = `r fmt(mu)` and σ = `r fmt(sigma)`. Samples are drawn with replacement. Each panel has the same axes, so width and height compare directly.
+
+The piles are 5,000 samples of each size.
 
 ---
 
@@ -995,7 +995,7 @@ tribble(
 
 .box-5.small[One sample gives an estimate, and a sense of how far off it may be]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). One random sample of 25 from the `r N` baseline scores.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 

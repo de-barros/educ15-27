@@ -4,7 +4,7 @@
     <title>Central tendency and variability</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-11-02" />
+    <meta name="date" content="2026-11-05" />
     <script>
 // Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -330,6 +330,20 @@ th, td { padding: 5px; }
          embedded frame it shrinks math to half size. Fix the size instead. -->
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+
+    <!-- A lazy frame can stay blank when a deck reloads on its slide, so load the
+         simulator on the slide that's showing. -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        function loadSimulators() {
+          document.querySelectorAll(".remark-slides-area .remark-visible .sim-live").forEach(function (frame) {
+            frame.loading = "eager";
+          });
+        }
+        slideshow.on("afterShowSlide", loadSimulators);
+        loadSimulators();
+      });
     </script>
     <style>
 /* 
@@ -4694,8 +4708,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map as last week. Today we summarize a whole distribution in two numbers: where it sits and how spread out it is.
@@ -4735,7 +4747,7 @@ class: title title-1
 
 &lt;img src="data:,asset-0" alt="Bar chart of baseline math scores for 619 Mindspark students. Scores run from 0 to 26 out of 35. The bars rise to a peak of about 12 percent of students at a score of 12, with most students between 7 and 16." width="86%" style="display: block; margin: auto;" /&gt;
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 619 students in Delhi.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -5156,7 +5168,11 @@ class: title title-8
 
 .box-inv-8.small[SS / n tends to be too small, though 28% of samples still overshoot. Dividing by n − 1 lands on target on average]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Samples drawn from those scores.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+The samples are drawn from the 619 students' scores.
 
 ---
 

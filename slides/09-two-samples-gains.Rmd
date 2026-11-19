@@ -203,8 +203,6 @@ class: title title-8
 .anteater[![Peter the Anteater, UC Irvine's mascot, pointing up](img/anteater.jpg)]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Same map. So far, one mean at a time. Now two groups, and that's where explanation starts: a lottery lets us read a gap between groups as the program's effect. Two sessions, six blocks.
@@ -283,11 +281,13 @@ ggplot(endline_groups, aes(x = after, linetype = group, fill = group, color = gr
 
 .box-inv-1.small[The gap is `r fmt(end$M1)` − `r fmt(end$M2)` = **`r fmt(end$gap)` points**. Could that be sampling error?]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). `r end$n1` Mindspark students and `r end$n2` control students.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 The lottery from Topic 1. In Topic 6, we compared this gap with each group's own standard error, and promised a real test, with a standard error for the gap itself. That's today.
+
+There are `r end$n1` Mindspark students and `r end$n2` control students.
 
 ---
 
@@ -615,7 +615,7 @@ class: title title-8
 
 .box-inv-8.small[Is σ̂²<sub>p</sub> nearer `r fmt(small$var1)` or `r fmt(small$var2)`, the two groups' own estimates? Why? Work alone, compare with a neighbor, then we vote]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -639,7 +639,7 @@ class: title title-8
 
 .box-inv-8.small[A plain average would have given `r fmt((small$var1 + small$var2) / 2)`. Pooling doesn't treat 3 students like `r small$n2`]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -823,7 +823,7 @@ class: title title-8
 
 .box-inv-8.small[Find t and g, then decide. Work alone, compare with a neighbor, then we vote]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -849,7 +849,7 @@ class: title title-8
 
 .box-8.small[A similar g to the whole study's `r fmt(end$g)`, and a different decision. With `r center$n1 + center$n2` students, we can't tell]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Endline math.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -945,7 +945,7 @@ five %>%
 
 .box-5.small[Now each student has one number. We've seen what to do with one column of numbers]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). Five Mindspark students, math.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
@@ -1091,11 +1091,13 @@ ggplot(some, aes(x = when, y = score, group = st_id)) +
 
 .box-inv-7.small[A gain takes each student's own starting level out of the picture]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). 40 random Mindspark students.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Across all `r nrow(wide)` students, the correlation between baseline and endline is r = `r fmt(r_all)`. We'll meet r properly in Topic 11. For now, it says how tightly the two scores move together. The population version is ρ.
+
+The dots are 40 random Mindspark students.
 
 ---
 
@@ -1401,11 +1403,13 @@ ggplot(means, aes(x = x, y = score, color = group, linetype = group)) +
   theme_slides()
 ```
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). The `r nrow(wide)` students with both scores.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 This is the picture to remember. The control line is what would have happened anyway. Both lines rise. The program's contribution is how far the Mindspark line ends above the control line.
+
+The lines use the `r nrow(wide)` students with both scores.
 
 ---
 

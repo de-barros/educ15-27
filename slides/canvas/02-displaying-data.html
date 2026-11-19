@@ -4,7 +4,7 @@
     <title>Displaying data</title>
     <meta charset="utf-8" />
     <meta name="author" content="Andreas de Barros" />
-    <meta name="date" content="2026-11-02" />
+    <meta name="date" content="2026-11-05" />
     <script>
 // Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -330,6 +330,20 @@ th, td { padding: 5px; }
          embedded frame it shrinks math to half size. Fix the size instead. -->
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({ CommonHTML: { scale: 118, matchFontHeight: false } });
+    </script>
+
+    <!-- A lazy frame can stay blank when a deck reloads on its slide, so load the
+         simulator on the slide that's showing. -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        function loadSimulators() {
+          document.querySelectorAll(".remark-slides-area .remark-visible .sim-live").forEach(function (frame) {
+            frame.loading = "eager";
+          });
+        }
+        slideshow.on("afterShowSlide", loadSimulators);
+        loadSimulators();
+      });
     </script>
     <style>
 /* 
@@ -4694,8 +4708,6 @@ class: title title-8
 .box-3.medium[Explanation]
 ]
 
-.source[Peter the Anteater at a UC Irvine basketball game.]
-
 ???
 
 Statistics has three purposes, and we start with the first. Today is about seeing data. Next week we summarize it in a few numbers.
@@ -4755,7 +4767,7 @@ After-school centers in Delhi, India
 Software that adapts to each child, plus small-group help from a teaching assistant
 ]
 
-.source[Muralidharan, Singh, and Ganimian (2019), *American Economic Review* 109(4). Photo: a Mindspark center.]
+.source[Muralidharan, Singh, and Ganimian (2019), *American Economic Review* 109(4).]
 
 ???
 
@@ -4942,11 +4954,13 @@ Female and Treatment are coded 1 for yes and 0 for no. Scale check from Tuesday:
 
 &lt;img src="data:,asset-0" alt="A dense wall of all 619 baseline math scores, printed as numbers in rows, in the order they appear in the data file. No pattern is visible." width="90%" style="display: block; margin: auto;" /&gt;
 
-.source[All 619 baseline math scores. Data: Muralidharan, Singh, and Ganimian (2019).]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 Give them a moment with this. It's all here, and nobody can see a thing. That's the problem today solves.
+
+These are all 619 baseline math scores.
 
 ---
 
@@ -5183,7 +5197,11 @@ The book lists the highest score at the top. Either order is fine.
 
 .box-inv-6.small[The f column adds up to n = 619, so every student is counted once]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). In the book, this total is written N.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
+
+???
+
+In the book, this total is written N.
 
 ---
 
@@ -5257,11 +5275,13 @@ class: title title-8
 
 .box-inv-8.small[Work alone for two minutes. Compare with a neighbor. Then we vote: how many fall in 5–9?]
 
-.source[Data: Muralidharan, Singh, and Ganimian (2019). A random draw of 20 students.]
+.source[Data: Muralidharan, Singh, and Ganimian (2019).]
 
 ???
 
 About 6 minutes. Students who finish early can sketch a histogram of their table, as a preview. Vote by hands.
+
+The 20 students are a random draw.
 
 ---
 
