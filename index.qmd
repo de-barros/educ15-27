@@ -37,8 +37,10 @@ withr::with_dir(here::here(), {
 ::: {.g-col-12 .g-col-sm-6 .g-col-md-4}
 ### Teaching assistant
 
-- [{{< fa user >}}]{.fa-li} {{< var assistant.name_no_title >}}
+- [{{< fa user >}}]{.fa-li} [{{< var assistant.name_no_title >}}]({{< var assistant.url >}})
+- [{{< fa university >}}]{.fa-li} {{< var assistant.office >}}
 - [{{< fa envelope >}}]{.fa-li} <a href='mailto:{{< var assistant.email >}}'>{{< var assistant.email >}}</a>
+- [{{< fa calendar-check >}}]{.fa-li} [Schedule an appointment]({{< var assistant.appointment_url >}})
 :::
 
 ::: {.g-col-12 .g-col-sm-6 .g-col-md-4}

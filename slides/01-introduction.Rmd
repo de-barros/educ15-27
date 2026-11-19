@@ -180,10 +180,12 @@ Lectures
 .pull-right[
 .box-inv-1.medium[TA: Pritha Sengupta]
 
+.portrait[![Portrait of Pritha Sengupta, smiling, in front of a sandstone building](img/pritha.png)]
+
 .center[
 Friday labs
 
-Drop-in student hours
+[Student hours on Calendly](https://calendly.com/prithas-uci/30min)
 
 [prithas@uci.edu](mailto:prithas@uci.edu)
 ]
@@ -334,7 +336,7 @@ points %>%
 
 ???
 
-A lab's 3 points are for being there and handing in a real attempt at the sentence, not for being correct. Quiz days earn them for being there.
+A lab's 3 points are for being there and handing in a real attempt at the sentence, not for being correct. On quiz days, being there earns the lab's 3 points, and the quiz is scored on top of that.
 
 ---
 

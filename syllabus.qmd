@@ -17,8 +17,10 @@ title: Syllabus
 ::: {.g-col-12 .g-col-md-4}
 ### Teaching assistant
 
-- [{{< fa user >}}]{.fa-li} {{< var assistant.name_no_title >}}
+- [{{< fa user >}}]{.fa-li} [{{< var assistant.name_no_title >}}]({{< var assistant.url >}})
+- [{{< fa university >}}]{.fa-li} {{< var assistant.office >}}
 - [{{< fa envelope >}}]{.fa-li} <a href='mailto:{{< var assistant.email >}}'>{{< var assistant.email >}}</a>
+- [{{< fa calendar-check >}}]{.fa-li} [Schedule an appointment]({{< var assistant.appointment_url >}})
 :::
 
 ::: {.g-col-12 .g-col-md-4}
@@ -144,9 +146,11 @@ Please bring a calculator to labs and exams. A basic scientific calculator is en
 
 There are five scored events in our Friday labs: a 15-minute individual check in each of Labs 2 and 8, and a quiz in each of Labs 3, 6, and 10. Each is worth 10 points. I'll count your best four. Go to your own lab for each of them.
 
+In an individual check, you work on your own for the first 15 minutes of the lab, and then we move on to the rest of the lab. Each check and quiz covers only what we've covered by the Thursday before it.
+
 ### Labs
 
-Each lab is worth 3 points. In a regular lab, you earn them by being there and handing in a real attempt at the sentence, which doesn't have to be correct. On a quiz day, you earn them by being there. I'll count your best seven of the ten labs.
+Each lab is worth 3 points, quiz days included. In a regular lab, you earn them by being there and handing in a real attempt at the sentence, which doesn't have to be correct. On a quiz day, you earn them by being there, and the quiz is scored on top of that (see [Quizzes](#quizzes)). I'll count your best seven of the ten labs.
 
 ### Mastery Training and Problem Sets
 
@@ -302,7 +306,7 @@ Student hours are set times dedicated to all of you (most professors call these 
 
 It is easiest to meet with me online. [Make an appointment with me here]({{< var instructor.appointment_url >}})—the confirmation e-mail will contain a link for a Zoom meeting (the default). If you prefer an in-person meeting, (1) schedule a Zoom meeting first, then (2) contact me via e-mail, at least one day before our meeting.
 
-{{< var assistant.name_no_title >}} also holds drop-in student hours. She'll share the times in the first lab.
+{{< var assistant.name_no_title >}} also holds student hours, online or in person. [Make an appointment with her here]({{< var assistant.appointment_url >}}).
 
 {{< var instructor.contact_policy >}}
 
