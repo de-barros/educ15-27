@@ -640,7 +640,7 @@ class: title title-8
 .pull-left[
 .box-1.small[Friday, February 12: Lab 6]
 
-Quiz, as midterm review. Bring a calculator
+Quiz, as midterm review. Bring a calculator and your questions
 ]
 
 .pull-right[

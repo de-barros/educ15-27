@@ -1389,7 +1389,7 @@ Topic 6 starts: sampling distributions, from sections 7-1 and 7-2
 .pull-right[
 .box-6.small[This Friday: Lab 3]
 
-Quiz, covering everything through z-scores and probability. Bring a calculator
+Quiz, covering everything through z-scores and probability. Bring a calculator and your questions
 ]
 
 .box-3.small[Mastery and Problem Set for Chapter 6 are due Sunday, January 24 at 6 PM]

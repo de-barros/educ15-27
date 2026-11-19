@@ -95,16 +95,18 @@ The course follows the same routine every week.
 
 - **Before class**: Do the reading for the topic.
 - **Tuesday and Thursday**: Lecture, 12:30–1:50 PM in EDUC 2009. Each class runs about 20 minutes of talk, then a few minutes where you do something (predict, try, or play), three times over. None of it is scored.
-- **Friday**: Lab with {{< var assistant.name_no_title >}}, at 12:00 PM (Lab A1, EDUC 2009) or 1:00 PM (Lab A2, EDUC 2001). Go to the lab you're enrolled in.
+- **Friday**: Lab with {{< var assistant.name_no_title >}}, at 12:00 PM (Lab A1, EDUC 2009) or 1:00 PM (Lab A2, EDUC 2001): your questions, the week's key ideas again, and practice. Go to the lab you're enrolled in.
 - **Sunday, 6 PM**: The week's Mastery Training and Problem Set are due in MindTap, with an automatic one-day extension (see [Late assignments](#late-assignments)).
 
 You can find every class, lab, and due date on the [schedule page](/schedule.qmd).
 
 ### Labs
 
-Seven of our ten Friday labs follow one routine. You solve a by-hand, exam-style problem in pairs, then work on the same idea with real data in a spreadsheet or the [course simulator](/resource/simulator.qmd), and finally write one sentence on what the result means and hand it in. Each lab comes with a one-page handout on this website. Labs 2 and 8 start with a 15-minute individual check.
+The Friday labs are where you bring your questions. {{< var assistant.name_no_title >}} answers them, goes over the week's key ideas again, and shows how the ideas from lecture turn into the calculations you do in MindTap.
 
-The other three labs (Labs 3, 6, and 10) are quiz days. Labs 6 and 10 also review for the exams. We'll explain the format in class.
+Seven of our ten labs follow one routine. {{< var assistant.name_no_title >}} starts with your questions and the key ideas, and works through a problem the way the book sets it up. Then you solve a by-hand, exam-style problem in pairs, work on the same idea with real data in a spreadsheet or the [course simulator](/resource/simulator.qmd), and finally write one sentence on what the result means and hand it in. Each lab comes with a one-page handout on this website. Labs 2 and 8 start with a 15-minute individual check, which we go over right after.
+
+The other three labs (Labs 3, 6, and 10) are quiz days. We go over the answers, and there's time for your questions afterward. Labs 6 and 10 also review for the exams. We'll explain the format in class.
 
 If you can, bring a laptop to lab. You'll work in pairs, so one laptop per pair is enough.
 
@@ -160,7 +162,7 @@ The **Mastery Training** helps you become familiar with the important terms and 
 
 The **Problem Sets** strengthen your knowledge of the concepts and procedures covered in each chapter. You have three attempts, and I keep your highest score. A score of at least 75% earns full credit (5 points), and a score below 75% earns no credit.
 
-MindTap is your practice. The by-hand problems in the Friday labs are what look most like the exams.
+MindTap is your practice. The Friday labs connect it to the lectures, and their by-hand problems are what look most like the exams.
 
 ### Exams
 

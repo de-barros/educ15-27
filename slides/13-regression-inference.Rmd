@@ -1171,7 +1171,7 @@ Regression: groups and interactions. Read section 13-1
 .pull-right[
 .box-6.small[Friday, March 12: Lab 10]
 
-Quiz: final review. Bring a calculator
+Quiz: final review. Bring a calculator and your questions
 ]
 
 .box-3.small[Finals week, March 13 to 19: the final exam. Date to come]

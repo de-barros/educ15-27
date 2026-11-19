@@ -296,9 +296,13 @@ Andy: confirm rooms and times on WebSOC.
 .box-1.small[Regular labs]
 
 .small[
+Your questions, answered
+
+The week's key ideas again
+
 A by-hand problem in pairs
 
-The same idea on real data, in a spreadsheet or the simulator
+The same idea on real data
 
 One written sentence on what it means
 ]
@@ -310,9 +314,11 @@ One written sentence on what it means
 .small[
 A quiz in Labs 3, 6 and 10
 
-Labs 6 and 10 also review for the exams
+Then we go over the answers
 
-We'll explain the format in class
+Time for your questions
+
+Labs 6 and 10 also review for the exams
 ]
 ]
 
@@ -320,7 +326,7 @@ We'll explain the format in class
 
 ???
 
-Three quizzes plus the checks in Labs 2 and 8 make the five Friday events. Go to your own lab. No R for students.
+Pritha leads the labs. Every lab, quiz days included, has time for students' questions, and for the week's key ideas again: how the lectures' ideas turn into the calculations in MindTap. Three quizzes plus the checks in Labs 2 and 8 make the five Friday events. We'll explain the quiz format in class. Go to your own lab. No R for students.
 
 ---
 

@@ -1529,7 +1529,7 @@ Practice problems in pairs. Bring a calculator and your questions
 .pull-right[
 .box-6.small[Friday, February 12: Lab 6]
 
-Quiz, as midterm review. Bring a calculator
+Quiz, as midterm review. Bring a calculator and your questions
 ]
 
 .box-3.small[Sunday, February 14 at 6 PM: Mastery and Problem Set for Chapter 9. The midterm is Tuesday, February 16]
